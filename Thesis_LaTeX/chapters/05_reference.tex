@@ -1,0 +1,194 @@
+\chapter{引用与注释}\label{chap:reference}
+
+本章介绍参考文献引用、脚注和交叉引用的使用方法。
+
+\section{参考文献引用}
+
+在学术论文或科技报告中，通常需要引用相关文献以支持观点或论证。为了方便读者查阅，我们需要在论文中标注参考文献。在 \LaTeX\ 中，可使用 \verb|\cite| 命令引用参考文献。参考文献的外观应符合国标 GB/T 7714，本模板提供两种方式：
+\begin{enumerate}
+    \item 使用 \BibTeX{} 配合 \pkg{gbt7714} 宏包
+    \item 使用 \BibLaTeX{} 配合 \pkg{biblatex-gb7714-2015} 样式包
+\end{enumerate}
+其中，\BibLaTeX{} 方案功能更为丰富（支持 \cs{fullcite}、\cs{footfullcite} 等命令），且由 \texttt{biber} 引擎驱动，对 Unicode 和中文文献支持更好，是本模板的\textbf{默认推荐}方案。不过，\texttt{biber} 的编译速度较 \texttt{bibtex} 慢，在文献条目较多时差异尤为明显。\BibTeX{} 方案编译更快，且部分期刊投稿仍要求使用，如对编译速度敏感或有投稿需求，可设置 \texttt{biblatex=false} 切换至 \BibTeX{} 方案。
+
+两种方式都能实现符合国标的参考文献格式。可通过文档类选项 \texttt{biblatex=true}（默认）或 \texttt{biblatex=false} 进行切换。无论选择哪种方式，均使用 \cs{tjbibresource} 命令在导言区指定参考文献数据库文件，使用 \cs{makereferences} 命令在正文中输出参考文献列表：
+
+\begin{Verbatim}
+\tjbibresource{bib/references.bib}  % 导言区指定 .bib 文件
+...
+\makereferences                     % 正文中输出参考文献
+\end{Verbatim}
+
+如需指定多个 \texttt{.bib} 文件，可用逗号分隔：\verb|\tjbibresource{file1.bib,file2.bib}|。
+
+在正文中，使用 \cs{cite} 命令引用参考文献；\verb|key| 为参考文献数据库中条目的唯一标识符，多个键用逗号分隔：
+
+\begin{Verbatim}
+这是一个引用示例 \cite{book1}。
+多文献引用 \cite{book1,online1}。
+\end{Verbatim}
+
+\cs{cite} 命令产生上标数字引用（如“……方法\textsuperscript{[1,2]}”），适合不影响行文流畅性的场景；\cs{citep}/\cs{parencite} 命令产生行内带括号引用（如“……方法[1,2]”），适合引用本身作为句子成分的场景。
+
+使用 \verb|\cite{key1,key2,key3...}| 命令可在正文中产生带有括号的上标引用的参考文献，如\cite{book1,online1,article1}。以下是使用 \verb|\cite| 命令的引用示例：
+\begin{itemize}
+  \item 普通图书\cite{book1,book2}
+  \item 论文集、会议录\cite{conf1,conf2}
+  \item 科技报告\cite{techreport1,techreport2}
+  \item 学位论文\cite{thesis1,thesis2,thesis3}
+  \item 专利文献\cite{patent1,patent2}
+  \item 专著中析出的文献\cite{inbook1,inbook2}
+  \item 期刊中析出的文献\cite{qin2021,article1,guo_deepseek-r1_2025}
+  \item 报纸中析出的文献\cite{newspaper1,newspaper2}
+  \item 电子文献\cite{online1,online2,online3}
+\end{itemize}
+
+% 以下根据 biblatex 选项自动切换示例：
+%   biblatex=false → \parencite 未定义 → 显示 \citep 示例
+%   biblatex=true  → \parencite 已定义 → 显示 \parencite 示例
+\ifx\parencite\undefined
+% biblatex=false: 使用 BibTeX，行内引用命令为 \citep
+使用 \verb|\citep{key1,key2,key3...}| 命令可以在正文中产生带有括号的引用参考文献。下面是使用 \verb|\citep| 命令的引用示例：
+\begin{itemize}
+  \item 普通图书\citep{book1,book2}
+  \item 论文集、会议录\citep{conf1,conf2}
+  \item 科技报告\citep{techreport1,techreport2}
+  \item 学位论文\citep{thesis1,thesis2,thesis3}
+  \item 专利文献\citep{patent1,patent2}
+  \item 专著中析出的文献\citep{inbook1,inbook2}
+  \item 期刊中析出的文献\citep{qin2021,article1,guo_deepseek-r1_2025}
+  \item 报纸中析出的文献\citep{newspaper1,newspaper2}
+  \item 电子文献\citep{online1,online2,online3}
+\end{itemize}
+\else
+% biblatex=true: 使用 BibLaTeX，行内引用命令为 \parencite
+使用 \verb|\parencite{key1,key2,key3...}| 命令可以在正文中产生带有括号的引用参考文献。下面是使用 \verb|\parencite| 命令的引用示例：
+\begin{itemize}
+  \item 普通图书\parencite{book1,book2}
+  \item 论文集、会议录\parencite{conf1,conf2}
+  \item 科技报告\parencite{techreport1,techreport2}
+  \item 学位论文\parencite{thesis1,thesis2,thesis3}
+  \item 专利文献\parencite{patent1,patent2}
+  \item 专著中析出的文献\parencite{inbook1,inbook2}
+  \item 期刊中析出的文献\parencite{qin2021,article1,guo_deepseek-r1_2025}
+  \item 报纸中析出的文献\parencite{newspaper1,newspaper2}
+  \item 电子文献\parencite{online1,online2,online3}
+\end{itemize}
+\fi
+
+可使用 \verb|\nocite{key1,key2,key3...}| 将参考文献条目加入文献表中，但不在正文中引用。使用 \verb|\nocite{*}| 可将参考文献数据库中的所有条目加入文献表中。
+
+在编写 \texttt{.bib} 文件时，需注意以下常见问题：
+\begin{itemize}
+  \item 每个条目的键值（如 \texttt{book1}）在整个 \texttt{.bib} 文件中必须唯一；
+  \item 常见的条目类型包括 \texttt{@book}（图书）、\texttt{@article}（期刊论文）、\texttt{@inproceedings}（会议论文）、\texttt{@phdthesis}（博士论文）、\texttt{@mastersthesis}（硕士论文）、\texttt{@online}（网络资源）等；
+  \item 中文作者姓名之间使用 \texttt{and} 连接，而非顿号或逗号；
+  \item 建议使用 Zotero、Mendeley 等软件管理参考文献，可自动生成规范的 \texttt{.bib} 文件。
+\end{itemize}
+
+% \fullcite 仅在 biblatex=true 时定义；未定义则跳过本节
+\ifx\fullcite\undefined\else
+\subsection{\BibLaTeX{}特有的引用命令}
+
+当使用 \pkg{biblatex} 宏包时，有一些额外的引用命令可供使用。
+
+\subsubsection{完整引用}
+
+当我们想在正文（非参考文献章节）中插入对某一参考文献的完整引用时，可以使用 \verb|\fullcite{key1}| 命令。下面是使用 \verb|\fullcite| 命令的引用示例：
+
+\begin{itemize}
+    \item \fullcite{qin2021}
+\end{itemize}
+
+\subsubsection{脚注引用}
+
+有时，我们想要用脚注的形式引用某参考文献，那么我们可以使用 \verb|\footfullcite{key1}| 命令\footfullcite{qin2021}.
+\fi
+
+
+\section{脚注}
+
+脚注是一种在文本底部添加注释或补充说明的方式。在 \LaTeX\ 中，可以使用 \verb|\footnote| 命令添加脚注。例如，在文本中需要添加脚注时，可以在需要添加脚注的单词或句子后面使用 \verb|\footnote| 命令，如下所示：
+
+\begin{Verbatim}
+脚注是一种在文本底部添加注释或补充说明的方式\footnote{通常，我们在脚注里也写完整的句子。在文本中使用脚注时，应该遵循学术规范，尽可能引用可信的来源，并注明出处。}。
+\end{Verbatim}
+
+其中，花括号中的文本就是脚注的内容。编译文档后，脚注会出现在页面底部，并自动标上数字：脚注是一种在文本底部添加注释或补充说明的方式\footnote{通常，我们在脚注里也写完整的句子。在文本中使用脚注时，应该遵循学术规范，尽可能引用可信的来源，并注明出处。}。
+
+按 2026 同济模板规范，脚注编号以 \Circled{1}、\Circled{2}、\Circled{3}… 等带圈形式呈现，由模板自动渲染，无需显式切换。
+
+\section{交叉引用}
+
+在文档中，交叉引用是指引用文档中的某个标签或标记，例如章节、图表、公式或页码等。在 \LaTeX\ 中，可以使用 \verb|\label| 命令为文档中的对象添加标签，使用 \verb|\ref| 命令或 \verb|\pageref| 命令进行引用。
+
+为便于管理，建议为标签采用统一的命名前缀：
+\begin{center}
+\begin{tabular}{llll}
+  \toprule
+  章：\verb|chap:a| & 节：\verb|sec:b| & 图：\verb|fig:c| & 表：\verb|tab:d| \\
+  公式：\verb|eq:e| & 算法：\verb|algo:f| & 代码：\verb|lst:g| & 定理：\verb|thm:h| \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+例如，在文档中的某个章节中添加一个标签：
+
+\begin{Verbatim}
+\chapter{引言}
+\label{chap:intro}
+这是一段引言。
+\end{Verbatim}
+
+然后，在文档的其他位置使用 \verb|\ref| 命令来引用这个标签：
+
+\begin{Verbatim}
+请参见第 \ref{chap:intro} 章。
+\end{Verbatim}
+
+这样，就可以在文档中产生“请参见第 X 章”的效果，其中 X 为标签所在章的编号。
+
+类似地，使用 \verb|\pageref| 命令可以引用页面编号。例如：
+
+\begin{Verbatim}
+请参见第 \pageref{chap:intro} 页。
+\end{Verbatim}
+
+这样，就可以在文档中产生“请参见第 X 页”的效果，其中 X 为标签所在页码的编号。
+
+为了免于手动维护“第 X 章 / 图 X / 表 X”等引用词汇，本模板加载了 \pkg{cleveref} 宏包，并提供 \cs{cref} 命令自动根据标签所指对象的类型生成正确的引用词汇：
+
+\begin{Verbatim}
+请参见\cref{chap:intro}。   % 产出：请参见第 1 章。
+\end{Verbatim}
+
+如需自定义引用词汇，可在导言区声明：
+
+\begin{Verbatim}
+\crefname{对象类型}{引用词汇}{引用词汇复数形式}
+\Crefname{对象类型}{引用词汇}{引用词汇复数形式}
+\end{Verbatim}
+
+例如，可以使用以下代码将“定理”引用词汇修改为“命题”：
+\begin{Verbatim}
+\crefname{theorem}{命题}{命题}
+\Crefname{theorem}{命题}{命题}
+\end{Verbatim}
+
+需要同时引用几个并列的对象时，可以直接使用 \verb|\cref| 命令，例如：
+\begin{Verbatim}
+请参见\cref{chap:introduction,chap:conclusion}。
+请参见\cref{chap:introduction,chap:math,chap:reference,chap:float}。
+请参见\cref{chap:introduction,chap:reference,chap:conclusion}。
+请参见\cref{chap:introduction,chap:reference,chap:conclusion,%
+  algo:algorithm,fig:parallel1,tab:firstone}。
+\end{Verbatim}
+
+引用多个对象时，\pkg{cleveref} 会自动合并连续编号为范围，并按类型分组显示：
+\begin{itemize}
+  \item 请参见\cref{chap:introduction,chap:conclusion}。
+  \item 请参见\cref{chap:introduction,chap:math,chap:reference,chap:float}。
+  \item 请参见\cref{chap:introduction,chap:reference,chap:conclusion}。
+  \item 请参见\cref{chap:introduction,chap:reference,chap:conclusion,%
+        algo:algorithm,fig:parallel1,tab:firstone}。
+\end{itemize}

@@ -1,0 +1,46 @@
+\documentclass[
+  oneside,
+  degree=bachelor,
+  fullwidthstop=false,
+  fontset=fandol,
+  times=false,
+  minted=true,
+  biblatex=true,
+]{tongjithesis}
+
+\tjbibresource{bib/note.bib}
+
+\begin{document}
+
+\input{chapters/metadata}
+\MakeCover
+\cleardoublepage
+\MakeInfoPage
+\cleardoublepage
+
+\frontmatter
+\input{chapters/00_abstract}
+
+\clearpage
+\tableofcontents
+% \listoffigures   % 插图清单（根据需要取消注释）
+% \listoftables    % 表格清单（根据需要取消注释）
+\cleardoublepage
+
+\mainmatter
+\input{chapters/01_guide}
+\input{chapters/02_intro}
+\input{chapters/03_float}
+\input{chapters/04_math}
+\input{chapters/05_reference}
+\input{chapters/06_conclusion}
+
+\makereferences
+
+\appendix
+\input{chapters/appendix}
+
+\backmatter
+\input{chapters/ack}
+
+\end{document}
