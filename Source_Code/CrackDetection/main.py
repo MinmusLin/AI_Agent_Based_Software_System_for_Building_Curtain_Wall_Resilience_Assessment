@@ -19,7 +19,7 @@ from PIL import Image
 
 
 APP_ROOT = Path(__file__).resolve().parent
-MODEL_PATH = APP_ROOT / 'model' / 'best_epoch_weights.pth'
+MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 OUTPUT_ROOT = APP_ROOT / 'outputs'
 INPUT_SIZE = 1024
 MIN_REGION_AREA = 20
