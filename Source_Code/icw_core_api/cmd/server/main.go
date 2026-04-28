@@ -30,9 +30,8 @@ func main() {
 	router.Use(gin.Logger(), gin.Recovery(), middlewares.CORS())
 	handlers.RegisterRoutes(router, cfg, coreBizClient)
 
-	log.Printf("icw.core.api service starts running on %s", cfg.CoreApiAddr)
-
 	// Run icw.core.api service
+	log.Printf("icw.core.api service starts running on %s", cfg.CoreApiAddr)
 	if err := router.Run(cfg.CoreApiAddr); err != nil {
 		log.Fatalf("Failed to run icw.core.api service: %v", err)
 	}
