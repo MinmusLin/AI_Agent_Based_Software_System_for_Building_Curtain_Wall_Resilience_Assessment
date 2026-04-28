@@ -30,7 +30,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 	rpcResp := &bizDto.RefreshResponse{}
 	if err := h.rpc.Call("AuthService.Refresh", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("Call icw.core.biz AuthService.Refresh failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		writeRPCError(c, err)
+		response.WriteRPCError(c, err)
 		h.clearRefreshCookie(c)
 		return
 	}

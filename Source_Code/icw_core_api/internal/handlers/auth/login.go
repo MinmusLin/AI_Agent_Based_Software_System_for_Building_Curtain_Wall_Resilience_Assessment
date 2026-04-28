@@ -15,7 +15,7 @@ import (
 // @router /auth/login [POST]
 func (h *Handler) Login(c *gin.Context) {
 	var req dto.LoginRequest
-	if !bindJSON(c, &req) {
+	if !response.BindJSON(c, &req) {
 		return
 	}
 
@@ -27,7 +27,7 @@ func (h *Handler) Login(c *gin.Context) {
 	rpcResp := &bizDto.LoginResponse{}
 	if err := h.rpc.Call("AuthService.Login", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("Call icw.core.biz AuthService.Login failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		writeRPCError(c, err)
+		response.WriteRPCError(c, err)
 		return
 	}
 

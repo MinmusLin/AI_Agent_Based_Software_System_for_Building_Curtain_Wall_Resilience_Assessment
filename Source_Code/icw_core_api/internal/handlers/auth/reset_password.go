@@ -15,7 +15,7 @@ import (
 // @router /auth/reset-password [POST]
 func (h *Handler) ResetPassword(c *gin.Context) {
 	var req dto.ResetPasswordRequest
-	if !bindJSON(c, &req) {
+	if !response.BindJSON(c, &req) {
 		return
 	}
 
@@ -27,7 +27,7 @@ func (h *Handler) ResetPassword(c *gin.Context) {
 	rpcResp := &bizDto.ResetPasswordResponse{}
 	if err := h.rpc.Call("AuthService.ResetPassword", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("Call icw.core.biz AuthService.ResetPassword failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		writeRPCError(c, err)
+		response.WriteRPCError(c, err)
 		return
 	}
 

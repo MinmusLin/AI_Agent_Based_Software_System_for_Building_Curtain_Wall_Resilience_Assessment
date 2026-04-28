@@ -15,7 +15,7 @@ import (
 // @router /auth/register [POST]
 func (h *Handler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
-	if !bindJSON(c, &req) {
+	if !response.BindJSON(c, &req) {
 		return
 	}
 
@@ -28,7 +28,7 @@ func (h *Handler) Register(c *gin.Context) {
 	rpcResp := &bizDto.RegisterResponse{}
 	if err := h.rpc.Call("AuthService.Register", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("Call icw.core.biz AuthService.Register failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		writeRPCError(c, err)
+		response.WriteRPCError(c, err)
 		return
 	}
 

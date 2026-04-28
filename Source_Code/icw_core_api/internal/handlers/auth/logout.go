@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto"
+	authUtils "icw_core_api/internal/handlers/auth/utils"
 	"icw_core_api/internal/response"
 	"icw_core_api/utils"
 	bizDto "icw_core_biz/pkg/dto"
@@ -16,7 +17,7 @@ import (
 func (h *Handler) Logout(c *gin.Context) {
 	refreshToken, _ := c.Cookie(RefreshCookieName)
 	req := dto.LogoutRequest{
-		AccessToken:  bearerToken(c),
+		AccessToken:  authUtils.BearerToken(c),
 		RefreshToken: refreshToken,
 	}
 

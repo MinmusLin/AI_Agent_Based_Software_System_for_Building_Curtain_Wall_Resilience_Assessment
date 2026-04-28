@@ -31,3 +31,19 @@ func Error(c *gin.Context, status int, code, message string) {
 		Message: message,
 	})
 }
+
+func BindJSON(c *gin.Context, out interface{}) bool {
+	if err := c.ShouldBindJSON(out); err != nil {
+		Error(c, http.StatusBadRequest, "BAD_REQUEST", "invalid request body")
+		return false
+	}
+	return true
+}
+
+func WriteRPCError(c *gin.Context, err error) {
+	msg := "unknown error"
+	if err != nil {
+		msg = err.Error()
+	}
+	Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", msg)
+}

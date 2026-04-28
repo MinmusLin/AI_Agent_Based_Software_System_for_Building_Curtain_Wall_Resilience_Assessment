@@ -15,7 +15,7 @@ import (
 // @router /auth/send-email-code [POST]
 func (h *Handler) SendEmailCode(c *gin.Context) {
 	var req dto.SendEmailCodeRequest
-	if !bindJSON(c, &req) {
+	if !response.BindJSON(c, &req) {
 		return
 	}
 
@@ -26,7 +26,7 @@ func (h *Handler) SendEmailCode(c *gin.Context) {
 	rpcResp := &bizDto.SendEmailCodeResponse{}
 	if err := h.rpc.Call("AuthService.SendEmailCode", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("Call icw.core.biz AuthService.SendEmailCode failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		writeRPCError(c, err)
+		response.WriteRPCError(c, err)
 		return
 	}
 
