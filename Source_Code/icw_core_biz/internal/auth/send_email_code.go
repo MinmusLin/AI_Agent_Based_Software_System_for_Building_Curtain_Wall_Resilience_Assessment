@@ -13,6 +13,9 @@ import (
 
 // SendEmailCode 发送邮箱验证码
 func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEmailCodeResponse) error {
+	if req == nil {
+		return rpc_err.BadRequestDefault("request is nil")
+	}
 	ctx := context.Background()
 
 	// 标准化邮箱地址

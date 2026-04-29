@@ -12,6 +12,7 @@ import (
 	bizDto "icw_core_biz/pkg/dto"
 )
 
+// ContextUser 请求上下文用户信息 Key
 const ContextUser = "current_user"
 
 // AuthRequired 登录鉴权中间件

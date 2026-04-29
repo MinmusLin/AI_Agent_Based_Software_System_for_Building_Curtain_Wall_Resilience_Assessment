@@ -29,22 +29,21 @@ func DefaultCode() Code {
 type DetailCode string
 
 const (
-	DetailBadRequest             DetailCode = "BAD_REQUEST"
-	DetailUnauthorized           DetailCode = "UNAUTHORIZED"
-	DetailAccountLocked          DetailCode = "ACCOUNT_LOCKED"
-	DetailInternalError          DetailCode = "INTERNAL_ERROR"
-	DetailInvalidEmailAddress    DetailCode = "INVALID_EMAIL_ADDRESS"
-	DetailEmailAlreadyRegistered DetailCode = "EMAIL_ALREADY_REGISTERED"
-	DetailEmailNotRegistered     DetailCode = "EMAIL_NOT_REGISTERED"
-	DetailSendEmailCodeFailed    DetailCode = "SEND_EMAIL_CODE_FAILED"
-
-	DetailInvalidLoginScene            DetailCode = "INVALID_LOGIN_SCENE"
-	DetailInvalidEmailCodeScene        DetailCode = "INVALID_EMAIL_CODE_SCENE"
-	DetailPasswordTooShort             DetailCode = "PASSWORD_TOO_SHORT"
-	DetailInvalidEmailCode             DetailCode = "INVALID_EMAIL_CODE"
-	DetailEmailCodeExpired             DetailCode = "EMAIL_CODE_EXPIRED"
-	DetailIncorrectEmailCode           DetailCode = "INCORRECT_EMAIL_CODE"
-	DetailEmailCodeSentTooFrequently   DetailCode = "EMAIL_CODE_SENT_TOO_FREQUENTLY"
+	DetailBadRequest                 DetailCode = "BAD_REQUEST"
+	DetailUnauthorized               DetailCode = "UNAUTHORIZED"
+	DetailAccountLocked              DetailCode = "ACCOUNT_LOCKED"
+	DetailInternalError              DetailCode = "INTERNAL_ERROR"
+	DetailInvalidEmailAddress        DetailCode = "INVALID_EMAIL_ADDRESS"
+	DetailEmailAlreadyRegistered     DetailCode = "EMAIL_ALREADY_REGISTERED"
+	DetailEmailNotRegistered         DetailCode = "EMAIL_NOT_REGISTERED"
+	DetailEmailCodeSentTooFrequently DetailCode = "EMAIL_CODE_SENT_TOO_FREQUENTLY"
+	DetailSendEmailCodeFailed        DetailCode = "SEND_EMAIL_CODE_FAILED"
+	DetailPasswordTooShort           DetailCode = "PASSWORD_TOO_SHORT"
+	DetailPasswordTooWeak            DetailCode = "PASSWORD_TOO_WEAK"
+	DetailNameRequired               DetailCode = "NAME_REQUIRED"
+	DetailNameTooLong                DetailCode = "NAME_TOO_LONG"
+	DetailIncorrectEmailCode         DetailCode = "INCORRECT_EMAIL_CODE"
+	// todo below
 	DetailInvalidCredentials           DetailCode = "INVALID_CREDENTIALS"
 	DetailRefreshInProgress            DetailCode = "REFRESH_IN_PROGRESS"
 	DetailSetRefreshReuseLockFailed    DetailCode = "SET_REFRESH_REUSE_LOCK_FAILED"
@@ -59,20 +58,16 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailAccountLocked,
 		DetailInternalError,
 		DetailInvalidEmailAddress,
-		DetailInvalidLoginScene,
-		DetailInvalidEmailCodeScene,
-		DetailPasswordTooShort,
-		DetailInvalidEmailCode,
-		DetailEmailCodeExpired,
-		DetailIncorrectEmailCode,
 		DetailEmailAlreadyRegistered,
 		DetailEmailNotRegistered,
 		DetailEmailCodeSentTooFrequently,
-		DetailInvalidCredentials,
-		DetailRefreshInProgress,
 		DetailSendEmailCodeFailed,
-		DetailSetRefreshReuseLockFailed,
-		DetailUnsupportedTokenResponseType:
+		DetailPasswordTooShort,
+		DetailPasswordTooWeak,
+		DetailNameRequired,
+		DetailNameTooLong,
+		DetailIncorrectEmailCode:
+		// todo below
 		return true
 	default:
 		return false
