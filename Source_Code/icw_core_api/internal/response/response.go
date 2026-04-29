@@ -61,7 +61,7 @@ func WriteRPCError(c *gin.Context, err error) {
 		// 身份认证未通过
 		Error(c, http.StatusUnauthorized, "UNAUTHORIZED", msg)
 	case strings.Contains(msg, "account locked"):
-		// 账号锁定（密码登录失败次数达上限 / 邮箱验证码发送次数达上限）
+		// 账号锁定（登录失败次数达上限）
 		Error(c, http.StatusLocked, "ACCOUNT_LOCKED", msg)
 	default:
 		// 服务器内部错误
