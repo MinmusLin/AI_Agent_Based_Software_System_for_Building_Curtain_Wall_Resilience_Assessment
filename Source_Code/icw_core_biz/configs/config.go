@@ -21,9 +21,10 @@ type Config struct {
 	SMTPPassword    string
 	SMTPFromName    string
 	SMTPFromEmail   string
+	JWTSecret       string
 	EmailCodeSecret string
 	EmailCodeTTL    time.Duration
-	JWTSecret       string
+	LoginFailTTL    time.Duration
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
 }
@@ -41,9 +42,10 @@ func Load() Config {
 		SMTPPassword:    env("SMTP_PASSWORD", ""),
 		SMTPFromName:    env("SMTP_FROM_NAME", ""),
 		SMTPFromEmail:   env("SMTP_FROM_EMAIL", ""),
+		JWTSecret:       env("JWT_SECRET", ""),
 		EmailCodeSecret: env("EMAIL_CODE_SECRET", ""),
 		EmailCodeTTL:    time.Duration(envInt("EMAIL_CODE_TTL_MINUTES", 1)) * time.Minute,
-		JWTSecret:       env("JWT_SECRET", ""),
+		LoginFailTTL:    time.Duration(envInt("LOGIN_FAIL_TTL_MINUTES", 1)) * time.Minute,
 		AccessTokenTTL:  time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES", 1)) * time.Minute,
 		RefreshTokenTTL: time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES", 1)) * time.Minute,
 	}
