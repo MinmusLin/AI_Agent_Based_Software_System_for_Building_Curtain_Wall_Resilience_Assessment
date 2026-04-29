@@ -5,10 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"html"
-	"icw_core_biz/configs"
 	"mime"
 	"net/smtp"
 	"strings"
+
+	"icw_core_biz/configs"
+	"icw_core_biz/internal/auth/consts"
 )
 
 // SMTPRepository SMTP 服务
@@ -52,15 +54,15 @@ func (r *SMTPRepository) SendEmailCode(to, scene, code string) error {
 
 // emailSceneText 根据邮箱业务场景类型生成邮件标题和业务场景名称
 func emailSceneText(scene string) (string, string, error) {
-	switch scene {
-	case "register":
+	switch consts.EmailCodeScene(scene) {
+	case consts.SceneRegister:
 		return "注册验证码 - 建筑幕墙韧性评估软件系统", "账号注册", nil
-	case "login":
+	case consts.SceneLogin:
 		return "登录验证码 - 建筑幕墙韧性评估软件系统", "账号登录", nil
-	case "reset":
+	case consts.SceneReset:
 		return "重置验证码 - 建筑幕墙韧性评估软件系统", "重置密码", nil
 	default:
-		return "", "", errors.New("invalid email scene type")
+		return "", "", errors.New("invalid email code scene")
 	}
 }
 
