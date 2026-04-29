@@ -38,7 +38,7 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 			return err
 		}
 		if exists {
-			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "")
+			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "email already registered")
 		}
 	}
 
@@ -49,7 +49,7 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 			return err
 		}
 		if !exists {
-			return rpc_err.BadRequest(rpc_err.DetailEmailNotRegistered, "")
+			return rpc_err.BadRequest(rpc_err.DetailEmailNotRegistered, "email not registered")
 		}
 	}
 

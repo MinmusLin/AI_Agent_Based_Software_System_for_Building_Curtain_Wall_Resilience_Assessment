@@ -15,10 +15,7 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
 	}
 	ctx := context.Background()
 
-	// 校验 Access Token：
-	// 1. JWT 签名是否正确
-	// 2. Token 是否过期
-	// 3. 签名算法是否是允许的 HMAC
+	// 校验 Access Token 的签名、过期时间和签名算法
 	claims, err := s.tokens.Verify(req.AccessToken)
 	if err != nil {
 		return rpc_err.UnauthorizedDefault(err.Error())
