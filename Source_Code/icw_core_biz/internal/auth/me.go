@@ -30,7 +30,7 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
 	}
 
 	// 按用户 ID 查询用户
-	user, err := s.mysql.FindUserById(ctx, claims.UserID)
+	user, err := s.mysql.FindUserById(ctx, claims.UserId)
 	if err != nil {
 		return err
 	}
