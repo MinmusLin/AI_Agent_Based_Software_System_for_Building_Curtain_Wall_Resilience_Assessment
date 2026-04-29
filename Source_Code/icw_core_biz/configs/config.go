@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Config 服务配置
 type Config struct {
 	CoreBizAddr     string
 	MySQLDSN        string
@@ -27,6 +28,7 @@ type Config struct {
 	RefreshTokenTTL time.Duration
 }
 
+// Load 加载服务配置
 func Load() Config {
 	return Config{
 		CoreBizAddr:     env("ICW_CORE_BIZ_ADDR", "127.0.0.1:8001"),
@@ -47,6 +49,7 @@ func Load() Config {
 	}
 }
 
+// LoadDotEnv 从 .env 文件加载环境变量
 func LoadDotEnv(path string) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -77,6 +80,7 @@ func LoadDotEnv(path string) {
 	}
 }
 
+// env 获取环境变量（String 类型）
 func env(key, fallback string) string {
 	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
 		return value
@@ -84,14 +88,15 @@ func env(key, fallback string) string {
 	return fallback
 }
 
+// envInt 获取环境变量（Int 类型）
 func envInt(key string, fallback int) int {
 	value := strings.TrimSpace(os.Getenv(key))
 	if value == "" {
 		return fallback
 	}
-	parsed, err := strconv.Atoi(value)
+	parsedInt, err := strconv.Atoi(value)
 	if err != nil {
 		return fallback
 	}
-	return parsed
+	return parsedInt
 }

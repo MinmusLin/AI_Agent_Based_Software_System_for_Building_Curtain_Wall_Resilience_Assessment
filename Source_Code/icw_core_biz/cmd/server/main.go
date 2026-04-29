@@ -14,12 +14,13 @@ import (
 	"icw_core_biz/internal/auth"
 )
 
+// main icw.core.biz 服务入口
 func main() {
-	// Load configs
+	// 加载服务配置
 	configs.LoadDotEnv(".env")
 	cfg := configs.Load()
 
-	// Initialize MySQL
+	// 初始化 MySQL
 	dataMySQL, err := sql.Open("mysql", cfg.MySQLDSN)
 	if err != nil {
 		log.Fatalf("Failed to connect to MySQL: %v", err)
@@ -28,7 +29,7 @@ func main() {
 		log.Fatalf("Failed to connect to MySQL: %v", err)
 	}
 
-	// Initialize Redis
+	// 初始化 Redis
 	dataRedis := redis.NewClient(&redis.Options{
 		Addr:     cfg.RedisAddr,
 		Password: cfg.RedisPassword,
@@ -38,13 +39,13 @@ func main() {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 
-	// Initialize RPC service
+	// 注册 RPC 服务
 	authService := auth.NewService(cfg, dataMySQL, dataRedis)
 	if err := rpc.RegisterName("AuthService", authService); err != nil {
 		log.Fatalf("Failed to register auth rpc service: %v", err)
 	}
 
-	// Run icw.core.biz service
+	// 运行 icw.core.biz 服务
 	log.Printf("icw.core.biz service starts running on %s", cfg.CoreBizAddr)
 	listener, err := net.Listen("tcp", cfg.CoreBizAddr)
 	if err != nil {
