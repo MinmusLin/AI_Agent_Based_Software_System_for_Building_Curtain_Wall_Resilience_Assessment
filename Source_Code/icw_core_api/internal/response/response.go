@@ -54,13 +54,13 @@ func WriteRPCError(c *gin.Context, err error) {
 	}
 
 	switch {
-	case strings.HasPrefix(msg, "invalid request"):
+	case strings.Contains(msg, "invalid request"):
 		// 无效请求
 		Error(c, http.StatusBadRequest, "BAD_REQUEST", msg)
-	case strings.HasPrefix(msg, "unauthorized"):
+	case strings.Contains(msg, "unauthorized"):
 		// 身份认证未通过
 		Error(c, http.StatusUnauthorized, "UNAUTHORIZED", msg)
-	case strings.HasPrefix(msg, "account locked"):
+	case strings.Contains(msg, "account locked"):
 		// 账号锁定（密码登录失败次数达上限 / 邮箱验证码发送次数达上限）
 		Error(c, http.StatusLocked, "ACCOUNT_LOCKED", msg)
 	default:

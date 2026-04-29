@@ -27,19 +27,10 @@ func NewLoginResponse(resp *bizDto.LoginResponse) *LoginResponse {
 	}
 }
 
-type LogoutRequest struct {
-	AccessToken  string `json:"-"`
-	RefreshToken string `json:"-"`
-}
-
 type LogoutResponse struct{}
 
 func NewLogoutResponse(_ *bizDto.LogoutResponse) *LogoutResponse {
 	return &LogoutResponse{}
-}
-
-type MeRequest struct {
-	AccessToken string `json:"-"`
 }
 
 type MeResponse struct {
@@ -53,10 +44,6 @@ func NewMeResponse(resp *bizDto.MeResponse) *MeResponse {
 	return &MeResponse{
 		User: NewUser(resp.User),
 	}
-}
-
-type RefreshRequest struct {
-	RefreshToken string `json:"-"`
 }
 
 type RefreshResponse struct {

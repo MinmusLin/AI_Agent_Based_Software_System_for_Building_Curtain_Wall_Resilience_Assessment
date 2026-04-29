@@ -2,30 +2,33 @@ package auth
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto"
-	authUtils "icw_core_api/internal/handlers/auth/utils"
+	"icw_core_api/internal/middlewares"
 	"icw_core_api/internal/response"
 	"icw_core_api/utils"
 	bizDto "icw_core_biz/pkg/dto"
 )
 
-// Me .
+// Me 获取用户信息
 // @router /auth/me [GET]
 func (h *Handler) Me(c *gin.Context) {
-	req := dto.MeRequest{
-		AccessToken: authUtils.BearerToken(c),
-	}
-	if req.AccessToken == "" {
-		response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", "access token is empty")
-		return
+	// 正常路由会先经过 AuthRequired 登录鉴权中间件，预期已经调用过 icw.core.biz AuthService.Me 接口
+	// 优先从 Gin Context 中获取用户信息，避免 RPC 重复调用
+	if value, ok := c.Get(middlewares.ContextUser); ok && value != nil {
+		if user, ok := value.(*bizDto.User); ok && user != nil {
+			response.OK(c, dto.NewMeResponse(&bizDto.MeResponse{
+				User: user,
+			}))
+			return
+		}
 	}
 
+	// 兼容未经过 AuthRequired 登录鉴权中间件的调用场景
 	rpcReq := &bizDto.MeRequest{
-		AccessToken: req.AccessToken,
+		AccessToken: utils.BearerToken(c),
 	}
 	rpcResp := &bizDto.MeResponse{}
 	if err := h.rpc.Call("AuthService.Me", rpcReq, rpcResp); err != nil || rpcResp == nil {

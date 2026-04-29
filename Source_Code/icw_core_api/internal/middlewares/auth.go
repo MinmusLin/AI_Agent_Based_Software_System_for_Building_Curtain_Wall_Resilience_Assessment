@@ -25,22 +25,14 @@ func AuthRequired(coreBizClient *rpc.Client) gin.HandlerFunc {
 			return
 		}
 
-		// 从 HTTP Header 中解析 Bearer Token
-		accessToken := utils.BearerToken(c)
-		if accessToken == "" {
-			response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", "access token is empty")
-			c.Abort()
-			return
-		}
-
 		// 调用 icw.core.biz AuthService.Me 接口完成 Token 校验并获取用户信息
 		rpcReq := &bizDto.MeRequest{
-			AccessToken: accessToken,
+			AccessToken: utils.BearerToken(c),
 		}
 		rpcResp := &bizDto.MeResponse{}
 		if err := coreBizClient.Call("AuthService.Me", rpcReq, rpcResp); err != nil || rpcResp == nil {
 			log.Printf("Call icw.core.biz AuthService.Me failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-			response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", "invalid access token")
+			response.WriteRPCError(c, err)
 			c.Abort()
 			return
 		}

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,29 +11,26 @@ import (
 	bizDto "icw_core_biz/pkg/dto"
 )
 
-// Refresh .
+// Refresh 刷新 Token
 // @router /auth/refresh [POST]
+// 该接口在 Access Token 过期后被前端调用的，因此不要求 Access Token 有效
 func (h *Handler) Refresh(c *gin.Context) {
-	refreshToken, err := c.Cookie(RefreshCookieName)
-	if err != nil || refreshToken == "" {
-		response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", "refresh token is empty")
-		return
-	}
-	req := dto.RefreshRequest{
-		RefreshToken: refreshToken,
-	}
+	// Refresh Token 存在 HttpOnly Cookie 中
+	refreshToken, _ := c.Cookie(RefreshCookieName)
 
 	rpcReq := &bizDto.RefreshRequest{
-		RefreshToken: req.RefreshToken,
+		RefreshToken: refreshToken,
 	}
 	rpcResp := &bizDto.RefreshResponse{}
 	if err := h.rpc.Call("AuthService.Refresh", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("Call icw.core.biz AuthService.Refresh failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 		response.WriteRPCError(c, err)
+		// 旧 Refresh Token 失效
 		h.clearRefreshCookie(c)
 		return
 	}
 
+	// 新 Refresh Token 写入 HttpOnly Cookie，旧 Refresh Token 失效
 	h.setRefreshCookie(c, rpcResp.RefreshToken, rpcResp.RefreshTokenExpiresIn)
 
 	response.OK(c, dto.NewRefreshResponse(rpcResp))
