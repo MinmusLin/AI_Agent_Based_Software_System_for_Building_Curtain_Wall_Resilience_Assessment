@@ -11,7 +11,7 @@ import (
 	bizDto "icw_core_biz/pkg/dto"
 )
 
-// SendEmailCode .
+// SendEmailCode 发送邮箱验证码
 // @router /auth/send-email-code [POST]
 func (h *Handler) SendEmailCode(c *gin.Context) {
 	var req dto.SendEmailCodeRequest

@@ -11,7 +11,7 @@ import (
 	bizDto "icw_core_biz/pkg/dto"
 )
 
-// ResetPassword .
+// ResetPassword 重置密码
 // @router /auth/reset-password [POST]
 func (h *Handler) ResetPassword(c *gin.Context) {
 	var req dto.ResetPasswordRequest

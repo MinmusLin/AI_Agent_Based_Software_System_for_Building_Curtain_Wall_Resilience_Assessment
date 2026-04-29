@@ -11,7 +11,7 @@ import (
 	bizDto "icw_core_biz/pkg/dto"
 )
 
-// Register .
+// Register 注册
 // @router /auth/register [POST]
 func (h *Handler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
