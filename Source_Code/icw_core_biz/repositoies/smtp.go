@@ -52,9 +52,9 @@ func (r *SMTPRepository) SendEmailCode(to, scene, code string) error {
 	return r.send(to, subject, body)
 }
 
-// emailSceneText 根据邮箱业务场景类型生成邮件标题和业务场景名称
+// emailSceneText 根据邮箱验证码业务场景类型生成邮件标题和业务场景名称
 func emailSceneText(scene string) (string, string, error) {
-	switch consts.EmailCodeScene(scene) {
+	switch consts.ParseEmailCodeScene(scene) {
 	case consts.SceneRegister:
 		return "注册验证码 - 建筑幕墙韧性评估软件系统", "账号注册", nil
 	case consts.SceneLogin:

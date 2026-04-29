@@ -2,9 +2,10 @@ package response
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	"icw_core_biz/pkg/rpc_err"
 )
 
 // OKEnvelope 标准成功响应
@@ -40,31 +41,8 @@ func Error(c *gin.Context, status int, code, message string) {
 // BindJSON 绑定 JSON 请求体
 func BindJSON(c *gin.Context, out interface{}) bool {
 	if err := c.ShouldBindJSON(out); err != nil {
-		Error(c, http.StatusBadRequest, "BAD_REQUEST", "bad request")
+		Error(c, http.StatusBadRequest, string(rpc_err.DetailBadRequest), errorMessage(rpc_err.DetailBadRequest))
 		return false
 	}
 	return true
-}
-
-// WriteRPCError 将 RPC 层返回的基础错误转换为 API 层的 HTTP 响应
-func WriteRPCError(c *gin.Context, err error) {
-	msg := "server internal error"
-	if err != nil {
-		msg = err.Error()
-	}
-
-	switch {
-	case strings.Contains(msg, "invalid request"):
-		// 无效请求
-		Error(c, http.StatusBadRequest, "BAD_REQUEST", msg)
-	case strings.Contains(msg, "unauthorized"):
-		// 身份认证未通过
-		Error(c, http.StatusUnauthorized, "UNAUTHORIZED", msg)
-	case strings.Contains(msg, "account locked"):
-		// 账号锁定（登录失败次数达上限）
-		Error(c, http.StatusLocked, "ACCOUNT_LOCKED", msg)
-	default:
-		// 服务器内部错误
-		Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", msg)
-	}
 }
