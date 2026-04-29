@@ -16,11 +16,14 @@ type LoginResponse struct {
 	User        *User  `json:"user"`
 }
 
-func NewLoginResponse(res *bizDto.LoginResponse) *LoginResponse {
+func NewLoginResponse(resp *bizDto.LoginResponse) *LoginResponse {
+	if resp == nil {
+		return &LoginResponse{}
+	}
 	return &LoginResponse{
-		AccessToken: res.AccessToken,
-		ExpiresIn:   res.AccessTokenExpiresIn,
-		User:        NewUser(res.User),
+		AccessToken: resp.AccessToken,
+		ExpiresIn:   resp.AccessTokenExpiresIn,
+		User:        NewUser(resp.User),
 	}
 }
 
@@ -43,9 +46,12 @@ type MeResponse struct {
 	User *User `json:"user"`
 }
 
-func NewMeResponse(res *bizDto.MeResponse) *MeResponse {
+func NewMeResponse(resp *bizDto.MeResponse) *MeResponse {
+	if resp == nil {
+		return &MeResponse{}
+	}
 	return &MeResponse{
-		User: NewUser(res.User),
+		User: NewUser(resp.User),
 	}
 }
 
@@ -59,11 +65,14 @@ type RefreshResponse struct {
 	User        *User  `json:"user"`
 }
 
-func NewRefreshResponse(res *bizDto.RefreshResponse) *RefreshResponse {
+func NewRefreshResponse(resp *bizDto.RefreshResponse) *RefreshResponse {
+	if resp == nil {
+		return &RefreshResponse{}
+	}
 	return &RefreshResponse{
-		AccessToken: res.AccessToken,
-		ExpiresIn:   res.AccessTokenExpiresIn,
-		User:        NewUser(res.User),
+		AccessToken: resp.AccessToken,
+		ExpiresIn:   resp.AccessTokenExpiresIn,
+		User:        NewUser(resp.User),
 	}
 }
 
@@ -78,9 +87,12 @@ type RegisterResponse struct {
 	User *User `json:"user"`
 }
 
-func NewRegisterResponse(res *bizDto.RegisterResponse) *RegisterResponse {
+func NewRegisterResponse(resp *bizDto.RegisterResponse) *RegisterResponse {
+	if resp == nil {
+		return &RegisterResponse{}
+	}
 	return &RegisterResponse{
-		User: NewUser(res.User),
+		User: NewUser(resp.User),
 	}
 }
 
@@ -105,8 +117,11 @@ type SendEmailCodeResponse struct {
 	ExpiresIn int `json:"expires_in"`
 }
 
-func NewSendEmailCodeResponse(res *bizDto.SendEmailCodeResponse) *SendEmailCodeResponse {
+func NewSendEmailCodeResponse(resp *bizDto.SendEmailCodeResponse) *SendEmailCodeResponse {
+	if resp == nil {
+		return &SendEmailCodeResponse{}
+	}
 	return &SendEmailCodeResponse{
-		ExpiresIn: res.ExpiresInSeconds,
+		ExpiresIn: resp.ExpiresInSeconds,
 	}
 }

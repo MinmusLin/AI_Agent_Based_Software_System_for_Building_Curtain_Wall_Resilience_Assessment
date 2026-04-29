@@ -12,6 +12,7 @@ type Config struct {
 	CoreBizAddr string
 }
 
+// Load 加载服务配置
 func Load() Config {
 	return Config{
 		CoreApiAddr: env("ICW_CORE_API_ADDR", "127.0.0.1:8000"),
@@ -19,6 +20,7 @@ func Load() Config {
 	}
 }
 
+// LoadDotEnv 从 .env 文件加载环境变量
 func LoadDotEnv(path string) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -49,6 +51,7 @@ func LoadDotEnv(path string) {
 	}
 }
 
+// env 获取环境变量（String 类型）
 func env(key, fallback string) string {
 	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
 		return value

@@ -11,12 +11,13 @@ import (
 	"icw_core_api/internal/middlewares"
 )
 
+// main icw.core.api 服务入口
 func main() {
-	// Load configs
+	// 加载服务配置
 	configs.LoadDotEnv(".env")
 	cfg := configs.Load()
 
-	// Initialize icw.core.biz service
+	// 初始化 icw.core.biz 服务
 	coreBizClient, err := rpc.Dial("tcp", cfg.CoreBizAddr)
 	if err != nil {
 		log.Fatalf("Failed to connect to icw.core.biz service: %v", err)
@@ -25,12 +26,12 @@ func main() {
 		_ = coreBizClient.Close()
 	}(coreBizClient)
 
-	// Initialize routes
+	// 初始化路由
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery(), middlewares.CORS())
 	handlers.RegisterRoutes(router, cfg, coreBizClient)
 
-	// Run icw.core.api service
+	// 运行 icw.core.api 服务
 	log.Printf("icw.core.api service starts running on %s", cfg.CoreApiAddr)
 	if err := router.Run(cfg.CoreApiAddr); err != nil {
 		log.Fatalf("Failed to run icw.core.api service: %v", err)
