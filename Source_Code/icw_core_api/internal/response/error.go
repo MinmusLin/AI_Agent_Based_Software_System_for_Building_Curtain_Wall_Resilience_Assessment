@@ -25,6 +25,7 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 	rpc_err.DetailNameRequired:               "请输入用户名称",
 	rpc_err.DetailNameTooLong:                "用户名称不能超过 8 个字符",
 	rpc_err.DetailIncorrectEmailCode:         "验证码错误",
+	rpc_err.DetailInvalidCredentials:         "邮箱或密码错误",
 }
 
 // WriteRPCError 将 RPC 标准错误转换为 API 层的 HTTP 响应

@@ -43,11 +43,7 @@ const (
 	DetailNameRequired               DetailCode = "NAME_REQUIRED"
 	DetailNameTooLong                DetailCode = "NAME_TOO_LONG"
 	DetailIncorrectEmailCode         DetailCode = "INCORRECT_EMAIL_CODE"
-	// todo below
-	DetailInvalidCredentials           DetailCode = "INVALID_CREDENTIALS"
-	DetailRefreshInProgress            DetailCode = "REFRESH_IN_PROGRESS"
-	DetailSetRefreshReuseLockFailed    DetailCode = "SET_REFRESH_REUSE_LOCK_FAILED"
-	DetailUnsupportedTokenResponseType DetailCode = "UNSUPPORTED_TOKEN_RESPONSE_TYPE"
+	DetailInvalidCredentials         DetailCode = "INVALID_CREDENTIALS"
 )
 
 // IsDetailCode 判断是否为已定义错误业务代码
@@ -66,8 +62,8 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailPasswordTooWeak,
 		DetailNameRequired,
 		DetailNameTooLong,
-		DetailIncorrectEmailCode:
-		// todo below
+		DetailIncorrectEmailCode,
+		DetailInvalidCredentials:
 		return true
 	default:
 		return false

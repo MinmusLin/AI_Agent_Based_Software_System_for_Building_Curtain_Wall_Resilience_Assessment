@@ -37,13 +37,13 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 		return rpc_err.AccountLocked(rpc_err.DetailAccountLocked, fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
 	}
 
-	// 按邮箱查询用户失败视作登录失败，避免泄露邮箱是否存在
+	// 按邮箱查询用户
 	user, err := s.mysql.FindUserByEmail(ctx, email)
 	if err != nil {
-		_ = s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL)
-		return rpc_err.Unauthorized(rpc_err.DetailInvalidCredentials, err.Error())
+		return err
 	}
 	if user == nil {
+		// 用户不存在视作登录失败，避免泄露邮箱是否存在
 		_ = s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL)
 		return rpc_err.Unauthorized(rpc_err.DetailInvalidCredentials, "user not found")
 	}
