@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"errors"
 	"log"
-	"net/http"
 	"net/rpc"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,7 @@ const ContextUser = "current_user"
 func AuthRequired(coreBizClient *rpc.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if coreBizClient == nil {
-			response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "icw.core.biz client is nil")
+			response.WriteRPCError(c, errors.New("icw.core.biz client is nil"))
 			c.Abort()
 			return
 		}
