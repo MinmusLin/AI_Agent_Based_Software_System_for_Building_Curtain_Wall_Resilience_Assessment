@@ -5,12 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"icw_core_biz/configs"
 	"mime"
 	"net/smtp"
 	"strings"
-	"time"
-
-	"icw_core_biz/configs"
 )
 
 // SMTPRepository SMTP 服务
@@ -30,7 +28,7 @@ func NewSMTPRepository(cfg configs.Config) *SMTPRepository {
 		SMTPPassword:        cfg.SMTPPassword,
 		SMTPFromName:        cfg.SMTPFromName,
 		SMTPFromEmail:       cfg.SMTPFromEmail,
-		EmailCodeTTLMinutes: int(cfg.EmailCodeTTL / time.Minute),
+		EmailCodeTTLMinutes: int(cfg.EmailCodeTTL.Minutes()),
 	}
 }
 
