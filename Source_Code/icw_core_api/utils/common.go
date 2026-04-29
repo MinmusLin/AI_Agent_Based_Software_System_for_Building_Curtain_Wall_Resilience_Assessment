@@ -17,7 +17,7 @@ func JSONF(v interface{}) string {
 }
 
 // BearerToken 从 HTTP Header 中解析 Bearer Token
-// @header Authorization: Bearer <token>
+// Header 格式："Authorization: Bearer <token>"
 func BearerToken(c *gin.Context) string {
 	header := c.GetHeader("Authorization")
 	if header == "" {
