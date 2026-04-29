@@ -11,7 +11,7 @@ import (
 	bizDto "icw_core_biz/pkg/dto"
 )
 
-// Login .
+// Login 登录
 // @router /auth/login [POST]
 func (h *Handler) Login(c *gin.Context) {
 	var req dto.LoginRequest
@@ -31,6 +31,7 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
+	// 新 Refresh Token 写入 HttpOnly Cookie，旧 Refresh Token 失效
 	h.setRefreshCookie(c, rpcResp.RefreshToken, rpcResp.RefreshTokenExpiresIn)
 
 	response.OK(c, dto.NewLoginResponse(rpcResp))
