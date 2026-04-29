@@ -12,8 +12,8 @@ import (
 	"icw_core_biz/pkg/rpc_err"
 )
 
-// Register 注册
-func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse) error {
+// ResetPassword 重置密码
+func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPasswordResponse) error {
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}
@@ -25,19 +25,8 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 		return rpc_err.BadRequest(rpc_err.DetailInvalidEmailAddress, err.Error())
 	}
 
-	// 校验用户名称
-	name, err := utils.ValidateName(req.Name)
-	if err != nil {
-		if errors.Is(err, utils.ErrNameIsEmpty) {
-			return rpc_err.BadRequest(rpc_err.DetailNameRequired, err.Error())
-		} else if errors.Is(err, utils.ErrNameIsEmpty) {
-			return rpc_err.BadRequest(rpc_err.DetailNameTooLong, err.Error())
-		}
-		return err
-	}
-
 	// 校验密码
-	password, err := utils.ValidatePassword(req.Password)
+	password, err := utils.ValidatePassword(req.NewPassword)
 	if err != nil {
 		if errors.Is(err, utils.ErrPasswordTooShort) {
 			return rpc_err.BadRequest(rpc_err.DetailPasswordTooShort, err.Error())
@@ -48,7 +37,7 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 	}
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
-	if err := utils.VerifyEmailCode(ctx, s.redis, s.cfg.EmailCodeSecret, consts.SceneRegister.String(), email, req.EmailCode); err != nil {
+	if err := utils.VerifyEmailCode(ctx, s.redis, s.cfg.EmailCodeSecret, consts.SceneReset.String(), email, req.EmailCode); err != nil {
 		return rpc_err.BadRequest(rpc_err.DetailIncorrectEmailCode, err.Error())
 	}
 
@@ -58,13 +47,12 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 		return err
 	}
 
-	// 创建用户
-	user, err := s.mysql.CreateUser(ctx, email, string(passwordHash), name)
-	if err != nil {
+	// 按邮箱更新用户密码
+	if err := s.mysql.UpdatePasswordByEmail(ctx, email, string(passwordHash)); err != nil {
 		return err
 	}
 
-	// 返回用户信息
-	resp.User = user
+	// 重置密码后吊销所有 Refresh Token
+	_ = s.mysql.RevokeUserRefreshTokensByEmail(ctx, email)
 	return nil
 }
