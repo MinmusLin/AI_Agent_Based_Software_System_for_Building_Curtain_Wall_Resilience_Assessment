@@ -31,7 +31,7 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 		return err
 	}
 	if !ok {
-		return rpc_err.UnauthorizedDefault("")
+		return rpc_err.UnauthorizedDefault("refresh in progress")
 	}
 	defer func(redis *repositoies.RedisRepository, ctx context.Context, tokenId string) {
 		_ = redis.ClearRefreshReuseLock(ctx, tokenId)
@@ -43,12 +43,15 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 		return err
 	}
 	if token == nil || user == nil {
-		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "")
+		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "refresh token not found")
 	}
 
-	// 检查 Token 是否已吊销或过期
-	if token.RevokedAt.Valid || time.Now().After(token.ExpiresAt) {
-		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "")
+	// 检查 Refresh Token 是否已吊销或已过期
+	if token.RevokedAt.Valid {
+		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "refresh token revoked")
+	}
+	if time.Now().After(token.ExpiresAt) {
+		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "refresh token expired")
 	}
 
 	// 签发新的 Access Token 和 Refresh Token
@@ -57,10 +60,11 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 	}
 	newTokenId := utils.ParseRefreshTokenId(resp.RefreshToken)
 	if newTokenId == "" {
-		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "")
+		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "invalid new refresh token")
 	}
 
 	// 吊销旧 Refresh Token
 	_ = s.mysql.ReplaceRefreshToken(ctx, tokenId, newTokenId)
+
 	return nil
 }
