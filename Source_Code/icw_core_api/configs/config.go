@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// Config 服务配置
 type Config struct {
 	CoreApiAddr string
 	CoreBizAddr string
