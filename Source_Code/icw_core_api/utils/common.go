@@ -2,9 +2,13 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	"icw_core_api/configs"
+	bizDto "icw_core_biz/pkg/dto"
 )
 
 // JSONF 将任意结构格式化为 JSON 字符串
@@ -28,4 +32,17 @@ func BearerToken(c *gin.Context) string {
 		return ""
 	}
 	return strings.TrimSpace(strings.TrimPrefix(header, prefix))
+}
+
+// GetCurrentUser 从 Gin Context 中获取当前登录用户
+func GetCurrentUser(c *gin.Context) (*bizDto.User, error) {
+	value, ok := c.Get(configs.ContextUser)
+	if !ok || value == nil {
+		return nil, errors.New("current user not found in Gin context")
+	}
+	user, ok := value.(*bizDto.User)
+	if !ok || user == nil || user.Id == 0 {
+		return nil, errors.New("invalid current user in Gin context")
+	}
+	return user, nil
 }

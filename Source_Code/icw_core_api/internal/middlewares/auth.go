@@ -7,13 +7,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"icw_core_api/configs"
 	"icw_core_api/internal/response"
 	"icw_core_api/utils"
 	bizDto "icw_core_biz/pkg/dto"
 )
-
-// ContextUser 请求上下文用户信息 Key
-const ContextUser = "current_user"
 
 // AuthRequired 登录鉴权中间件
 // 只校验 Access Token，不处理 Refresh Token。Access Token 过期后，前端会收到 401 状态码
@@ -39,7 +37,7 @@ func AuthRequired(coreBizClient *rpc.Client) gin.HandlerFunc {
 		}
 
 		// 将用户信息写入请求上下文，交给后续 Handler 使用
-		c.Set(ContextUser, rpcResp.User)
+		c.Set(configs.ContextUser, rpcResp.User)
 
 		c.Next()
 	}
