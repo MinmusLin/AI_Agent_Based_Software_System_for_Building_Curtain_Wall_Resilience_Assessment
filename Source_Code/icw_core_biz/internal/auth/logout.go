@@ -28,7 +28,7 @@ func (s *Service) Logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
 
 	// 吊销 Refresh Token
 	if tokenId := utils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
-		_ = s.mysql.RevokeRefreshToken(ctx, tokenId)
+		_ = s.mysql.RevokeRefreshTokenByTokenId(ctx, tokenId)
 	}
 
 	return nil

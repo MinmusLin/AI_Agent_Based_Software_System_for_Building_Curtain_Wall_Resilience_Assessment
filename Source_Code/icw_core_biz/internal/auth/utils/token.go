@@ -92,7 +92,7 @@ func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositories.My
 
 	// 签发短期 Access Token
 	// jti 已包含在 Access Token 中，当前函数不需要额外返回
-	accessToken, _, err := tokens.Sign(repositories.UserRecordToDTO(user))
+	accessToken, _, err := tokens.Sign(dto.UserRecordToDTO(user))
 	if err != nil {
 		return err
 	}
@@ -115,16 +115,16 @@ func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositories.My
 		out.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
 		out.RefreshToken = refreshToken
 		out.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
-		out.User = repositories.UserRecordToDTO(user)
+		out.User = dto.UserRecordToDTO(user)
 	case *dto.RefreshResponse:
-		if err := mysql.InsertRefreshToken(ctx, tokenId, user.Id, tokenHash, expiresAt); err != nil {
+		if err := mysql.CreateRefreshSession(ctx, tokenId, user.Id, tokenHash, expiresAt); err != nil {
 			return err
 		}
 		out.AccessToken = accessToken
 		out.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
 		out.RefreshToken = refreshToken
 		out.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
-		out.User = repositories.UserRecordToDTO(user)
+		out.User = dto.UserRecordToDTO(user)
 	default:
 		return rpc_err.InternalErrorDefault("invalid response type")
 	}
