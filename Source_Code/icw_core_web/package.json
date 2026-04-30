@@ -23,7 +23,7 @@
     "dev": "tsc -b && vite",
     "preview": "tsc -b && vite preview",
     "build": "tsc -b && vite build",
-    "fix": "eslint . --fix && prettier --write ."
+    "lint": "eslint . --fix && prettier --write ."
   },
   "engines": {
     "node": ">=20.19.0",
@@ -31,28 +31,28 @@
   },
   "private": true,
   "dependencies": {
-    "@ant-design/icons": "^5.5.1",
-    "antd": "^5.20.2",
-    "axios": "^1.7.4",
+    "@ant-design/icons": "^6.2.2",
+    "antd": "^6.3.7",
+    "axios": "^1.15.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^7.14.2"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/node": "^24.12.2",
+    "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.5.0",
     "eslint": "^10.2.1",
     "eslint-plugin-perfectionist": "^5.9.0",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "postcss": "^8.5.12",
     "prettier": "^3.8.3",
-    "tailwindcss": "^3.4.10",
-    "typescript": "~6.0.2",
-    "typescript-eslint": "^8.58.2",
+    "tailwindcss": "^4.2.4",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.59.1",
     "vite": "^8.0.10"
   }
 }
