@@ -11,14 +11,14 @@ import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
 import type { ResetPasswordRequest } from '../types/auth';
 import { normalizeEmailAddress, normalizeEmailCode, passwordRules } from '../utils/validation';
 
-interface ForgotPasswordFormValues extends ResetPasswordRequest {
+interface ForgetPasswordFormValues extends ResetPasswordRequest {
   confirm_password?: string;
 }
 
-export default function ForgotPasswordPage(): ReactElement {
+export default function ForgetPasswordPage(): ReactElement {
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const [form] = Form.useForm<ForgotPasswordFormValues>();
+  const [form] = Form.useForm<ForgetPasswordFormValues>();
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const { buttonText, isCounting, startCountdown } = useEmailCodeCountdown();
@@ -45,11 +45,11 @@ export default function ForgotPasswordPage(): ReactElement {
     void handleSendCode();
   };
 
-  const submit = (values: ForgotPasswordFormValues): void => {
+  const submit = (values: ForgetPasswordFormValues): void => {
     void handleSubmit(values);
   };
 
-  async function handleSubmit(values: ForgotPasswordFormValues): Promise<void> {
+  async function handleSubmit(values: ForgetPasswordFormValues): Promise<void> {
     setLoading(true);
     try {
       const email = normalizeEmailAddress(values.email);

@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from './components/AppLayout';
 import DashboardPage from './pages/DashboardPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ForgetPasswordPage from './pages/ForgetPasswordPage';
 import LoginPage from './pages/LoginPage';
 import ProjectsPage from './pages/ProjectsPage';
 import RegisterPage from './pages/RegisterPage';
@@ -16,7 +16,7 @@ export default function App(): ReactElement {
       <Route element={<GuestRoute />}>
         <Route element={<LoginPage />} path="/login" />
         <Route element={<RegisterPage />} path="/register" />
-        <Route element={<ForgotPasswordPage />} path="/forgot-password" />
+        <Route element={<ForgetPasswordPage />} path="/forget-password" />
       </Route>
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>

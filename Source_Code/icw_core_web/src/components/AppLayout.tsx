@@ -1,9 +1,17 @@
-import { BarChartOutlined, FolderOpenOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  BarChartOutlined,
+  FolderOpenOutlined,
+  LockOutlined,
+  LogoutOutlined,
+  MailOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { Avatar, Dropdown, Layout, Menu, type MenuProps } from 'antd';
 import type { ReactElement } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthContext';
+import { setPostLogoutRedirect } from '../utils/redirect';
 
 const { Header, Sider, Content } = Layout;
 
@@ -13,6 +21,13 @@ export function AppLayout(): ReactElement {
   const { user, logout } = useAuth();
   const handleLogout = (): void => {
     void logout();
+  };
+  const handleChangePassword = (): void => {
+    setPostLogoutRedirect('/forget-password');
+    void logout();
+  };
+  const handleFeedback = (): void => {
+    window.location.href = 'mailto:minmuslin@outlook.com';
   };
 
   const goDashboard = (): void => {
@@ -37,6 +52,23 @@ export function AppLayout(): ReactElement {
       type: 'divider',
     },
     {
+      key: 'change-password',
+      icon: <LockOutlined />,
+      label: '修改密码',
+      onClick: () => {
+        handleChangePassword();
+      },
+    },
+    {
+      key: 'feedback',
+      icon: <MailOutlined />,
+      label: '问题反馈',
+      onClick: handleFeedback,
+    },
+    {
+      type: 'divider',
+    },
+    {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: '退出登录',
@@ -54,7 +86,7 @@ export function AppLayout(): ReactElement {
       >
         <div className="flex h-16 items-center justify-center gap-2 border-b border-slate-200 px-3">
           <img alt="icw-logo" className="h-8 w-8 shrink-0" src="/icw-logo.png" />
-          <div className="text-base font-semibold text-slate-900">Tongji University</div>
+          <div className="text-base font-semibold text-slate-800">Tongji University</div>
         </div>
         <Menu
           className="app-side-menu"

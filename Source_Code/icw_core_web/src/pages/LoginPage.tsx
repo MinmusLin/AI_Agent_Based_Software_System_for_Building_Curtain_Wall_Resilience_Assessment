@@ -132,7 +132,7 @@ export default function LoginPage(): ReactElement {
         )}
         <div className="mb-5 flex items-center justify-between text-sm">
           <Link to="/register">注册账号</Link>
-          <Link to="/forgot-password">忘记密码</Link>
+          <Link to="/forget-password">忘记密码</Link>
         </div>
         <Button block htmlType="submit" loading={loading} size="large" type="primary">
           登录
