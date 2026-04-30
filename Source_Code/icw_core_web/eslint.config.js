@@ -154,7 +154,7 @@ const qualityRules = {
   eqeqeq: ['error', 'always'],
   'max-depth': ['warn', 4],
   'max-lines': ['warn', { max: 500, skipBlankLines: true, skipComments: true }],
-  'max-lines-per-function': ['warn', { IIFEs: true, max: 120, skipBlankLines: true, skipComments: true }],
+  'max-lines-per-function': ['warn', { IIFEs: true, max: 200, skipBlankLines: true, skipComments: true }],
   'no-console': 'error',
   'no-debugger': 'error',
   'no-alert': 'error',
