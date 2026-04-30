@@ -9,7 +9,7 @@ import { getErrorMessage } from '../api/http';
 import { AuthShell } from '../components/AuthShell';
 import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
 import type { RegisterRequest } from '../types/auth';
-import { normalizeEmailCode, passwordRules } from '../utils/formRules';
+import { normalizeEmailCode, passwordRules } from '../utils/validation';
 
 interface RegisterFormValues extends RegisterRequest {
   confirm_password?: string;

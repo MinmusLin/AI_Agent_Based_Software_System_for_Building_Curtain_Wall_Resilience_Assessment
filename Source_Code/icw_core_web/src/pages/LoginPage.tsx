@@ -9,7 +9,7 @@ import { getErrorMessage } from '../api/http';
 import { AuthShell } from '../components/AuthShell';
 import { useAuth } from '../contexts/AuthContext';
 import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
-import { normalizeEmailCode } from '../utils/formRules';
+import { normalizeEmailCode } from '../utils/validation';
 
 type LoginMode = 'password' | 'email';
 

@@ -9,7 +9,7 @@ import { getErrorMessage } from '../api/http';
 import { AuthShell } from '../components/AuthShell';
 import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
 import type { ResetPasswordRequest } from '../types/auth';
-import { normalizeEmailCode, passwordRules } from '../utils/formRules';
+import { normalizeEmailCode, passwordRules } from '../utils/validation';
 
 interface ForgotPasswordFormValues extends ResetPasswordRequest {
   confirm_password?: string;
