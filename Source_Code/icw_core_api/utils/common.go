@@ -41,7 +41,7 @@ func GetCurrentUser(c *gin.Context) (*bizDto.User, error) {
 		return nil, errors.New("current user not found in Gin context")
 	}
 	user, ok := value.(*bizDto.User)
-	if !ok || user == nil || user.Id == 0 {
+	if !ok || user == nil || user.Id == 0 || user.Email == "" || user.Name == "" {
 		return nil, errors.New("invalid current user in Gin context")
 	}
 	return user, nil

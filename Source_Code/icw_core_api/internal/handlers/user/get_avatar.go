@@ -1,0 +1,35 @@
+package user
+
+import (
+	"log"
+
+	"github.com/gin-gonic/gin"
+
+	"icw_core_api/internal/dto"
+	"icw_core_api/internal/response"
+	"icw_core_api/utils"
+	bizDto "icw_core_biz/pkg/dto"
+)
+
+// GetAvatar 获取用户头像
+// @router /user/avatar [GET]
+func (h *Handler) GetAvatar(c *gin.Context) {
+	user, err := utils.GetCurrentUser(c)
+	if err != nil {
+		response.WriteRPCError(c, err)
+		return
+	}
+
+	rpcReq := &bizDto.GetAvatarRequest{
+		UserId: user.Id,
+		Email:  user.Email,
+	}
+	rpcResp := &bizDto.GetAvatarResponse{}
+	if err := h.rpc.Call("UserService.GetAvatar", rpcReq, rpcResp); err != nil || rpcResp == nil {
+		log.Printf("[ERROR] Call icw.core.biz UserService.GetAvatar failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+		response.WriteRPCError(c, err)
+		return
+	}
+
+	response.OK(c, dto.NewGetAvatarResponse(rpcResp))
+}
