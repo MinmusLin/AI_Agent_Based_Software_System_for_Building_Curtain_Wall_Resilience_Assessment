@@ -7,11 +7,12 @@ import (
 	"net"
 	"net/rpc"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/redis/go-redis/v9"
 
 	"icw_core_biz/configs"
 	"icw_core_biz/internal/auth"
+	"icw_core_biz/internal/user"
+	"icw_core_biz/repositories/minio"
 )
 
 // main icw.core.biz 服务入口
@@ -42,8 +43,21 @@ func main() {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 
+	// 初始化 MinIO
+	dataMinIO, err := minio.NewRepository(cfg)
+	if err != nil {
+		log.Fatalf("Failed to connect to MinIO: %v", err)
+	}
+	if err := dataMinIO.Ping(context.Background()); err != nil {
+		log.Fatalf("Failed to connect to MinIO: %v", err)
+	}
+
 	// 注册 RPC 服务
-	authService := auth.NewService(cfg, dataMySQL, dataRedis)
+	userService := user.NewService(cfg, dataMinIO)
+	if err := rpc.RegisterName("UserService", userService); err != nil {
+		log.Fatalf("Failed to register user rpc service: %v", err)
+	}
+	authService := auth.NewService(cfg, dataMySQL, dataRedis, userService)
 	if err := rpc.RegisterName("AuthService", authService); err != nil {
 		log.Fatalf("Failed to register auth rpc service: %v", err)
 	}

@@ -12,22 +12,28 @@ import (
 
 // Config 服务配置
 type Config struct {
-	CoreBizAddr     string
-	MySQLDSN        string
-	RedisAddr       string
-	RedisPassword   string
-	RedisDB         int
-	SMTPHost        string
-	SMTPPort        int
-	SMTPPassword    string
-	SMTPFromName    string
-	SMTPFromEmail   string
-	JWTSecret       string
-	EmailCodeSecret string
-	EmailCodeTTL    time.Duration
-	LoginFailTTL    time.Duration
-	AccessTokenTTL  time.Duration
-	RefreshTokenTTL time.Duration
+	CoreBizAddr       string
+	MySQLDSN          string
+	RedisAddr         string
+	RedisPassword     string
+	RedisDB           int
+	SMTPHost          string
+	SMTPPort          int
+	SMTPPassword      string
+	SMTPFromName      string
+	SMTPFromEmail     string
+	MinIOEndpoint     string
+	MinIOAccessKey    string
+	MinIOAccessSecret string
+	MinIOBucket       string
+	JWTSecret         string
+	EmailCodeSecret   string
+	EmailCodeTTL      time.Duration
+	LoginFailTTL      time.Duration
+	AccessTokenTTL    time.Duration
+	RefreshTokenTTL   time.Duration
+	AvatarGetTTL      time.Duration
+	AvatarUploadTTL   time.Duration
 }
 
 // Validate 校验服务配置
@@ -45,6 +51,10 @@ func (cfg *Config) Validate() error {
 		{key: "SMTP_PASSWORD", value: cfg.SMTPPassword},
 		{key: "SMTP_FROM_NAME", value: cfg.SMTPFromName},
 		{key: "SMTP_FROM_EMAIL", value: cfg.SMTPFromEmail},
+		{key: "MINIO_ENDPOINT", value: cfg.MinIOEndpoint},
+		{key: "MINIO_ACCESS_KEY", value: cfg.MinIOAccessKey},
+		{key: "MINIO_ACCESS_SECRET", value: cfg.MinIOAccessSecret},
+		{key: "MINIO_BUCKET", value: cfg.MinIOBucket},
 		{key: "JWT_SECRET", value: cfg.JWTSecret},
 		{key: "EMAIL_CODE_SECRET", value: cfg.EmailCodeSecret},
 	}
@@ -71,6 +81,12 @@ func (cfg *Config) Validate() error {
 	if cfg.RefreshTokenTTL <= 0 {
 		problems = append(problems, "REFRESH_TOKEN_TTL_MINUTES must be greater than 0")
 	}
+	if cfg.AvatarGetTTL <= 0 {
+		problems = append(problems, "AVATAR_GET_TTL_MINUTES must be greater than 0")
+	}
+	if cfg.AvatarUploadTTL <= 0 {
+		problems = append(problems, "AVATAR_UPLOAD_TTL_MINUTES must be greater than 0")
+	}
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "; "))
 	}
@@ -80,22 +96,28 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		CoreBizAddr:     env("ICW_CORE_BIZ_ADDR"),
-		MySQLDSN:        env("MYSQL_DSN"),
-		RedisAddr:       env("REDIS_ADDR"),
-		RedisPassword:   env("REDIS_PASSWORD"),
-		RedisDB:         envInt("REDIS_DB"),
-		SMTPHost:        env("SMTP_HOST"),
-		SMTPPort:        envInt("SMTP_PORT"),
-		SMTPPassword:    env("SMTP_PASSWORD"),
-		SMTPFromName:    env("SMTP_FROM_NAME"),
-		SMTPFromEmail:   env("SMTP_FROM_EMAIL"),
-		JWTSecret:       env("JWT_SECRET"),
-		EmailCodeSecret: env("EMAIL_CODE_SECRET"),
-		EmailCodeTTL:    time.Duration(envInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
-		LoginFailTTL:    time.Duration(envInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
-		AccessTokenTTL:  time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
-		RefreshTokenTTL: time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
+		CoreBizAddr:       env("ICW_CORE_BIZ_ADDR"),
+		MySQLDSN:          env("MYSQL_DSN"),
+		RedisAddr:         env("REDIS_ADDR"),
+		RedisPassword:     env("REDIS_PASSWORD"),
+		RedisDB:           envInt("REDIS_DB"),
+		SMTPHost:          env("SMTP_HOST"),
+		SMTPPort:          envInt("SMTP_PORT"),
+		SMTPPassword:      env("SMTP_PASSWORD"),
+		SMTPFromName:      env("SMTP_FROM_NAME"),
+		SMTPFromEmail:     env("SMTP_FROM_EMAIL"),
+		MinIOEndpoint:     env("MINIO_ENDPOINT"),
+		MinIOAccessKey:    env("MINIO_ACCESS_KEY"),
+		MinIOAccessSecret: env("MINIO_ACCESS_SECRET"),
+		MinIOBucket:       env("MINIO_BUCKET"),
+		JWTSecret:         env("JWT_SECRET"),
+		EmailCodeSecret:   env("EMAIL_CODE_SECRET"),
+		EmailCodeTTL:      time.Duration(envInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
+		LoginFailTTL:      time.Duration(envInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
+		AccessTokenTTL:    time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
+		RefreshTokenTTL:   time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
+		AvatarGetTTL:      time.Duration(envInt("AVATAR_GET_TTL_MINUTES")) * time.Minute,
+		AvatarUploadTTL:   time.Duration(envInt("AVATAR_UPLOAD_TTL_MINUTES")) * time.Minute,
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err

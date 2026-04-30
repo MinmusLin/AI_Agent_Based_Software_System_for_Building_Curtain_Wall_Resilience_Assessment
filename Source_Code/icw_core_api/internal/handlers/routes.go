@@ -37,7 +37,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 		auth.POST("/send-email-code", authHandler.SendEmailCode)
 	}
 
-	// 用户行为 Handler
+	// 用户业务 Handler
 	userHandler := userHandlers.NewHandler(coreBizClient)
 	user := router.Group("/user")
 	user.Use(middlewares.AuthRequired(coreBizClient))
