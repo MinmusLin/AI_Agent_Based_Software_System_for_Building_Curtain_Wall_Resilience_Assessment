@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"log"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -62,7 +63,9 @@ func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, resp *dto.ResetPa
 	}
 
 	// 重置密码后吊销所有 Refresh Token
-	_ = s.mysql.RevokeUserRefreshTokensByEmail(ctx, email)
+	if err := s.mysql.RevokeUserRefreshTokensByEmail(ctx, email); err != nil {
+		log.Printf("[WARN] Revoke user refresh tokens by email failed, email: %s, err: %v", email, err)
+	}
 
 	return nil
 }

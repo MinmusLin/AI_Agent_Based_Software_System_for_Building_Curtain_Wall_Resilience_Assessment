@@ -93,7 +93,9 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	// 发送邮箱验证码
 	if err := s.smtp.SendEmailCode(email, sceneValue, code); err != nil {
 		s.recordEmailSendLog(ctx, email, sceneValue, code, mysql.EmailSendStatusFailed, err.Error())
-		_ = s.redis.ClearEmailCode(ctx, sceneValue, email)
+		if err := s.redis.ClearEmailCode(ctx, sceneValue, email); err != nil {
+			log.Printf("[WARN] Clear email code failed, scene: %s, email: %s, err: %v", sceneValue, email, err)
+		}
 		return rpc_err.InternalError(rpc_err.DetailSendEmailCodeFailed, err.Error())
 	}
 	s.recordEmailSendLog(ctx, email, sceneValue, code, mysql.EmailSendStatusSuccess, "")

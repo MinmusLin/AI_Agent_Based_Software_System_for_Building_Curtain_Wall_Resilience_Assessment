@@ -2,12 +2,14 @@ package auth
 
 import (
 	"context"
+	"log"
 	"time"
 
-	"icw_core_biz/internal/auth/utils"
+	authUtils "icw_core_biz/internal/auth/utils"
 	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
+	"icw_core_biz/utils"
 )
 
 // Logout 登出
@@ -27,13 +29,15 @@ func (s *Service) Logout(req *dto.LogoutRequest, resp *dto.LogoutResponse) (err 
 		if claims.ExpiresAt != nil {
 			ttl := time.Until(claims.ExpiresAt.Time)
 			if ttl > 0 {
-				_ = s.redis.BlacklistAccessToken(ctx, claims.ID, ttl)
+				if err := s.redis.BlacklistAccessToken(ctx, claims.ID, ttl); err != nil {
+					log.Printf("[WARN] Blacklist access token failed, claims: %s, err: %v", utils.JSONF(claims), err)
+				}
 			}
 		}
 	}
 
 	// 吊销 Refresh Token
-	if tokenId := utils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
+	if tokenId := authUtils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
 		_ = s.mysql.RevokeRefreshTokenByTokenId(ctx, tokenId)
 	}
 
