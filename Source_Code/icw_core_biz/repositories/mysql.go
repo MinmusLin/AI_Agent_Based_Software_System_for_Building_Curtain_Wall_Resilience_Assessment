@@ -227,11 +227,11 @@ func (r *MySQLRepository) RevokeUserRefreshTokensByEmail(ctx context.Context, em
 }
 
 // CreateEmailSendLog 创建邮件发送记录
-func (r *MySQLRepository) CreateEmailSendLog(ctx context.Context, email, scene string, status EmailSendStatus, errorMessage string) error {
+func (r *MySQLRepository) CreateEmailSendLog(ctx context.Context, receiverEmail string, senderEmail string, scene string, emailCode string, status EmailSendStatus, errorMessage string) error {
 	_, err := r.mysql.ExecContext(ctx, `
-		INSERT INTO email_send_logs(email, scene, status, error_message)
-		VALUES (?, ?, ?, ?)
-	`, email, scene, status, errorMessage)
+		INSERT INTO email_send_logs(receiver_email, sender_email, scene, email_code, status, error_message)
+		VALUES (?, ?, ?, ?, ?, ?)
+	`, receiverEmail, senderEmail, scene, emailCode, status, errorMessage)
 	if err != nil {
 		return err
 	}
