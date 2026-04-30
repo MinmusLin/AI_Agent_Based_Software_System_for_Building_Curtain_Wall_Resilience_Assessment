@@ -86,7 +86,7 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 		return err
 	}
 
-	// 签发新的 Refresh Token 和 Access Token
+	// 签发 Access Token 和 Refresh Token，并更新用户最近登录时间
 	if err := utils.IssueTokens(ctx, s.cfg, s.mysql, s.tokens, user, resp); err != nil {
 		return err
 	}

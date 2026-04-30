@@ -54,7 +54,7 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "refresh token expired")
 	}
 
-	// 签发新的 Access Token 和 Refresh Token
+	// 签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
 	if err := utils.IssueRotatedTokens(ctx, s.cfg, s.mysql, s.tokens, tokenId, user, resp); err != nil {
 		return err
 	}

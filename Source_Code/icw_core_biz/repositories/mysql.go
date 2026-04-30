@@ -5,6 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	mysqlDriver "github.com/go-sql-driver/mysql"
+)
+
+var (
+	// ErrRefreshTokenNotReplaceable 旧 Refresh Token 不存在或已吊销，不能继续完成轮换
+	ErrRefreshTokenNotReplaceable = errors.New("refresh token not replaceable")
 )
 
 // MySQLRepository MySQL 服务
@@ -123,13 +130,41 @@ func (r *MySQLRepository) CreateLoginSession(ctx context.Context, tokenId string
 	return tx.Commit()
 }
 
-// CreateRefreshSession 刷新时保存登录态 Refresh Token
-func (r *MySQLRepository) CreateRefreshSession(ctx context.Context, tokenId string, userId uint64, tokenHash string, expiresAt time.Time) error {
-	_, err := r.mysql.ExecContext(ctx, `
+// RotateRefreshToken 刷新时签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
+func (r *MySQLRepository) RotateRefreshToken(ctx context.Context, oldTokenId, newTokenId string, userId uint64, newTokenHash string, newExpiresAt time.Time) error {
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	if _, err := tx.ExecContext(ctx, `
 		INSERT INTO refresh_tokens(token_id, user_id, token_hash, expires_at)
 		VALUES (?, ?, ?, ?)
-	`, tokenId, userId, tokenHash, expiresAt)
-	return err
+	`, newTokenId, userId, newTokenHash, newExpiresAt); err != nil {
+		return err
+	}
+
+	result, err := tx.ExecContext(ctx, `
+		UPDATE refresh_tokens
+		SET revoked_at = NOW(3), replaced_by_token_id = ?
+		WHERE token_id = ? AND user_id = ? AND revoked_at IS NULL
+	`, newTokenId, oldTokenId, userId)
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return ErrRefreshTokenNotReplaceable
+	}
+
+	return tx.Commit()
 }
 
 // FindRefreshToken 按 Token Id 和 Token Hash 查询 Refresh Token 及所属用户
@@ -181,12 +216,8 @@ func (r *MySQLRepository) RevokeUserRefreshTokensByEmail(ctx context.Context, em
 	return err
 }
 
-// ReplaceRefreshToken 吊销旧 Refresh Token，并记录被替换的 Refresh Token ID
-func (r *MySQLRepository) ReplaceRefreshToken(ctx context.Context, oldTokenId, newTokenId string) error {
-	_, err := r.mysql.ExecContext(ctx, `
-		UPDATE refresh_tokens
-		SET revoked_at = NOW(3), replaced_by_token_id = ?
-		WHERE token_id = ?
-	`, newTokenId, oldTokenId)
-	return err
+// IsDuplicateEntryError 判断是否为 MySQL 唯一键冲突错误
+func IsDuplicateEntryError(err error) bool {
+	var mysqlErr *mysqlDriver.MySQLError
+	return errors.As(err, &mysqlErr) && mysqlErr.Number == 1062
 }

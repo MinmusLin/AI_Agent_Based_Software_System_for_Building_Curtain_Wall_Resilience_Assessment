@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"errors"
+	"icw_core_biz/utils"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -13,6 +14,48 @@ import (
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories"
 )
+
+// TokenMetadata Token 元数据
+type TokenMetadata struct {
+	AccessToken  string
+	RefreshToken string
+	TokenId      string
+	TokenHash    string
+	ExpiresAt    time.Time
+	User         *dto.User
+}
+
+// NewTokenMetadata 创建 Token 元数据
+func NewTokenMetadata(cfg configs.Config, tokens *TokenManager, user *repositories.UserRecord) (*TokenMetadata, error) {
+	userDTO := utils.UserRecordToDTO(user)
+	if userDTO == nil {
+		return nil, rpc_err.InternalErrorDefault("user is nil")
+	}
+
+	// 签发短期 Access Token
+	// jti 已包含在 Access Token 中，当前函数不需要额外返回
+	accessToken, _, err := tokens.Sign(userDTO)
+	if err != nil {
+		return nil, err
+	}
+
+	// 生成长期 Refresh Token
+	refreshToken, tokenId, err := NewRefreshToken()
+	if err != nil {
+		return nil, err
+	}
+	expiresAt := time.Now().Add(cfg.RefreshTokenTTL)
+	tokenHash := HashRefreshToken(refreshToken)
+
+	return &TokenMetadata{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		TokenId:      tokenId,
+		TokenHash:    tokenHash,
+		ExpiresAt:    expiresAt,
+		User:         userDTO,
+	}, nil
+}
 
 // TokenManager JWT 管理器，负责 Access Token 的签发、校验和解析
 type TokenManager struct {
@@ -87,50 +130,50 @@ func (m *TokenManager) ParseAny(raw string) (*AccessClaims, error) {
 	return claims, nil
 }
 
-// IssueTokens 签发 Access Token 和 Refresh Token
-func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositories.MySQLRepository, tokens *TokenManager, user *repositories.UserRecord, res interface{}) error {
-	if user == nil {
-		return rpc_err.InternalErrorDefault("user is nil")
-	}
-
-	// 签发短期 Access Token
-	// jti 已包含在 Access Token 中，当前函数不需要额外返回
-	accessToken, _, err := tokens.Sign(dto.UserRecordToDTO(user))
+// IssueTokens 登录场景下，签发 Access Token 和 Refresh Token，并更新用户最近登录时间
+func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositories.MySQLRepository, tokens *TokenManager, user *repositories.UserRecord, resp *dto.LoginResponse) error {
+	pair, err := NewTokenMetadata(cfg, tokens, user)
 	if err != nil {
 		return err
 	}
 
-	// 生成长期 Refresh Token 并落库
-	refreshToken, tokenId, err := NewRefreshToken()
+	// 登录时保存登录态 Refresh Token，并更新用户最近登录时间
+	if err := mysql.CreateLoginSession(ctx, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
+		return err
+	}
+
+	resp.AccessToken = pair.AccessToken
+	resp.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
+	resp.RefreshToken = pair.RefreshToken
+	resp.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
+	resp.User = pair.User
+
+	return nil
+}
+
+// IssueRotatedTokens 刷新场景下，签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
+func IssueRotatedTokens(ctx context.Context, cfg configs.Config, mysql *repositories.MySQLRepository, tokens *TokenManager, oldTokenId string, user *repositories.UserRecord, resp *dto.RefreshResponse) error {
+	if resp == nil {
+		return rpc_err.InternalErrorDefault("response is nil")
+	}
+	pair, err := NewTokenMetadata(cfg, tokens, user)
 	if err != nil {
 		return err
 	}
-	expiresAt := time.Now().Add(cfg.RefreshTokenTTL)
-	tokenHash := HashRefreshToken(refreshToken)
 
-	// Login 和 Refresh 返回同样的 Token 响应字段，因此共用该函数填充响应体
-	switch out := res.(type) {
-	case *dto.LoginResponse:
-		if err := mysql.CreateLoginSession(ctx, tokenId, user.Id, tokenHash, expiresAt); err != nil {
-			return err
+	// 刷新时签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
+	if err := mysql.RotateRefreshToken(ctx, oldTokenId, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
+		if errors.Is(err, repositories.ErrRefreshTokenNotReplaceable) {
+			return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, err.Error())
 		}
-		out.AccessToken = accessToken
-		out.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
-		out.RefreshToken = refreshToken
-		out.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
-		out.User = dto.UserRecordToDTO(user)
-	case *dto.RefreshResponse:
-		if err := mysql.CreateRefreshSession(ctx, tokenId, user.Id, tokenHash, expiresAt); err != nil {
-			return err
-		}
-		out.AccessToken = accessToken
-		out.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
-		out.RefreshToken = refreshToken
-		out.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
-		out.User = dto.UserRecordToDTO(user)
-	default:
-		return rpc_err.InternalErrorDefault("invalid response type")
+		return err
 	}
+
+	resp.AccessToken = pair.AccessToken
+	resp.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
+	resp.RefreshToken = pair.RefreshToken
+	resp.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
+	resp.User = pair.User
 
 	return nil
 }
