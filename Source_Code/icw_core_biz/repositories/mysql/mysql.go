@@ -168,8 +168,8 @@ func (r *Repository) FindRefreshToken(ctx context.Context, tokenId, tokenHash st
 	return &token, &user, nil
 }
 
-// RevokeRefreshTokenByTokenId 按 Token Id 吊销 Refresh Token
-func (r *Repository) RevokeRefreshTokenByTokenId(ctx context.Context, tokenId string) error {
+// RevokeRefreshTokensByTokenId 按 Token Id 吊销 Refresh Token
+func (r *Repository) RevokeRefreshTokensByTokenId(ctx context.Context, tokenId string) error {
 	_, err := r.mysql.ExecContext(ctx, `
 		UPDATE refresh_tokens
 		SET revoked_at = NOW(3)
@@ -178,8 +178,8 @@ func (r *Repository) RevokeRefreshTokenByTokenId(ctx context.Context, tokenId st
 	return err
 }
 
-// RevokeUserRefreshTokensByEmail 按邮箱吊销 Refresh Token
-func (r *Repository) RevokeUserRefreshTokensByEmail(ctx context.Context, email string) error {
+// RevokeRefreshTokensByEmail 按邮箱吊销 Refresh Token
+func (r *Repository) RevokeRefreshTokensByEmail(ctx context.Context, email string) error {
 	_, err := r.mysql.ExecContext(ctx, `
 		UPDATE refresh_tokens
 		SET revoked_at = NOW(3)

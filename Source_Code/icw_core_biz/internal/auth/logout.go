@@ -38,7 +38,9 @@ func (s *Service) Logout(req *dto.LogoutRequest, resp *dto.LogoutResponse) (err 
 
 	// 吊销 Refresh Token
 	if tokenId := authUtils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
-		_ = s.mysql.RevokeRefreshTokenByTokenId(ctx, tokenId)
+		if err := s.mysql.RevokeRefreshTokensByTokenId(ctx, tokenId); err != nil {
+			log.Printf("[WARN] Revoke refresh tokens by token id failed, token_id: %s, err: %v", tokenId, err)
+		}
 	}
 
 	return nil
