@@ -33,7 +33,11 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 	}
 
 	// 账号锁定（登录失败次数达上限）时不进行登录操作
-	if locked, ttl := s.redis.IsLoginLocked(ctx, scene.String(), email, consts.LoginFailureLimit); locked {
+	locked, ttl, err := s.redis.IsLoginLocked(ctx, scene.String(), email, consts.LoginFailureLimit)
+	if err != nil {
+		return err
+	}
+	if locked {
 		return rpc_err.AccountLockedDefault(fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
 	}
 
@@ -42,9 +46,11 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 	if err != nil {
 		return err
 	}
-	if user == nil {
+	if user == nil || user.Id == 0 {
 		// 用户不存在视作登录失败，避免泄露邮箱是否存在
-		_ = s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL)
+		if err := s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL); err != nil {
+			return err
+		}
 		return rpc_err.Unauthorized(rpc_err.DetailInvalidCredentials, "user not found")
 	}
 
@@ -52,13 +58,20 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 	case consts.LoginPassword:
 		// 密码登录
 		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Code)); err != nil {
-			_ = s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL)
+			if err := s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL); err != nil {
+				return err
+			}
 			return rpc_err.Unauthorized(rpc_err.DetailInvalidCredentials, err.Error())
 		}
 	case consts.LoginEmail:
 		// 邮箱验证码登录
 		if err := utils.VerifyEmailCode(ctx, s.redis, s.cfg.EmailCodeSecret, consts.SceneLogin.String(), email, req.Code); err != nil {
-			_ = s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL)
+			if !utils.IsEmailCodeBusinessError(err) {
+				return err
+			}
+			if err := s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL); err != nil {
+				return err
+			}
 			return rpc_err.BadRequest(rpc_err.DetailIncorrectEmailCode, err.Error())
 		}
 	default:
@@ -66,7 +79,9 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 	}
 
 	// 登录成功后清除登录失败计数
-	_ = s.redis.ClearLoginFailure(ctx, scene.String(), email)
+	if err := s.redis.ClearLoginFailure(ctx, scene.String(), email); err != nil {
+		return err
+	}
 
 	// 签发新的 Refresh Token 和 Access Token
 	if err := utils.IssueTokens(ctx, s.cfg, s.mysql, s.tokens, user, resp); err != nil {

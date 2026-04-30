@@ -38,6 +38,9 @@ func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPassw
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
 	if err := utils.VerifyEmailCode(ctx, s.redis, s.cfg.EmailCodeSecret, consts.SceneReset.String(), email, req.EmailCode); err != nil {
+		if !utils.IsEmailCodeBusinessError(err) {
+			return err
+		}
 		return rpc_err.BadRequest(rpc_err.DetailIncorrectEmailCode, err.Error())
 	}
 
@@ -54,5 +57,6 @@ func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPassw
 
 	// 重置密码后吊销所有 Refresh Token
 	_ = s.mysql.RevokeUserRefreshTokensByEmail(ctx, email)
+
 	return nil
 }

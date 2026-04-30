@@ -33,29 +33,33 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 注册场景：邮箱必须尚未注册
 	if scene == consts.SceneRegister {
-		exists, err := s.mysql.UserExists(ctx, email)
+		user, err := s.mysql.FindUserByEmail(ctx, email)
 		if err != nil {
 			return err
 		}
-		if exists {
+		if user != nil && user.Id != 0 {
 			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "email already registered")
 		}
 	}
 
 	// 登录和重置密码场景：邮箱必须已被注册
 	if scene == consts.SceneLogin || scene == consts.SceneReset {
-		exists, err := s.mysql.UserExists(ctx, email)
+		user, err := s.mysql.FindUserByEmail(ctx, email)
 		if err != nil {
 			return err
 		}
-		if !exists {
+		if user == nil || user.Id == 0 {
 			return rpc_err.BadRequest(rpc_err.DetailEmailNotRegistered, "email not registered")
 		}
 	}
 
 	// 账号锁定（登录失败次数达上限）时不发送登录验证码
 	if scene == consts.SceneLogin {
-		if locked, ttl := s.redis.IsLoginLocked(ctx, consts.LoginEmail.String(), email, consts.LoginFailureLimit); locked {
+		locked, ttl, err := s.redis.IsLoginLocked(ctx, consts.LoginEmail.String(), email, consts.LoginFailureLimit)
+		if err != nil {
+			return err
+		}
+		if locked {
 			return rpc_err.AccountLockedDefault(fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
 		}
 	}
@@ -86,5 +90,6 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 邮箱验证码发送成功，返回验证码有效期
 	resp.ExpiresInSeconds = int(s.cfg.EmailCodeTTL.Seconds())
+
 	return nil
 }

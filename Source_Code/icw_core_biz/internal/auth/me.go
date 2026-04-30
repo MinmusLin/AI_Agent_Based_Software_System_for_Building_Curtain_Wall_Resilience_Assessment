@@ -22,8 +22,14 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
 	}
 
 	// 检查 Access Token 是否已被黑名单禁用
-	if claims.ID != "" && s.redis.AccessTokenBlacklisted(ctx, claims.ID) {
-		return rpc_err.UnauthorizedDefault("token is blacklisted")
+	if claims.ID != "" {
+		blacklisted, err := s.redis.AccessTokenBlacklisted(ctx, claims.ID)
+		if err != nil {
+			return err
+		}
+		if blacklisted {
+			return rpc_err.UnauthorizedDefault("token is blacklisted")
+		}
 	}
 
 	// 按用户 ID 查询用户
@@ -31,10 +37,11 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
 	if err != nil {
 		return err
 	}
-	if user == nil {
+	if user == nil || user.Id == 0 {
 		return rpc_err.UnauthorizedDefault("user not found")
 	}
 
 	resp.User = repositories.UserRecordToDTO(user)
+
 	return nil
 }

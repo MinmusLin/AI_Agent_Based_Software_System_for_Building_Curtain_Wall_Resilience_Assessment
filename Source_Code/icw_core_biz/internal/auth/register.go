@@ -13,7 +13,7 @@ import (
 )
 
 // Register 注册
-func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse) error {
+func (s *Service) Register(req *dto.RegisterRequest, _ *dto.RegisterResponse) error {
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}
@@ -49,6 +49,9 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
 	if err := utils.VerifyEmailCode(ctx, s.redis, s.cfg.EmailCodeSecret, consts.SceneRegister.String(), email, req.EmailCode); err != nil {
+		if !utils.IsEmailCodeBusinessError(err) {
+			return err
+		}
 		return rpc_err.BadRequest(rpc_err.DetailIncorrectEmailCode, err.Error())
 	}
 
@@ -59,12 +62,9 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 	}
 
 	// 创建用户
-	user, err := s.mysql.CreateUser(ctx, email, string(passwordHash), name)
-	if err != nil {
+	if err := s.mysql.CreateUser(ctx, email, string(passwordHash), name); err != nil {
 		return err
 	}
 
-	// 返回用户信息
-	resp.User = user
 	return nil
 }

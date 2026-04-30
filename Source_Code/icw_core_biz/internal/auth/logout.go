@@ -30,5 +30,6 @@ func (s *Service) Logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
 	if tokenId := utils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
 		_ = s.mysql.RevokeRefreshToken(ctx, tokenId)
 	}
+
 	return nil
 }
