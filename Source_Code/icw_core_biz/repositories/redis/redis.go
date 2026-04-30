@@ -8,24 +8,24 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// RedisRepository Redis 服务
-type RedisRepository struct {
+// Repository Redis 服务
+type Repository struct {
 	redis *redis.Client
 }
 
-func NewRedisRepository(rdb *redis.Client) *RedisRepository {
-	return &RedisRepository{
+func NewRepository(rdb *redis.Client) *Repository {
+	return &Repository{
 		redis: rdb,
 	}
 }
 
 // SaveEmailCode 保存邮箱验证码哈希
-func (r *RedisRepository) SaveEmailCode(ctx context.Context, scene, email string, codeHash string, ttl time.Duration) error {
+func (r *Repository) SaveEmailCode(ctx context.Context, scene, email string, codeHash string, ttl time.Duration) error {
 	return r.redis.Set(ctx, genEmailCodeKey(scene, email), codeHash, ttl).Err()
 }
 
 // GetEmailCode 获取邮箱验证码哈希
-func (r *RedisRepository) GetEmailCode(ctx context.Context, scene, email string) (string, error) {
+func (r *Repository) GetEmailCode(ctx context.Context, scene, email string) (string, error) {
 	codeHash, err := r.redis.Get(ctx, genEmailCodeKey(scene, email)).Result()
 	if errors.Is(err, redis.Nil) {
 		return "", nil
@@ -37,18 +37,18 @@ func (r *RedisRepository) GetEmailCode(ctx context.Context, scene, email string)
 }
 
 // ClearEmailCode 清除邮箱验证码哈希
-func (r *RedisRepository) ClearEmailCode(ctx context.Context, scene, email string) error {
+func (r *Repository) ClearEmailCode(ctx context.Context, scene, email string) error {
 	return r.redis.Del(ctx, genEmailCodeKey(scene, email)).Err()
 }
 
 // EmailCodeExists 判断邮箱验证码是否在有效期内
-func (r *RedisRepository) EmailCodeExists(ctx context.Context, scene, email string) (bool, error) {
+func (r *Repository) EmailCodeExists(ctx context.Context, scene, email string) (bool, error) {
 	exists, err := r.redis.Exists(ctx, genEmailCodeKey(scene, email)).Result()
 	return exists > 0, err
 }
 
 // RecordLoginFailure 记录一次登录失败
-func (r *RedisRepository) RecordLoginFailure(ctx context.Context, loginScene, email string, ttl time.Duration) error {
+func (r *Repository) RecordLoginFailure(ctx context.Context, loginScene, email string, ttl time.Duration) error {
 	return redis.NewScript(`
 	local count = redis.call("INCR", KEYS[1])
 	if count == 1 then
@@ -59,12 +59,12 @@ func (r *RedisRepository) RecordLoginFailure(ctx context.Context, loginScene, em
 }
 
 // ClearLoginFailure 清除登录失败计数
-func (r *RedisRepository) ClearLoginFailure(ctx context.Context, loginScene, email string) error {
+func (r *Repository) ClearLoginFailure(ctx context.Context, loginScene, email string) error {
 	return r.redis.Del(ctx, genLoginFailureKey(loginScene, email)).Err()
 }
 
 // IsLoginLocked 判断指定登录方式是否达到登录失败次数上限
-func (r *RedisRepository) IsLoginLocked(ctx context.Context, loginScene, email string, limit int) (bool, time.Duration, error) {
+func (r *Repository) IsLoginLocked(ctx context.Context, loginScene, email string, limit int) (bool, time.Duration, error) {
 	key := genLoginFailureKey(loginScene, email)
 	count, err := r.redis.Get(ctx, key).Int()
 	if errors.Is(err, redis.Nil) {
@@ -88,22 +88,22 @@ func (r *RedisRepository) IsLoginLocked(ctx context.Context, loginScene, email s
 }
 
 // SetRefreshReuseLock 设置 Refresh Token 轮换并发锁
-func (r *RedisRepository) SetRefreshReuseLock(ctx context.Context, tokenId string, ttl time.Duration) (bool, error) {
+func (r *Repository) SetRefreshReuseLock(ctx context.Context, tokenId string, ttl time.Duration) (bool, error) {
 	return r.redis.SetNX(ctx, genRefreshReuseLockKey(tokenId), "lock", ttl).Result()
 }
 
 // ClearRefreshReuseLock 清除 Refresh Token 轮换并发锁
-func (r *RedisRepository) ClearRefreshReuseLock(ctx context.Context, tokenId string) error {
+func (r *Repository) ClearRefreshReuseLock(ctx context.Context, tokenId string) error {
 	return r.redis.Del(ctx, genRefreshReuseLockKey(tokenId)).Err()
 }
 
 // BlacklistAccessToken 将 Access Token 的 JWT ID 加入黑名单
-func (r *RedisRepository) BlacklistAccessToken(ctx context.Context, tokenId string, ttl time.Duration) error {
+func (r *Repository) BlacklistAccessToken(ctx context.Context, tokenId string, ttl time.Duration) error {
 	return r.redis.Set(ctx, genAccessBlacklistKey(tokenId), "blacklisted", ttl).Err()
 }
 
 // AccessTokenBlacklisted 判断 Access Token 的 JWT ID 是否在黑名单中
-func (r *RedisRepository) AccessTokenBlacklisted(ctx context.Context, tokenId string) (bool, error) {
+func (r *Repository) AccessTokenBlacklisted(ctx context.Context, tokenId string) (bool, error) {
 	blacklisted, err := r.redis.Exists(ctx, genAccessBlacklistKey(tokenId)).Result()
 	if err != nil {
 		return false, err

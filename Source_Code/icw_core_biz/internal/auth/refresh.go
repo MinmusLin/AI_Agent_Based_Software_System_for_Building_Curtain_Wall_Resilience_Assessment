@@ -39,7 +39,7 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) (e
 	if !ok {
 		return rpc_err.UnauthorizedDefault("refresh in progress")
 	}
-	defer func(redis *redis.RedisRepository, ctx context.Context, tokenId string) {
+	defer func(redis *redis.Repository, ctx context.Context, tokenId string) {
 		_ = redis.ClearRefreshReuseLock(ctx, tokenId)
 	}(s.redis, ctx, tokenId)
 

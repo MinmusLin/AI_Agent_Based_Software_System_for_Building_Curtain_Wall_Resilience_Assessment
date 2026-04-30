@@ -131,7 +131,7 @@ func (m *TokenManager) ParseAny(raw string) (*AccessClaims, error) {
 }
 
 // IssueTokens 登录场景下，签发 Access Token 和 Refresh Token，并更新用户最近登录时间
-func IssueTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.MySQLRepository, tokens *TokenManager, user *mysql.UserRecord, resp *dto.LoginResponse) error {
+func IssueTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.Repository, tokens *TokenManager, user *mysql.UserRecord, resp *dto.LoginResponse) error {
 	pair, err := NewTokenMetadata(cfg, tokens, user)
 	if err != nil {
 		return err
@@ -152,7 +152,7 @@ func IssueTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.MySQL
 }
 
 // IssueRotatedTokens 刷新场景下，签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-func IssueRotatedTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.MySQLRepository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *dto.RefreshResponse) error {
+func IssueRotatedTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.Repository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *dto.RefreshResponse) error {
 	if resp == nil {
 		return rpc_err.InternalErrorDefault("response is nil")
 	}

@@ -11,8 +11,8 @@ import (
 	"icw_core_biz/configs"
 )
 
-// SMTPRepository SMTP 服务
-type SMTPRepository struct {
+// Repository SMTP 服务
+type Repository struct {
 	SMTPHost            string
 	SMTPPort            int
 	SMTPPassword        string
@@ -21,8 +21,8 @@ type SMTPRepository struct {
 	EmailCodeTTLMinutes int
 }
 
-func NewSMTPRepository(cfg configs.Config) *SMTPRepository {
-	return &SMTPRepository{
+func NewRepository(cfg configs.Config) *Repository {
+	return &Repository{
 		SMTPHost:            cfg.SMTPHost,
 		SMTPPort:            cfg.SMTPPort,
 		SMTPPassword:        cfg.SMTPPassword,
@@ -33,12 +33,12 @@ func NewSMTPRepository(cfg configs.Config) *SMTPRepository {
 }
 
 // Configured 校验 SMTP 配置
-func (r *SMTPRepository) Configured() bool {
+func (r *Repository) Configured() bool {
 	return r.SMTPHost != "" && r.SMTPPort != 0 && r.SMTPPassword != "" && r.SMTPFromName != "" && r.SMTPFromEmail != "" && r.EmailCodeTTLMinutes != 0
 }
 
 // SendEmailCode 发送验证码邮件
-func (r *SMTPRepository) SendEmailCode(to, scene, code string) error {
+func (r *Repository) SendEmailCode(to, scene, code string) error {
 	if !r.Configured() {
 		return errors.New("SMTP service not configured")
 	}
@@ -51,7 +51,7 @@ func (r *SMTPRepository) SendEmailCode(to, scene, code string) error {
 }
 
 // send 发送 HTML 邮件
-func (r *SMTPRepository) send(to, subject, htmlBody string) error {
+func (r *Repository) send(to, subject, htmlBody string) error {
 	fromName := mime.QEncoding.Encode("UTF-8", r.SMTPFromName)
 	encodedSubject := mime.QEncoding.Encode("UTF-8", subject)
 	message := strings.Join([]string{

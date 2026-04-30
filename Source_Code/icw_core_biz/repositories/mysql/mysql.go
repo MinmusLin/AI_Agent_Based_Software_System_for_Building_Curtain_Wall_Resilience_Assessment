@@ -7,19 +7,19 @@ import (
 	"time"
 )
 
-// MySQLRepository MySQL 服务
-type MySQLRepository struct {
+// Repository MySQL 服务
+type Repository struct {
 	mysql *sql.DB
 }
 
-func NewMySQLRepository(db *sql.DB) *MySQLRepository {
-	return &MySQLRepository{
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{
 		mysql: db,
 	}
 }
 
 // CreateUser 创建用户
-func (r *MySQLRepository) CreateUser(ctx context.Context, email, passwordHash, name string) error {
+func (r *Repository) CreateUser(ctx context.Context, email, passwordHash, name string) error {
 	_, err := r.mysql.ExecContext(ctx, `
 		INSERT INTO users(email, password_hash, name)
 		VALUES (?, ?, ?)
@@ -31,7 +31,7 @@ func (r *MySQLRepository) CreateUser(ctx context.Context, email, passwordHash, n
 }
 
 // FindUserById 按用户 ID 查询用户
-func (r *MySQLRepository) FindUserById(ctx context.Context, id uint64) (*UserRecord, error) {
+func (r *Repository) FindUserById(ctx context.Context, id uint64) (*UserRecord, error) {
 	var user UserRecord
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT id, email, password_hash, name
@@ -49,7 +49,7 @@ func (r *MySQLRepository) FindUserById(ctx context.Context, id uint64) (*UserRec
 }
 
 // FindUserByEmail 按邮箱查询用户
-func (r *MySQLRepository) FindUserByEmail(ctx context.Context, email string) (*UserRecord, error) {
+func (r *Repository) FindUserByEmail(ctx context.Context, email string) (*UserRecord, error) {
 	var user UserRecord
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT id, email, password_hash, name
@@ -67,7 +67,7 @@ func (r *MySQLRepository) FindUserByEmail(ctx context.Context, email string) (*U
 }
 
 // UpdatePasswordByEmail 按邮箱更新用户密码
-func (r *MySQLRepository) UpdatePasswordByEmail(ctx context.Context, email, passwordHash string) error {
+func (r *Repository) UpdatePasswordByEmail(ctx context.Context, email, passwordHash string) error {
 	_, err := r.mysql.ExecContext(ctx, `
 		UPDATE users
 		SET password_hash = ?
@@ -80,7 +80,7 @@ func (r *MySQLRepository) UpdatePasswordByEmail(ctx context.Context, email, pass
 }
 
 // CreateLoginSession 登录时保存登录态 Refresh Token，并更新用户最近登录时间
-func (r *MySQLRepository) CreateLoginSession(ctx context.Context, tokenId string, userId uint64, tokenHash string, expiresAt time.Time) error {
+func (r *Repository) CreateLoginSession(ctx context.Context, tokenId string, userId uint64, tokenHash string, expiresAt time.Time) error {
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func (r *MySQLRepository) CreateLoginSession(ctx context.Context, tokenId string
 }
 
 // RotateRefreshToken 刷新时签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-func (r *MySQLRepository) RotateRefreshToken(ctx context.Context, oldTokenId, newTokenId string, userId uint64, newTokenHash string, newExpiresAt time.Time) error {
+func (r *Repository) RotateRefreshToken(ctx context.Context, oldTokenId, newTokenId string, userId uint64, newTokenHash string, newExpiresAt time.Time) error {
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func (r *MySQLRepository) RotateRefreshToken(ctx context.Context, oldTokenId, ne
 }
 
 // FindRefreshToken 按 Token Id 和 Token Hash 查询 Refresh Token 及所属用户
-func (r *MySQLRepository) FindRefreshToken(ctx context.Context, tokenId, tokenHash string) (*RefreshTokenRecord, *UserRecord, error) {
+func (r *Repository) FindRefreshToken(ctx context.Context, tokenId, tokenHash string) (*RefreshTokenRecord, *UserRecord, error) {
 	var token RefreshTokenRecord
 	var user UserRecord
 	err := r.mysql.QueryRowContext(ctx, `
@@ -169,7 +169,7 @@ func (r *MySQLRepository) FindRefreshToken(ctx context.Context, tokenId, tokenHa
 }
 
 // RevokeRefreshTokenByTokenId 按 Token Id 吊销 Refresh Token
-func (r *MySQLRepository) RevokeRefreshTokenByTokenId(ctx context.Context, tokenId string) error {
+func (r *Repository) RevokeRefreshTokenByTokenId(ctx context.Context, tokenId string) error {
 	_, err := r.mysql.ExecContext(ctx, `
 		UPDATE refresh_tokens
 		SET revoked_at = NOW(3)
@@ -179,7 +179,7 @@ func (r *MySQLRepository) RevokeRefreshTokenByTokenId(ctx context.Context, token
 }
 
 // RevokeUserRefreshTokensByEmail 按邮箱吊销 Refresh Token
-func (r *MySQLRepository) RevokeUserRefreshTokensByEmail(ctx context.Context, email string) error {
+func (r *Repository) RevokeUserRefreshTokensByEmail(ctx context.Context, email string) error {
 	_, err := r.mysql.ExecContext(ctx, `
 		UPDATE refresh_tokens
 		SET revoked_at = NOW(3)
@@ -194,7 +194,7 @@ func (r *MySQLRepository) RevokeUserRefreshTokensByEmail(ctx context.Context, em
 }
 
 // CreateEmailSendLog 创建邮件发送记录
-func (r *MySQLRepository) CreateEmailSendLog(ctx context.Context, receiverEmail string, senderEmail string, scene string, emailCode string, status EmailSendStatus, errorMessage string) error {
+func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail string, senderEmail string, scene string, emailCode string, status EmailSendStatus, errorMessage string) error {
 	_, err := r.mysql.ExecContext(ctx, `
 		INSERT INTO email_send_logs(receiver_email, sender_email, scene, email_code, status, error_message)
 		VALUES (?, ?, ?, ?, ?, ?)
