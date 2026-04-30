@@ -1,28 +1,56 @@
 {
-  "name": "my-react-app",
-  "private": true,
-  "version": "0.0.0",
+  "name": "icw-core-web",
+  "version": "1.0.0",
+  "description": "Software System for Building Curtain Wall Resilience Assessment",
+  "keywords": [
+    "building-curtain-wall",
+    "resilience-assessment",
+    "ai-agent"
+  ],
+  "homepage": "https://github.com/MinmusLin/AI_Agent_Based_Software_System_for_Building_Curtain_Wall_Resilience_Assessment",
+  "bugs": {
+    "url": "https://github.com/MinmusLin/AI_Agent_Based_Software_System_for_Building_Curtain_Wall_Resilience_Assessment/issues",
+    "email": "minmuslin@outlook.com"
+  },
+  "license": "Attribution-NonCommercial 4.0 International",
+  "author": {
+    "name": "Jishen Lin",
+    "email": "minmuslin@outlook.com",
+    "url": "https://github.com/MinmusLin"
+  },
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "tsc -b && vite",
+    "preview": "tsc -b && vite preview",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "fix": "eslint . --fix && prettier --write ."
   },
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0"
+  },
+  "private": true,
   "dependencies": {
+    "@ant-design/icons": "^5.5.1",
+    "antd": "^5.20.2",
+    "axios": "^1.7.4",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^6.26.1"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.4.20",
     "eslint": "^10.2.1",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.5.0",
+    "eslint-plugin-perfectionist": "^5.9.0",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "postcss": "^8.5.12",
+    "prettier": "^3.8.3",
+    "tailwindcss": "^3.4.10",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.10"
