@@ -11,7 +11,7 @@ import (
 	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/repositories"
+	"icw_core_biz/repositories/mysql"
 )
 
 // SendEmailCode 发送邮箱验证码
@@ -92,11 +92,11 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 发送邮箱验证码
 	if err := s.smtp.SendEmailCode(email, sceneValue, code); err != nil {
-		s.recordEmailSendLog(ctx, email, sceneValue, code, repositories.EmailSendStatusFailed, err.Error())
+		s.recordEmailSendLog(ctx, email, sceneValue, code, mysql.EmailSendStatusFailed, err.Error())
 		_ = s.redis.ClearEmailCode(ctx, sceneValue, email)
 		return rpc_err.InternalError(rpc_err.DetailSendEmailCodeFailed, err.Error())
 	}
-	s.recordEmailSendLog(ctx, email, sceneValue, code, repositories.EmailSendStatusSuccess, "")
+	s.recordEmailSendLog(ctx, email, sceneValue, code, mysql.EmailSendStatusSuccess, "")
 
 	// 邮箱验证码发送成功，返回验证码有效期
 	resp.ExpiresInSeconds = int(s.cfg.EmailCodeTTL.Seconds())
@@ -105,8 +105,8 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 }
 
 // recordEmailSendLog 记录邮件发送日志
-func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail, scene, emailCode string, status repositories.EmailSendStatus, errorMessage string) {
+func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail, scene, emailCode string, status mysql.EmailSendStatus, errorMessage string) {
 	if err := s.mysql.CreateEmailSendLog(ctx, receiverEmail, s.cfg.SMTPFromEmail, scene, emailCode, status, errorMessage); err != nil {
-		log.Printf("[WARN] Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %v", receiverEmail, s.cfg.SMTPFromEmail, scene, emailCode, status, err.Error())
+		log.Printf("[WARN] Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %s", receiverEmail, s.cfg.SMTPFromEmail, scene, emailCode, status, err.Error())
 	}
 }

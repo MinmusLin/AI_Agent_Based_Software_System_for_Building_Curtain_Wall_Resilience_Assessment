@@ -11,7 +11,7 @@ import (
 	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/repositories"
+	"icw_core_biz/repositories/mysql"
 )
 
 // Register 注册
@@ -70,7 +70,7 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 
 	// 创建用户
 	if err := s.mysql.CreateUser(ctx, email, string(passwordHash), name); err != nil {
-		if repositories.IsDuplicateEntryError(err) {
+		if mysql.IsDuplicateEntryError(err) {
 			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "email already registered")
 		}
 		return err

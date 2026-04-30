@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"icw_core_biz/pkg/dto"
-	"icw_core_biz/repositories"
+	"icw_core_biz/repositories/mysql"
 )
 
 // JSONF 将任意结构格式化为 JSON 字符串
@@ -17,7 +17,7 @@ func JSONF(v interface{}) string {
 }
 
 // UserRecordToDTO 将 MySQL 数据模型转换为 RPC 数据模型
-func UserRecordToDTO(user *repositories.UserRecord) *dto.User {
+func UserRecordToDTO(user *mysql.UserRecord) *dto.User {
 	if user == nil {
 		return nil
 	}

@@ -3,7 +3,6 @@ package utils
 import (
 	"context"
 	"errors"
-	"icw_core_biz/utils"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,7 +11,8 @@ import (
 	"icw_core_biz/configs"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/repositories"
+	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/utils"
 )
 
 // TokenMetadata Token 元数据
@@ -26,7 +26,7 @@ type TokenMetadata struct {
 }
 
 // NewTokenMetadata 创建 Token 元数据
-func NewTokenMetadata(cfg configs.Config, tokens *TokenManager, user *repositories.UserRecord) (*TokenMetadata, error) {
+func NewTokenMetadata(cfg configs.Config, tokens *TokenManager, user *mysql.UserRecord) (*TokenMetadata, error) {
 	userDTO := utils.UserRecordToDTO(user)
 	if userDTO == nil {
 		return nil, rpc_err.InternalErrorDefault("user is nil")
@@ -131,14 +131,14 @@ func (m *TokenManager) ParseAny(raw string) (*AccessClaims, error) {
 }
 
 // IssueTokens 登录场景下，签发 Access Token 和 Refresh Token，并更新用户最近登录时间
-func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositories.MySQLRepository, tokens *TokenManager, user *repositories.UserRecord, resp *dto.LoginResponse) error {
+func IssueTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.MySQLRepository, tokens *TokenManager, user *mysql.UserRecord, resp *dto.LoginResponse) error {
 	pair, err := NewTokenMetadata(cfg, tokens, user)
 	if err != nil {
 		return err
 	}
 
 	// 登录时保存登录态 Refresh Token，并更新用户最近登录时间
-	if err := mysql.CreateLoginSession(ctx, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
+	if err := mysqlRepo.CreateLoginSession(ctx, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
 		return err
 	}
 
@@ -152,7 +152,7 @@ func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositories.My
 }
 
 // IssueRotatedTokens 刷新场景下，签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-func IssueRotatedTokens(ctx context.Context, cfg configs.Config, mysql *repositories.MySQLRepository, tokens *TokenManager, oldTokenId string, user *repositories.UserRecord, resp *dto.RefreshResponse) error {
+func IssueRotatedTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.MySQLRepository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *dto.RefreshResponse) error {
 	if resp == nil {
 		return rpc_err.InternalErrorDefault("response is nil")
 	}
@@ -162,8 +162,8 @@ func IssueRotatedTokens(ctx context.Context, cfg configs.Config, mysql *reposito
 	}
 
 	// 刷新时签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-	if err := mysql.RotateRefreshToken(ctx, oldTokenId, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
-		if errors.Is(err, repositories.ErrRefreshTokenNotReplaceable) {
+	if err := mysqlRepo.RotateRefreshToken(ctx, oldTokenId, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
+		if errors.Is(err, mysql.ErrRefreshTokenNotReplaceable) {
 			return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, err.Error())
 		}
 		return err
