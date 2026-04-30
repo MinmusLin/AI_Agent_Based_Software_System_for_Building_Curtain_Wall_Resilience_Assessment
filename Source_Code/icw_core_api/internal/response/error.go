@@ -15,7 +15,7 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 	rpc_err.DetailUnauthorized:               "登录状态已失效，请重新登录",
 	rpc_err.DetailAccountLocked:              "登录失败次数过多，请稍后重试",
 	rpc_err.DetailInternalError:              "服务暂时不可用，请稍后重试",
-	rpc_err.DetailInvalidEmailAddress:        "邮箱地址无效",
+	rpc_err.DetailInvalidEmailAddress:        "邮箱格式错误",
 	rpc_err.DetailEmailAlreadyRegistered:     "邮箱已被注册，请登录账号",
 	rpc_err.DetailEmailNotRegistered:         "邮箱尚未注册，请注册账号",
 	rpc_err.DetailEmailCodeSentTooFrequently: "验证码发送过于频繁，请稍后重试",
