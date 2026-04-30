@@ -9,12 +9,18 @@ import (
 
 	"icw_core_biz/internal/auth/consts"
 	"icw_core_biz/internal/auth/utils"
+	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
 
 // Login 登录
-func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
+func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) (err error) {
+	start := rpc_log.Start("AuthService.Login", req)
+	defer func() {
+		rpc_log.Finish("AuthService.Login", req, resp, start, err)
+	}()
+
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}

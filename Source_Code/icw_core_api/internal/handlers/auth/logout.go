@@ -24,7 +24,7 @@ func (h *Handler) Logout(c *gin.Context) {
 	rpcResp := &bizDto.LogoutResponse{}
 	err := h.rpc.Call("AuthService.Logout", rpcReq, rpcResp)
 	if err != nil {
-		log.Printf("Call icw.core.biz AuthService.Logout failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+		log.Printf("[ERROR] Call icw.core.biz AuthService.Logout failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 	}
 
 	// 旧 Refresh Token 失效

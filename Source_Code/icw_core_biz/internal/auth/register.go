@@ -8,13 +8,19 @@ import (
 
 	"icw_core_biz/internal/auth/consts"
 	"icw_core_biz/internal/auth/utils"
+	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories"
 )
 
 // Register 注册
-func (s *Service) Register(req *dto.RegisterRequest, _ *dto.RegisterResponse) error {
+func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse) (err error) {
+	start := rpc_log.Start("AuthService.Register", req)
+	defer func() {
+		rpc_log.Finish("AuthService.Register", req, resp, start, err)
+	}()
+
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}

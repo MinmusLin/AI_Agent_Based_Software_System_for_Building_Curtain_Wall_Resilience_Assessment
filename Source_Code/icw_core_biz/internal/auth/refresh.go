@@ -6,13 +6,19 @@ import (
 	"time"
 
 	"icw_core_biz/internal/auth/utils"
+	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories"
 )
 
 // Refresh 刷新 Token
-func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) error {
+func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) (err error) {
+	start := rpc_log.Start("AuthService.Refresh", req)
+	defer func() {
+		rpc_log.Finish("AuthService.Refresh", req, resp, start, err)
+	}()
+
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}

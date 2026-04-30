@@ -32,7 +32,7 @@ func AuthRequired(coreBizClient *rpc.Client) gin.HandlerFunc {
 		}
 		rpcResp := &bizDto.MeResponse{}
 		if err := coreBizClient.Call("AuthService.Me", rpcReq, rpcResp); err != nil || rpcResp == nil {
-			log.Printf("Call icw.core.biz AuthService.Me failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+			log.Printf("[ERROR] Call icw.core.biz AuthService.Me failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 			response.WriteRPCError(c, err)
 			c.Abort()
 			return

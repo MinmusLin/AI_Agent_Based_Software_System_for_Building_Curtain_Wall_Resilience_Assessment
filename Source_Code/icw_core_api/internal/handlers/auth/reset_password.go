@@ -26,7 +26,7 @@ func (h *Handler) ResetPassword(c *gin.Context) {
 	}
 	rpcResp := &bizDto.ResetPasswordResponse{}
 	if err := h.rpc.Call("AuthService.ResetPassword", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("Call icw.core.biz AuthService.ResetPassword failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+		log.Printf("[ERROR] Call icw.core.biz AuthService.ResetPassword failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 		response.WriteRPCError(c, err)
 		return
 	}

@@ -8,12 +8,18 @@ import (
 
 	"icw_core_biz/internal/auth/consts"
 	"icw_core_biz/internal/auth/utils"
+	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
 
 // ResetPassword 重置密码
-func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPasswordResponse) error {
+func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, resp *dto.ResetPasswordResponse) (err error) {
+	start := rpc_log.Start("AuthService.ResetPassword", req)
+	defer func() {
+		rpc_log.Finish("AuthService.ResetPassword", req, resp, start, err)
+	}()
+
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}

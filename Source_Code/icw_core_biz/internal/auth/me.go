@@ -3,13 +3,19 @@ package auth
 import (
 	"context"
 
+	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/utils"
 )
 
 // Me 获取用户信息
-func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
+func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) (err error) {
+	start := rpc_log.Start("AuthService.Me", req)
+	defer func() {
+		rpc_log.Finish("AuthService.Me", req, resp, start, err)
+	}()
+
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}

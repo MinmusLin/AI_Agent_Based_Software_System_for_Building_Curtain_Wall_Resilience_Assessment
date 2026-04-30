@@ -7,12 +7,18 @@ import (
 
 	"icw_core_biz/internal/auth/consts"
 	"icw_core_biz/internal/auth/utils"
+	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
 
 // SendEmailCode 发送邮箱验证码
-func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEmailCodeResponse) error {
+func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEmailCodeResponse) (err error) {
+	start := rpc_log.Start("AuthService.SendEmailCode", req)
+	defer func() {
+		rpc_log.Finish("AuthService.SendEmailCode", req, resp, start, err)
+	}()
+
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}

@@ -5,12 +5,18 @@ import (
 	"time"
 
 	"icw_core_biz/internal/auth/utils"
+	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
 
 // Logout 登出
-func (s *Service) Logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
+func (s *Service) Logout(req *dto.LogoutRequest, resp *dto.LogoutResponse) (err error) {
+	start := rpc_log.Start("AuthService.Logout", req)
+	defer func() {
+		rpc_log.Finish("AuthService.Logout", req, resp, start, err)
+	}()
+
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
 	}
