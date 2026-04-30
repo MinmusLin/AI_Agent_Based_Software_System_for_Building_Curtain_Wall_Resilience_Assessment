@@ -48,7 +48,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to MinIO: %v", err)
 	}
-	if err := dataMinIO.Ping(context.Background()); err != nil {
+	if ok := dataMinIO.Ping(context.Background()); !ok {
 		log.Fatalf("Failed to connect to MinIO: %v", err)
 	}
 
