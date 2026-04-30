@@ -51,7 +51,7 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 		if err := s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL); err != nil {
 			return err
 		}
-		return rpc_err.Unauthorized(rpc_err.DetailInvalidCredentials, "user not found")
+		return rpc_err.BadRequest(rpc_err.DetailInvalidCredentials, "user not found")
 	}
 
 	switch scene {
@@ -61,7 +61,7 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 			if err := s.redis.RecordLoginFailure(ctx, scene.String(), email, s.cfg.LoginFailTTL); err != nil {
 				return err
 			}
-			return rpc_err.Unauthorized(rpc_err.DetailInvalidCredentials, err.Error())
+			return rpc_err.BadRequest(rpc_err.DetailInvalidCredentials, err.Error())
 		}
 	case consts.LoginEmail:
 		// 邮箱验证码登录
