@@ -25,6 +25,16 @@ func NewMySQLRepository(db *sql.DB) *MySQLRepository {
 	}
 }
 
+// EmailSendStatus 邮件发送状态
+type EmailSendStatus string
+
+const (
+	// EmailSendStatusSuccess 邮件发送成功
+	EmailSendStatusSuccess EmailSendStatus = "success"
+	// EmailSendStatusFailed 邮件发送失败
+	EmailSendStatusFailed EmailSendStatus = "failed"
+)
+
 // UserRecord 用户记录
 type UserRecord struct {
 	Id           uint64
@@ -214,6 +224,18 @@ func (r *MySQLRepository) RevokeUserRefreshTokensByEmail(ctx context.Context, em
 		) AND revoked_at IS NULL
 	`, email)
 	return err
+}
+
+// CreateEmailSendLog 创建邮件发送记录
+func (r *MySQLRepository) CreateEmailSendLog(ctx context.Context, email, scene string, status EmailSendStatus, errorMessage string) error {
+	_, err := r.mysql.ExecContext(ctx, `
+		INSERT INTO email_send_logs(email, scene, status, error_message)
+		VALUES (?, ?, ?, ?)
+	`, email, scene, status, errorMessage)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // IsDuplicateEntryError 判断是否为 MySQL 唯一键冲突错误

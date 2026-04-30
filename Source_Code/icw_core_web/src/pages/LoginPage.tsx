@@ -9,7 +9,7 @@ import { getErrorMessage } from '../api/http';
 import { AuthShell } from '../components/AuthShell';
 import { useAuth } from '../contexts/AuthContext';
 import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
-import { normalizeEmailCode } from '../utils/validation';
+import { normalizeEmailAddress, normalizeEmailCode } from '../utils/validation';
 
 type LoginMode = 'password' | 'email';
 
@@ -30,7 +30,7 @@ export default function LoginPage(): ReactElement {
   const [form] = Form.useForm<LoginFormValues>();
 
   async function handleSendCode(): Promise<void> {
-    const email = String(form.getFieldValue('email') ?? '');
+    const email = normalizeEmailAddress(String(form.getFieldValue('email') ?? ''));
     if (!email) {
       message.warning('请输入邮箱');
       return;
@@ -58,8 +58,9 @@ export default function LoginPage(): ReactElement {
   async function handleSubmit(values: LoginFormValues): Promise<void> {
     setLoading(true);
     try {
+      const email = normalizeEmailAddress(values.email);
       await login({
-        email: values.email,
+        email,
         scene: mode,
         code: mode === 'password' ? (values.password ?? '') : (values.email_code ?? ''),
       });

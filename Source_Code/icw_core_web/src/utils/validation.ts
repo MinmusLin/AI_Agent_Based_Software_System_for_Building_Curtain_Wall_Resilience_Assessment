@@ -1,5 +1,9 @@
 import type { Rule } from 'antd/es/form';
 
+export function normalizeEmailAddress(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 export function normalizeEmailCode(value: unknown): string {
   if (typeof value !== 'string' && typeof value !== 'number') {
     return '';

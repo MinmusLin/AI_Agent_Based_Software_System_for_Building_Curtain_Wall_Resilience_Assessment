@@ -9,7 +9,7 @@ import { getErrorMessage } from '../api/http';
 import { AuthShell } from '../components/AuthShell';
 import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
 import type { RegisterRequest } from '../types/auth';
-import { normalizeEmailCode, passwordRules } from '../utils/validation';
+import { normalizeEmailAddress, normalizeEmailCode, passwordRules } from '../utils/validation';
 
 interface RegisterFormValues extends RegisterRequest {
   confirm_password?: string;
@@ -24,7 +24,7 @@ export default function RegisterPage(): ReactElement {
   const { buttonText, isCounting, startCountdown } = useEmailCodeCountdown();
 
   async function handleSendCode(): Promise<void> {
-    const email = String(form.getFieldValue('email') ?? '');
+    const email = normalizeEmailAddress(String(form.getFieldValue('email') ?? ''));
     if (!email) {
       message.warning('请输入邮箱');
       return;
@@ -52,8 +52,9 @@ export default function RegisterPage(): ReactElement {
   async function handleSubmit(values: RegisterFormValues): Promise<void> {
     setLoading(true);
     try {
+      const email = normalizeEmailAddress(values.email);
       await register({
-        email: values.email,
+        email,
         email_code: values.email_code,
         password: values.password,
         name: values.name,

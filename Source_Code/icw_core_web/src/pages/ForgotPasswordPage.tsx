@@ -9,7 +9,7 @@ import { getErrorMessage } from '../api/http';
 import { AuthShell } from '../components/AuthShell';
 import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
 import type { ResetPasswordRequest } from '../types/auth';
-import { normalizeEmailCode, passwordRules } from '../utils/validation';
+import { normalizeEmailAddress, normalizeEmailCode, passwordRules } from '../utils/validation';
 
 interface ForgotPasswordFormValues extends ResetPasswordRequest {
   confirm_password?: string;
@@ -24,7 +24,7 @@ export default function ForgotPasswordPage(): ReactElement {
   const { buttonText, isCounting, startCountdown } = useEmailCodeCountdown();
 
   async function handleSendCode(): Promise<void> {
-    const email = String(form.getFieldValue('email') ?? '');
+    const email = normalizeEmailAddress(String(form.getFieldValue('email') ?? ''));
     if (!email) {
       message.warning('请输入邮箱');
       return;
@@ -52,7 +52,12 @@ export default function ForgotPasswordPage(): ReactElement {
   async function handleSubmit(values: ForgotPasswordFormValues): Promise<void> {
     setLoading(true);
     try {
-      await resetPassword({ email: values.email, email_code: values.email_code, new_password: values.new_password });
+      const email = normalizeEmailAddress(values.email);
+      await resetPassword({
+        email,
+        email_code: values.email_code,
+        new_password: values.new_password,
+      });
       message.success('密码重置成功，请重新登录');
       void navigate('/login', { replace: true });
     } catch (error: unknown) {
