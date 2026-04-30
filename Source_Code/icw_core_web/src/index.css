@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+
+body {
+  margin: 0;
+  background: #F4F6F8;
+  color: #1F2937;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, #F4F6F8EB, #F4F6F8FA),
+    url('/auth-shell-bg.svg') center;
+  background-size: cover;
+}

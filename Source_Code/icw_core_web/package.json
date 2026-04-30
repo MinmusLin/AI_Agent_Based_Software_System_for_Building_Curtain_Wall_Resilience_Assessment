@@ -23,7 +23,7 @@
     "dev": "tsc -b && vite",
     "preview": "tsc -b && vite preview",
     "build": "tsc -b && vite build",
-    "lint": "eslint . --fix && prettier --write ."
+    "lint": "eslint . --fix && prettier --write . && stylelint \"src/**/*.css\" --fix"
   },
   "engines": {
     "node": ">=20.19.0",
@@ -49,6 +49,7 @@
     "eslint-plugin-perfectionist": "^5.9.0",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "prettier": "^3.8.3",
+    "stylelint": "^17.9.1",
     "tailwindcss": "^4.2.4",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",

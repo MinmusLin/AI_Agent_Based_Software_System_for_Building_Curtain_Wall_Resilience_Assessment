@@ -38,6 +38,30 @@ const styleRules = {
       selector: 'Program > :not(ImportDeclaration) ~ ImportDeclaration',
       message: 'All imports must be placed at the top of the file.',
     },
+    {
+      selector: String.raw`Literal[value=/\b(?:rgb|rgba|hsl|hsla)\s*\(/i]`,
+      message: 'Color literals must use #RRGGBB or #RRGGBBAA uppercase hex notation.',
+    },
+    {
+      selector: String.raw`TemplateElement[value.raw=/\b(?:rgb|rgba|hsl|hsla)\s*\(/i]`,
+      message: 'Color literals must use #RRGGBB or #RRGGBBAA uppercase hex notation.',
+    },
+    {
+      selector: String.raw`Literal[value=/#[0-9A-Fa-f]*[a-f][0-9A-Fa-f]*(?![0-9A-Fa-f])/]`,
+      message: 'Hex color literals must be uppercase.',
+    },
+    {
+      selector: String.raw`TemplateElement[value.raw=/#[0-9A-Fa-f]*[a-f][0-9A-Fa-f]*(?![0-9A-Fa-f])/]`,
+      message: 'Hex color literals must be uppercase.',
+    },
+    {
+      selector: String.raw`Literal[value=/#(?:[0-9A-Fa-f]{1,5}|[0-9A-Fa-f]{7}|[0-9A-Fa-f]{9,})(?![0-9A-Fa-f])/]`,
+      message: 'Hex color literals must use #RRGGBB or #RRGGBBAA notation.',
+    },
+    {
+      selector: String.raw`TemplateElement[value.raw=/#(?:[0-9A-Fa-f]{1,5}|[0-9A-Fa-f]{7}|[0-9A-Fa-f]{9,})(?![0-9A-Fa-f])/]`,
+      message: 'Hex color literals must use #RRGGBB or #RRGGBBAA notation.',
+    },
   ],
   'perfectionist/sort-jsx-props': ['error', { ignoreCase: true, order: 'asc', type: 'alphabetical' }],
   'simple-import-sort/exports': 'error',
