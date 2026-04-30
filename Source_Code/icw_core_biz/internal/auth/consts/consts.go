@@ -10,6 +10,9 @@ const LoginFailureLimit int = 5
 // MinPasswordLength 密码最小字符长度
 const MinPasswordLength = 8
 
+// MaxPasswordLength 密码最大字符长度
+const MaxPasswordLength = 24
+
 // MaxNameLength 用户名称最大字符长度
 const MaxNameLength = 8
 

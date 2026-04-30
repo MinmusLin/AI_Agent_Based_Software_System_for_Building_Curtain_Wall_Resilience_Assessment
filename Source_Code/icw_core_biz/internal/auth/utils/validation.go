@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	// ErrPasswordTooShort 密码长度过短
-	ErrPasswordTooShort = errors.New("password too short")
+	// ErrPasswordTooShortOrTooLong 密码长度过短或过长
+	ErrPasswordTooShortOrTooLong = errors.New("password too short or too long")
 	// ErrPasswordTooWeak 密码强度过弱
 	ErrPasswordTooWeak = errors.New("password too weak")
 	// ErrNameIsEmpty 用户名称为空
@@ -21,11 +21,11 @@ var (
 )
 
 // ValidatePassword 校验密码
-// 密码长度必须不小于 8 位，且必须同时包含大小写英文字母、数字和符号
+// 密码长度必须不小于 8 位，不多于 24 位，且必须同时包含大小写英文字母、数字和符号
 func ValidatePassword(password string) (string, error) {
 	password = strings.TrimSpace(password)
-	if utf8.RuneCountInString(password) < consts.MinPasswordLength {
-		return "", ErrPasswordTooShort
+	if utf8.RuneCountInString(password) < consts.MinPasswordLength || utf8.RuneCountInString(password) > consts.MaxPasswordLength {
+		return "", ErrPasswordTooShortOrTooLong
 	}
 	var hasUpper, hasLower, hasDigit, hasSymbol bool
 	for _, item := range password {

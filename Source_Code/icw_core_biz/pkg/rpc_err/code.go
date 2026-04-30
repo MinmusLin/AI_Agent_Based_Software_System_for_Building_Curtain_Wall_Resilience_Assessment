@@ -38,7 +38,7 @@ const (
 	DetailEmailNotRegistered         DetailCode = "EMAIL_NOT_REGISTERED"
 	DetailEmailCodeSentTooFrequently DetailCode = "EMAIL_CODE_SENT_TOO_FREQUENTLY"
 	DetailSendEmailCodeFailed        DetailCode = "SEND_EMAIL_CODE_FAILED"
-	DetailPasswordTooShort           DetailCode = "PASSWORD_TOO_SHORT"
+	DetailPasswordTooShortOrTooLong  DetailCode = "PASSWORD_TOO_SHORT_OR_TOO_LONG"
 	DetailPasswordTooWeak            DetailCode = "PASSWORD_TOO_WEAK"
 	DetailNameRequired               DetailCode = "NAME_REQUIRED"
 	DetailNameTooLong                DetailCode = "NAME_TOO_LONG"
@@ -58,7 +58,7 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailEmailNotRegistered,
 		DetailEmailCodeSentTooFrequently,
 		DetailSendEmailCodeFailed,
-		DetailPasswordTooShort,
+		DetailPasswordTooShortOrTooLong,
 		DetailPasswordTooWeak,
 		DetailNameRequired,
 		DetailNameTooLong,

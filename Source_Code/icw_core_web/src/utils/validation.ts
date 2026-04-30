@@ -15,7 +15,7 @@ export function passwordRules(requiredMessage: string): Rule[] {
     },
     {
       min: 8,
-      message: '密码长度必须不小于 8 位',
+      message: '密码长度必须不小于 8 位，不多于 24 位',
     },
     {
       pattern: /^(?=.*\p{Ll})(?=.*\p{Lu})(?=.*\p{Nd})(?=.*[\p{P}\p{S}]).+$/u,

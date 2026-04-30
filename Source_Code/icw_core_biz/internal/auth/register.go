@@ -46,8 +46,8 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 	// 校验密码
 	password, err := utils.ValidatePassword(req.Password)
 	if err != nil {
-		if errors.Is(err, utils.ErrPasswordTooShort) {
-			return rpc_err.BadRequest(rpc_err.DetailPasswordTooShort, err.Error())
+		if errors.Is(err, utils.ErrPasswordTooShortOrTooLong) {
+			return rpc_err.BadRequest(rpc_err.DetailPasswordTooShortOrTooLong, err.Error())
 		} else if errors.Is(err, utils.ErrPasswordTooWeak) {
 			return rpc_err.BadRequest(rpc_err.DetailPasswordTooWeak, err.Error())
 		}

@@ -117,7 +117,7 @@ export default function RegisterPage(): ReactElement {
           <Input maxLength={8} placeholder="不能超过 8 个字符" prefix={<UserOutlined />} size="large" />
         </Form.Item>
         <Form.Item label="密码" name="password" rules={passwordRules('请输入密码')}>
-          <Input.Password placeholder="请输入密码" prefix={<LockOutlined />} size="large" />
+          <Input.Password maxLength={24} placeholder="请输入密码" prefix={<LockOutlined />} size="large" />
         </Form.Item>
         <Form.Item
           dependencies={['password']}
