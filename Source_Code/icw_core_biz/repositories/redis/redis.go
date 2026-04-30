@@ -8,7 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// Repository Redis 服务
+// Repository Redis 非关系型数据库服务
 type Repository struct {
 	redis *redis.Client
 }

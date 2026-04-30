@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Repository MySQL 服务
+// Repository MySQL 关系型数据库服务
 type Repository struct {
 	mysql *sql.DB
 }

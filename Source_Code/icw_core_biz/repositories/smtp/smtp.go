@@ -11,7 +11,7 @@ import (
 	"icw_core_biz/configs"
 )
 
-// Repository SMTP 服务
+// Repository SMTP 简单邮件传输协议服务
 type Repository struct {
 	SMTPHost            string
 	SMTPPort            int
