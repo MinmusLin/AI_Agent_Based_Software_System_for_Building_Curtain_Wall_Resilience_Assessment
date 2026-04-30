@@ -81,7 +81,6 @@ func (r *Repository) IsLoginLocked(ctx context.Context, loginScene, email string
 		return false, 0, err
 	}
 	if ttl <= 0 {
-		_ = r.redis.Del(ctx, key).Err()
 		return false, 0, nil
 	}
 	return true, ttl, nil

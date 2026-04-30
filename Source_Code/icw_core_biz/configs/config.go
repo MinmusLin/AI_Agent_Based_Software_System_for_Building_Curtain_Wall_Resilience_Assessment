@@ -151,7 +151,9 @@ func LoadDotEnv(path string) {
 			continue
 		}
 		if _, exists := os.LookupEnv(key); !exists {
-			_ = os.Setenv(key, value)
+			if err := os.Setenv(key, value); err != nil {
+				log.Fatalf("Failed to set environment variable %s=%s: %v", key, value, err)
+			}
 		}
 	}
 
