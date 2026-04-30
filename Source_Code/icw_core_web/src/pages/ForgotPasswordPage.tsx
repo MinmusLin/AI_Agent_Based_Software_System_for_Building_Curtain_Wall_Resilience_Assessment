@@ -1,0 +1,134 @@
+import { LockOutlined, MailOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import { App, Button, Form, Input } from 'antd';
+import type { ReactElement } from 'react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { resetPassword, sendEmailCode } from '../api/auth';
+import { getErrorMessage } from '../api/http';
+import { AuthShell } from '../components/AuthShell';
+import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
+import type { ResetPasswordRequest } from '../types/auth';
+import { normalizeEmailCode, passwordRules } from '../utils/formRules';
+
+interface ForgotPasswordFormValues extends ResetPasswordRequest {
+  confirm_password?: string;
+}
+
+export default function ForgotPasswordPage(): ReactElement {
+  const { message } = App.useApp();
+  const navigate = useNavigate();
+  const [form] = Form.useForm<ForgotPasswordFormValues>();
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const { buttonText, isCounting, startCountdown } = useEmailCodeCountdown();
+
+  async function handleSendCode(): Promise<void> {
+    const email = String(form.getFieldValue('email') ?? '');
+    if (!email) {
+      message.warning('请输入邮箱');
+      return;
+    }
+    setSending(true);
+    try {
+      const result = await sendEmailCode(email, 'reset');
+      startCountdown(result.expires_in);
+      message.success('已发送邮箱验证码');
+    } catch (error: unknown) {
+      message.error(getErrorMessage(error));
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const sendCode = (): void => {
+    void handleSendCode();
+  };
+
+  const submit = (values: ForgotPasswordFormValues): void => {
+    void handleSubmit(values);
+  };
+
+  async function handleSubmit(values: ForgotPasswordFormValues): Promise<void> {
+    setLoading(true);
+    try {
+      await resetPassword({ email: values.email, email_code: values.email_code, new_password: values.new_password });
+      message.success('密码重置成功，请重新登录');
+      void navigate('/login', { replace: true });
+    } catch (error: unknown) {
+      message.error(getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <AuthShell subtitle="通过邮箱验证码设置新的登录密码" title="重置密码">
+      <Form form={form} layout="vertical" onFinish={submit} requiredMark={false}>
+        <Form.Item
+          label="邮箱"
+          name="email"
+          rules={[
+            { required: true, message: '请输入邮箱' },
+            { type: 'email', message: '邮箱格式错误' },
+          ]}
+        >
+          <Input placeholder="user@example.com" prefix={<MailOutlined />} size="large" />
+        </Form.Item>
+        <Form.Item label="邮箱验证码" required>
+          <div className="flex gap-2">
+            <Form.Item
+              name="email_code"
+              normalize={normalizeEmailCode}
+              noStyle
+              rules={[
+                { required: true, message: '请输入 6 位数字验证码' },
+                { pattern: /^\d+$/, message: '请输入 6 位数字验证码' },
+                { len: 6, message: '请输入 6 位数字验证码' },
+              ]}
+            >
+              <Input
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="邮箱验证码"
+                prefix={<SafetyCertificateOutlined />}
+                size="large"
+              />
+            </Form.Item>
+            <Button disabled={isCounting} loading={sending} onClick={sendCode} size="large">
+              {buttonText}
+            </Button>
+          </div>
+        </Form.Item>
+        <Form.Item label="新密码" name="new_password" rules={passwordRules('请输入新密码')}>
+          <Input.Password placeholder="请输入新密码" prefix={<LockOutlined />} size="large" />
+        </Form.Item>
+        <Form.Item
+          dependencies={['new_password']}
+          label="确认新密码"
+          name="confirm_password"
+          rules={[
+            { required: true, message: '请再次输入新密码' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('new_password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('两次输入的密码不一致'));
+              },
+            }),
+          ]}
+        >
+          <Input.Password placeholder="请再次输入新密码" prefix={<LockOutlined />} size="large" />
+        </Form.Item>
+        <div className="mb-5 text-sm">
+          想起密码？<Link to="/login">前往登录</Link>
+        </div>
+        <Button block htmlType="submit" loading={loading} size="large" type="primary">
+          重置密码
+        </Button>
+      </Form>
+    </AuthShell>
+  );
+}

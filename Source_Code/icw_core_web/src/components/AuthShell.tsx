@@ -26,7 +26,7 @@ export function AuthShell({
               </div>
               <h1 className="mt-6 max-w-lg text-3xl font-semibold leading-tight">建筑幕墙韧性评估软件系统</h1>
               <p className="mt-4 max-w-md text-sm leading-6 text-slate-300">
-                从单点缺陷识别到整栋建筑韧性评估，构建面向智慧运维的决策闭环。
+                从单点缺陷识别到整栋建筑韧性评估，构建面向智慧运维的决策闭环
               </p>
             </div>
             <div className="relative z-10 grid grid-cols-3 gap-3 text-xs text-slate-300">

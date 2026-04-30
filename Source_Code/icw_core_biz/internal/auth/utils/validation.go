@@ -21,7 +21,7 @@ var (
 )
 
 // ValidatePassword 校验密码
-// 密码长度必须不小于 8 个字符，且密码必须同时包含大小写英文字母、数字和符号
+// 密码长度必须不小于 8 位，且必须同时包含大小写英文字母、数字和符号
 func ValidatePassword(password string) (string, error) {
 	password = strings.TrimSpace(password)
 	if utf8.RuneCountInString(password) < consts.MinPasswordLength {
@@ -47,7 +47,7 @@ func ValidatePassword(password string) (string, error) {
 }
 
 // ValidateName 校验用户名称
-// 用户名称不能为空，且用户名称不能超过 8 个字符
+// 用户名称不能超过 8 个字符，且不能为空
 func ValidateName(name string) (string, error) {
 	name = strings.TrimSpace(name)
 	if name == "" {

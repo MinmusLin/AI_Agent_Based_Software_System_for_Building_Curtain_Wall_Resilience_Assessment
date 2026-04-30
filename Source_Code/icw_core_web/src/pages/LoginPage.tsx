@@ -1,4 +1,4 @@
-import { LockOutlined, MailOutlined } from '@ant-design/icons';
+import { LockOutlined, MailOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { App, Button, Form, Input, Segmented } from 'antd';
 import type { ReactElement } from 'react';
 import { useState } from 'react';
@@ -9,6 +9,7 @@ import { getErrorMessage } from '../api/http';
 import { AuthShell } from '../components/AuthShell';
 import { useAuth } from '../contexts/AuthContext';
 import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
+import { normalizeEmailCode } from '../utils/formRules';
 
 type LoginMode = 'password' | 'email';
 
@@ -38,7 +39,7 @@ export default function LoginPage(): ReactElement {
     try {
       const result = await sendEmailCode(email, 'login');
       startCountdown(result.expires_in);
-      message.success('验证码已发送');
+      message.success('已发送邮箱验证码');
     } catch (error: unknown) {
       message.error(getErrorMessage(error));
     } finally {
@@ -72,18 +73,19 @@ export default function LoginPage(): ReactElement {
 
   return (
     <AuthShell subtitle="欢迎使用建筑幕墙韧性评估软件系统" title="登录账号">
-      <Segmented
-        block
-        className="mb-6"
-        onChange={(value) => {
-          setMode(value as LoginMode);
-        }}
-        options={[
-          { label: '密码登录', value: 'password' },
-          { label: '邮箱验证码登录', value: 'email' },
-        ]}
-        value={mode}
-      />
+      <div className="mb-4">
+        <Segmented
+          block
+          onChange={(value) => {
+            setMode(value as LoginMode);
+          }}
+          options={[
+            { label: '密码登录', value: 'password' },
+            { label: '邮箱验证码登录', value: 'email' },
+          ]}
+          value={mode}
+        />
+      </div>
       <Form form={form} layout="vertical" onFinish={submit} requiredMark={false}>
         <Form.Item
           label="邮箱"
@@ -104,13 +106,22 @@ export default function LoginPage(): ReactElement {
             <div className="flex gap-2">
               <Form.Item
                 name="email_code"
+                normalize={normalizeEmailCode}
                 noStyle
                 rules={[
                   { required: true, message: '请输入 6 位数字验证码' },
+                  { pattern: /^\d+$/, message: '请输入 6 位数字验证码' },
                   { len: 6, message: '请输入 6 位数字验证码' },
                 ]}
               >
-                <Input placeholder="邮箱验证码" size="large" />
+                <Input
+                  autoComplete="one-time-code"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="邮箱验证码"
+                  prefix={<SafetyCertificateOutlined />}
+                  size="large"
+                />
               </Form.Item>
               <Button disabled={isCounting} loading={sending} onClick={sendCode} size="large">
                 {buttonText}

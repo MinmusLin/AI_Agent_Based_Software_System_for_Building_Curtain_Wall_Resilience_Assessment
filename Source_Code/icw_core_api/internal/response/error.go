@@ -20,7 +20,7 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 	rpc_err.DetailEmailNotRegistered:         "邮箱尚未注册，请注册账号",
 	rpc_err.DetailEmailCodeSentTooFrequently: "验证码发送过于频繁，请稍后重试",
 	rpc_err.DetailSendEmailCodeFailed:        "验证码发送失败，请稍后重试",
-	rpc_err.DetailPasswordTooShort:           "密码长度必须不小于 8 个字符",
+	rpc_err.DetailPasswordTooShort:           "密码长度必须不小于 8 位",
 	rpc_err.DetailPasswordTooWeak:            "密码必须同时包含大小写英文字母、数字和符号",
 	rpc_err.DetailNameRequired:               "请输入用户名称",
 	rpc_err.DetailNameTooLong:                "用户名称不能超过 8 个字符",
