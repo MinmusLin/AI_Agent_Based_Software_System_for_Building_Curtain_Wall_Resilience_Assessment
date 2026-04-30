@@ -13,3 +13,16 @@ body {
     url('/auth-shell-bg.svg') center;
   background-size: cover;
 }
+
+.app-side-menu.ant-menu-root.ant-menu-inline,
+.app-side-menu.ant-menu-inline {
+  border-inline-end: 0 !important;
+  border-inline-end-width: 0 !important;
+}
+
+.app-side-menu .ant-menu-item::after,
+.app-side-menu .ant-menu-item-selected::after {
+  display: none !important;
+  border-inline-end: 0 !important;
+  border-inline-end-width: 0 !important;
+}
