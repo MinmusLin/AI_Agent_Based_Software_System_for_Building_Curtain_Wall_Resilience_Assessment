@@ -80,22 +80,22 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		CoreBizAddr:     env("ICW_CORE_BIZ_ADDR", "127.0.0.1:8001"),
-		MySQLDSN:        env("MYSQL_DSN", ""),
-		RedisAddr:       env("REDIS_ADDR", "127.0.0.1:6379"),
-		RedisPassword:   env("REDIS_PASSWORD", ""),
-		RedisDB:         envInt("REDIS_DB", 0),
-		SMTPHost:        env("SMTP_HOST", ""),
-		SMTPPort:        envInt("SMTP_PORT", 0),
-		SMTPPassword:    env("SMTP_PASSWORD", ""),
-		SMTPFromName:    env("SMTP_FROM_NAME", ""),
-		SMTPFromEmail:   env("SMTP_FROM_EMAIL", ""),
-		JWTSecret:       env("JWT_SECRET", ""),
-		EmailCodeSecret: env("EMAIL_CODE_SECRET", ""),
-		EmailCodeTTL:    time.Duration(envInt("EMAIL_CODE_TTL_MINUTES", 1)) * time.Minute,
-		LoginFailTTL:    time.Duration(envInt("LOGIN_FAIL_TTL_MINUTES", 1)) * time.Minute,
-		AccessTokenTTL:  time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES", 1)) * time.Minute,
-		RefreshTokenTTL: time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES", 1)) * time.Minute,
+		CoreBizAddr:     env("ICW_CORE_BIZ_ADDR"),
+		MySQLDSN:        env("MYSQL_DSN"),
+		RedisAddr:       env("REDIS_ADDR"),
+		RedisPassword:   env("REDIS_PASSWORD"),
+		RedisDB:         envInt("REDIS_DB"),
+		SMTPHost:        env("SMTP_HOST"),
+		SMTPPort:        envInt("SMTP_PORT"),
+		SMTPPassword:    env("SMTP_PASSWORD"),
+		SMTPFromName:    env("SMTP_FROM_NAME"),
+		SMTPFromEmail:   env("SMTP_FROM_EMAIL"),
+		JWTSecret:       env("JWT_SECRET"),
+		EmailCodeSecret: env("EMAIL_CODE_SECRET"),
+		EmailCodeTTL:    time.Duration(envInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
+		LoginFailTTL:    time.Duration(envInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
+		AccessTokenTTL:  time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
+		RefreshTokenTTL: time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
@@ -132,25 +132,29 @@ func LoadDotEnv(path string) {
 			_ = os.Setenv(key, value)
 		}
 	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Failed to read .env file: %v", err)
+	}
 }
 
 // env 获取环境变量（String 类型）
-func env(key, fallback string) string {
+func env(key string) string {
 	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
 		return value
 	}
-	return fallback
+	return ""
 }
 
 // envInt 获取环境变量（Int 类型）
-func envInt(key string, fallback int) int {
+func envInt(key string) int {
 	value := strings.TrimSpace(os.Getenv(key))
 	if value == "" {
-		return fallback
+		return 0
 	}
 	parsedInt, err := strconv.Atoi(value)
 	if err != nil {
-		return fallback
+		return 0
 	}
 	return parsedInt
 }

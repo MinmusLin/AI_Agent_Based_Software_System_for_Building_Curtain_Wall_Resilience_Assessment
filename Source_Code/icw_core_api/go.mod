@@ -4,6 +4,9 @@ go 1.22
 
 require (
 	github.com/gin-gonic/gin v1.10.0
+)
+
+require (
 	icw_core_biz v0.0.0
 )
 

@@ -38,8 +38,8 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		CoreApiAddr: env("ICW_CORE_API_ADDR", "127.0.0.1:8000"),
-		CoreBizAddr: env("ICW_CORE_BIZ_ADDR", "127.0.0.1:8001"),
+		CoreApiAddr: env("ICW_CORE_API_ADDR"),
+		CoreBizAddr: env("ICW_CORE_BIZ_ADDR"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
@@ -76,12 +76,16 @@ func LoadDotEnv(path string) {
 			_ = os.Setenv(key, value)
 		}
 	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Failed to read .env file: %v", err)
+	}
 }
 
 // env 获取环境变量（String 类型）
-func env(key, fallback string) string {
+func env(key string) string {
 	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
 		return value
 	}
-	return fallback
+	return ""
 }
