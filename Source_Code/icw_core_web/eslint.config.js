@@ -39,6 +39,22 @@ const styleRules = {
       message: 'All imports must be placed at the top of the file.',
     },
     {
+      selector: String.raw`ImportDeclaration[source.value=/\.(?:ts|tsx|js|jsx)$/]`,
+      message: 'Do not include TS/JS file extensions in import paths.',
+    },
+    {
+      selector: String.raw`ExportNamedDeclaration[source.value=/\.(?:ts|tsx|js|jsx)$/]`,
+      message: 'Do not include TS/JS file extensions in export paths.',
+    },
+    {
+      selector: String.raw`ExportAllDeclaration[source.value=/\.(?:ts|tsx|js|jsx)$/]`,
+      message: 'Do not include TS/JS file extensions in export paths.',
+    },
+    {
+      selector: String.raw`ImportExpression[source.value=/\.(?:ts|tsx|js|jsx)$/]`,
+      message: 'Do not include TS/JS file extensions in dynamic import paths.',
+    },
+    {
       selector: String.raw`Literal[value=/\b(?:rgb|rgba|hsl|hsla)\s*\(/i]`,
       message: 'Color literals must use #RRGGBB or #RRGGBBAA uppercase hex notation.',
     },
@@ -147,7 +163,16 @@ const qualityRules = {
   'no-restricted-imports': [
     'error',
     {
-      patterns: ['../*/*/*'],
+      patterns: [
+        {
+          group: ['../*/*/*'],
+          message: 'Avoid deep relative imports.',
+        },
+        {
+          group: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+          message: 'Import TS/JS modules without file extensions.',
+        },
+      ],
     },
   ],
   'no-useless-concat': 'error',
