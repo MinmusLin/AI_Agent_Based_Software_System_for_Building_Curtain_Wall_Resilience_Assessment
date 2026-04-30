@@ -1,4 +1,4 @@
-import './styles.css';
+import './index.css';
 
 import { App as AntApp, ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
