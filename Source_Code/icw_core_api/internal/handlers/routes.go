@@ -38,7 +38,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 	}
 
 	// 用户业务 Handler
-	userHandler := userHandlers.NewHandler(coreBizClient)
+	userHandler := userHandlers.NewHandler(cfg, coreBizClient)
 	user := router.Group("/user")
 	user.Use(middlewares.AuthRequired(coreBizClient))
 	{
