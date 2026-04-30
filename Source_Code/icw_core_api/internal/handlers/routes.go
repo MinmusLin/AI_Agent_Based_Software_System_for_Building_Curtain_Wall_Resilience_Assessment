@@ -7,6 +7,7 @@ import (
 
 	"icw_core_api/configs"
 	authHandlers "icw_core_api/internal/handlers/auth"
+	userHandlers "icw_core_api/internal/handlers/user"
 	"icw_core_api/internal/middlewares"
 )
 
@@ -34,5 +35,18 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 		auth.POST("/reset-password", authHandler.ResetPassword)
 		// 发送邮箱验证码
 		auth.POST("/send-email-code", authHandler.SendEmailCode)
+	}
+
+	// 用户行为 Handler
+	userHandler := userHandlers.NewHandler(coreBizClient)
+	user := router.Group("/user")
+	user.Use(middlewares.AuthRequired(coreBizClient))
+	{
+		// 获取用户头像
+		user.GET("/avatar", userHandler.GetAvatar)
+		// 上传用户自定义头像
+		user.POST("/avatar", userHandler.UploadAvatar)
+		// 删除用户自定义头像
+		user.DELETE("/avatar", userHandler.DeleteAvatar)
 	}
 }
