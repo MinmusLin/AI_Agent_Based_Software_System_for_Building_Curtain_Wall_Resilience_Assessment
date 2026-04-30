@@ -79,7 +79,10 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 	}
 
 	// 登录成功后清除登录失败计数
-	if err := s.redis.ClearLoginFailure(ctx, scene.String(), email); err != nil {
+	if err := s.redis.ClearLoginFailure(ctx, consts.LoginPassword.String(), email); err != nil {
+		return err
+	}
+	if err := s.redis.ClearLoginFailure(ctx, consts.LoginEmail.String(), email); err != nil {
 		return err
 	}
 

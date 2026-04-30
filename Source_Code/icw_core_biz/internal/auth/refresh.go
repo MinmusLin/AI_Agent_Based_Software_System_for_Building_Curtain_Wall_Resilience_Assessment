@@ -55,16 +55,13 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 	}
 
 	// 签发新的 Access Token 和 Refresh Token
-	if err := utils.IssueTokens(ctx, s.cfg, s.mysql, s.tokens, user, resp); err != nil {
+	if err := utils.IssueRotatedTokens(ctx, s.cfg, s.mysql, s.tokens, tokenId, user, resp); err != nil {
 		return err
 	}
 	newTokenId := utils.ParseRefreshTokenId(resp.RefreshToken)
 	if newTokenId == "" {
 		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "invalid new refresh token")
 	}
-
-	// 吊销旧 Refresh Token
-	_ = s.mysql.ReplaceRefreshToken(ctx, tokenId, newTokenId)
 
 	return nil
 }
