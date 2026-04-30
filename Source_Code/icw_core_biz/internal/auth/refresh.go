@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"log"
 	"strings"
 	"time"
 
@@ -40,7 +41,9 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) (e
 		return rpc_err.UnauthorizedDefault("refresh in progress")
 	}
 	defer func(redis *redis.Repository, ctx context.Context, tokenId string) {
-		_ = redis.ClearRefreshReuseLock(ctx, tokenId)
+		if err := redis.ClearRefreshReuseLock(ctx, tokenId); err != nil {
+			log.Printf("[WARN] Clear refresh reuse lock failed, token_id: %s, err: %v", tokenId, err)
+		}
 	}(s.redis, ctx, tokenId)
 
 	// 按 Token Id 和 Token Hash 查询 Refresh Token 及所属用户
