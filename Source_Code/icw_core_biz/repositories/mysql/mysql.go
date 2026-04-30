@@ -5,13 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"time"
-
-	mysqlDriver "github.com/go-sql-driver/mysql"
-)
-
-var (
-	// ErrRefreshTokenNotReplaceable 旧 Refresh Token 不存在或已吊销，不能继续完成轮换
-	ErrRefreshTokenNotReplaceable = errors.New("refresh token not replaceable")
 )
 
 // MySQLRepository MySQL 服务
@@ -23,32 +16,6 @@ func NewMySQLRepository(db *sql.DB) *MySQLRepository {
 	return &MySQLRepository{
 		mysql: db,
 	}
-}
-
-// EmailSendStatus 邮件发送状态
-type EmailSendStatus string
-
-const (
-	// EmailSendStatusSuccess 邮件发送成功
-	EmailSendStatusSuccess EmailSendStatus = "success"
-	// EmailSendStatusFailed 邮件发送失败
-	EmailSendStatusFailed EmailSendStatus = "failed"
-)
-
-// UserRecord 用户记录
-type UserRecord struct {
-	Id           uint64
-	Email        string
-	PasswordHash string
-	Name         string
-}
-
-// RefreshTokenRecord Refresh Token 记录
-type RefreshTokenRecord struct {
-	TokenId   string
-	UserId    uint64
-	ExpiresAt time.Time
-	RevokedAt sql.NullTime
 }
 
 // CreateUser 创建用户
@@ -236,10 +203,4 @@ func (r *MySQLRepository) CreateEmailSendLog(ctx context.Context, receiverEmail 
 		return err
 	}
 	return nil
-}
-
-// IsDuplicateEntryError 判断是否为 MySQL 唯一键冲突错误
-func IsDuplicateEntryError(err error) bool {
-	var mysqlErr *mysqlDriver.MySQLError
-	return errors.As(err, &mysqlErr) && mysqlErr.Number == 1062
 }
