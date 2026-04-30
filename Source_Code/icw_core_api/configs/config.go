@@ -2,6 +2,7 @@ package configs
 
 import (
 	"bufio"
+	"errors"
 	"log"
 	"os"
 	"strings"
@@ -13,12 +14,37 @@ type Config struct {
 	CoreBizAddr string
 }
 
+// Validate 校验服务配置
+func (cfg *Config) Validate() error {
+	var problems []string
+	required := []struct {
+		key   string
+		value string
+	}{
+		{key: "ICW_CORE_API_ADDR", value: cfg.CoreApiAddr},
+		{key: "ICW_CORE_BIZ_ADDR", value: cfg.CoreBizAddr},
+	}
+	for _, item := range required {
+		if strings.TrimSpace(item.value) == "" {
+			problems = append(problems, item.key+" is required")
+		}
+	}
+	if len(problems) > 0 {
+		return errors.New(strings.Join(problems, "; "))
+	}
+	return nil
+}
+
 // Load 加载服务配置
-func Load() Config {
-	return Config{
+func Load() (Config, error) {
+	cfg := Config{
 		CoreApiAddr: env("ICW_CORE_API_ADDR", "127.0.0.1:8000"),
 		CoreBizAddr: env("ICW_CORE_BIZ_ADDR", "127.0.0.1:8001"),
 	}
+	if err := cfg.Validate(); err != nil {
+		return cfg, err
+	}
+	return cfg, nil
 }
 
 // LoadDotEnv 从 .env 文件加载环境变量

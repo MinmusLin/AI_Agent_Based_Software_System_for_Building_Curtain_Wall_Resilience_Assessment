@@ -48,9 +48,7 @@ type RegisterRequest struct {
 	Name      string
 }
 
-type RegisterResponse struct {
-	User *User
-}
+type RegisterResponse struct{}
 
 type ResetPasswordRequest struct {
 	Email       string

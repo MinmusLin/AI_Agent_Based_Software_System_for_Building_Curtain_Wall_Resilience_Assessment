@@ -68,7 +68,8 @@ func emailSceneText(scene string) (string, string, error) {
 
 // buildEmailCodeHTML 构建验证码邮件 HTML 正文
 func buildEmailCodeHTML(sceneName, code string, ttlMinutes int) string {
-	return fmt.Sprintf(`<!doctype html>
+	return fmt.Sprintf(`
+		<!doctype html>
 		<html>
 		<body style="margin:0;padding:0;background:#f6f8fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#172033;">
 			<div style="max-width:560px;margin:0 auto;padding:32px 16px;">

@@ -2,6 +2,7 @@ package configs
 
 import (
 	"bufio"
+	"errors"
 	"log"
 	"os"
 	"strconv"
@@ -29,9 +30,56 @@ type Config struct {
 	RefreshTokenTTL time.Duration
 }
 
+// Validate 校验服务配置
+func (cfg *Config) Validate() error {
+	var problems []string
+	required := []struct {
+		key   string
+		value string
+	}{
+		{key: "ICW_CORE_BIZ_ADDR", value: cfg.CoreBizAddr},
+		{key: "MYSQL_DSN", value: cfg.MySQLDSN},
+		{key: "REDIS_ADDR", value: cfg.RedisAddr},
+		{key: "REDIS_PASSWORD", value: cfg.RedisPassword},
+		{key: "SMTP_HOST", value: cfg.SMTPHost},
+		{key: "SMTP_PASSWORD", value: cfg.SMTPPassword},
+		{key: "SMTP_FROM_NAME", value: cfg.SMTPFromName},
+		{key: "SMTP_FROM_EMAIL", value: cfg.SMTPFromEmail},
+		{key: "JWT_SECRET", value: cfg.JWTSecret},
+		{key: "EMAIL_CODE_SECRET", value: cfg.EmailCodeSecret},
+	}
+	for _, item := range required {
+		if strings.TrimSpace(item.value) == "" {
+			problems = append(problems, item.key+" is required")
+		}
+	}
+	if cfg.RedisDB < 0 {
+		problems = append(problems, "REDIS_DB must be greater than or equal to 0")
+	}
+	if cfg.SMTPPort <= 0 {
+		problems = append(problems, "SMTP_PORT must be greater than 0")
+	}
+	if cfg.EmailCodeTTL <= 0 {
+		problems = append(problems, "EMAIL_CODE_TTL_MINUTES must be greater than 0")
+	}
+	if cfg.LoginFailTTL <= 0 {
+		problems = append(problems, "LOGIN_FAIL_TTL_MINUTES must be greater than 0")
+	}
+	if cfg.AccessTokenTTL <= 0 {
+		problems = append(problems, "ACCESS_TOKEN_TTL_MINUTES must be greater than 0")
+	}
+	if cfg.RefreshTokenTTL <= 0 {
+		problems = append(problems, "REFRESH_TOKEN_TTL_MINUTES must be greater than 0")
+	}
+	if len(problems) > 0 {
+		return errors.New(strings.Join(problems, "; "))
+	}
+	return nil
+}
+
 // Load 加载服务配置
-func Load() Config {
-	return Config{
+func Load() (Config, error) {
+	cfg := Config{
 		CoreBizAddr:     env("ICW_CORE_BIZ_ADDR", "127.0.0.1:8001"),
 		MySQLDSN:        env("MYSQL_DSN", ""),
 		RedisAddr:       env("REDIS_ADDR", "127.0.0.1:6379"),
@@ -49,6 +97,10 @@ func Load() Config {
 		AccessTokenTTL:  time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES", 1)) * time.Minute,
 		RefreshTokenTTL: time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES", 1)) * time.Minute,
 	}
+	if err := cfg.Validate(); err != nil {
+		return cfg, err
+	}
+	return cfg, nil
 }
 
 // LoadDotEnv 从 .env 文件加载环境变量

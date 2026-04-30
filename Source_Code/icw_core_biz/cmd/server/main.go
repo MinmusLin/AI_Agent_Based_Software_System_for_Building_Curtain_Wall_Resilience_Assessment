@@ -18,7 +18,10 @@ import (
 func main() {
 	// 加载服务配置
 	configs.LoadDotEnv(".env")
-	cfg := configs.Load()
+	cfg, err := configs.Load()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
 	// 初始化 MySQL
 	dataMySQL, err := sql.Open("mysql", cfg.MySQLDSN)

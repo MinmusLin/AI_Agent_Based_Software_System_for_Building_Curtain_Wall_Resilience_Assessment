@@ -70,17 +70,10 @@ type RegisterRequest struct {
 	Name      string `json:"name"`
 }
 
-type RegisterResponse struct {
-	User *User `json:"user"`
-}
+type RegisterResponse struct{}
 
-func NewRegisterResponse(resp *bizDto.RegisterResponse) *RegisterResponse {
-	if resp == nil {
-		return &RegisterResponse{}
-	}
-	return &RegisterResponse{
-		User: NewUser(resp.User),
-	}
+func NewRegisterResponse(_ *bizDto.RegisterResponse) *RegisterResponse {
+	return &RegisterResponse{}
 }
 
 type ResetPasswordRequest struct {

@@ -29,12 +29,17 @@ func VerifyEmailCode(ctx context.Context, redis *repositories.RedisRepository, s
 		return errors.New("invalid email code")
 	}
 	codeHash, err := redis.GetEmailCode(ctx, scene, email)
-	if err != nil || codeHash == "" {
+	if err != nil {
+		return err
+	}
+	if codeHash == "" {
 		return errors.New("email code not found or expired")
 	}
 	if codeHash != HashEmailCode(code, secret) {
 		return errors.New("incorrect email code")
 	}
-	_ = redis.ClearEmailCode(ctx, scene, email)
+	if err := redis.ClearEmailCode(ctx, scene, email); err != nil {
+		return err
+	}
 	return nil
 }
