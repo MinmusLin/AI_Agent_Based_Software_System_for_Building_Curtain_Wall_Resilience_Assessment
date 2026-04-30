@@ -7,24 +7,24 @@ import (
 
 	"icw_core_biz/configs"
 	"icw_core_biz/internal/auth/utils"
-	"icw_core_biz/repositoies"
+	"icw_core_biz/repositories"
 )
 
 // Service 登录鉴权 Service
 type Service struct {
 	cfg    configs.Config
-	mysql  *repositoies.MySQLRepository
-	redis  *repositoies.RedisRepository
-	smtp   *repositoies.SMTPRepository
+	mysql  *repositories.MySQLRepository
+	redis  *repositories.RedisRepository
+	smtp   *repositories.SMTPRepository
 	tokens *utils.TokenManager
 }
 
 func NewService(cfg configs.Config, db *sql.DB, rdb *redis.Client) *Service {
 	return &Service{
 		cfg:    cfg,
-		mysql:  repositoies.NewMySQLRepository(db),
-		redis:  repositoies.NewRedisRepository(rdb),
-		smtp:   repositoies.NewSMTPRepository(cfg),
+		mysql:  repositories.NewMySQLRepository(db),
+		redis:  repositories.NewRedisRepository(rdb),
+		smtp:   repositories.NewSMTPRepository(cfg),
 		tokens: utils.NewTokenManager(cfg.JWTSecret, cfg.AccessTokenTTL),
 	}
 }

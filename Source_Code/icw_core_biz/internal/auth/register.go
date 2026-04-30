@@ -30,7 +30,7 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 	if err != nil {
 		if errors.Is(err, utils.ErrNameIsEmpty) {
 			return rpc_err.BadRequest(rpc_err.DetailNameRequired, err.Error())
-		} else if errors.Is(err, utils.ErrNameIsEmpty) {
+		} else if errors.Is(err, utils.ErrNameTooLong) {
 			return rpc_err.BadRequest(rpc_err.DetailNameTooLong, err.Error())
 		}
 		return err

@@ -6,7 +6,7 @@ import (
 	"net/mail"
 	"strings"
 
-	"icw_core_biz/repositoies"
+	"icw_core_biz/repositories"
 )
 
 // NormalizeEmailAddress 标准化邮箱地址
@@ -23,7 +23,7 @@ func NormalizeEmailAddress(value string) (string, error) {
 }
 
 // VerifyEmailCode 校验邮箱验证码
-func VerifyEmailCode(ctx context.Context, redis *repositoies.RedisRepository, secret, scene, email, code string) error {
+func VerifyEmailCode(ctx context.Context, redis *repositories.RedisRepository, secret, scene, email, code string) error {
 	code = strings.TrimSpace(code)
 	if len(code) != 6 {
 		return errors.New("invalid email code")

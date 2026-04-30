@@ -56,7 +56,7 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	// 账号锁定（登录失败次数达上限）时不发送登录验证码
 	if scene == consts.SceneLogin {
 		if locked, ttl := s.redis.IsLoginLocked(ctx, consts.LoginEmail.String(), email, consts.LoginFailureLimit); locked {
-			return rpc_err.AccountLocked(rpc_err.DetailAccountLocked, fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
+			return rpc_err.AccountLockedDefault(fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
 		}
 	}
 

@@ -34,7 +34,7 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 
 	// 账号锁定（登录失败次数达上限）时不进行登录操作
 	if locked, ttl := s.redis.IsLoginLocked(ctx, scene.String(), email, consts.LoginFailureLimit); locked {
-		return rpc_err.AccountLocked(rpc_err.DetailAccountLocked, fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
+		return rpc_err.AccountLockedDefault(fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
 	}
 
 	// 按邮箱查询用户

@@ -11,7 +11,7 @@ import (
 	"icw_core_biz/configs"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/repositoies"
+	"icw_core_biz/repositories"
 )
 
 // TokenManager JWT 管理器，负责 Access Token 的签发、校验和解析
@@ -85,13 +85,14 @@ func (m *TokenManager) ParseAny(raw string) (*AccessClaims, error) {
 }
 
 // IssueTokens 签发 Access Token 和 Refresh Token
-func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositoies.MySQLRepository, tokens *TokenManager, user *repositoies.UserRecord, res interface{}) error {
+func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositories.MySQLRepository, tokens *TokenManager, user *repositories.UserRecord, res interface{}) error {
 	if user == nil {
 		return rpc_err.InternalErrorDefault("user is nil")
 	}
 
 	// 签发短期 Access Token
-	accessToken, jti, err := tokens.Sign(repositoies.UserRecordToDTO(user))
+	// jti 已包含在 Access Token 中，当前函数不需要额外返回
+	accessToken, _, err := tokens.Sign(repositories.UserRecordToDTO(user))
 	if err != nil {
 		return err
 	}
@@ -114,7 +115,7 @@ func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositoies.MyS
 		out.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
 		out.RefreshToken = refreshToken
 		out.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
-		out.User = repositoies.UserRecordToDTO(user)
+		out.User = repositories.UserRecordToDTO(user)
 	case *dto.RefreshResponse:
 		if err := mysql.InsertRefreshToken(ctx, tokenId, user.Id, tokenHash, expiresAt); err != nil {
 			return err
@@ -123,13 +124,10 @@ func IssueTokens(ctx context.Context, cfg configs.Config, mysql *repositoies.MyS
 		out.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
 		out.RefreshToken = refreshToken
 		out.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
-		out.User = repositoies.UserRecordToDTO(user)
+		out.User = repositories.UserRecordToDTO(user)
 	default:
 		return rpc_err.InternalErrorDefault("invalid response type")
 	}
-
-	// jti 已包含在 Access Token 中，当前函数不需要额外返回
-	_ = jti
 
 	return nil
 }

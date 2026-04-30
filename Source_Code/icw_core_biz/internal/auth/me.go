@@ -5,7 +5,7 @@ import (
 
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/repositoies"
+	"icw_core_biz/repositories"
 )
 
 // Me 获取用户信息
@@ -35,6 +35,6 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
 		return rpc_err.UnauthorizedDefault("user not found")
 	}
 
-	resp.User = repositoies.UserRecordToDTO(user)
+	resp.User = repositories.UserRecordToDTO(user)
 	return nil
 }

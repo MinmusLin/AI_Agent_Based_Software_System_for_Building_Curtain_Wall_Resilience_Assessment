@@ -8,7 +8,7 @@ import (
 	"icw_core_biz/internal/auth/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/repositoies"
+	"icw_core_biz/repositories"
 )
 
 // Refresh 刷新 Token
@@ -33,7 +33,7 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 	if !ok {
 		return rpc_err.UnauthorizedDefault("refresh in progress")
 	}
-	defer func(redis *repositoies.RedisRepository, ctx context.Context, tokenId string) {
+	defer func(redis *repositories.RedisRepository, ctx context.Context, tokenId string) {
 		_ = redis.ClearRefreshReuseLock(ctx, tokenId)
 	}(s.redis, ctx, tokenId)
 

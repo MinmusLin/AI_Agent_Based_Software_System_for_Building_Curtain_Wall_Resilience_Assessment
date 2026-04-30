@@ -45,7 +45,7 @@ func BadRequest(detail DetailCode, message string) error {
 
 // BadRequestDefault 创建无效请求标准错误（默认错误业务代码）
 func BadRequestDefault(message string) error {
-	return newError(CodeBadRequest, DefaultDetailCode(CodeBadRequest), message)
+	return BadRequest(DefaultDetailCode(CodeBadRequest), message)
 }
 
 // Unauthorized 创建身份验证未通过标准错误
@@ -55,7 +55,7 @@ func Unauthorized(detail DetailCode, message string) error {
 
 // UnauthorizedDefault 创建身份验证未通过标准错误（默认错误业务代码）
 func UnauthorizedDefault(message string) error {
-	return newError(CodeUnauthorized, DefaultDetailCode(CodeUnauthorized), message)
+	return Unauthorized(DefaultDetailCode(CodeUnauthorized), message)
 }
 
 // AccountLocked 创建账号锁定标准错误
@@ -65,7 +65,7 @@ func AccountLocked(detail DetailCode, message string) error {
 
 // AccountLockedDefault 创建账号锁定标准错误（默认错误业务代码）
 func AccountLockedDefault(message string) error {
-	return newError(CodeAccountLocked, DefaultDetailCode(CodeAccountLocked), message)
+	return AccountLocked(DefaultDetailCode(CodeAccountLocked), message)
 }
 
 // InternalError 创建服务器内部错误标准错误
@@ -75,5 +75,5 @@ func InternalError(detail DetailCode, message string) error {
 
 // InternalErrorDefault 创建服务器内部错误标准错误（默认错误业务代码）
 func InternalErrorDefault(message string) error {
-	return newError(CodeInternalError, DefaultDetailCode(CodeInternalError), message)
+	return InternalError(DefaultDetailCode(CodeInternalError), message)
 }
