@@ -25,7 +25,7 @@ export function AuthShell({
                 src="/tongji-logo.svg"
               />
               <div className="relative z-10">
-                <div className="text-sm font-semibold tracking-wide text-slate-300">
+                <div className="text-sm font-semibold tracking-wide text-sky-200">
                   Building Curtain Wall Resilience Assessment
                 </div>
                 <h1 className="mt-6 max-w-lg text-3xl font-semibold leading-tight">建筑幕墙韧性评估软件系统</h1>
