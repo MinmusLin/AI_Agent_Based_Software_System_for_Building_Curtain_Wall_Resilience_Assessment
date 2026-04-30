@@ -30,7 +30,10 @@ type AccessClaims struct {
 
 // NewTokenManager 创建 JWT 管理器
 func NewTokenManager(secret string, ttl time.Duration) *TokenManager {
-	return &TokenManager{secret: []byte(secret), ttl: ttl}
+	return &TokenManager{
+		secret: []byte(secret),
+		ttl:    ttl,
+	}
 }
 
 // Sign 签发 Access Token
