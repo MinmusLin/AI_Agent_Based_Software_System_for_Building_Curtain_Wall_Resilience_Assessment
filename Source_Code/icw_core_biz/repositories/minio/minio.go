@@ -17,7 +17,8 @@ type Repository struct {
 	bucket string
 }
 
-func NewRepository(cfg configs.Config) (*Repository, error) {
+// NewClient 创建 MinIO SDK Client
+func NewClient(cfg configs.Config) (*minio.Client, error) {
 	endpoint, useSSL := normalizeEndpoint(cfg.MinIOEndpoint)
 	client, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.MinIOAccessKey, cfg.MinIOAccessSecret, ""),
@@ -26,16 +27,14 @@ func NewRepository(cfg configs.Config) (*Repository, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Repository{
-		client: client,
-		bucket: cfg.MinIOBucket,
-	}, nil
+	return client, nil
 }
 
-// Ping 检查 Bucket 是否可访问
-func (r *Repository) Ping(ctx context.Context) bool {
-	exists, err := r.client.BucketExists(ctx, r.bucket)
-	return exists && err == nil
+func NewRepository(client *minio.Client, bucket string) *Repository {
+	return &Repository{
+		client: client,
+		bucket: bucket,
+	}
 }
 
 // StatObject 判断对象是否存在
