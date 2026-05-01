@@ -57,7 +57,7 @@ func main() {
 	if err := rpc.RegisterName("UserService", userService); err != nil {
 		log.Fatalf("Failed to register user rpc service: %v", err)
 	}
-	authService := auth.NewService(cfg, dataMySQL, dataRedis, userService)
+	authService := auth.NewService(cfg, dataMySQL, dataRedis)
 	if err := rpc.RegisterName("AuthService", authService); err != nil {
 		log.Fatalf("Failed to register auth rpc service: %v", err)
 	}

@@ -7,7 +7,6 @@ import (
 
 	"icw_core_biz/configs"
 	"icw_core_biz/internal/auth/utils"
-	"icw_core_biz/internal/user"
 	"icw_core_biz/repositories/mysql"
 	"icw_core_biz/repositories/redis"
 	"icw_core_biz/repositories/smtp"
@@ -20,16 +19,14 @@ type Service struct {
 	redis  *redis.Repository
 	smtp   *smtp.Repository
 	tokens *utils.TokenManager
-	user   *user.Service
 }
 
-func NewService(cfg configs.Config, db *sql.DB, rdb *goredis.Client, userService *user.Service) *Service {
+func NewService(cfg configs.Config, db *sql.DB, rdb *goredis.Client) *Service {
 	return &Service{
 		cfg:    cfg,
 		mysql:  mysql.NewRepository(db),
 		redis:  redis.NewRepository(rdb),
 		smtp:   smtp.NewRepository(cfg),
 		tokens: utils.NewTokenManager(cfg.JWTSecret, cfg.AccessTokenTTL),
-		user:   userService,
 	}
 }
