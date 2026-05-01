@@ -26,3 +26,10 @@ body {
   border-inline-end: 0 !important;
   border-inline-end-width: 0 !important;
 }
+
+.ant-dropdown-menu .app-user-profile-item.ant-dropdown-menu-item,
+.ant-dropdown-menu .app-user-profile-item.ant-dropdown-menu-item-active,
+.ant-dropdown-menu .app-user-profile-item.ant-dropdown-menu-item:hover {
+  cursor: default;
+  background: #FFFFFF;
+}
