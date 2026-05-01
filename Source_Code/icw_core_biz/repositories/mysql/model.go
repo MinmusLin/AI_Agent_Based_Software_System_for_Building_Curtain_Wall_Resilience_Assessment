@@ -21,6 +21,18 @@ const (
 	EmailSendStatusFailed EmailSendStatus = "failed"
 )
 
+// ProjectStatus 项目状态
+type ProjectStatus string
+
+const (
+	// ProjectStatusActive 进行中
+	ProjectStatusActive ProjectStatus = "active"
+	// ProjectStatusCompleted 已完成
+	ProjectStatusCompleted ProjectStatus = "completed"
+	// ProjectStatusDeleted 已删除
+	ProjectStatusDeleted ProjectStatus = "deleted"
+)
+
 // UserRecord 用户记录
 type UserRecord struct {
 	Id           uint64
@@ -35,4 +47,21 @@ type RefreshTokenRecord struct {
 	UserId    uint64
 	ExpiresAt time.Time
 	RevokedAt sql.NullTime
+}
+
+// ProjectRecord 项目记录
+type ProjectRecord struct {
+	Id                  uint64
+	UserId              uint64
+	Name                string
+	BuildingName        string
+	BuildingLocation    string
+	BuiltYear           sql.NullInt64
+	BuildingDescription string
+	KnownIssues         string
+	AssessmentGoal      string
+	Progress            uint8
+	Status              string
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
