@@ -8,6 +8,12 @@ import (
 	"icw_core_api/configs"
 	"icw_core_api/internal/handlers/auth"
 	"icw_core_api/internal/handlers/common"
+	"icw_core_api/internal/handlers/project/assets"
+	"icw_core_api/internal/handlers/project/core"
+	"icw_core_api/internal/handlers/project/detection"
+	"icw_core_api/internal/handlers/project/profile"
+	"icw_core_api/internal/handlers/project/report"
+	"icw_core_api/internal/handlers/project/review"
 	"icw_core_api/internal/handlers/user"
 	"icw_core_api/internal/middlewares"
 )
@@ -52,5 +58,70 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 		userRouter.POST("/avatar", userHandler.UploadAvatar)
 		// 删除用户自定义头像
 		userRouter.DELETE("/avatar", userHandler.DeleteAvatar)
+	}
+
+	// 项目流程 Handler
+	projectRouter := router.Group("/project")
+	projectRouter.Use(middlewares.AuthRequired(coreBizClient))
+	{
+		// 项目核心 Handler
+		projectCoreHandler := core.NewHandler(handlerDeps)
+		projectCoreRouter := projectRouter.Group("/core")
+		{
+			// 创建项目
+			projectCoreRouter.POST("/create", projectCoreHandler.CreateProject)
+			// 获取项目列表
+			projectCoreRouter.GET("/list", projectCoreHandler.ListProjects)
+			// 删除项目
+			projectCoreRouter.POST("/delete", projectCoreHandler.DeleteProject)
+			// 项目进度流转
+			projectCoreRouter.POST("/advance", projectCoreHandler.AdvanceProject)
+		}
+
+		// 基础信息 Handler
+		projectProfileHandler := profile.NewHandler(handlerDeps)
+		projectProfileRouter := projectRouter.Group("/profile")
+		{
+			// 获取项目基础信息
+			projectProfileRouter.GET("/detail", projectProfileHandler.GetProjectProfile)
+			// 更新项目基础信息
+			projectProfileRouter.POST("/update", projectProfileHandler.UpdateProjectProfile)
+		}
+
+		// 图像资产 Handler
+		projectAssetsHandler := assets.NewHandler(handlerDeps)
+		projectAssetsRouter := projectRouter.Group("/assets")
+		{
+			if projectAssetsHandler == nil || projectAssetsRouter == nil {
+				// TODO: Prevent errors on unused variables
+			}
+		}
+
+		// 智能检测 Handler
+		projectDetectionHandler := detection.NewHandler(handlerDeps)
+		projectDetectionRouter := projectRouter.Group("/detection")
+		{
+			if projectDetectionHandler == nil || projectDetectionRouter == nil {
+				// TODO: Prevent errors on unused variables
+			}
+		}
+
+		// 人工复核 Handler
+		projectReviewHandler := review.NewHandler(handlerDeps)
+		projectReviewRouter := projectRouter.Group("/review")
+		{
+			if projectReviewHandler == nil || projectReviewRouter == nil {
+				// TODO: Prevent errors on unused variables
+			}
+		}
+
+		// 评估报告 Handler
+		projectReportHandler := report.NewHandler(handlerDeps)
+		projectReportRouter := projectRouter.Group("/report")
+		{
+			if projectReportHandler == nil || projectReportRouter == nil {
+				// TODO: Prevent errors on unused variables
+			}
+		}
 	}
 }

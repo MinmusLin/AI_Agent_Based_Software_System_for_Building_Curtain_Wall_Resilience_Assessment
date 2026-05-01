@@ -1,18 +1,15 @@
-package user
+package review
 
 import (
 	"icw_core_biz/internal/services/common"
 )
 
-// Service 用户业务 Service
+// Service 人工复核 Service
 type Service struct {
 	*common.BaseService
 }
 
 func NewService(deps *common.Deps) *Service {
-	if deps == nil {
-		deps = &common.Deps{}
-	}
 	return &Service{
 		BaseService: common.NewBaseService(deps),
 	}

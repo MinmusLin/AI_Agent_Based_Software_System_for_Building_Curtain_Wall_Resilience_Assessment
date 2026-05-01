@@ -10,9 +10,8 @@ import (
 	goredis "github.com/redis/go-redis/v9"
 
 	"icw_core_biz/configs"
-	"icw_core_biz/internal/services/auth"
+	"icw_core_biz/internal/services"
 	"icw_core_biz/internal/services/common"
-	"icw_core_biz/internal/services/user"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
 	"icw_core_biz/repositories/redis"
@@ -70,14 +69,7 @@ func main() {
 	)
 
 	// 注册 RPC 服务
-	userService := user.NewService(serviceDeps)
-	if err := rpc.RegisterName("UserService", userService); err != nil {
-		log.Fatalf("Failed to register user rpc service: %v", err)
-	}
-	authService := auth.NewService(serviceDeps)
-	if err := rpc.RegisterName("AuthService", authService); err != nil {
-		log.Fatalf("Failed to register auth rpc service: %v", err)
-	}
+	services.RegisterRPCServices(serviceDeps)
 
 	// 运行 icw.core.biz 服务
 	log.Printf("icw.core.biz service starts running on %s", cfg.CoreBizAddr)
