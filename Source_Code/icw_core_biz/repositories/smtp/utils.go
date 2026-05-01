@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"html"
 
-	"icw_core_biz/internal/auth/consts"
+	"icw_core_biz/internal/services/auth/consts"
 )
 
 // emailSceneText 根据邮箱验证码业务场景类型生成邮件标题和业务场景名称
