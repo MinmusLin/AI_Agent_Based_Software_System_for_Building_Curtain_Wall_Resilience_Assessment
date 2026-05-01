@@ -1,5 +1,6 @@
-import type { GetAvatarResponse, UploadAvatarResponse } from '../types/avatar';
-import type { ApiEnvelope } from '../types/common';
+import type { GetAvatarResponse, UploadAvatarResponse } from '@/types/avatar';
+import type { ApiEnvelope } from '@/types/common';
+
 import { http } from './http';
 
 // 获取用户头像

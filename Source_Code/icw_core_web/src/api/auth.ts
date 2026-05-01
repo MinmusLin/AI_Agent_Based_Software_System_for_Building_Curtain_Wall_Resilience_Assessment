@@ -4,8 +4,9 @@ import type {
   RegisterRequest,
   ResetPasswordRequest,
   SendEmailCodeRequest,
-} from '../types/auth';
-import type { ApiEnvelope, User } from '../types/common';
+} from '@/types/auth';
+import type { ApiEnvelope, User } from '@/types/common';
+
 import { http } from './http';
 
 // 登录

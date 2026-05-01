@@ -165,8 +165,8 @@ const qualityRules = {
     {
       patterns: [
         {
-          group: ['../*/*/*'],
-          message: 'Avoid deep relative imports.',
+          group: ['../**'],
+          message: 'Cross-directory internal imports must use the @/... path alias.',
         },
         {
           group: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],

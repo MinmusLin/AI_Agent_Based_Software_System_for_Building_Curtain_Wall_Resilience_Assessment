@@ -1,8 +1,8 @@
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 
-import type { ApiEnvelope } from '../types/common';
-import { getRequiredEnv } from '../utils/env';
+import type { ApiEnvelope } from '@/types/common';
+import { getRequiredEnv } from '@/utils/env';
 
 const API_BASE_URL = getRequiredEnv('VITE_API_BASE_URL');
 const REFRESH_MAX_ATTEMPTS = 3;
