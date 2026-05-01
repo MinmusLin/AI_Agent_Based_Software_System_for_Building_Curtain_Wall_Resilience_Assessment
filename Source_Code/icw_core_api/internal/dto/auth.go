@@ -1,7 +1,7 @@
 package dto
 
 import (
-	bizDto "icw_core_biz/pkg/dto"
+	"icw_core_biz/pkg/dto"
 )
 
 type LoginRequest struct {
@@ -16,7 +16,7 @@ type LoginResponse struct {
 	User        *User  `json:"user"`
 }
 
-func NewLoginResponse(resp *bizDto.LoginResponse) *LoginResponse {
+func NewLoginResponse(resp *dto.LoginResponse) *LoginResponse {
 	if resp == nil {
 		return &LoginResponse{}
 	}
@@ -29,7 +29,7 @@ func NewLoginResponse(resp *bizDto.LoginResponse) *LoginResponse {
 
 type LogoutResponse struct{}
 
-func NewLogoutResponse(_ *bizDto.LogoutResponse) *LogoutResponse {
+func NewLogoutResponse(_ *dto.LogoutResponse) *LogoutResponse {
 	return &LogoutResponse{}
 }
 
@@ -37,7 +37,7 @@ type MeResponse struct {
 	User *User `json:"user"`
 }
 
-func NewMeResponse(resp *bizDto.MeResponse) *MeResponse {
+func NewMeResponse(resp *dto.MeResponse) *MeResponse {
 	if resp == nil {
 		return &MeResponse{}
 	}
@@ -52,7 +52,7 @@ type RefreshResponse struct {
 	User        *User  `json:"user"`
 }
 
-func NewRefreshResponse(resp *bizDto.RefreshResponse) *RefreshResponse {
+func NewRefreshResponse(resp *dto.RefreshResponse) *RefreshResponse {
 	if resp == nil {
 		return &RefreshResponse{}
 	}
@@ -72,7 +72,7 @@ type RegisterRequest struct {
 
 type RegisterResponse struct{}
 
-func NewRegisterResponse(_ *bizDto.RegisterResponse) *RegisterResponse {
+func NewRegisterResponse(_ *dto.RegisterResponse) *RegisterResponse {
 	return &RegisterResponse{}
 }
 
@@ -84,7 +84,7 @@ type ResetPasswordRequest struct {
 
 type ResetPasswordResponse struct{}
 
-func NewResetPasswordResponse(_ *bizDto.ResetPasswordResponse) *ResetPasswordResponse {
+func NewResetPasswordResponse(_ *dto.ResetPasswordResponse) *ResetPasswordResponse {
 	return &ResetPasswordResponse{}
 }
 
@@ -97,7 +97,7 @@ type SendEmailCodeResponse struct {
 	ExpiresIn int `json:"expires_in"`
 }
 
-func NewSendEmailCodeResponse(resp *bizDto.SendEmailCodeResponse) *SendEmailCodeResponse {
+func NewSendEmailCodeResponse(resp *dto.SendEmailCodeResponse) *SendEmailCodeResponse {
 	if resp == nil {
 		return &SendEmailCodeResponse{}
 	}

@@ -1,4 +1,4 @@
-package configs
+package consts
 
 // ContextUser 请求上下文用户信息 Key
 const ContextUser = "current_user"

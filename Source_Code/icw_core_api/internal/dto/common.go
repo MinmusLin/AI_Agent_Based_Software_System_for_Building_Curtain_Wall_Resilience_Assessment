@@ -1,7 +1,7 @@
 package dto
 
 import (
-	bizDto "icw_core_biz/pkg/dto"
+	"icw_core_biz/pkg/dto"
 )
 
 type User struct {
@@ -10,7 +10,7 @@ type User struct {
 	Name  string `json:"name"`
 }
 
-func NewUser(user *bizDto.User) *User {
+func NewUser(user *dto.User) *User {
 	if user == nil {
 		return &User{}
 	}

@@ -7,10 +7,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/configs"
+	"icw_core_api/consts"
 	"icw_core_api/internal/response"
 	"icw_core_api/utils"
-	bizDto "icw_core_biz/pkg/dto"
+	"icw_core_biz/pkg/dto"
 )
 
 // AuthRequired 登录鉴权中间件
@@ -25,10 +25,10 @@ func AuthRequired(coreBizClient *rpc.Client) gin.HandlerFunc {
 		}
 
 		// 调用 icw.core.biz AuthService.Me 接口完成 Token 校验并获取用户信息
-		rpcReq := &bizDto.MeRequest{
+		rpcReq := &dto.MeRequest{
 			AccessToken: utils.BearerToken(c),
 		}
-		rpcResp := &bizDto.MeResponse{}
+		rpcResp := &dto.MeResponse{}
 		if err := coreBizClient.Call("AuthService.Me", rpcReq, rpcResp); err != nil || rpcResp == nil {
 			log.Printf("[ERROR] Call icw.core.biz AuthService.Me failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 			response.WriteRPCError(c, err)
@@ -37,7 +37,7 @@ func AuthRequired(coreBizClient *rpc.Client) gin.HandlerFunc {
 		}
 
 		// 将用户信息写入请求上下文，交给后续 Handler 使用
-		c.Set(configs.ContextUser, rpcResp.User)
+		c.Set(consts.ContextUser, rpcResp.User)
 
 		c.Next()
 	}

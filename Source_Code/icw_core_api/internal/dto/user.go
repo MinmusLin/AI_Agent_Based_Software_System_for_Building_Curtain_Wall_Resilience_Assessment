@@ -1,7 +1,7 @@
 package dto
 
 import (
-	bizDto "icw_core_biz/pkg/dto"
+	"icw_core_biz/pkg/dto"
 )
 
 type GetAvatarResponse struct {
@@ -9,7 +9,7 @@ type GetAvatarResponse struct {
 	AvatarType string `json:"avatar_type"`
 }
 
-func NewGetAvatarResponse(resp *bizDto.GetAvatarResponse) *GetAvatarResponse {
+func NewGetAvatarResponse(resp *dto.GetAvatarResponse) *GetAvatarResponse {
 	if resp == nil {
 		return &GetAvatarResponse{}
 	}
@@ -23,7 +23,7 @@ type UploadAvatarResponse struct {
 	UploadURL string `json:"upload_url"`
 }
 
-func NewUploadAvatarResponse(resp *bizDto.UploadAvatarResponse) *UploadAvatarResponse {
+func NewUploadAvatarResponse(resp *dto.UploadAvatarResponse) *UploadAvatarResponse {
 	if resp == nil {
 		return &UploadAvatarResponse{}
 	}
@@ -34,7 +34,7 @@ func NewUploadAvatarResponse(resp *bizDto.UploadAvatarResponse) *UploadAvatarRes
 
 type DeleteAvatarResponse struct{}
 
-func NewDeleteAvatarResponse(resp *bizDto.DeleteAvatarResponse) *DeleteAvatarResponse {
+func NewDeleteAvatarResponse(resp *dto.DeleteAvatarResponse) *DeleteAvatarResponse {
 	if resp == nil {
 		return &DeleteAvatarResponse{}
 	}
