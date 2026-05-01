@@ -68,14 +68,14 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 		projectCoreHandler := core.NewHandler(handlerDeps)
 		projectCoreRouter := projectRouter.Group("/core")
 		{
-			// 创建项目
-			projectCoreRouter.POST("/create", projectCoreHandler.CreateProject)
-			// 获取项目列表
-			projectCoreRouter.GET("/list", projectCoreHandler.ListProjects)
-			// 删除项目
-			projectCoreRouter.POST("/delete", projectCoreHandler.DeleteProject)
 			// 项目进度流转
 			projectCoreRouter.POST("/advance", projectCoreHandler.AdvanceProject)
+			// 创建项目
+			projectCoreRouter.POST("/create", projectCoreHandler.CreateProject)
+			// 删除项目
+			projectCoreRouter.POST("/delete", projectCoreHandler.DeleteProject)
+			// 获取项目列表
+			projectCoreRouter.GET("/list", projectCoreHandler.ListProjects)
 		}
 
 		// 基础信息 Handler

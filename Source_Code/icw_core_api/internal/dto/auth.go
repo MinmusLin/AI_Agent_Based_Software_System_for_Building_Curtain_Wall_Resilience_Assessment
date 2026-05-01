@@ -18,7 +18,7 @@ type LoginResponse struct {
 
 func NewLoginResponse(resp *dto.LoginResponse) *LoginResponse {
 	if resp == nil {
-		return &LoginResponse{}
+		return nil
 	}
 	return &LoginResponse{
 		AccessToken: resp.AccessToken,
@@ -30,7 +30,7 @@ func NewLoginResponse(resp *dto.LoginResponse) *LoginResponse {
 type LogoutResponse struct{}
 
 func NewLogoutResponse(_ *dto.LogoutResponse) *LogoutResponse {
-	return &LogoutResponse{}
+	return nil
 }
 
 type MeResponse struct {
@@ -39,7 +39,7 @@ type MeResponse struct {
 
 func NewMeResponse(resp *dto.MeResponse) *MeResponse {
 	if resp == nil {
-		return &MeResponse{}
+		return nil
 	}
 	return &MeResponse{
 		User: NewUser(resp.User),
@@ -54,7 +54,7 @@ type RefreshResponse struct {
 
 func NewRefreshResponse(resp *dto.RefreshResponse) *RefreshResponse {
 	if resp == nil {
-		return &RefreshResponse{}
+		return nil
 	}
 	return &RefreshResponse{
 		AccessToken: resp.AccessToken,
@@ -73,7 +73,7 @@ type RegisterRequest struct {
 type RegisterResponse struct{}
 
 func NewRegisterResponse(_ *dto.RegisterResponse) *RegisterResponse {
-	return &RegisterResponse{}
+	return nil
 }
 
 type ResetPasswordRequest struct {
@@ -85,7 +85,7 @@ type ResetPasswordRequest struct {
 type ResetPasswordResponse struct{}
 
 func NewResetPasswordResponse(_ *dto.ResetPasswordResponse) *ResetPasswordResponse {
-	return &ResetPasswordResponse{}
+	return nil
 }
 
 type SendEmailCodeRequest struct {
@@ -99,7 +99,7 @@ type SendEmailCodeResponse struct {
 
 func NewSendEmailCodeResponse(resp *dto.SendEmailCodeResponse) *SendEmailCodeResponse {
 	if resp == nil {
-		return &SendEmailCodeResponse{}
+		return nil
 	}
 	return &SendEmailCodeResponse{
 		ExpiresIn: resp.ExpiresInSeconds,

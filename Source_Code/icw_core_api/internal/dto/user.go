@@ -11,7 +11,7 @@ type GetAvatarResponse struct {
 
 func NewGetAvatarResponse(resp *dto.GetAvatarResponse) *GetAvatarResponse {
 	if resp == nil {
-		return &GetAvatarResponse{}
+		return nil
 	}
 	return &GetAvatarResponse{
 		AvatarURL:  resp.AvatarURL,
@@ -25,7 +25,7 @@ type UploadAvatarResponse struct {
 
 func NewUploadAvatarResponse(resp *dto.UploadAvatarResponse) *UploadAvatarResponse {
 	if resp == nil {
-		return &UploadAvatarResponse{}
+		return nil
 	}
 	return &UploadAvatarResponse{
 		UploadURL: resp.UploadURL,
@@ -36,7 +36,7 @@ type DeleteAvatarResponse struct{}
 
 func NewDeleteAvatarResponse(resp *dto.DeleteAvatarResponse) *DeleteAvatarResponse {
 	if resp == nil {
-		return &DeleteAvatarResponse{}
+		return nil
 	}
 	return &DeleteAvatarResponse{}
 }

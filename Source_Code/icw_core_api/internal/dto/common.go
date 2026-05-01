@@ -12,7 +12,7 @@ type User struct {
 
 func NewUser(user *dto.User) *User {
 	if user == nil {
-		return &User{}
+		return nil
 	}
 	return &User{
 		Id:    user.Id,
