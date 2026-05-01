@@ -5,7 +5,8 @@ import (
 )
 
 type GetAvatarResponse struct {
-	AvatarURL string `json:"avatar_url"`
+	AvatarURL  string `json:"avatar_url"`
+	AvatarType string `json:"avatar_type"`
 }
 
 func NewGetAvatarResponse(resp *bizDto.GetAvatarResponse) *GetAvatarResponse {
@@ -13,7 +14,8 @@ func NewGetAvatarResponse(resp *bizDto.GetAvatarResponse) *GetAvatarResponse {
 		return &GetAvatarResponse{}
 	}
 	return &GetAvatarResponse{
-		AvatarURL: resp.AvatarURL,
+		AvatarURL:  resp.AvatarURL,
+		AvatarType: resp.AvatarType,
 	}
 }
 
@@ -30,15 +32,11 @@ func NewUploadAvatarResponse(resp *bizDto.UploadAvatarResponse) *UploadAvatarRes
 	}
 }
 
-type DeleteAvatarResponse struct {
-	AvatarURL string `json:"avatar_url"`
-}
+type DeleteAvatarResponse struct{}
 
 func NewDeleteAvatarResponse(resp *bizDto.DeleteAvatarResponse) *DeleteAvatarResponse {
 	if resp == nil {
 		return &DeleteAvatarResponse{}
 	}
-	return &DeleteAvatarResponse{
-		AvatarURL: resp.AvatarURL,
-	}
+	return &DeleteAvatarResponse{}
 }

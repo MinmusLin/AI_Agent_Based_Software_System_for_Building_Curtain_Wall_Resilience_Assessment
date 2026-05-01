@@ -32,12 +32,5 @@ func (s *Service) DeleteAvatar(req *dto.DeleteAvatarRequest, resp *dto.DeleteAva
 		return err
 	}
 
-	// 返回用户默认头像下载预签名 URL
-	avatarURL, err := s.minio.PresignGetObject(ctx, utils.GenDefaultAvatarKey(emailHash), s.cfg.AvatarGetTTL)
-	if err != nil {
-		return err
-	}
-	resp.AvatarURL = avatarURL
-
 	return nil
 }

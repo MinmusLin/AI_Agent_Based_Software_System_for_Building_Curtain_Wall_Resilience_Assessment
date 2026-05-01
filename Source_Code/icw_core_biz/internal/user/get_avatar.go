@@ -2,9 +2,9 @@ package user
 
 import (
 	"context"
-	"icw_core_biz/internal/user/consts"
 
 	"icw_core_biz/internal/rpc_log"
+	"icw_core_biz/internal/user/consts"
 	"icw_core_biz/internal/user/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
@@ -21,6 +21,7 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 		return rpc_err.BadRequestDefault("request is nil")
 	}
 	ctx := context.Background()
+	resp.AvatarType = consts.AvatarTypeNone
 
 	// 对标准化邮箱地址做 SHA-256 哈希
 	emailHash, err := utils.NormalizeEmailHash(req.Email)
@@ -42,6 +43,7 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 			return err
 		}
 		resp.AvatarURL = avatarURL
+		resp.AvatarType = consts.AvatarTypeCustom
 
 		return nil
 	}
@@ -66,6 +68,7 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 		return err
 	}
 	resp.AvatarURL = avatarURL
+	resp.AvatarType = consts.AvatarTypeDefault
 
 	return nil
 }

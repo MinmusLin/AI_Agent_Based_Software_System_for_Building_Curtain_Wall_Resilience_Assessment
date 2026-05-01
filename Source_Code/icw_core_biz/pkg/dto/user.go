@@ -6,7 +6,8 @@ type GetAvatarRequest struct {
 }
 
 type GetAvatarResponse struct {
-	AvatarURL string
+	AvatarURL  string
+	AvatarType string
 }
 
 type UploadAvatarRequest struct {
@@ -24,6 +25,4 @@ type DeleteAvatarRequest struct {
 	Email  string
 }
 
-type DeleteAvatarResponse struct {
-	AvatarURL string
-}
+type DeleteAvatarResponse struct{}
