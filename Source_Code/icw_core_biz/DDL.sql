@@ -61,33 +61,20 @@ CREATE TABLE `projects` (
   CONSTRAINT `fk_projects_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目表';
 
-
-
-
-
-
-
-
-CREATE TABLE IF NOT EXISTS project_groups (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '组 ID',
-  project_id BIGINT UNSIGNED NOT NULL COMMENT '项目 ID',
+CREATE TABLE `project_groups` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '组 ID',
+  `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
-  name VARCHAR(256) NOT NULL COMMENT '组名称',
-  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+  `name` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组名称',
+  `sort_order` decimal(20,10) NOT NULL DEFAULT '0.0000000000' COMMENT '顺序优先级',
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+  `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  -- 联合唯一索引：同一项目下，同一用户创建的组名称不能重复
-  UNIQUE KEY `uk_project_groups_project_id_user_id_name` (`project_id`, `user_id`, `name`),
-  -- 外键索引：project_id
-  KEY `idx_project_groups_project_id` (`project_id`),
-  -- 外键索引：user_id
-  KEY `idx_project_groups_user_id` (`user_id`),
-  CONSTRAINT `fk_project_groups_project_id`
-    FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_groups_user_id`
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-    ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `uk_project_groups_project_id_user_id_name` (`project_id`,`user_id`,`name`),
+  KEY `idx_project_groups_project_id_user_id_sort_order` (`project_id`,`user_id`,`sort_order`),
+  KEY `fk_project_groups_user_id` (`user_id`),
+  CONSTRAINT `fk_project_groups_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_groups_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目组表';
 
 CREATE TABLE IF NOT EXISTS project_images (
