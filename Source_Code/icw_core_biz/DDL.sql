@@ -7,7 +7,7 @@ CREATE TABLE `users` (
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_users_email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
 
 CREATE TABLE `refresh_tokens` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '记录 ID',
@@ -23,21 +23,19 @@ CREATE TABLE `refresh_tokens` (
   UNIQUE KEY `uk_refresh_tokens_token_hash` (`token_hash`),
   KEY `idx_refresh_tokens_user_id` (`user_id`),
   CONSTRAINT `fk_refresh_tokens_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Refresh Token 表'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Refresh Token 表';
 
 CREATE TABLE `email_send_logs` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '记录 ID',
   `receiver_email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '收件邮箱地址',
   `sender_email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发件邮箱地址',
-  `scene` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱验证码业务场景：register|login|reset',
-  `email_code` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱验证码',
+  `scene` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱验证码业务场景：register|login|reset',
+  `email_code` char(6) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱验证码',
   `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮件发送状态：success|failed',
-  `error_message` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮件发送失败原因',
+  `error_message` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮件发送失败原因',
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='邮件发送记录表'
-
-
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='邮件发送记录表';
 
 CREATE TABLE IF NOT EXISTS projects (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '项目 ID',

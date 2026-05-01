@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 )
 
@@ -24,10 +25,7 @@ func (r *Repository) CreateUser(ctx context.Context, email, passwordHash, name s
 		INSERT INTO users(email, password_hash, name)
 		VALUES (?, ?, ?)
 	`, email, passwordHash, name)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // FindUserById 按用户 ID 查询用户
@@ -73,10 +71,7 @@ func (r *Repository) UpdatePasswordByEmail(ctx context.Context, email, passwordH
 		SET password_hash = ?
 		WHERE email = ?
 	`, passwordHash, email)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // CreateLoginSession 登录时保存登录态 Refresh Token，并更新用户最近登录时间
@@ -195,12 +190,17 @@ func (r *Repository) RevokeRefreshTokensByEmail(ctx context.Context, email strin
 
 // CreateEmailSendLog 创建邮件发送记录
 func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail string, senderEmail string, scene string, emailCode string, status EmailSendStatus, errorMessage string) error {
+	var nullErrorMessage sql.NullString
+	if strings.TrimSpace(errorMessage) != "" {
+		nullErrorMessage = sql.NullString{
+			String: strings.TrimSpace(errorMessage),
+			Valid:  true,
+		}
+	}
+
 	_, err := r.mysql.ExecContext(ctx, `
 		INSERT INTO email_send_logs(receiver_email, sender_email, scene, email_code, status, error_message)
 		VALUES (?, ?, ?, ?, ?, ?)
-	`, receiverEmail, senderEmail, scene, emailCode, status, errorMessage)
-	if err != nil {
-		return err
-	}
-	return nil
+	`, receiverEmail, senderEmail, scene, emailCode, status, nullErrorMessage)
+	return err
 }
