@@ -29,7 +29,7 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) (err error) {
 
 	// 检查 Access Token 是否已被黑名单禁用
 	if claims.ID != "" {
-		blacklisted, err := s.redis.AccessTokenBlacklisted(ctx, claims.ID)
+		blacklisted, err := s.Redis().AccessTokenBlacklisted(ctx, claims.ID)
 		if err != nil {
 			return err
 		}
@@ -39,7 +39,7 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) (err error) {
 	}
 
 	// 按用户 ID 查询用户
-	user, err := s.mysql.FindUserById(ctx, claims.UserId)
+	user, err := s.MySQL().FindUserById(ctx, claims.UserId)
 	if err != nil {
 		return err
 	}

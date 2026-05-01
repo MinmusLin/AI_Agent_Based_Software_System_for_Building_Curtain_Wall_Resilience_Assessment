@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_core_biz/internal/rpc_log"
-	"icw_core_biz/internal/user/utils"
+	"icw_core_biz/internal/services/user/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
@@ -28,7 +28,7 @@ func (s *Service) DeleteAvatar(req *dto.DeleteAvatarRequest, resp *dto.DeleteAva
 	}
 
 	// 删除用户自定义头像
-	if err := s.minio.RemoveObject(ctx, utils.GenCustomAvatarKey(emailHash)); err != nil {
+	if err := s.MinIO().RemoveObject(ctx, utils.GenCustomAvatarKey(emailHash)); err != nil {
 		return err
 	}
 

@@ -3,22 +3,22 @@ package auth
 import (
 	"context"
 	"errors"
-	"log"
 
 	"golang.org/x/crypto/bcrypt"
 
-	"icw_core_biz/internal/auth/consts"
-	"icw_core_biz/internal/auth/utils"
 	"icw_core_biz/internal/rpc_log"
+	"icw_core_biz/internal/services/auth/consts"
+	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
+	"icw_core_biz/repositories/mysql"
 )
 
-// ResetPassword 重置密码
-func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, resp *dto.ResetPasswordResponse) (err error) {
-	start := rpc_log.Start("AuthService.ResetPassword", req)
+// Register 注册
+func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse) (err error) {
+	start := rpc_log.Start("AuthService.Register", req)
 	defer func() {
-		rpc_log.Finish("AuthService.ResetPassword", req, resp, start, err)
+		rpc_log.Finish("AuthService.Register", req, resp, start, err)
 	}()
 
 	if req == nil {
@@ -32,8 +32,19 @@ func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, resp *dto.ResetPa
 		return rpc_err.BadRequest(rpc_err.DetailInvalidEmailAddress, err.Error())
 	}
 
+	// 校验用户名称
+	name, err := utils.ValidateName(req.Name)
+	if err != nil {
+		if errors.Is(err, utils.ErrNameIsEmpty) {
+			return rpc_err.BadRequest(rpc_err.DetailNameRequired, err.Error())
+		} else if errors.Is(err, utils.ErrNameTooLong) {
+			return rpc_err.BadRequest(rpc_err.DetailNameTooLong, err.Error())
+		}
+		return err
+	}
+
 	// 校验密码
-	password, err := utils.ValidatePassword(req.NewPassword)
+	password, err := utils.ValidatePassword(req.Password)
 	if err != nil {
 		if errors.Is(err, utils.ErrPasswordTooShortOrTooLong) {
 			return rpc_err.BadRequest(rpc_err.DetailPasswordTooShortOrTooLong, err.Error())
@@ -44,7 +55,7 @@ func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, resp *dto.ResetPa
 	}
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
-	if err := utils.VerifyEmailCode(ctx, s.redis, s.cfg.EmailCodeSecret, consts.SceneReset.String(), email, req.EmailCode); err != nil {
+	if err := utils.VerifyEmailCode(ctx, s.Redis(), s.Config().EmailCodeSecret, consts.SceneRegister.String(), email, req.EmailCode); err != nil {
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}
@@ -57,14 +68,12 @@ func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, resp *dto.ResetPa
 		return err
 	}
 
-	// 按邮箱更新用户密码
-	if err := s.mysql.UpdatePasswordByEmail(ctx, email, string(passwordHash)); err != nil {
+	// 创建用户
+	if err := s.MySQL().CreateUser(ctx, email, string(passwordHash), name); err != nil {
+		if mysql.IsDuplicateEntryError(err) {
+			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "email already registered")
+		}
 		return err
-	}
-
-	// 重置密码后吊销所有 Refresh Token
-	if err := s.mysql.RevokeRefreshTokensByEmail(ctx, email); err != nil {
-		log.Printf("[WARN] Revoke refresh tokens by email failed, email: %s, err: %v", email, err)
 	}
 
 	return nil

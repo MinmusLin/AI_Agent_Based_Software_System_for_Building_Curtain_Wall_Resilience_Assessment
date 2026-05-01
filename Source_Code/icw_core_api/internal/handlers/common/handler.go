@@ -26,7 +26,7 @@ type BaseHandler struct {
 
 func NewBaseHandler(deps *Deps) *BaseHandler {
 	if deps == nil {
-		return &BaseHandler{}
+		deps = &Deps{}
 	}
 	return &BaseHandler{
 		deps: deps,

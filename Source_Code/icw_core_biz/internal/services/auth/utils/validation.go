@@ -6,7 +6,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"icw_core_biz/internal/auth/consts"
+	"icw_core_biz/internal/services/auth/consts"
 )
 
 var (

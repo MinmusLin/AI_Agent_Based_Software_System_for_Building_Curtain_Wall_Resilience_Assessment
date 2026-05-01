@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"icw_core_biz/internal/rpc_log"
-	"icw_core_biz/internal/user/consts"
-	"icw_core_biz/internal/user/utils"
+	"icw_core_biz/internal/services/user/consts"
+	"icw_core_biz/internal/services/user/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
@@ -31,14 +31,14 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 
 	// 判断用户是否存在自定义头像
 	customKey := utils.GenCustomAvatarKey(emailHash)
-	customExists, err := s.minio.StatObject(ctx, customKey)
+	customExists, err := s.MinIO().StatObject(ctx, customKey)
 	if err != nil {
 		return err
 	}
 
 	if customExists {
 		// 返回用户自定义头像下载预签名 URL
-		avatarURL, err := s.minio.PresignGetObject(ctx, customKey, s.cfg.AvatarGetTTL)
+		avatarURL, err := s.MinIO().PresignGetObject(ctx, customKey, s.Config().AvatarGetTTL)
 		if err != nil {
 			return err
 		}
@@ -50,20 +50,20 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 
 	// 判断用户是否存在默认头像
 	defaultKey := utils.GenDefaultAvatarKey(emailHash)
-	defaultExists, err := s.minio.StatObject(ctx, defaultKey)
+	defaultExists, err := s.MinIO().StatObject(ctx, defaultKey)
 	if err != nil {
 		return err
 	}
 
 	if !defaultExists {
 		// 生成用户默认头像
-		if err := s.minio.PutObject(ctx, defaultKey, consts.DefaultAvatarContentType, utils.BuildDefaultAvatarSVG(emailHash)); err != nil {
+		if err := s.MinIO().PutObject(ctx, defaultKey, consts.DefaultAvatarContentType, utils.BuildDefaultAvatarSVG(emailHash)); err != nil {
 			return err
 		}
 	}
 
 	// 返回用户默认头像下载预签名 URL
-	avatarURL, err := s.minio.PresignGetObject(ctx, utils.GenDefaultAvatarKey(emailHash), s.cfg.AvatarGetTTL)
+	avatarURL, err := s.MinIO().PresignGetObject(ctx, utils.GenDefaultAvatarKey(emailHash), s.Config().AvatarGetTTL)
 	if err != nil {
 		return err
 	}

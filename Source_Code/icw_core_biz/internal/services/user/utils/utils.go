@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"icw_core_biz/internal/auth/utils"
+	"icw_core_biz/internal/services/auth/utils"
 )
 
 // NormalizeEmailHash 对标准化邮箱地址做 SHA-256 哈希

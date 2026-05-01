@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"icw_core_biz/internal/auth/utils"
 	"icw_core_biz/internal/rpc_log"
+	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/redis"
@@ -33,7 +33,7 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) (e
 	}
 
 	// 防止同一个 Refresh Token 被多个请求同时刷新
-	ok, err := s.redis.SetRefreshReuseLock(ctx, tokenId, 30*time.Second)
+	ok, err := s.Redis().SetRefreshReuseLock(ctx, tokenId, 30*time.Second)
 	if err != nil {
 		return err
 	}
@@ -44,10 +44,10 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) (e
 		if err := redis.ClearRefreshReuseLock(ctx, tokenId); err != nil {
 			log.Printf("[WARN] Clear refresh reuse lock failed, token_id: %s, err: %v", tokenId, err)
 		}
-	}(s.redis, ctx, tokenId)
+	}(s.Redis(), ctx, tokenId)
 
 	// 按 Token Id 和 Token Hash 查询 Refresh Token 及所属用户
-	token, user, err := s.mysql.FindRefreshToken(ctx, tokenId, utils.HashRefreshToken(refreshToken))
+	token, user, err := s.MySQL().FindRefreshToken(ctx, tokenId, utils.HashRefreshToken(refreshToken))
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) (e
 	}
 
 	// 签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-	if err := utils.IssueRotatedTokens(ctx, s.cfg, s.mysql, s.tokens, tokenId, user, resp); err != nil {
+	if err := utils.IssueRotatedTokens(ctx, s.Config(), s.MySQL(), s.tokens, tokenId, user, resp); err != nil {
 		return err
 	}
 	newTokenId := utils.ParseRefreshTokenId(resp.RefreshToken)

@@ -15,10 +15,10 @@ import (
 // RegisterRoutes 注册路由
 func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.Client) {
 	// 创建 API Handler 的公共依赖集合
-	deps := common.NewDeps(cfg, coreBizClient)
+	handlerDeps := common.NewDeps(cfg, coreBizClient)
 
 	// 登录鉴权 Handler
-	authHandler := auth.NewHandler(deps)
+	authHandler := auth.NewHandler(handlerDeps)
 	authRouter := router.Group("/auth")
 	{
 		protectedAuth := authRouter.Group("")
@@ -42,7 +42,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 	}
 
 	// 用户业务 Handler
-	userHandler := user.NewHandler(deps)
+	userHandler := user.NewHandler(handlerDeps)
 	userRouter := router.Group("/user")
 	userRouter.Use(middlewares.AuthRequired(coreBizClient))
 	{

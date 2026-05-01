@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
-	"icw_core_biz/internal/auth/consts"
-	"icw_core_biz/internal/auth/utils"
 	"icw_core_biz/internal/rpc_log"
+	"icw_core_biz/internal/services/auth/consts"
+	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
@@ -41,7 +41,7 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 注册场景：邮箱必须尚未注册
 	if scene == consts.SceneRegister {
-		user, err := s.mysql.FindUserByEmail(ctx, email)
+		user, err := s.MySQL().FindUserByEmail(ctx, email)
 		if err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 登录和重置密码场景：邮箱必须已被注册
 	if scene == consts.SceneLogin || scene == consts.SceneReset {
-		user, err := s.mysql.FindUserByEmail(ctx, email)
+		user, err := s.MySQL().FindUserByEmail(ctx, email)
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 账号锁定（登录失败次数达上限）时不发送登录验证码
 	if scene == consts.SceneLogin {
-		locked, ttl, err := s.redis.IsLoginLocked(ctx, consts.LoginEmail.String(), email, consts.LoginFailureLimit)
+		locked, ttl, err := s.Redis().IsLoginLocked(ctx, consts.LoginEmail.String(), email, consts.LoginFailureLimit)
 		if err != nil {
 			return err
 		}
@@ -73,7 +73,7 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	}
 
 	// 验证码未过期时不发送登录验证码
-	exists, err := s.redis.EmailCodeExists(ctx, sceneValue, email)
+	exists, err := s.Redis().EmailCodeExists(ctx, sceneValue, email)
 	if err != nil {
 		return err
 	}
@@ -86,14 +86,14 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	if err != nil {
 		return err
 	}
-	if err := s.redis.SaveEmailCode(ctx, sceneValue, email, utils.HashEmailCode(code, s.cfg.EmailCodeSecret), s.cfg.EmailCodeTTL); err != nil {
+	if err := s.Redis().SaveEmailCode(ctx, sceneValue, email, utils.HashEmailCode(code, s.Config().EmailCodeSecret), s.Config().EmailCodeTTL); err != nil {
 		return err
 	}
 
 	// 发送邮箱验证码
-	if err := s.smtp.SendEmailCode(email, sceneValue, code); err != nil {
+	if err := s.SMTP().SendEmailCode(email, sceneValue, code); err != nil {
 		s.recordEmailSendLog(ctx, email, sceneValue, code, mysql.EmailSendStatusFailed, err.Error())
-		if err := s.redis.ClearEmailCode(ctx, sceneValue, email); err != nil {
+		if err := s.Redis().ClearEmailCode(ctx, sceneValue, email); err != nil {
 			log.Printf("[WARN] Clear email code failed, scene: %s, email: %s, err: %v", sceneValue, email, err)
 		}
 		return rpc_err.InternalError(rpc_err.DetailSendEmailCodeFailed, err.Error())
@@ -101,14 +101,14 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	s.recordEmailSendLog(ctx, email, sceneValue, code, mysql.EmailSendStatusSuccess, "")
 
 	// 邮箱验证码发送成功，返回验证码有效期
-	resp.ExpiresInSeconds = int(s.cfg.EmailCodeTTL.Seconds())
+	resp.ExpiresInSeconds = int(s.Config().EmailCodeTTL.Seconds())
 
 	return nil
 }
 
 // recordEmailSendLog 记录邮件发送日志
 func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail, scene, emailCode string, status mysql.EmailSendStatus, errorMessage string) {
-	if err := s.mysql.CreateEmailSendLog(ctx, receiverEmail, s.cfg.SMTPFromEmail, scene, emailCode, status, errorMessage); err != nil {
-		log.Printf("[WARN] Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %s", receiverEmail, s.cfg.SMTPFromEmail, scene, emailCode, status, err.Error())
+	if err := s.MySQL().CreateEmailSendLog(ctx, receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, status, errorMessage); err != nil {
+		log.Printf("[WARN] Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %s", receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, status, err.Error())
 	}
 }

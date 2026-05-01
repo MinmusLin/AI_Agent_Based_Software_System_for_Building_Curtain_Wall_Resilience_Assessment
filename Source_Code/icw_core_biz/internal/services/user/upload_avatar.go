@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"icw_core_biz/internal/rpc_log"
-	"icw_core_biz/internal/user/consts"
-	"icw_core_biz/internal/user/utils"
+	"icw_core_biz/internal/services/user/consts"
+	"icw_core_biz/internal/services/user/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
@@ -32,7 +32,7 @@ func (s *Service) UploadAvatar(req *dto.UploadAvatarRequest, resp *dto.UploadAva
 	}
 
 	// 返回用户自定义头像上传预签名 URL
-	uploadURL, err := s.minio.PresignPutObject(ctx, utils.GenCustomAvatarKey(emailHash), s.cfg.AvatarUploadTTL)
+	uploadURL, err := s.MinIO().PresignPutObject(ctx, utils.GenCustomAvatarKey(emailHash), s.Config().AvatarUploadTTL)
 	if err != nil {
 		return err
 	}
