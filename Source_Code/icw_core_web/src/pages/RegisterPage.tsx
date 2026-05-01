@@ -4,12 +4,12 @@ import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { register, sendEmailCode } from '../api/auth';
-import { getErrorMessage } from '../api/http';
-import { AuthShell } from '../components/AuthShell';
-import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
-import type { RegisterRequest } from '../types/auth';
-import { normalizeEmailAddress, normalizeEmailCode, passwordRules } from '../utils/validation';
+import { register, sendEmailCode } from '@/api/auth';
+import { getErrorMessage } from '@/api/http';
+import { AuthShell } from '@/components/AuthShell';
+import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
+import type { RegisterRequest } from '@/types/auth';
+import { normalizeEmailAddress, normalizeEmailCode, passwordRules } from '@/utils/validation';
 
 interface RegisterFormValues extends RegisterRequest {
   confirm_password?: string;

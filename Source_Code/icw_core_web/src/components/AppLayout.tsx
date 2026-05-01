@@ -12,9 +12,9 @@ import { Avatar, Dropdown, Layout, Menu, type MenuProps } from 'antd';
 import type { ReactElement } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../contexts/AuthContext';
-import { useUserAvatar } from '../hooks/useUserAvatar';
-import { setPostLogoutRedirect } from '../utils/redirect';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUserAvatar } from '@/hooks/useUserAvatar';
+import { setPostLogoutRedirect } from '@/utils/redirect';
 
 const { Header, Sider, Content } = Layout;
 

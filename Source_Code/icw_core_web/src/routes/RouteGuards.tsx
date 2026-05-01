@@ -3,8 +3,8 @@ import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import { useAuth } from '../contexts/AuthContext';
-import { clearPostLogoutRedirect, getPostLogoutRedirect } from '../utils/redirect';
+import { useAuth } from '@/contexts/AuthContext';
+import { clearPostLogoutRedirect, getPostLogoutRedirect } from '@/utils/redirect';
 
 // 登录态初始化期间的全屏加载态
 // 应用启动时会先尝试用 HttpOnly Cookie 中的 Refresh Token 恢复 Access Token，在结果明确之前不渲染页面，避免页面短暂闪烁

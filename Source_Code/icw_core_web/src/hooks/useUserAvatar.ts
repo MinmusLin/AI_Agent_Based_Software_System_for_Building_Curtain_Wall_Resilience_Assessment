@@ -2,14 +2,14 @@ import { message } from 'antd';
 import type { ChangeEvent, RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-import { deleteAvatar, getAvatar, uploadAvatar } from '../api/avatar';
-import type { AvatarType } from '../types/avatar';
+import { deleteAvatar, getAvatar, uploadAvatar } from '@/api/avatar';
+import type { AvatarType } from '@/types/avatar';
 import {
   AVATAR_MAX_SOURCE_SIZE,
   AVATAR_OUTPUT_CONTENT_TYPE,
   isAllowedAvatarFile,
   resizeAvatarToPng,
-} from '../utils/avatar';
+} from '@/utils/avatar';
 
 interface UseUserAvatarResult {
   avatarInputRef: RefObject<HTMLInputElement | null>;

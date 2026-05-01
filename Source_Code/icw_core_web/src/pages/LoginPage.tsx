@@ -4,12 +4,12 @@ import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { sendEmailCode } from '../api/auth';
-import { getErrorMessage } from '../api/http';
-import { AuthShell } from '../components/AuthShell';
-import { useAuth } from '../contexts/AuthContext';
-import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
-import { normalizeEmailAddress, normalizeEmailCode } from '../utils/validation';
+import { sendEmailCode } from '@/api/auth';
+import { getErrorMessage } from '@/api/http';
+import { AuthShell } from '@/components/AuthShell';
+import { useAuth } from '@/contexts/AuthContext';
+import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
+import { normalizeEmailAddress, normalizeEmailCode } from '@/utils/validation';
 
 type LoginMode = 'password' | 'email';
 

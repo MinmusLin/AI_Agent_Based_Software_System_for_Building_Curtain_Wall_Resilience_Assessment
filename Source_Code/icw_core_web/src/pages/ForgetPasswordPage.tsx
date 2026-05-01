@@ -4,12 +4,12 @@ import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { resetPassword, sendEmailCode } from '../api/auth';
-import { getErrorMessage } from '../api/http';
-import { AuthShell } from '../components/AuthShell';
-import { useEmailCodeCountdown } from '../hooks/useEmailCodeCountdown';
-import type { ResetPasswordRequest } from '../types/auth';
-import { normalizeEmailAddress, normalizeEmailCode, passwordRules } from '../utils/validation';
+import { resetPassword, sendEmailCode } from '@/api/auth';
+import { getErrorMessage } from '@/api/http';
+import { AuthShell } from '@/components/AuthShell';
+import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
+import type { ResetPasswordRequest } from '@/types/auth';
+import { normalizeEmailAddress, normalizeEmailCode, passwordRules } from '@/utils/validation';
 
 interface ForgetPasswordFormValues extends ResetPasswordRequest {
   confirm_password?: string;

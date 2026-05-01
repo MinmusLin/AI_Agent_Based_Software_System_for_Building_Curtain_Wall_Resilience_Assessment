@@ -2,10 +2,10 @@ import { isAxiosError } from 'axios';
 import type { ReactElement, ReactNode } from 'react';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-import { getMe, login as loginRequest, logout as logoutRequest } from '../api/auth';
-import { refreshAccessToken, setAccessToken, setAuthHooks } from '../api/http';
-import type { LoginRequest } from '../types/auth';
-import type { User } from '../types/common';
+import { getMe, login as loginRequest, logout as logoutRequest } from '@/api/auth';
+import { refreshAccessToken, setAccessToken, setAuthHooks } from '@/api/http';
+import type { LoginRequest } from '@/types/auth';
+import type { User } from '@/types/common';
 
 // 登录态分为三个阶段：
 // initializing：应用启动中，正在尝试用 Refresh Token 恢复登录态
