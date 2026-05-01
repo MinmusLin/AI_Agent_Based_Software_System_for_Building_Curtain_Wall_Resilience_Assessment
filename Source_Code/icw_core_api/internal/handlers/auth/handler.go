@@ -2,11 +2,10 @@ package auth
 
 import (
 	"net/http"
-	"net/rpc"
 
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/configs"
+	"icw_core_api/internal/handlers/common"
 )
 
 // RefreshCookieName Refresh Token 的 HttpOnly Cookie 名称
@@ -14,14 +13,15 @@ const RefreshCookieName = "icw_refresh_token"
 
 // Handler 登录鉴权 Handler
 type Handler struct {
-	cfg configs.Config
-	rpc *rpc.Client
+	*common.BaseHandler
 }
 
-func NewHandler(cfg configs.Config, rpcClient *rpc.Client) *Handler {
+func NewHandler(deps *common.Deps) *Handler {
+	if deps == nil {
+		deps = &common.Deps{}
+	}
 	return &Handler{
-		cfg: cfg,
-		rpc: rpcClient,
+		BaseHandler: common.NewBaseHandler(deps),
 	}
 }
 

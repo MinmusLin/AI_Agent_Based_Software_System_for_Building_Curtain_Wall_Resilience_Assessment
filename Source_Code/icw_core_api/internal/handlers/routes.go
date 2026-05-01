@@ -7,14 +7,18 @@ import (
 
 	"icw_core_api/configs"
 	"icw_core_api/internal/handlers/auth"
+	"icw_core_api/internal/handlers/common"
 	"icw_core_api/internal/handlers/user"
 	"icw_core_api/internal/middlewares"
 )
 
 // RegisterRoutes 注册路由
 func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.Client) {
+	// 创建 API Handler 的公共依赖集合
+	deps := common.NewDeps(cfg, coreBizClient)
+
 	// 登录鉴权 Handler
-	authHandler := auth.NewHandler(cfg, coreBizClient)
+	authHandler := auth.NewHandler(deps)
 	authRouter := router.Group("/auth")
 	{
 		protectedAuth := authRouter.Group("")
@@ -38,7 +42,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 	}
 
 	// 用户业务 Handler
-	userHandler := user.NewHandler(cfg, coreBizClient)
+	userHandler := user.NewHandler(deps)
 	userRouter := router.Group("/user")
 	userRouter.Use(middlewares.AuthRequired(coreBizClient))
 	{

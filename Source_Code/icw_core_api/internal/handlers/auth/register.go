@@ -26,7 +26,7 @@ func (h *Handler) Register(c *gin.Context) {
 		Name:      req.Name,
 	}
 	rpcResp := &bizDto.RegisterResponse{}
-	if err := h.rpc.Call("AuthService.Register", rpcReq, rpcResp); err != nil || rpcResp == nil {
+	if err := h.CoreBizClient().Call("AuthService.Register", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("[ERROR] Call icw.core.biz AuthService.Register failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 		response.WriteRPCError(c, err)
 		return

@@ -22,7 +22,7 @@ func (h *Handler) Logout(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 	rpcResp := &bizDto.LogoutResponse{}
-	err := h.rpc.Call("AuthService.Logout", rpcReq, rpcResp)
+	err := h.CoreBizClient().Call("AuthService.Logout", rpcReq, rpcResp)
 	if err != nil {
 		log.Printf("[ERROR] Call icw.core.biz AuthService.Logout failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 	}

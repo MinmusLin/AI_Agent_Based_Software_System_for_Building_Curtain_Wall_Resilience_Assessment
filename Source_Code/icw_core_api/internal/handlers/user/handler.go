@@ -1,20 +1,19 @@
 package user
 
 import (
-	"net/rpc"
-
-	"icw_core_api/configs"
+	"icw_core_api/internal/handlers/common"
 )
 
 // Handler 用户业务 Handler
 type Handler struct {
-	cfg configs.Config
-	rpc *rpc.Client
+	*common.BaseHandler
 }
 
-func NewHandler(cfg configs.Config, rpcClient *rpc.Client) *Handler {
+func NewHandler(deps *common.Deps) *Handler {
+	if deps == nil {
+		deps = &common.Deps{}
+	}
 	return &Handler{
-		cfg: cfg,
-		rpc: rpcClient,
+		BaseHandler: common.NewBaseHandler(deps),
 	}
 }

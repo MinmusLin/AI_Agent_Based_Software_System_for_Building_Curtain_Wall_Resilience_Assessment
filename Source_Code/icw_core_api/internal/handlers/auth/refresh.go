@@ -23,7 +23,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 	rpcResp := &bizDto.RefreshResponse{}
-	if err := h.rpc.Call("AuthService.Refresh", rpcReq, rpcResp); err != nil || rpcResp == nil {
+	if err := h.CoreBizClient().Call("AuthService.Refresh", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("[ERROR] Call icw.core.biz AuthService.Refresh failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 		response.WriteRPCError(c, err)
 		code, _, _ := rpc_err.Parse(err)
