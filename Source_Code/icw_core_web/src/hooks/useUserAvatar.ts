@@ -2,7 +2,7 @@ import { message } from 'antd';
 import type { ChangeEvent, RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-import { createAvatarUpload, deleteAvatar, getAvatar } from '../api/avatar';
+import { deleteAvatar, getAvatar, uploadAvatar } from '../api/avatar';
 import type { AvatarType } from '../types/avatar';
 import {
   AVATAR_MAX_SOURCE_SIZE,
@@ -65,10 +65,10 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
     if (!file) {
       return;
     }
-    void uploadAvatar(file);
+    void handleUploadAvatar(file);
   };
 
-  const uploadAvatar = async (file: File): Promise<void> => {
+  const handleUploadAvatar = async (file: File): Promise<void> => {
     if (!isAllowedAvatarFile(file)) {
       message.warning('头像仅支持 JPG、JPEG、PNG、WebP 格式');
       return;
@@ -81,7 +81,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
     setAvatarLoading(true);
     try {
       const avatarBlob = await resizeAvatarToPng(file);
-      const upload = await createAvatarUpload();
+      const upload = await uploadAvatar();
       if (!upload.upload_url) {
         throw new Error('avatar upload url is empty');
       }

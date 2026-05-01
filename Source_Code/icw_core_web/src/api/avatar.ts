@@ -11,7 +11,7 @@ export async function getAvatar(): Promise<GetAvatarResponse> {
 
 // 上传用户自定义头像
 // @router /user/avatar [POST]
-export async function createAvatarUpload(): Promise<UploadAvatarResponse> {
+export async function uploadAvatar(): Promise<UploadAvatarResponse> {
   const { data } = await http.post<ApiEnvelope<UploadAvatarResponse>>('/user/avatar');
   return data.data;
 }
