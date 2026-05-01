@@ -42,6 +42,7 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 			return err
 		}
 		resp.AvatarURL = avatarURL
+
 		return nil
 	}
 
@@ -52,16 +53,19 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 		return err
 	}
 
-	if defaultExists {
-		// 返回用户默认头像下载预签名 URL
-		avatarURL, err := s.minio.PresignGetObject(ctx, utils.GenDefaultAvatarKey(emailHash), s.cfg.AvatarGetTTL)
-		if err != nil {
+	if !defaultExists {
+		// 生成用户默认头像
+		if err := s.minio.PutObject(ctx, defaultKey, consts.DefaultAvatarContentType, utils.BuildDefaultAvatarSVG(emailHash)); err != nil {
 			return err
 		}
-		resp.AvatarURL = avatarURL
-		return nil
 	}
 
-	// 生成用户默认头像
-	return s.minio.PutObject(ctx, defaultKey, consts.DefaultAvatarContentType, utils.BuildDefaultAvatarSVG(emailHash))
+	// 返回用户默认头像下载预签名 URL
+	avatarURL, err := s.minio.PresignGetObject(ctx, utils.GenDefaultAvatarKey(emailHash), s.cfg.AvatarGetTTL)
+	if err != nil {
+		return err
+	}
+	resp.AvatarURL = avatarURL
+
+	return nil
 }

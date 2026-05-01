@@ -49,7 +49,7 @@ func main() {
 		log.Fatalf("Failed to connect to MinIO: %v", err)
 	}
 	if ok := dataMinIO.Ping(context.Background()); !ok {
-		log.Fatalf("Failed to connect to MinIO: %v", err)
+		log.Fatalf("Failed to connect to MinIO")
 	}
 
 	// 注册 RPC 服务
