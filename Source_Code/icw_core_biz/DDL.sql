@@ -57,7 +57,7 @@ CREATE TABLE `projects` (
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_projects_user_id_status` (`user_id`,`status`),
+  KEY `idx_projects_user_id_status_created_at` (`user_id`,`status`,`created_at`),
   CONSTRAINT `fk_projects_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目表';
 
@@ -77,30 +77,28 @@ CREATE TABLE `project_groups` (
   CONSTRAINT `fk_project_groups_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目组表';
 
-CREATE TABLE IF NOT EXISTS project_images (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '图像 ID',
-  project_id BIGINT UNSIGNED NOT NULL COMMENT '所属项目 ID',
-  category_id BIGINT UNSIGNED NOT NULL COMMENT '所属组 ID',
-  image_uuid CHAR(36) NOT NULL COMMENT '图像 UUID',
-  file_name VARCHAR(255) NOT NULL  COMMENT '原始文件名',
-  content_type VARCHAR(100) NOT NULL  COMMENT '原图 MIME 类型',
-  size_bytes BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '原图文件大小',
-  width INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '图像宽度',
-  height INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '图像高度',
-  sort_order INT NOT NULL DEFAULT 1000 COMMENT '组内展示排序，数值越小越靠前',
-  upload_status VARCHAR(32) NOT NULL DEFAULT 'pending' COMMENT '上传状态：pending|uploaded|failed',
-  upload_expires_at DATETIME(3) NULL COMMENT '上传链接过期时间',
-  uploaded_at DATETIME(3) NULL COMMENT '上传完成时间',
-  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
-  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_project_images_image_uuid (image_uuid),
-  KEY idx_project_images_project_category_sort (project_id, category_id, sort_order),
-  KEY idx_project_images_project_upload_status (project_id, upload_status),
-  CONSTRAINT fk_project_images_project_id
-    FOREIGN KEY (project_id) REFERENCES projects (id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_project_images_category_id
-    FOREIGN KEY (category_id) REFERENCES project_groups (id)
-    ON DELETE RESTRICT ON UPDATE CASCADE
+CREATE TABLE `project_group_images` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '图像 ID',
+  `group_id` bigint unsigned NOT NULL COMMENT '组 ID',
+  `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
+  `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '图像 UUID',
+  `file_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '原图文件名',
+  `content_type` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '原图 MIME 类型',
+  `size_bytes` bigint unsigned NOT NULL DEFAULT '0' COMMENT '原图文件大小',
+  `width` int unsigned NOT NULL DEFAULT '0' COMMENT '图像宽度',
+  `height` int unsigned NOT NULL DEFAULT '0' COMMENT '图像高度',
+  `metadata` json NOT NULL DEFAULT (json_object()) COMMENT '图像元数据',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '图像状态：pending|uploaded|failed',
+  `uploaded_at` datetime(3) DEFAULT NULL COMMENT '上传时间',
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+  `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_project_group_images_uuid` (`uuid`),
+  KEY `idx_project_group_images_user_id_project_id_group_id_created_at` (`user_id`,`project_id`,`group_id`,`created_at`),
+  KEY `fk_project_group_images_group_id` (`group_id`),
+  KEY `fk_project_group_images_project_id` (`project_id`),
+  CONSTRAINT `fk_project_group_images_group_id` FOREIGN KEY (`group_id`) REFERENCES `project_groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_group_images_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_group_images_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像表';
