@@ -4,12 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { deleteAvatar, getAvatar, uploadAvatar } from '@/api/avatar';
 import type { AvatarType } from '@/types/avatar';
-import {
-  AVATAR_MAX_SOURCE_SIZE,
-  AVATAR_OUTPUT_CONTENT_TYPE,
-  isAllowedAvatarFile,
-  resizeAvatarToPng,
-} from '@/utils/avatar';
+import { AVATAR_OUTPUT_CONTENT_TYPE, isAllowedAvatarFile, resizeAvatarToPng } from '@/utils/images';
 
 interface UseUserAvatarResult {
   avatarInputRef: RefObject<HTMLInputElement | null>;
@@ -71,10 +66,6 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
   const handleUploadAvatar = async (file: File): Promise<void> => {
     if (!isAllowedAvatarFile(file)) {
       message.warning('头像仅支持 JPG、JPEG、PNG、WebP 格式');
-      return;
-    }
-    if (file.size > AVATAR_MAX_SOURCE_SIZE) {
-      message.warning('头像大小不能超过 2MB');
       return;
     }
 

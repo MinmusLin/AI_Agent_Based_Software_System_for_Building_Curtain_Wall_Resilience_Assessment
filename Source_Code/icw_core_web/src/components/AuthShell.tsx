@@ -34,9 +34,9 @@ export function AuthShell({
                 </p>
               </div>
               <div className="relative z-10 grid grid-cols-3 gap-3 text-xs text-slate-300">
-                <div className="rounded border border-slate-700 p-3">海量幕墙图像处理</div>
-                <div className="rounded border border-slate-700 p-3">AI Agent 多模型推理</div>
-                <div className="rounded border border-slate-700 p-3">结构化专业评估报告</div>
+                <div className="rounded-lg border border-slate-700 p-3">海量幕墙图像处理</div>
+                <div className="rounded-lg border border-slate-700 p-3">AI Agent 多模型推理</div>
+                <div className="rounded-lg border border-slate-700 p-3">结构化专业评估报告</div>
               </div>
             </div>
             <div className="flex items-center p-8">

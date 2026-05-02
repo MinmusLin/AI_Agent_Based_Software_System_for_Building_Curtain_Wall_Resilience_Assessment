@@ -4,6 +4,7 @@ import type {
   GetProjectProfileResponse,
   UpdateProjectProfileRequest,
   UpdateProjectProfileResponse,
+  UploadProjectThumbnailResponse,
 } from '@/types/project/profile';
 
 // 获取项目基础信息
@@ -15,6 +16,25 @@ export async function getProjectProfile(projectId: string): Promise<GetProjectPr
     },
   });
   return data.data;
+}
+
+// 上传项目缩略图
+// @router /project/profile/thumbnail [POST]
+export async function uploadProjectThumbnail(projectId: string): Promise<UploadProjectThumbnailResponse> {
+  const { data } = await http.post<ApiEnvelope<UploadProjectThumbnailResponse>>('/project/profile/thumbnail', {
+    project_id: projectId,
+  });
+  return data.data;
+}
+
+// 删除项目缩略图
+// @router /project/profile/thumbnail [DELETE]
+export async function deleteProjectThumbnail(projectId: string): Promise<void> {
+  await http.delete<ApiEnvelope<Record<string, never>>>('/project/profile/thumbnail', {
+    params: {
+      project_id: projectId,
+    },
+  });
 }
 
 // 更新项目基础信息

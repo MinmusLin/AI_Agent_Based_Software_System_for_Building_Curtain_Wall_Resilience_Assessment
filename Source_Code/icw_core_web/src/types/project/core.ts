@@ -7,6 +7,7 @@ export interface Project {
   building_description: string;
   known_issues: string;
   assessment_goal: string;
+  thumbnail_url: string;
   progress: number;
   created_at: string;
   updated_at: string;
@@ -17,6 +18,7 @@ export interface ProjectListItem {
   name: string;
   building_name: string;
   building_location: string;
+  thumbnail_url: string;
   progress: number;
   created_at: string;
 }

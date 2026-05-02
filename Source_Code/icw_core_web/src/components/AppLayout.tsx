@@ -179,7 +179,7 @@ export function AppLayout(): ReactElement {
           <div className="text-lg font-medium text-slate-800">建筑幕墙韧性评估软件系统</div>
           <Dropdown menu={{ items: userItems }} placement="bottomRight" trigger={['click']}>
             <button
-              className="flex items-center gap-2 rounded px-2 py-1 hover:bg-slate-100"
+              className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-slate-100"
               disabled={avatarLoading}
               type="button"
             >
