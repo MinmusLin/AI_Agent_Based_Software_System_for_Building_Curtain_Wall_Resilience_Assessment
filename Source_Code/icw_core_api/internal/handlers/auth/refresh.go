@@ -25,7 +25,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 	rpcResp := &bizDto.RefreshResponse{}
 	if err := h.CoreBizClient().Call("AuthService.Refresh", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("[ERROR] Call icw.core.biz AuthService.Refresh failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		response.WriteRPCError(c, err)
+		response.WriteError(c, err)
 		code, _, _ := rpc_err.Parse(err)
 		if code == rpc_err.CodeUnauthorized {
 			// 旧 Refresh Token 失效

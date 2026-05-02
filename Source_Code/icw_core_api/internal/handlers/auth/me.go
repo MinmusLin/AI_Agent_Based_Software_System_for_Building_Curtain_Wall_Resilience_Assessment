@@ -30,7 +30,7 @@ func (h *Handler) Me(c *gin.Context) {
 	rpcResp := &bizDto.MeResponse{}
 	if err := h.CoreBizClient().Call("AuthService.Me", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("[ERROR] Call icw.core.biz AuthService.Me failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		response.WriteRPCError(c, err)
+		response.WriteError(c, err)
 		return
 	}
 

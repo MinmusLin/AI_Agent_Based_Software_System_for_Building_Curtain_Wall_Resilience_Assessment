@@ -17,7 +17,7 @@ func (h *Handler) ListProjects(c *gin.Context) {
 	// 从 Gin Context 中获取当前登录用户
 	user, err := utils.GetCurrentUser(c)
 	if err != nil {
-		response.WriteRPCError(c, err)
+		response.WriteError(c, err)
 		return
 	}
 
@@ -27,7 +27,7 @@ func (h *Handler) ListProjects(c *gin.Context) {
 	rpcResp := &bizDto.ListProjectsResponse{}
 	if err := h.CoreBizClient().Call("ProjectCoreService.ListProjects", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("[ERROR] Call icw.core.biz ProjectCoreService.ListProjects failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		response.WriteRPCError(c, err)
+		response.WriteError(c, err)
 		return
 	}
 

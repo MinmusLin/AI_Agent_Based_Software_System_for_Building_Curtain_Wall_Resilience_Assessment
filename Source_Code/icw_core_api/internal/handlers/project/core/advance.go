@@ -22,14 +22,14 @@ func (h *Handler) AdvanceProject(c *gin.Context) {
 	// 从 Gin Context 中获取当前登录用户
 	user, err := utils.GetCurrentUser(c)
 	if err != nil {
-		response.WriteRPCError(c, err)
+		response.WriteError(c, err)
 		return
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
 	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteRPCError(c, err)
+		response.WriteError(c, err)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *Handler) AdvanceProject(c *gin.Context) {
 	rpcResp := &bizDto.AdvanceProjectResponse{}
 	if err := h.CoreBizClient().Call("ProjectCoreService.AdvanceProjectProgress", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("[ERROR] Call icw.core.biz ProjectCoreService.AdvanceProjectProgress failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		response.WriteRPCError(c, err)
+		response.WriteError(c, err)
 		return
 	}
 

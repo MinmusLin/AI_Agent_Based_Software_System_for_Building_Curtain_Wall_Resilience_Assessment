@@ -26,7 +26,7 @@ func (h *Handler) SendEmailCode(c *gin.Context) {
 	rpcResp := &bizDto.SendEmailCodeResponse{}
 	if err := h.CoreBizClient().Call("AuthService.SendEmailCode", rpcReq, rpcResp); err != nil || rpcResp == nil {
 		log.Printf("[ERROR] Call icw.core.biz AuthService.SendEmailCode failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-		response.WriteRPCError(c, err)
+		response.WriteError(c, err)
 		return
 	}
 
