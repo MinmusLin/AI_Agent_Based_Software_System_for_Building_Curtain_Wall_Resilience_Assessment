@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-
-	"icw_core_biz/internal/services/project/consts"
 )
 
 // FindProjectByIdAndUserId 按用户 ID 和项目 ID 查询项目
@@ -67,7 +65,7 @@ func (r *Repository) FindProjectByIdAndUserId(ctx context.Context, userId, proje
 }
 
 // AdvanceProject 按用户 ID 和项目 ID 流转项目进度
-func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress uint8, status ProjectStatus) (bool, error) {
+func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress ProjectProgress, status ProjectStatus) (bool, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE projects
 		SET progress = ?, status = ?
@@ -203,7 +201,7 @@ func (r *Repository) UpdateProjectProfile(
 			assessment_goal = ?,
 			updated_at = NOW(3)
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
-	`, name, buildingName, buildingLocation, builtYearValue, buildingDescription, knownIssues, assessmentGoal, projectId, userId, consts.ProgressInitializationFinished, ProjectStatusActive)
+	`, name, buildingName, buildingLocation, builtYearValue, buildingDescription, knownIssues, assessmentGoal, projectId, userId, ProjectProgressInitializationFinished, ProjectStatusActive)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +216,7 @@ func (r *Repository) UpdateProjectProfile(
 		if err != nil || project == nil {
 			return project, err
 		}
-		if project.Progress != consts.ProgressInitializationFinished || project.Status != string(ProjectStatusActive) {
+		if project.Progress != ProjectProgressInitializationFinished || project.Status != string(ProjectStatusActive) {
 			return nil, nil
 		}
 		return project, nil
