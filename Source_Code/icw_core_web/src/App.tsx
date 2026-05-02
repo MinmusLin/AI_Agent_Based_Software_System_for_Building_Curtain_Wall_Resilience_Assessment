@@ -5,6 +5,7 @@ import { AppLayout } from './components/AppLayout';
 import DashboardPage from './pages/DashboardPage';
 import ForgetPasswordPage from './pages/ForgetPasswordPage';
 import LoginPage from './pages/LoginPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
 import ProjectsPage from './pages/ProjectsPage';
 import RegisterPage from './pages/RegisterPage';
 import { GuestRoute, ProtectedRoute } from './routes/RouteGuards';
@@ -22,6 +23,8 @@ export default function App(): ReactElement {
         <Route element={<AppLayout />}>
           <Route element={<DashboardPage />} path="/dashboard" />
           <Route element={<ProjectsPage />} path="/projects" />
+          <Route element={<ProjectDetailPage />} path="/projects/:projectId" />
+          <Route element={<ProjectDetailPage />} path="/projects/:projectId/:stage" />
         </Route>
       </Route>
       <Route element={<Navigate replace to="/dashboard" />} path="*" />
