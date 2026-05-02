@@ -4,6 +4,10 @@ export interface GetProjectProfileResponse {
   project: Project;
 }
 
+export interface GetProjectThumbnailResponse {
+  thumbnail_url: string;
+}
+
 export interface UploadProjectThumbnailResponse {
   upload_url: string;
 }

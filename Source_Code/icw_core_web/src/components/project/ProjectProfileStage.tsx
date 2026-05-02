@@ -14,7 +14,7 @@ import { getErrorMessage } from '@/api/http';
 import { advanceProject } from '@/api/project/core';
 import {
   deleteProjectThumbnail,
-  getProjectProfile,
+  getProjectThumbnail,
   updateProjectProfile,
   uploadProjectThumbnail,
 } from '@/api/project/profile';
@@ -149,10 +149,13 @@ function ProjectThumbnailControl({
     inputRef.current?.click();
   }, [actionDisabled]);
 
-  const refreshProject = useCallback(async (): Promise<void> => {
-    const data = await getProjectProfile(projectId);
-    onChange(data.project);
-  }, [onChange, projectId]);
+  const refreshThumbnail = useCallback(async (): Promise<void> => {
+    const data = await getProjectThumbnail(projectId);
+    onChange({
+      ...project,
+      thumbnail_url: data.thumbnail_url,
+    });
+  }, [onChange, project, projectId]);
 
   const handleFileChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>): void => {
@@ -186,7 +189,7 @@ function ProjectThumbnailControl({
             throw new Error('project thumbnail upload failed');
           }
 
-          await refreshProject();
+          await refreshThumbnail();
         } catch (error: unknown) {
           void messageApi.error(getErrorMessage(error));
         } finally {
@@ -196,7 +199,7 @@ function ProjectThumbnailControl({
 
       void upload(selectedFile);
     },
-    [actionDisabled, messageApi, projectId, refreshProject],
+    [actionDisabled, messageApi, projectId, refreshThumbnail],
   );
 
   const handleDelete = useCallback(async (): Promise<void> => {
@@ -207,13 +210,13 @@ function ProjectThumbnailControl({
     setBusy(true);
     try {
       await deleteProjectThumbnail(projectId);
-      await refreshProject();
+      await refreshThumbnail();
     } catch (error: unknown) {
       void messageApi.error(getErrorMessage(error));
     } finally {
       setBusy(false);
     }
-  }, [actionDisabled, hasThumbnail, messageApi, projectId, refreshProject]);
+  }, [actionDisabled, hasThumbnail, messageApi, projectId, refreshThumbnail]);
 
   return (
     <div className="flex h-full flex-col">
@@ -353,7 +356,17 @@ export function ProjectProfileStage({
 
   useEffect(() => {
     setForm(projectToForm(project));
-  }, [project]);
+  }, [
+    project.assessment_goal,
+    project.building_description,
+    project.building_location,
+    project.building_name,
+    project.built_year,
+    project.id,
+    project.known_issues,
+    project.name,
+    project.updated_at,
+  ]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">

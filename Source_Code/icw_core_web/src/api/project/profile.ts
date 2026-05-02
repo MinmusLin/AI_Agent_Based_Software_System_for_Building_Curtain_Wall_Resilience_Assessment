@@ -2,6 +2,7 @@ import { http } from '@/api/http';
 import type { ApiEnvelope } from '@/types/common';
 import type {
   GetProjectProfileResponse,
+  GetProjectThumbnailResponse,
   UpdateProjectProfileRequest,
   UpdateProjectProfileResponse,
   UploadProjectThumbnailResponse,
@@ -11,6 +12,17 @@ import type {
 // @router /project/profile/detail [GET]
 export async function getProjectProfile(projectId: string): Promise<GetProjectProfileResponse> {
   const { data } = await http.get<ApiEnvelope<GetProjectProfileResponse>>('/project/profile/detail', {
+    params: {
+      project_id: projectId,
+    },
+  });
+  return data.data;
+}
+
+// 获取项目缩略图
+// @router /project/profile/thumbnail [GET]
+export async function getProjectThumbnail(projectId: string): Promise<GetProjectThumbnailResponse> {
+  const { data } = await http.get<ApiEnvelope<GetProjectThumbnailResponse>>('/project/profile/thumbnail', {
     params: {
       project_id: projectId,
     },
