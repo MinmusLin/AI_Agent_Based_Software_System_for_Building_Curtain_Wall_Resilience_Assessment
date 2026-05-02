@@ -40,8 +40,8 @@ func (h *Handler) AdvanceProject(c *gin.Context) {
 		ToProgress:   req.ToProgress,
 	}
 	rpcResp := &bizDto.AdvanceProjectResponse{}
-	if err := h.CoreBizClient().Call("ProjectCoreService.AdvanceProjectProgress", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectCoreService.AdvanceProjectProgress failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CoreBizClient().Call("ProjectCoreService.AdvanceProject", rpcReq, rpcResp); err != nil || rpcResp == nil {
+		log.Printf("[ERROR] Call icw.core.biz ProjectCoreService.AdvanceProject failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
 		response.WriteError(c, err)
 		return
 	}

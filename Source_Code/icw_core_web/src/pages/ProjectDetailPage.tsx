@@ -82,10 +82,9 @@ function ProjectStageContent({
     );
   }
 
-  const stage = PROJECT_STAGES[currentVisibleProgress(selectedProgress)];
   return (
     <div className="flex min-h-0 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white">
-      <Empty description={`${stage.title}：${stage.description}`} />
+      <Empty />
     </div>
   );
 }
