@@ -27,10 +27,11 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 	rpc_err.DetailIncorrectEmailCode:         "验证码错误",
 	rpc_err.DetailInvalidCredentials:         "邮箱或密码错误",
 	rpc_err.DetailInvalidAvatarContentType:   "请上传正确的图像格式",
+	rpc_err.DetailProjectNotAccessible:       "无项目访问权限",
 }
 
-// WriteRPCError 将 RPC 标准错误转换为 API 层的 HTTP 响应
-func WriteRPCError(c *gin.Context, err error) {
+// WriteError 将 RPC 标准错误转换为 API 层的 HTTP 响应
+func WriteError(c *gin.Context, err error) {
 	code, detailCode, message := rpc_err.Parse(err)
 	log.Printf("[ERROR] %s|%s: %s", code, detailCode, message)
 	Error(c, errorStatus(code), errorCode(code, detailCode), errorMessage(detailCode))
