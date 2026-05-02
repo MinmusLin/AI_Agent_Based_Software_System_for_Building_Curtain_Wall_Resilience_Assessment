@@ -9,6 +9,7 @@ type Project struct {
 	BuildingDescription string
 	KnownIssues         string
 	AssessmentGoal      string
+	ThumbnailURL        string
 	Progress            uint8
 	CreatedAt           string
 	UpdatedAt           string
@@ -19,6 +20,7 @@ type ProjectListItem struct {
 	Name             string
 	BuildingName     string
 	BuildingLocation string
+	ThumbnailURL     string
 	Progress         uint8
 	CreatedAt        string
 }
