@@ -16,7 +16,7 @@ import (
 func (h *Handler) Me(c *gin.Context) {
 	// 正常路由会先经过 AuthRequired 登录鉴权中间件，预期已经调用过 icw.core.biz AuthService.Me 接口
 	// 优先从 Gin Context 中获取用户信息，避免 RPC 重复调用
-	if user, err := utils.GetCurrentUser(c); err == nil && user != nil {
+	if user, err := utils.GetCurrentUser(c); err == nil {
 		response.OK(c, dto.NewMeResponse(&bizDto.MeResponse{
 			User: user,
 		}))
