@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"icw_core_biz/internal/rpc_log"
+	"icw_core_biz/internal/services/project/consts"
 	projectUtils "icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/repositories/mysql"
 	"icw_core_biz/utils"
 )
 
@@ -31,7 +31,7 @@ func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest,
 	}
 
 	// 只有项目状态为进行中且项目进度为项目基础信息阶段时，可以更新项目基础信息
-	if projectRecord.Progress != mysql.ProjectProgressInitializationFinished || projectRecord.Status != string(mysql.ProjectStatusActive) {
+	if projectRecord.Progress != consts.ProjectProgressInitializationFinished || projectRecord.Status != consts.ProjectStatusActive {
 		return rpc_err.BadRequestDefault("project profile can only be updated in progress 0 and active status")
 	}
 

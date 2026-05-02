@@ -2,15 +2,17 @@ package mysql
 
 import (
 	"context"
+
+	"icw_core_biz/internal/services/project/consts"
 )
 
 // AdvanceProject 按用户 ID 和项目 ID 流转项目进度
-func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress ProjectProgress, status ProjectStatus) (bool, error) {
+func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, status consts.ProjectStatus) (bool, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE projects
 		SET progress = ?, status = ?
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
-	`, toProgress, status, projectId, userId, fromProgress, ProjectStatusActive)
+	`, toProgress.Uint8(), status.String(), projectId, userId, fromProgress.Uint8(), consts.ProjectStatusActive.String())
 	if err != nil {
 		return false, err
 	}
@@ -47,7 +49,7 @@ func (r *Repository) DeleteProject(ctx context.Context, userId, projectId uint64
 		UPDATE projects
 		SET status = ?
 		WHERE id = ? AND user_id = ? AND status != ?
-	`, ProjectStatusDeleted, projectId, userId, ProjectStatusDeleted)
+	`, consts.ProjectStatusDeleted.String(), projectId, userId, consts.ProjectStatusDeleted.String())
 	if err != nil {
 		return false, err
 	}
@@ -67,7 +69,7 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 		FROM projects
 		WHERE user_id = ? AND status IN (?, ?)
 		ORDER BY created_at DESC
-	`, userId, ProjectStatusActive, ProjectStatusCompleted)
+	`, userId, consts.ProjectStatusActive.String(), consts.ProjectStatusCompleted.String())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,22 +83,28 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 
 	for rows.Next() {
 		project := &ProjectRecord{}
+		var (
+			progress int8
+			status   string
+		)
 		if err := rows.Scan(
 			&project.Id,
 			&project.UserId,
 			&project.Name,
 			&project.BuildingName,
 			&project.BuildingLocation,
-			&project.Progress,
-			&project.Status,
+			&progress,
+			&status,
 			&project.CreatedAt,
 			&project.UpdatedAt,
 		); err != nil {
 			return nil, nil, err
 		}
-		if project.Status == string(ProjectStatusActive) {
+		project.Progress = consts.ParseProjectProgress(progress)
+		project.Status = consts.ParseProjectStatus(status)
+		if project.Status == consts.ProjectStatusActive {
 			activeProjects = append(activeProjects, project)
-		} else if project.Status == string(ProjectStatusCompleted) {
+		} else if project.Status == consts.ProjectStatusCompleted {
 			completedProjects = append(completedProjects, project)
 		} else {
 			continue

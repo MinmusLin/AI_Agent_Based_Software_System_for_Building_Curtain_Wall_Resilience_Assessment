@@ -11,7 +11,6 @@ import (
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/repositories/mysql"
 )
 
 // SendEmailCode 发送邮箱验证码
@@ -92,13 +91,13 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 发送邮箱验证码
 	if err := s.SMTP().SendEmailCode(email, sceneValue, code); err != nil {
-		s.recordEmailSendLog(ctx, email, sceneValue, code, mysql.EmailSendStatusFailed, err.Error())
+		s.recordEmailSendLog(ctx, email, sceneValue, code, consts.EmailSendStatusFailed, err.Error())
 		if err := s.Redis().ClearEmailCode(ctx, sceneValue, email); err != nil {
 			log.Printf("[WARN] Clear email code failed, scene: %s, email: %s, err: %v", sceneValue, email, err)
 		}
 		return rpc_err.InternalError(rpc_err.DetailSendEmailCodeFailed, err.Error())
 	}
-	s.recordEmailSendLog(ctx, email, sceneValue, code, mysql.EmailSendStatusSuccess, "")
+	s.recordEmailSendLog(ctx, email, sceneValue, code, consts.EmailSendStatusSuccess, "")
 
 	// 邮箱验证码发送成功，返回验证码有效期
 	resp.ExpiresInSeconds = int(s.Config().EmailCodeTTL.Seconds())
@@ -107,8 +106,8 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 }
 
 // recordEmailSendLog 记录邮件发送日志
-func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail, scene, emailCode string, status mysql.EmailSendStatus, errorMessage string) {
+func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail, scene, emailCode string, status consts.EmailSendStatus, errorMessage string) {
 	if err := s.MySQL().CreateEmailSendLog(ctx, receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, status, errorMessage); err != nil {
-		log.Printf("[WARN] Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %s", receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, status, err.Error())
+		log.Printf("[WARN] Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %s", receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, status.String(), err.Error())
 	}
 }

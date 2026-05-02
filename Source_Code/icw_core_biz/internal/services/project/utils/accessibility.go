@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 
+	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
@@ -20,7 +21,7 @@ func ValidateProjectOwnership(ctx context.Context, repo *mysql.Repository, userI
 	}
 
 	// 如果项目不存在 / 项目不属于该用户 / 项目状态为已删除，则用户无项目访问权限
-	if project == nil || project.Status == string(mysql.ProjectStatusDeleted) {
+	if project == nil || project.Status == consts.ProjectStatusDeleted {
 		return nil, rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project is not accessible")
 	}
 

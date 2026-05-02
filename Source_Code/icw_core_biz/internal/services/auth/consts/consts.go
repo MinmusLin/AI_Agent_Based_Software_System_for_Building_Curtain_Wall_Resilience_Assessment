@@ -4,17 +4,41 @@ import (
 	"strings"
 )
 
-// LoginFailureLimit 登录失败最大重试次数
-const LoginFailureLimit int = 5
+const (
+	// LoginFailureLimit 登录失败最大重试次数
+	LoginFailureLimit int = 5
+	// MinPasswordLength 密码最小字符长度
+	MinPasswordLength int = 8
+	// MaxPasswordLength 密码最大字符长度
+	MaxPasswordLength int = 24
+	// MaxNameLength 用户名称最大字符长度
+	MaxNameLength int = 8
+)
 
-// MinPasswordLength 密码最小字符长度
-const MinPasswordLength = 8
+// EmailSendStatus 邮件发送状态枚举
+type EmailSendStatus string
 
-// MaxPasswordLength 密码最大字符长度
-const MaxPasswordLength = 24
+const (
+	// EmailSendStatusSuccess 邮件发送成功
+	EmailSendStatusSuccess EmailSendStatus = "success"
+	// EmailSendStatusFailed 邮件发送失败
+	EmailSendStatusFailed EmailSendStatus = "failed"
+)
 
-// MaxNameLength 用户名称最大字符长度
-const MaxNameLength = 8
+// String 将邮件发送状态枚举转换为字符串
+func (s EmailSendStatus) String() string {
+	return string(s)
+}
+
+// ParseEmailSendStatus 将外部输入转换为邮件发送状态枚举
+func ParseEmailSendStatus(value string) EmailSendStatus {
+	switch status := EmailSendStatus(strings.TrimSpace(value)); status {
+	case EmailSendStatusSuccess, EmailSendStatusFailed:
+		return status
+	default:
+		return ""
+	}
+}
 
 // EmailCodeScene 邮箱验证码业务场景枚举
 type EmailCodeScene string

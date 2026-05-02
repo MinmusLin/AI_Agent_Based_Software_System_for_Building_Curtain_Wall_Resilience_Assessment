@@ -43,7 +43,7 @@ func ProjectRecordToDTO(record *mysql.ProjectRecord) *project.Project {
 		BuildingDescription: record.BuildingDescription,
 		KnownIssues:         record.KnownIssues,
 		AssessmentGoal:      record.AssessmentGoal,
-		Progress:            uint8(record.Progress),
+		Progress:            record.Progress.Uint8(),
 		CreatedAt:           mysql.TimeToString(record.CreatedAt),
 		UpdatedAt:           mysql.TimeToString(record.UpdatedAt),
 	}
@@ -65,7 +65,7 @@ func ProjectRecordsToListItemsDTO(records []*mysql.ProjectRecord) []*project.Pro
 			Name:             record.Name,
 			BuildingName:     record.BuildingName,
 			BuildingLocation: record.BuildingLocation,
-			Progress:         uint8(record.Progress),
+			Progress:         record.Progress.Uint8(),
 			CreatedAt:        mysql.TimeToString(record.CreatedAt),
 		})
 	}
