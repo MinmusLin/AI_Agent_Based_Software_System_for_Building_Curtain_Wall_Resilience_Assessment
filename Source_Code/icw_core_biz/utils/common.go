@@ -43,13 +43,14 @@ func ProjectRecordToDTO(record *mysql.ProjectRecord) *project.Project {
 		BuildingDescription: record.BuildingDescription,
 		KnownIssues:         record.KnownIssues,
 		AssessmentGoal:      record.AssessmentGoal,
+		ThumbnailURL:        "",
 		Progress:            record.Progress.Uint8(),
 		CreatedAt:           mysql.TimeToString(record.CreatedAt),
 		UpdatedAt:           mysql.TimeToString(record.UpdatedAt),
 	}
 }
 
-// ProjectRecordsToListItemsDTO 将 MySQL 项目模型批量转换为 RPC 项目列表模型
+// ProjectRecordsToListItemsDTO 将 MySQL 数据模型转换为 RPC 数据模型
 func ProjectRecordsToListItemsDTO(records []*mysql.ProjectRecord) []*project.ProjectListItem {
 	if records == nil {
 		return make([]*project.ProjectListItem, 0)
@@ -65,6 +66,7 @@ func ProjectRecordsToListItemsDTO(records []*mysql.ProjectRecord) []*project.Pro
 			Name:             record.Name,
 			BuildingName:     record.BuildingName,
 			BuildingLocation: record.BuildingLocation,
+			ThumbnailURL:     "",
 			Progress:         record.Progress.Uint8(),
 			CreatedAt:        mysql.TimeToString(record.CreatedAt),
 		})

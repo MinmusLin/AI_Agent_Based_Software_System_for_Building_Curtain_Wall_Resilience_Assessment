@@ -26,7 +26,7 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 	rpc_err.DetailNameTooLong:                "用户名称不能超过 8 个字符",
 	rpc_err.DetailIncorrectEmailCode:         "验证码错误",
 	rpc_err.DetailInvalidCredentials:         "邮箱或密码错误",
-	rpc_err.DetailInvalidAvatarContentType:   "请上传正确的图像格式",
+	rpc_err.DetailInvalidImageContentType:    "请上传正确的图像格式",
 	rpc_err.DetailProjectNotAccessible:       "无项目访问权限",
 }
 
