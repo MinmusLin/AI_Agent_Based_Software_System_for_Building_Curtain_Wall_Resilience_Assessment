@@ -174,7 +174,7 @@ export default function ProjectDetailPage(): ReactElement {
           />
           <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4 text-sm leading-6 text-slate-500">
             <Spin size="small" />
-            <span>正在加载项目数据，请稍候。</span>
+            <span>正在加载项目数据，请稍等</span>
           </div>
         </div>
         <ProjectStageContent
