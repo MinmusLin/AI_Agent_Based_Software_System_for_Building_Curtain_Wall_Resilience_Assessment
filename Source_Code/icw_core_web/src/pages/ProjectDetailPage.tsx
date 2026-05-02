@@ -84,7 +84,7 @@ function ProjectStageContent({
 
   return (
     <div className="flex min-h-0 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white">
-      <Empty />
+      <Empty description={'暂无数据，请返回工作台页面'}/>
     </div>
   );
 }
