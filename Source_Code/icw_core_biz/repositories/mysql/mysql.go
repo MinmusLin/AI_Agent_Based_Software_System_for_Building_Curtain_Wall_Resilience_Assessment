@@ -66,12 +66,24 @@ func (r *Repository) FindUserByEmail(ctx context.Context, email string) (*UserRe
 
 // UpdatePasswordByEmail 按邮箱更新用户密码
 func (r *Repository) UpdatePasswordByEmail(ctx context.Context, email, passwordHash string) error {
-	_, err := r.mysql.ExecContext(ctx, `
+	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE users
 		SET password_hash = ?
 		WHERE email = ?
 	`, passwordHash, email)
-	return err
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }
 
 // CreateLoginSession 登录时保存登录态 Refresh Token，并更新用户最近登录时间
@@ -91,12 +103,21 @@ func (r *Repository) CreateLoginSession(ctx context.Context, tokenId string, use
 		return err
 	}
 
-	if _, err := tx.ExecContext(ctx, `
+	result, err := tx.ExecContext(ctx, `
 		UPDATE users
 		SET last_login_at = NOW(3)
 		WHERE id = ?
-	`, userId); err != nil {
+	`, userId)
+	if err != nil {
 		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return sql.ErrNoRows
 	}
 
 	return tx.Commit()
@@ -165,17 +186,23 @@ func (r *Repository) FindRefreshToken(ctx context.Context, tokenId, tokenHash st
 
 // RevokeRefreshTokensByTokenId 按 Token Id 吊销 Refresh Token
 func (r *Repository) RevokeRefreshTokensByTokenId(ctx context.Context, tokenId string) error {
-	_, err := r.mysql.ExecContext(ctx, `
+	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE refresh_tokens
 		SET revoked_at = NOW(3)
 		WHERE token_id = ? AND revoked_at IS NULL
 	`, tokenId)
+	if err != nil {
+		return err
+	}
+
+	_, err = result.RowsAffected()
+
 	return err
 }
 
 // RevokeRefreshTokensByEmail 按邮箱吊销 Refresh Token
 func (r *Repository) RevokeRefreshTokensByEmail(ctx context.Context, email string) error {
-	_, err := r.mysql.ExecContext(ctx, `
+	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE refresh_tokens
 		SET revoked_at = NOW(3)
 		WHERE user_id = (
@@ -185,6 +212,12 @@ func (r *Repository) RevokeRefreshTokensByEmail(ctx context.Context, email strin
 			LIMIT 1
 		) AND revoked_at IS NULL
 	`, email)
+	if err != nil {
+		return err
+	}
+
+	_, err = result.RowsAffected()
+
 	return err
 }
 

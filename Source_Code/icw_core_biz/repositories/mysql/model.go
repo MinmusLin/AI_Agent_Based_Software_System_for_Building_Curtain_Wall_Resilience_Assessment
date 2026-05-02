@@ -33,6 +33,24 @@ const (
 	ProjectStatusDeleted ProjectStatus = "deleted"
 )
 
+// ProjectProgress 项目进度
+type ProjectProgress int8
+
+const (
+	// ProjectProgressInitializationFinished 项目初始化完成，当前项目基础信息阶段
+	ProjectProgressInitializationFinished ProjectProgress = 0
+	// ProjectProgressProfileFinished 项目基础信息完成，当前图像资产构建阶段
+	ProjectProgressProfileFinished ProjectProgress = 1
+	// ProjectProgressAssetsFinished 图像资产构建完成，当前 Agent 智能检测阶段
+	ProjectProgressAssetsFinished ProjectProgress = 2
+	// ProjectProgressDetectFinished Agent 智能检测完成，当前人工复核确认阶段
+	ProjectProgressDetectFinished ProjectProgress = 3
+	// ProjectProgressReviewFinished 人工复核确认完成，当前评估报告生成阶段
+	ProjectProgressReviewFinished ProjectProgress = 4
+	// ProjectProgressReportFinished 评估报告生成完成，当前项目已完成
+	ProjectProgressReportFinished ProjectProgress = 5
+)
+
 // UserRecord 用户记录
 type UserRecord struct {
 	Id           uint64
@@ -60,7 +78,7 @@ type ProjectRecord struct {
 	BuildingDescription string
 	KnownIssues         string
 	AssessmentGoal      string
-	Progress            uint8
+	Progress            ProjectProgress
 	Status              string
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
