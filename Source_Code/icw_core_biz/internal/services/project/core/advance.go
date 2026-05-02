@@ -5,7 +5,7 @@ import (
 
 	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/internal/services/project/consts"
-	projectUtils "icw_core_biz/internal/services/project/utils"
+	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
 )
@@ -32,11 +32,20 @@ func (s *Service) AdvanceProject(req *project.AdvanceProjectRequest, resp *proje
 	}
 	fromProgress := consts.ParseProjectProgressFromUint8(req.FromProgress)
 	toProgress := consts.ParseProjectProgressFromUint8(req.ToProgress)
+	nextStatus := consts.ProjectStatusActive
+	if toProgress == consts.ProjectProgressReportFinished {
+		nextStatus = consts.ProjectStatusCompleted
+	}
 
 	// 校验用户是否拥有项目访问权限
-	projectRecord, err := projectUtils.ValidateProjectOwnership(ctx, s.MySQL(), req.UserId, req.ProjectId)
+	projectRecord, err := utils.ValidateProjectOwnership(ctx, s.MySQL(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err
+	}
+
+	// 如果项目已经推进到目标阶段，允许重试项目进度流转后置扩展点
+	if projectRecord.Progress == toProgress && projectRecord.Status == nextStatus {
+		return utils.PostAdvanceProject(ctx, s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress)
 	}
 
 	// 校验项目状态和进度是否已经发生变化
@@ -44,10 +53,9 @@ func (s *Service) AdvanceProject(req *project.AdvanceProjectRequest, resp *proje
 		return rpc_err.BadRequestDefault("project status or progress has changed")
 	}
 
-	// 如果项目进度推进结束，则更新项目状态为已完成
-	nextStatus := consts.ProjectStatusActive
-	if toProgress == consts.ProjectProgressReportFinished {
-		nextStatus = consts.ProjectStatusCompleted
+	// 执行项目进度流转前置扩展点
+	if err := utils.PreAdvanceProject(ctx, s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
+		return err
 	}
 
 	advanced, err := s.MySQL().AdvanceProject(ctx, req.UserId, req.ProjectId, fromProgress, toProgress, nextStatus)
@@ -56,6 +64,11 @@ func (s *Service) AdvanceProject(req *project.AdvanceProjectRequest, resp *proje
 	}
 	if !advanced {
 		return rpc_err.BadRequestDefault("project status or progress has changed")
+	}
+
+	// 执行项目进度流转后置扩展点
+	if err := utils.PostAdvanceProject(ctx, s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
+		return err
 	}
 
 	return nil

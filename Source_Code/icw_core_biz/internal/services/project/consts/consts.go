@@ -8,6 +8,8 @@ import (
 const (
 	// DefaultProjectName 默认项目名称
 	DefaultProjectName = "新项目"
+	// DefaultProjectGroupName 默认图像组名称
+	DefaultProjectGroupName = "默认图像组"
 )
 
 const (
