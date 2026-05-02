@@ -2,7 +2,10 @@ module icw_core_api
 
 go 1.26.0
 
-require github.com/gin-gonic/gin v1.11.0
+require (
+	github.com/gin-gonic/gin v1.11.0
+	github.com/sqids/sqids-go v0.4.1
+)
 
 require icw_core_biz v0.0.0
 

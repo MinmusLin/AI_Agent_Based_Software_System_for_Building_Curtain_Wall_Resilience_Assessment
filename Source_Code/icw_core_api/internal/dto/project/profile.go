@@ -18,7 +18,7 @@ func NewGetProjectProfileResponse(resp *project.GetProjectProfileResponse) *GetP
 }
 
 type UpdateProjectProfileRequest struct {
-	ProjectId           uint64 `json:"project_id"`
+	ProjectId           string `json:"project_id"`
 	Name                string `json:"name"`
 	BuildingName        string `json:"building_name"`
 	BuildingLocation    string `json:"building_location"`

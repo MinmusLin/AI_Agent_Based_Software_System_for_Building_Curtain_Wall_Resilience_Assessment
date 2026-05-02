@@ -8,7 +8,7 @@ import type {
 
 // 获取项目基础信息
 // @router /project/profile/detail [GET]
-export async function getProjectProfile(projectId: number): Promise<GetProjectProfileResponse> {
+export async function getProjectProfile(projectId: string): Promise<GetProjectProfileResponse> {
   const { data } = await http.get<ApiEnvelope<GetProjectProfileResponse>>('/project/profile/detail', {
     params: {
       project_id: projectId,

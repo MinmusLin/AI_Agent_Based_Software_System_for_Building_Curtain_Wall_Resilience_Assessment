@@ -1,11 +1,12 @@
 package project
 
 import (
+	"icw_core_api/utils"
 	"icw_core_biz/pkg/dto/project"
 )
 
 type Project struct {
-	Id                  uint64 `json:"id"`
+	Id                  string `json:"id"`
 	Name                string `json:"name"`
 	BuildingName        string `json:"building_name"`
 	BuildingLocation    string `json:"building_location"`
@@ -23,7 +24,7 @@ func NewProject(project *project.Project) *Project {
 		return nil
 	}
 	return &Project{
-		Id:                  project.Id,
+		Id:                  utils.Encode(project.Id),
 		Name:                project.Name,
 		BuildingName:        project.BuildingName,
 		BuildingLocation:    project.BuildingLocation,
@@ -38,7 +39,7 @@ func NewProject(project *project.Project) *Project {
 }
 
 type ProjectListItem struct {
-	Id               uint64 `json:"id"`
+	Id               string `json:"id"`
 	Name             string `json:"name"`
 	BuildingName     string `json:"building_name"`
 	BuildingLocation string `json:"building_location"`
@@ -56,7 +57,7 @@ func NewProjectListItems(projects []*project.ProjectListItem) []*ProjectListItem
 			continue
 		}
 		items = append(items, &ProjectListItem{
-			Id:               p.Id,
+			Id:               utils.Encode(p.Id),
 			Name:             p.Name,
 			BuildingName:     p.BuildingName,
 			BuildingLocation: p.BuildingLocation,
@@ -68,7 +69,7 @@ func NewProjectListItems(projects []*project.ProjectListItem) []*ProjectListItem
 }
 
 type AdvanceProjectRequest struct {
-	ProjectId    uint64 `json:"project_id"`
+	ProjectId    string `json:"project_id"`
 	FromProgress uint8  `json:"from_progress"`
 	ToProgress   uint8  `json:"to_progress"`
 }
@@ -95,7 +96,7 @@ func NewCreateProjectResponse(resp *project.CreateProjectResponse) *CreateProjec
 }
 
 type DeleteProjectRequest struct {
-	ProjectId uint64 `json:"project_id"`
+	ProjectId string `json:"project_id"`
 }
 
 type DeleteProjectResponse struct {
