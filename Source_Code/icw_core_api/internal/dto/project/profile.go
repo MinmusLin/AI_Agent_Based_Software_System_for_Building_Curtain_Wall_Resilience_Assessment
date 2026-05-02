@@ -40,3 +40,29 @@ func NewUpdateProjectProfileResponse(resp *project.UpdateProjectProfileResponse)
 		Project: NewProject(resp.Project),
 	}
 }
+
+type UploadProjectThumbnailRequest struct {
+	ProjectId string `json:"project_id"`
+}
+
+type UploadProjectThumbnailResponse struct {
+	UploadURL string `json:"upload_url"`
+}
+
+func NewUploadProjectThumbnailResponse(resp *project.UploadProjectThumbnailResponse) *UploadProjectThumbnailResponse {
+	if resp == nil {
+		return nil
+	}
+	return &UploadProjectThumbnailResponse{
+		UploadURL: resp.UploadURL,
+	}
+}
+
+type DeleteProjectThumbnailResponse struct{}
+
+func NewDeleteProjectThumbnailResponse(resp *project.DeleteProjectThumbnailResponse) *DeleteProjectThumbnailResponse {
+	if resp == nil {
+		return nil
+	}
+	return &DeleteProjectThumbnailResponse{}
+}

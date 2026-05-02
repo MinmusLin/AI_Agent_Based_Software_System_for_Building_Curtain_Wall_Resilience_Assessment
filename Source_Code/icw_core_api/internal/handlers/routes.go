@@ -84,6 +84,10 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 		{
 			// 获取项目基础信息
 			projectProfileRouter.GET("/detail", projectProfileHandler.GetProjectProfile)
+			// 上传项目缩略图
+			projectProfileRouter.POST("/thumbnail", projectProfileHandler.UploadProjectThumbnail)
+			// 删除项目缩略图
+			projectProfileRouter.DELETE("/thumbnail", projectProfileHandler.DeleteProjectThumbnail)
 			// 更新项目基础信息
 			projectProfileRouter.POST("/update", projectProfileHandler.UpdateProjectProfile)
 		}

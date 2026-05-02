@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/minio/minio-go/v7 v7.1.0
 	github.com/redis/go-redis/v9 v9.6.1
+	github.com/sqids/sqids-go v0.4.1
 	golang.org/x/crypto v0.46.0
 )
 

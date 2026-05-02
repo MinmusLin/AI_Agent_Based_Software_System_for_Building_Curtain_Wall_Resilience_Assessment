@@ -14,6 +14,7 @@ type Project struct {
 	BuildingDescription string `json:"building_description"`
 	KnownIssues         string `json:"known_issues"`
 	AssessmentGoal      string `json:"assessment_goal"`
+	ThumbnailURL        string `json:"thumbnail_url"`
 	Progress            uint8  `json:"progress"`
 	CreatedAt           string `json:"created_at"`
 	UpdatedAt           string `json:"updated_at"`
@@ -32,6 +33,7 @@ func NewProject(project *project.Project) *Project {
 		BuildingDescription: project.BuildingDescription,
 		KnownIssues:         project.KnownIssues,
 		AssessmentGoal:      project.AssessmentGoal,
+		ThumbnailURL:        project.ThumbnailURL,
 		Progress:            project.Progress,
 		CreatedAt:           project.CreatedAt,
 		UpdatedAt:           project.UpdatedAt,
@@ -43,6 +45,7 @@ type ProjectListItem struct {
 	Name             string `json:"name"`
 	BuildingName     string `json:"building_name"`
 	BuildingLocation string `json:"building_location"`
+	ThumbnailURL     string `json:"thumbnail_url"`
 	Progress         uint8  `json:"progress"`
 	CreatedAt        string `json:"created_at"`
 }
@@ -61,6 +64,7 @@ func NewProjectListItems(projects []*project.ProjectListItem) []*ProjectListItem
 			Name:             p.Name,
 			BuildingName:     p.BuildingName,
 			BuildingLocation: p.BuildingLocation,
+			ThumbnailURL:     p.ThumbnailURL,
 			Progress:         p.Progress,
 			CreatedAt:        p.CreatedAt,
 		})
