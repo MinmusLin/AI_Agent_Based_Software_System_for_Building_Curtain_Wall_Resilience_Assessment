@@ -10,6 +10,11 @@ const (
 	DefaultProjectName = "新项目"
 )
 
+const (
+	// ThumbnailContentType 项目缩略图 MIME 类型
+	ThumbnailContentType = "image/png"
+)
+
 // ProjectStatus 项目状态枚举
 type ProjectStatus string
 

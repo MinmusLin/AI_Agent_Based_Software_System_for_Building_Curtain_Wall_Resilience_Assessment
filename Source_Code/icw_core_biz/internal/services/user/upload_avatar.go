@@ -8,6 +8,7 @@ import (
 	"icw_core_biz/internal/services/user/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
+	"icw_core_biz/repositories/minio"
 )
 
 // UploadAvatar 上传用户自定义头像
@@ -21,7 +22,7 @@ func (s *Service) UploadAvatar(req *dto.UploadAvatarRequest, resp *dto.UploadAva
 		return rpc_err.BadRequestDefault("request is nil")
 	}
 	if req.ContentType != consts.CustomAvatarContentType {
-		return rpc_err.BadRequest(rpc_err.DetailInvalidAvatarContentType, "avatar content type must be image/png")
+		return rpc_err.BadRequest(rpc_err.DetailInvalidImageContentType, "image content type must be image/png")
 	}
 	ctx := context.Background()
 
@@ -32,7 +33,7 @@ func (s *Service) UploadAvatar(req *dto.UploadAvatarRequest, resp *dto.UploadAva
 	}
 
 	// 返回用户自定义头像上传预签名 URL
-	uploadURL, err := s.MinIO().PresignPutObject(ctx, utils.GenCustomAvatarKey(emailHash), s.Config().AvatarUploadTTL)
+	uploadURL, err := s.MinIO().PresignPutObject(ctx, minio.GenCustomAvatarKey(emailHash), s.Config().AvatarUploadTTL)
 	if err != nil {
 		return err
 	}

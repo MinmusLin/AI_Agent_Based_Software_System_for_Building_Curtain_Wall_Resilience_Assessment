@@ -8,6 +8,7 @@ import (
 	"icw_core_biz/internal/services/user/utils"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
+	"icw_core_biz/repositories/minio"
 )
 
 // GetAvatar 获取用户头像
@@ -30,7 +31,7 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 	}
 
 	// 判断用户是否存在自定义头像
-	customKey := utils.GenCustomAvatarKey(emailHash)
+	customKey := minio.GenCustomAvatarKey(emailHash)
 	customExists, err := s.MinIO().StatObject(ctx, customKey)
 	if err != nil {
 		return err
@@ -49,7 +50,7 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 	}
 
 	// 判断用户是否存在默认头像
-	defaultKey := utils.GenDefaultAvatarKey(emailHash)
+	defaultKey := minio.GenDefaultAvatarKey(emailHash)
 	defaultExists, err := s.MinIO().StatObject(ctx, defaultKey)
 	if err != nil {
 		return err
@@ -63,7 +64,7 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 	}
 
 	// 返回用户默认头像下载预签名 URL
-	avatarURL, err := s.MinIO().PresignGetObject(ctx, utils.GenDefaultAvatarKey(emailHash), s.Config().AvatarGetTTL)
+	avatarURL, err := s.MinIO().PresignGetObject(ctx, minio.GenDefaultAvatarKey(emailHash), s.Config().AvatarGetTTL)
 	if err != nil {
 		return err
 	}
