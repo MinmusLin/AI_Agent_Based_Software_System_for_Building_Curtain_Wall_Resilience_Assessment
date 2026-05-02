@@ -14,3 +14,7 @@ func NewService(deps *common.Deps) *Service {
 		BaseService: common.NewBaseService(deps),
 	}
 }
+
+func (s *Service) Ping(_ interface{}, _ interface{}) error {
+	return nil
+}
