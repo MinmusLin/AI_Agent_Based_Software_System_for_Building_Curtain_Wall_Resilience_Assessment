@@ -21,16 +21,6 @@ func NormalizeEmailHash(email string) (string, error) {
 	return hex.EncodeToString(sum[:]), nil
 }
 
-// GenDefaultAvatarKey 生成默认头像对象 Key
-func GenDefaultAvatarKey(emailHash string) string {
-	return fmt.Sprintf("users/avatars/%s/default.svg", emailHash)
-}
-
-// GenCustomAvatarKey 生成自定义头像对象 Key
-func GenCustomAvatarKey(emailHash string) string {
-	return fmt.Sprintf("users/avatars/%s/custom.png", emailHash)
-}
-
 // BuildDefaultAvatarSVG 生成 GitHub 样式 5×5 镜像默认 SVG 头像
 func BuildDefaultAvatarSVG(emailHash string) []byte {
 	const (
