@@ -1,4 +1,11 @@
-import { DeleteOutlined, LoadingOutlined, PlusOutlined, SaveOutlined, StepForwardOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  LoadingOutlined,
+  ReloadOutlined,
+  SaveOutlined,
+  StepForwardOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
 import { Button, Input, message, Select } from 'antd';
 import type { ChangeEvent, ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -221,12 +228,7 @@ function ProjectThumbnailControl({
       />
       <div className="group relative aspect-square overflow-hidden rounded-lg border border-dashed border-slate-300 bg-slate-50">
         {hasThumbnail ? (
-          <button
-            className="block size-full overflow-hidden rounded-lg"
-            disabled={actionDisabled}
-            onClick={openFileSelector}
-            type="button"
-          >
+          <div className="size-full overflow-hidden rounded-lg">
             <img
               alt="项目缩略图"
               className="size-full object-cover"
@@ -239,39 +241,40 @@ function ProjectThumbnailControl({
               src={project.thumbnail_url}
             />
             {!readOnly ? (
-              <span className="absolute inset-0 flex items-center justify-center bg-slate-950/0 text-sm font-medium text-white opacity-0 transition duration-200 group-hover:bg-slate-950/35 group-hover:opacity-100">
-                更换缩略图
-              </span>
+              <div className="absolute inset-0 flex items-center justify-center gap-3 bg-slate-950/0 opacity-0 transition duration-200 group-hover:bg-slate-950/35 group-hover:opacity-100">
+                <Button
+                  aria-label="更换缩略图"
+                  className="border-white/70 bg-white/90 text-slate-700 shadow-sm hover:border-white hover:bg-white"
+                  disabled={actionDisabled}
+                  icon={busy ? <LoadingOutlined /> : <ReloadOutlined />}
+                  onClick={openFileSelector}
+                  shape="circle"
+                />
+                <Button
+                  aria-label="删除缩略图"
+                  className="border-white/70 bg-white/90 shadow-sm hover:border-white hover:bg-white"
+                  danger
+                  disabled={actionDisabled}
+                  icon={busy ? <LoadingOutlined /> : <DeleteOutlined />}
+                  onClick={() => {
+                    void handleDelete();
+                  }}
+                  shape="circle"
+                />
+              </div>
             ) : null}
-          </button>
+          </div>
         ) : (
           <button
-            className="flex size-full flex-col items-center justify-center gap-2 text-slate-400 transition duration-200 hover:border-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:hover:text-slate-400"
+            aria-label="上传缩略图"
+            className="flex size-full items-center justify-center text-slate-400 transition duration-200 hover:border-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:hover:text-slate-400"
             disabled={actionDisabled}
             onClick={openFileSelector}
             type="button"
           >
-            {busy ? <LoadingOutlined className="text-xl" /> : <PlusOutlined className="text-xl" />}
-            <span className="text-sm">{busy ? '上传中' : '上传缩略图'}</span>
+            {busy ? <LoadingOutlined className="text-2xl" /> : <UploadOutlined className="text-2xl" />}
           </button>
         )}
-        {hasThumbnail && !readOnly ? (
-          <Button
-            aria-label="删除缩略图"
-            className="absolute right-2 top-2 opacity-0 shadow-sm transition-opacity duration-200 group-hover:opacity-100"
-            danger
-            disabled={actionDisabled}
-            icon={busy ? <LoadingOutlined /> : <DeleteOutlined />}
-            onClick={(event) => {
-              event.stopPropagation();
-              void handleDelete();
-            }}
-            shape="circle"
-            size="small"
-            title="删除缩略图"
-            type="text"
-          />
-        ) : null}
       </div>
     </div>
   );
