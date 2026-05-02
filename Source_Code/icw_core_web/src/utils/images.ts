@@ -1,7 +1,7 @@
 const ALLOWED_SOURCE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const AVATAR_SIZE = 128;
-const PROJECT_THUMBNAIL_SIZE = 1024;
+const PROJECT_THUMBNAIL_SIZE = 512;
 
 const PNG_CONTENT_TYPE = 'image/png';
 
