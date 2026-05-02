@@ -65,7 +65,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
 
   const handleUploadAvatar = async (file: File): Promise<void> => {
     if (!isAllowedAvatarFile(file)) {
-      message.warning('头像仅支持 JPG、JPEG、PNG、WebP 格式');
+      message.warning('请上传 JPG、PNG 或 WebP 格式的图片');
       return;
     }
 
