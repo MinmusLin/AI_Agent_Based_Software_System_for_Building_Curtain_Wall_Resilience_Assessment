@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"log"
 	"strings"
 
@@ -36,18 +37,18 @@ func Encode(id uint64) string {
 }
 
 // Decode 将 Sqids 字符串解码为数字 ID
-func Decode(id string) (uint64, bool) {
+func Decode(id string) (uint64, error) {
 	id = strings.TrimSpace(id)
 	if id == "" {
-		return 0, false
+		return 0, errors.New("id is empty")
 	}
 	decoded := projectIdCodec.Decode(id)
 	if len(decoded) != 1 || decoded[0] == 0 {
-		return 0, false
+		return 0, errors.New("id is invalid")
 	}
 	canonicalId, err := projectIdCodec.Encode(decoded)
 	if err != nil || canonicalId != id {
-		return 0, false
+		return 0, errors.New("id is invalid")
 	}
-	return decoded[0], true
+	return decoded[0], nil
 }

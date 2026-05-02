@@ -14,6 +14,7 @@ import (
 // UploadAvatar 上传用户自定义头像
 // @router /user/avatar [POST]
 func (h *Handler) UploadAvatar(c *gin.Context) {
+	// GetCurrentUser 从 Gin Context 中获取当前登录用户
 	user, err := utils.GetCurrentUser(c)
 	if err != nil {
 		response.WriteRPCError(c, err)
