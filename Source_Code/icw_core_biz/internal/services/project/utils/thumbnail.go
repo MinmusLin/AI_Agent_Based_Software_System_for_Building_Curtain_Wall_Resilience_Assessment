@@ -16,7 +16,7 @@ func ProjectRecordToDTOWithThumbnail(ctx context.Context, repo *minio.Repository
 	if item == nil {
 		return nil, nil
 	}
-	thumbnailURL, err := presignProjectThumbnailURL(ctx, repo, record.Id, ttl)
+	thumbnailURL, err := PresignProjectThumbnailURL(ctx, repo, record.Id, ttl)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func ProjectRecordsToListItemsDTOWithThumbnail(ctx context.Context, repo *minio.
 		if item == nil {
 			continue
 		}
-		thumbnailURL, err := presignProjectThumbnailURL(ctx, repo, item.Id, ttl)
+		thumbnailURL, err := PresignProjectThumbnailURL(ctx, repo, item.Id, ttl)
 		if err != nil {
 			return nil, err
 		}
@@ -43,8 +43,8 @@ func ProjectRecordsToListItemsDTOWithThumbnail(ctx context.Context, repo *minio.
 	return items, nil
 }
 
-// presignProjectThumbnailURL 获取项目缩略图下载预签名 URL
-func presignProjectThumbnailURL(ctx context.Context, repo *minio.Repository, projectId uint64, ttl time.Duration) (string, error) {
+// PresignProjectThumbnailURL 获取项目缩略图下载预签名 URL
+func PresignProjectThumbnailURL(ctx context.Context, repo *minio.Repository, projectId uint64, ttl time.Duration) (string, error) {
 	thumbnailKey, err := minio.GenProjectThumbnailKey(projectId)
 	if err != nil {
 		return "", err

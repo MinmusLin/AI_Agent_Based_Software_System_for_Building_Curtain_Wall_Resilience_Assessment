@@ -17,6 +17,19 @@ func NewGetProjectProfileResponse(resp *project.GetProjectProfileResponse) *GetP
 	}
 }
 
+type GetProjectThumbnailResponse struct {
+	ThumbnailURL string `json:"thumbnail_url"`
+}
+
+func NewGetProjectThumbnailResponse(resp *project.GetProjectThumbnailResponse) *GetProjectThumbnailResponse {
+	if resp == nil {
+		return nil
+	}
+	return &GetProjectThumbnailResponse{
+		ThumbnailURL: resp.ThumbnailURL,
+	}
+}
+
 type UpdateProjectProfileRequest struct {
 	ProjectId           string `json:"project_id"`
 	Name                string `json:"name"`

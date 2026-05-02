@@ -9,6 +9,15 @@ type GetProjectProfileResponse struct {
 	Project *Project
 }
 
+type GetProjectThumbnailRequest struct {
+	UserId    uint64
+	ProjectId uint64
+}
+
+type GetProjectThumbnailResponse struct {
+	ThumbnailURL string
+}
+
 type UploadProjectThumbnailRequest struct {
 	UserId      uint64
 	ProjectId   uint64
