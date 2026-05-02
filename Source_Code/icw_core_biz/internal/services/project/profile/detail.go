@@ -10,7 +10,7 @@ import (
 	"icw_core_biz/utils"
 )
 
-// GetProjectProfile 获取项目详情
+// GetProjectProfile 获取项目基础信息
 func (s *Service) GetProjectProfile(req *project.GetProjectProfileRequest, resp *project.GetProjectProfileResponse) (err error) {
 	start := rpc_log.Start("ProjectProfileService.GetProjectProfile", req)
 	defer func() {
@@ -28,7 +28,14 @@ func (s *Service) GetProjectProfile(req *project.GetProjectProfileRequest, resp 
 		return err
 	}
 
+	// 获取项目缩略图
+	thumbnailURL, err := projectUtils.PresignProjectThumbnailURL(ctx, s.MinIO(), projectRecord.Id, s.Config().ProjectThumbnailGetTTL)
+	if err != nil {
+		return err
+	}
+
 	resp.Project = utils.ProjectRecordToDTO(projectRecord)
+	resp.Project.ThumbnailURL = thumbnailURL
 
 	return nil
 }

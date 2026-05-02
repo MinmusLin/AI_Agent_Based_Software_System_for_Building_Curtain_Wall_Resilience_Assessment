@@ -5,6 +5,7 @@ import (
 
 	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/internal/services/project/consts"
+	projectUtils "icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/utils"
@@ -27,7 +28,14 @@ func (s *Service) CreateProject(req *project.CreateProjectRequest, resp *project
 		return err
 	}
 
+	// 获取项目缩略图
+	thumbnailURL, err := projectUtils.PresignProjectThumbnailURL(ctx, s.MinIO(), projectRecord.Id, s.Config().ProjectThumbnailGetTTL)
+	if err != nil {
+		return err
+	}
+
 	resp.Project = utils.ProjectRecordToDTO(projectRecord)
+	resp.Project.ThumbnailURL = thumbnailURL
 
 	return nil
 }

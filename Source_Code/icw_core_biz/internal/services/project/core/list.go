@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"icw_core_biz/internal/rpc_log"
+	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/utils"
 )
 
-// ListProjects 获取当前用户项目列表
+// ListProjects 获取项目列表
 func (s *Service) ListProjects(req *project.ListProjectsRequest, resp *project.ListProjectsResponse) (err error) {
 	start := rpc_log.Start("ProjectCoreService.ListProjects", req)
 	defer func() {
@@ -26,8 +26,15 @@ func (s *Service) ListProjects(req *project.ListProjectsRequest, resp *project.L
 		return err
 	}
 
-	resp.ActiveProjects = utils.ProjectRecordsToListItemsDTO(activeProjects)
-	resp.CompletedProjects = utils.ProjectRecordsToListItemsDTO(completedProjects)
+	// 获取项目缩略图
+	resp.ActiveProjects, err = utils.ProjectRecordsToListItemsDTOWithThumbnail(ctx, s.MinIO(), activeProjects, s.Config().ProjectThumbnailGetTTL)
+	if err != nil {
+		return err
+	}
+	resp.CompletedProjects, err = utils.ProjectRecordsToListItemsDTOWithThumbnail(ctx, s.MinIO(), completedProjects, s.Config().ProjectThumbnailGetTTL)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

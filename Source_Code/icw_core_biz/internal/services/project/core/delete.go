@@ -4,13 +4,12 @@ import (
 	"context"
 
 	"icw_core_biz/internal/rpc_log"
-	projectUtils "icw_core_biz/internal/services/project/utils"
+	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
-	"icw_core_biz/utils"
 )
 
-// DeleteProject 软删除项目并返回最新项目列表
+// DeleteProject 删除项目
 func (s *Service) DeleteProject(req *project.DeleteProjectRequest, resp *project.DeleteProjectResponse) (err error) {
 	start := rpc_log.Start("ProjectCoreService.DeleteProject", req)
 	defer func() {
@@ -23,7 +22,7 @@ func (s *Service) DeleteProject(req *project.DeleteProjectRequest, resp *project
 	ctx := context.Background()
 
 	// 校验用户是否拥有项目访问权限
-	if _, err := projectUtils.ValidateProjectOwnership(ctx, s.MySQL(), req.UserId, req.ProjectId); err != nil {
+	if _, err := utils.ValidateProjectOwnership(ctx, s.MySQL(), req.UserId, req.ProjectId); err != nil {
 		return err
 	}
 
@@ -40,8 +39,15 @@ func (s *Service) DeleteProject(req *project.DeleteProjectRequest, resp *project
 		return err
 	}
 
-	resp.ActiveProjects = utils.ProjectRecordsToListItemsDTO(activeProjects)
-	resp.CompletedProjects = utils.ProjectRecordsToListItemsDTO(completedProjects)
+	// 获取项目缩略图
+	resp.ActiveProjects, err = utils.ProjectRecordsToListItemsDTOWithThumbnail(ctx, s.MinIO(), activeProjects, s.Config().ProjectThumbnailGetTTL)
+	if err != nil {
+		return err
+	}
+	resp.CompletedProjects, err = utils.ProjectRecordsToListItemsDTOWithThumbnail(ctx, s.MinIO(), completedProjects, s.Config().ProjectThumbnailGetTTL)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

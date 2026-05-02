@@ -54,7 +54,14 @@ func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest,
 		return rpc_err.BadRequestDefault("project profile can only be updated in progress 0 and active status")
 	}
 
+	// 获取项目缩略图
+	thumbnailURL, err := projectUtils.PresignProjectThumbnailURL(ctx, s.MinIO(), projectRecord.Id, s.Config().ProjectThumbnailGetTTL)
+	if err != nil {
+		return err
+	}
+
 	resp.Project = utils.ProjectRecordToDTO(projectRecord)
+	resp.Project.ThumbnailURL = thumbnailURL
 
 	return nil
 }
