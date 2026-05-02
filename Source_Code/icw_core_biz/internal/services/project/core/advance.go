@@ -12,9 +12,9 @@ import (
 
 // AdvanceProject 项目进度流转
 func (s *Service) AdvanceProject(req *project.AdvanceProjectRequest, resp *project.AdvanceProjectResponse) (err error) {
-	start := rpc_log.Start("ProjectCoreService.AdvanceProjectProgress", req)
+	start := rpc_log.Start("ProjectCoreService.AdvanceProject", req)
 	defer func() {
-		rpc_log.Finish("ProjectCoreService.AdvanceProjectProgress", req, resp, start, err)
+		rpc_log.Finish("ProjectCoreService.AdvanceProject", req, resp, start, err)
 	}()
 
 	if req == nil {
