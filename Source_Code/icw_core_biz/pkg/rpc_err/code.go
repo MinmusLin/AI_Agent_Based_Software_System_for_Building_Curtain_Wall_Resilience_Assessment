@@ -44,7 +44,7 @@ const (
 	DetailNameTooLong                DetailCode = "NAME_TOO_LONG"
 	DetailIncorrectEmailCode         DetailCode = "INCORRECT_EMAIL_CODE"
 	DetailInvalidCredentials         DetailCode = "INVALID_CREDENTIALS"
-	DetailInvalidAvatarContentType   DetailCode = "INVALID_AVATAR_CONTENT_TYPE"
+	DetailInvalidImageContentType    DetailCode = "INVALID_IMAGE_CONTENT_TYPE"
 	DetailProjectNotAccessible       DetailCode = "PROJECT_NOT_ACCESSIBLE"
 )
 
@@ -66,7 +66,7 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailNameTooLong,
 		DetailIncorrectEmailCode,
 		DetailInvalidCredentials,
-		DetailInvalidAvatarContentType,
+		DetailInvalidImageContentType,
 		DetailProjectNotAccessible:
 		return true
 	default:
