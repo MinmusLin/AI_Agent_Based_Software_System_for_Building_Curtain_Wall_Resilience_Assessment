@@ -14,7 +14,10 @@ const root = document.getElementById('root');
 if (root) {
   ReactDOM.createRoot(root).render(
     <StrictMode>
-      <ConfigProvider locale={zhCN} theme={{ token: { borderRadius: 6 } }}>
+      <ConfigProvider
+        locale={zhCN}
+        theme={{ token: { borderRadius: 8, borderRadiusLG: 8, borderRadiusSM: 8, borderRadiusXS: 8 } }}
+      >
         <AntApp>
           <BrowserRouter>
             <AuthProvider>

@@ -33,3 +33,25 @@ body {
   cursor: default;
   background: #FFFFFF;
 }
+
+.project-card-motion {
+  transform: translate3d(0, 0, 0);
+  transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.project-card-motion:hover {
+  transform: translate3d(0, -8px, 0);
+}
+
+.project-card-motion .ant-card {
+  border-radius: 8px;
+  transition:
+    border-color 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-card-motion:hover .ant-card {
+  border-color: #93C5FD;
+  box-shadow: 0 4px 12px #0F172A14;
+}
