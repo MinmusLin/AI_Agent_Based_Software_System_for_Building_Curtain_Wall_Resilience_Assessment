@@ -45,6 +45,7 @@ const (
 	DetailIncorrectEmailCode         DetailCode = "INCORRECT_EMAIL_CODE"
 	DetailInvalidCredentials         DetailCode = "INVALID_CREDENTIALS"
 	DetailInvalidAvatarContentType   DetailCode = "INVALID_AVATAR_CONTENT_TYPE"
+	DetailProjectNotAccessible       DetailCode = "PROJECT_NOT_ACCESSIBLE"
 )
 
 // IsDetailCode 判断是否为已定义错误业务代码
@@ -65,7 +66,8 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailNameTooLong,
 		DetailIncorrectEmailCode,
 		DetailInvalidCredentials,
-		DetailInvalidAvatarContentType:
+		DetailInvalidAvatarContentType,
+		DetailProjectNotAccessible:
 		return true
 	default:
 		return false
