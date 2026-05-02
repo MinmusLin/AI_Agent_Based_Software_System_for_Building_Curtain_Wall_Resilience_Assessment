@@ -131,14 +131,14 @@ func (m *TokenManager) ParseAny(raw string) (*AccessClaims, error) {
 }
 
 // IssueTokens 登录场景下，签发 Access Token 和 Refresh Token，并更新用户最近登录时间
-func IssueTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.Repository, tokens *TokenManager, user *mysql.UserRecord, resp *dto.LoginResponse) error {
+func IssueTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, user *mysql.UserRecord, resp *dto.LoginResponse) error {
 	pair, err := NewTokenMetadata(cfg, tokens, user)
 	if err != nil {
 		return err
 	}
 
 	// 登录时保存登录态 Refresh Token，并更新用户最近登录时间
-	if err := mysqlRepo.CreateLoginSession(ctx, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
+	if err := repo.CreateLoginSession(ctx, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
 		return err
 	}
 
@@ -152,7 +152,7 @@ func IssueTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.Repos
 }
 
 // IssueRotatedTokens 刷新场景下，签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-func IssueRotatedTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysql.Repository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *dto.RefreshResponse) error {
+func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *dto.RefreshResponse) error {
 	if resp == nil {
 		return rpc_err.InternalErrorDefault("response is nil")
 	}
@@ -162,7 +162,7 @@ func IssueRotatedTokens(ctx context.Context, cfg configs.Config, mysqlRepo *mysq
 	}
 
 	// 刷新时签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-	if err := mysqlRepo.RotateRefreshToken(ctx, oldTokenId, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
+	if err := repo.RotateRefreshToken(ctx, oldTokenId, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
 		if errors.Is(err, mysql.ErrRefreshTokenNotReplaceable) {
 			return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, err.Error())
 		}
