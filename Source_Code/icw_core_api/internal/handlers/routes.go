@@ -60,7 +60,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 		userRouter.DELETE("/avatar", userHandler.DeleteAvatar)
 	}
 
-	// 项目流程 Handler
+	// 项目流程 Router
 	projectRouter := router.Group("/project")
 	projectRouter.Use(middlewares.AuthRequired(coreBizClient))
 	{
@@ -98,8 +98,35 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 		projectAssetsHandler := assets.NewHandler(handlerDeps)
 		projectAssetsRouter := projectRouter.Group("/assets")
 		{
-			if projectAssetsHandler == nil || projectAssetsRouter == nil {
-				// TODO: Prevent errors on unused variables
+			// 获取项目图像列表
+			projectAssetsRouter.GET("/list", projectAssetsHandler.GetProjectAssets)
+
+			// 图像组 Router
+			projectAssetsGroupRouter := projectAssetsRouter.Group("/group")
+			{
+				// 创建图像组
+				projectAssetsGroupRouter.POST("/create", projectAssetsHandler.CreateProjectGroup)
+				// 删除图像组
+				projectAssetsGroupRouter.POST("/delete", projectAssetsHandler.DeleteProjectGroup)
+				// 移动图像组
+				projectAssetsGroupRouter.POST("/move", projectAssetsHandler.MoveProjectGroup)
+				// 更新图像组
+				projectAssetsGroupRouter.POST("/update", projectAssetsHandler.UpdateProjectGroup)
+			}
+
+			// 图像 Router
+			projectAssetsImageRouter := projectAssetsRouter.Group("/image")
+			{
+				// 删除图像
+				projectAssetsImageRouter.POST("/delete", projectAssetsHandler.DeleteProjectImage)
+				// 获取原图
+				projectAssetsImageRouter.GET("/original", projectAssetsHandler.GetProjectImageOriginal)
+				// 移动图像
+				projectAssetsImageRouter.POST("/move", projectAssetsHandler.MoveProjectImage)
+				// 上报图像
+				projectAssetsImageRouter.POST("/report", projectAssetsHandler.ReportProjectImage)
+				// 上传图像
+				projectAssetsImageRouter.POST("/upload", projectAssetsHandler.UploadProjectImage)
 			}
 		}
 

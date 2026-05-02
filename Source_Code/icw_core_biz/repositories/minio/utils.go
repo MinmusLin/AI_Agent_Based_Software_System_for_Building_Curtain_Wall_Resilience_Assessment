@@ -43,3 +43,35 @@ func GenProjectThumbnailKey(projectId uint64) (string, error) {
 	}
 	return fmt.Sprintf("projects/%s/thumbnail.png", projectCode), nil
 }
+
+// GenProjectImageOriginalKey 生成项目图像原图对象 Key
+func GenProjectImageOriginalKey(projectId uint64, imageUuid string) (string, error) {
+	if projectId == 0 {
+		return "", errors.New("project id is invalid")
+	}
+	imageUuid = strings.TrimSpace(imageUuid)
+	if imageUuid == "" {
+		return "", errors.New("image uuid is invalid")
+	}
+	projectCode := utils.Encode(projectId)
+	if projectCode == "" {
+		return "", errors.New("project id is invalid")
+	}
+	return fmt.Sprintf("projects/%s/assets/%s/original.png", projectCode, imageUuid), nil
+}
+
+// GenProjectImageThumbnailKey 生成项目图像缩略图对象 Key
+func GenProjectImageThumbnailKey(projectId uint64, imageUuid string) (string, error) {
+	if projectId == 0 {
+		return "", errors.New("project id is invalid")
+	}
+	imageUuid = strings.TrimSpace(imageUuid)
+	if imageUuid == "" {
+		return "", errors.New("image uuid is invalid")
+	}
+	projectCode := utils.Encode(projectId)
+	if projectCode == "" {
+		return "", errors.New("project id is invalid")
+	}
+	return fmt.Sprintf("projects/%s/assets/%s/thumbnail.png", projectCode, imageUuid), nil
+}
