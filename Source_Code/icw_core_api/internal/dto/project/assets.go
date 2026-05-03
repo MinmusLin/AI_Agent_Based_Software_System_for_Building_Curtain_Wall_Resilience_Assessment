@@ -95,6 +95,12 @@ type UploadProjectImageItem struct {
 	Metadata    string `json:"metadata"`
 }
 
+type UploadProjectImageResult struct {
+	Image              *ProjectImage `json:"image"`
+	OriginalUploadURL  string        `json:"original_upload_url"`
+	ThumbnailUploadURL string        `json:"thumbnail_upload_url"`
+}
+
 type GetProjectAssetsResponse struct {
 	Groups []*ProjectGroup `json:"groups"`
 }
@@ -221,17 +227,13 @@ func NewMoveProjectImageResponse(resp *project.MoveProjectImageResponse) *MovePr
 }
 
 type ReportProjectImageRequest struct {
-	ProjectId string                    `json:"project_id"`
-	Images    []*ReportProjectImageItem `json:"images"`
-}
-
-type ReportProjectImageItem struct {
+	ProjectId string `json:"project_id"`
 	ImageUuid string `json:"image_uuid"`
 	Status    string `json:"status"`
 }
 
 type ReportProjectImageResponse struct {
-	Images []*ProjectImage `json:"images"`
+	Image *ProjectImage `json:"image"`
 }
 
 func NewReportProjectImageResponse(resp *project.ReportProjectImageResponse) *ReportProjectImageResponse {
@@ -239,7 +241,7 @@ func NewReportProjectImageResponse(resp *project.ReportProjectImageResponse) *Re
 		return nil
 	}
 	return &ReportProjectImageResponse{
-		Images: NewProjectImages(resp.Images),
+		Image: NewProjectImage(resp.Image),
 	}
 }
 
@@ -251,12 +253,6 @@ type UploadProjectImageRequest struct {
 
 type UploadProjectImageResponse struct {
 	Images []*UploadProjectImageResult `json:"images"`
-}
-
-type UploadProjectImageResult struct {
-	Image              *ProjectImage `json:"image"`
-	OriginalUploadURL  string        `json:"original_upload_url"`
-	ThumbnailUploadURL string        `json:"thumbnail_upload_url"`
 }
 
 func NewUploadProjectImageResponse(resp *project.UploadProjectImageResponse) *UploadProjectImageResponse {
