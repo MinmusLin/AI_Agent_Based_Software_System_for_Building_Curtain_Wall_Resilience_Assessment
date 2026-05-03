@@ -166,8 +166,8 @@ func PostAdvanceProjectProfileToAssets(ctx context.Context, tx *sql.Tx, userId, 
 		INSERT INTO project_groups(project_id, user_id, name, sort_order)
 		SELECT ?, ?, ?, COALESCE(MAX(sort_order), -1) + 1
 		FROM project_groups
-		WHERE project_id = ? AND user_id = ?
-	`, projectId, userId, consts.DefaultProjectGroupName, projectId, userId)
+		WHERE user_id = ? AND project_id = ?
+	`, projectId, userId, consts.DefaultProjectGroupName, userId, projectId)
 
 	if IsDuplicateEntryError(err) {
 		return nil
