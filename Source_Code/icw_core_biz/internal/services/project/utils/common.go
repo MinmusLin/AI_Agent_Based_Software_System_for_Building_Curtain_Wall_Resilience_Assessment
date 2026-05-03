@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strings"
 
 	"icw_core_biz/pkg/rpc_err"
@@ -42,11 +44,12 @@ func RemoveProjectImageObjects(ctx context.Context, repo *minio.Repository, proj
 	if err != nil {
 		return rpc_err.BadRequestDefault(err.Error())
 	}
+	var removeErr error
 	if err := repo.RemoveObject(ctx, originalKey); err != nil {
-		return err
+		removeErr = errors.Join(removeErr, fmt.Errorf("remove project image original object failed: %v", err))
 	}
 	if err := repo.RemoveObject(ctx, thumbnailKey); err != nil {
-		return err
+		removeErr = errors.Join(removeErr, fmt.Errorf("remove project image thumbnail object failed: %v", err))
 	}
-	return nil
+	return removeErr
 }
