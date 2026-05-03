@@ -53,10 +53,10 @@ func (s *Service) createProjectGroup(req *project.CreateProjectGroupRequest, res
 			return err
 		}
 		if groupRecord == nil {
-			return rpc_err.InternalErrorDefault("create project group failed")
+			return rpc_err.InternalErrorDefault("project group is not accessible")
 		}
 
-		resp.Group, err = mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), groupRecord, nil, s.Config().ProjectThumbnailGetTTL)
+		resp.Group, err = mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), groupRecord, nil, s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}
