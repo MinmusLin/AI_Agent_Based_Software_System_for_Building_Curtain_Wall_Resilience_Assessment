@@ -73,6 +73,7 @@ CREATE TABLE `project_groups` (
   UNIQUE KEY `uk_project_groups_project_id_user_id_name` (`project_id`,`user_id`,`name`),
   KEY `idx_project_groups_user_id_project_id_sort_order_created_at` (`user_id`,`project_id`,`sort_order`,`created_at`),
   KEY `idx_project_groups_user_id_project_id` (`user_id`,`project_id`),
+  KEY `idx_project_groups_user_id_project_id_sort_order` (`user_id`,`project_id`,`sort_order`),
   CONSTRAINT `fk_project_groups_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_groups_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目组表';
