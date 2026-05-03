@@ -1,13 +1,10 @@
 package auth
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
-	"icw_core_api/utils"
 	bizDto "icw_core_biz/pkg/dto"
 )
 
@@ -25,8 +22,7 @@ func (h *Handler) Login(c *gin.Context) {
 		Code:  req.Code,
 	}
 	rpcResp := &bizDto.LoginResponse{}
-	if err := h.CoreBizClient().Call("AuthService.Login", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz AuthService.Login failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "AuthService.Login", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

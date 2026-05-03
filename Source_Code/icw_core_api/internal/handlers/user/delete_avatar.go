@@ -1,8 +1,6 @@
 package user
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto"
@@ -26,8 +24,7 @@ func (h *Handler) DeleteAvatar(c *gin.Context) {
 		Email:  user.Email,
 	}
 	rpcResp := &bizDto.DeleteAvatarResponse{}
-	if err := h.CoreBizClient().Call("UserService.DeleteAvatar", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz UserService.DeleteAvatar failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "UserService.DeleteAvatar", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

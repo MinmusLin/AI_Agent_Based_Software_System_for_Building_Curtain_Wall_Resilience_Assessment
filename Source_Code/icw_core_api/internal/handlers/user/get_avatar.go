@@ -1,8 +1,6 @@
 package user
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto"
@@ -26,8 +24,7 @@ func (h *Handler) GetAvatar(c *gin.Context) {
 		Email:  user.Email,
 	}
 	rpcResp := &bizDto.GetAvatarResponse{}
-	if err := h.CoreBizClient().Call("UserService.GetAvatar", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz UserService.GetAvatar failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "UserService.GetAvatar", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

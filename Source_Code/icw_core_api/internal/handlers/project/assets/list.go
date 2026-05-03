@@ -1,8 +1,6 @@
 package assets
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -33,8 +31,7 @@ func (h *Handler) GetProjectAssets(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.GetProjectAssetsResponse{}
-	if err := h.CoreBizClient().Call("ProjectAssetsService.GetProjectAssets", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectAssetsService.GetProjectAssets failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectAssetsService.GetProjectAssets", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -1,8 +1,6 @@
 package assets
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -45,8 +43,7 @@ func (h *Handler) MoveProjectImage(c *gin.Context) {
 		TargetGroupId: targetGroupId,
 	}
 	rpcResp := &bizDto.MoveProjectImageResponse{}
-	if err := h.CoreBizClient().Call("ProjectAssetsService.MoveProjectImage", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectAssetsService.MoveProjectImage failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectAssetsService.MoveProjectImage", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

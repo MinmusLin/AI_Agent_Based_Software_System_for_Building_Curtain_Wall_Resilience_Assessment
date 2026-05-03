@@ -1,8 +1,6 @@
 package core
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -38,8 +36,7 @@ func (h *Handler) DeleteProject(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.DeleteProjectResponse{}
-	if err := h.CoreBizClient().Call("ProjectCoreService.DeleteProject", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectCoreService.DeleteProject failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectCoreService.DeleteProject", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

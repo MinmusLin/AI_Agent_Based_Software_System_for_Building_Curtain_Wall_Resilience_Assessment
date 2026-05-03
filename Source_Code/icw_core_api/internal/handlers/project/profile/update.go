@@ -1,8 +1,6 @@
 package profile
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -45,8 +43,7 @@ func (h *Handler) UpdateProjectProfile(c *gin.Context) {
 		AssessmentGoal:      req.AssessmentGoal,
 	}
 	rpcResp := &bizDto.UpdateProjectProfileResponse{}
-	if err := h.CoreBizClient().Call("ProjectProfileService.UpdateProjectProfile", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectProfileService.UpdateProjectProfile failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectProfileService.UpdateProjectProfile", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto"
@@ -28,8 +26,7 @@ func (h *Handler) Me(c *gin.Context) {
 		AccessToken: utils.BearerToken(c),
 	}
 	rpcResp := &bizDto.MeResponse{}
-	if err := h.CoreBizClient().Call("AuthService.Me", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz AuthService.Me failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "AuthService.Me", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

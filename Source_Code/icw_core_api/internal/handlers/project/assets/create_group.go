@@ -1,8 +1,6 @@
 package assets
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -38,8 +36,7 @@ func (h *Handler) CreateProjectGroup(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.CreateProjectGroupResponse{}
-	if err := h.CoreBizClient().Call("ProjectAssetsService.CreateProjectGroup", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectAssetsService.CreateProjectGroup failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectAssetsService.CreateProjectGroup", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

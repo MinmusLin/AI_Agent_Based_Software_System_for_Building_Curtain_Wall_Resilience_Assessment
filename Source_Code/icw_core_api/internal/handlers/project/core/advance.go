@@ -1,8 +1,6 @@
 package core
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -40,8 +38,7 @@ func (h *Handler) AdvanceProject(c *gin.Context) {
 		ToProgress:   req.ToProgress,
 	}
 	rpcResp := &bizDto.AdvanceProjectResponse{}
-	if err := h.CoreBizClient().Call("ProjectCoreService.AdvanceProject", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectCoreService.AdvanceProject failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectCoreService.AdvanceProject", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto"
@@ -22,10 +20,7 @@ func (h *Handler) Logout(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 	rpcResp := &bizDto.LogoutResponse{}
-	err := h.CoreBizClient().Call("AuthService.Logout", rpcReq, rpcResp)
-	if err != nil {
-		log.Printf("[ERROR] Call icw.core.biz AuthService.Logout failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
-	}
+	_ = h.CallRPC(h.CoreBizRPCClient(), "AuthService.Logout", rpcReq, rpcResp)
 
 	// 旧 Refresh Token 失效
 	h.clearRefreshCookie(c)

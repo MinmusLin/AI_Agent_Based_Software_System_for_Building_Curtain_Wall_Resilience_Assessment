@@ -1,8 +1,6 @@
 package core
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -25,8 +23,7 @@ func (h *Handler) ListProjects(c *gin.Context) {
 		UserId: user.Id,
 	}
 	rpcResp := &bizDto.ListProjectsResponse{}
-	if err := h.CoreBizClient().Call("ProjectCoreService.ListProjects", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectCoreService.ListProjects failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectCoreService.ListProjects", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

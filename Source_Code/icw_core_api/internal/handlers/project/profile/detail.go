@@ -1,8 +1,6 @@
 package profile
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -33,8 +31,7 @@ func (h *Handler) GetProjectProfile(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.GetProjectProfileResponse{}
-	if err := h.CoreBizClient().Call("ProjectProfileService.GetProjectProfile", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectProfileService.GetProjectProfile failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectProfileService.GetProjectProfile", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

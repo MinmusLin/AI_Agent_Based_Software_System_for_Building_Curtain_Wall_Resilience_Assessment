@@ -1,8 +1,6 @@
 package profile
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -39,8 +37,7 @@ func (h *Handler) UploadProjectThumbnail(c *gin.Context) {
 		ContentType: "image/png",
 	}
 	rpcResp := &bizDto.UploadProjectThumbnailResponse{}
-	if err := h.CoreBizClient().Call("ProjectProfileService.UploadProjectThumbnail", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectProfileService.UploadProjectThumbnail failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectProfileService.UploadProjectThumbnail", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

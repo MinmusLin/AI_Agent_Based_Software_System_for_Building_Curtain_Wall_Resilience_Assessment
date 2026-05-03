@@ -1,13 +1,10 @@
 package auth
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
-	"icw_core_api/utils"
 	bizDto "icw_core_biz/pkg/dto"
 )
 
@@ -24,8 +21,7 @@ func (h *Handler) SendEmailCode(c *gin.Context) {
 		Scene: req.Scene,
 	}
 	rpcResp := &bizDto.SendEmailCodeResponse{}
-	if err := h.CoreBizClient().Call("AuthService.SendEmailCode", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz AuthService.SendEmailCode failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "AuthService.SendEmailCode", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

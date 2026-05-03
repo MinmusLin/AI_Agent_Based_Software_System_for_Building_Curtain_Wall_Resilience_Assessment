@@ -1,8 +1,6 @@
 package assets
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/internal/dto/project"
@@ -44,8 +42,7 @@ func (h *Handler) DeleteProjectGroup(c *gin.Context) {
 		GroupId:   groupId,
 	}
 	rpcResp := &bizDto.DeleteProjectGroupResponse{}
-	if err := h.CoreBizClient().Call("ProjectAssetsService.DeleteProjectGroup", rpcReq, rpcResp); err != nil || rpcResp == nil {
-		log.Printf("[ERROR] Call icw.core.biz ProjectAssetsService.DeleteProjectGroup failed, req: %s, resp: %s, err: %v", utils.JSONF(rpcReq), utils.JSONF(rpcResp), err)
+	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectAssetsService.DeleteProjectGroup", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
