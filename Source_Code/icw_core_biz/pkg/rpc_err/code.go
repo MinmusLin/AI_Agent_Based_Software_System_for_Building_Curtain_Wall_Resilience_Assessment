@@ -46,9 +46,18 @@ const (
 	DetailInvalidCredentials                      DetailCode = "INVALID_CREDENTIALS"
 	DetailInvalidImageContentType                 DetailCode = "INVALID_IMAGE_CONTENT_TYPE"
 	DetailProjectNotAccessible                    DetailCode = "PROJECT_NOT_ACCESSIBLE"
+	DetailProjectNameTooLong                      DetailCode = "PROJECT_NAME_TOO_LONG"
+	DetailProjectBuildingNameTooLong              DetailCode = "PROJECT_BUILDING_NAME_TOO_LONG"
+	DetailProjectBuildingLocationTooLong          DetailCode = "PROJECT_BUILDING_LOCATION_TOO_LONG"
+	DetailProjectBuildingDescriptionTooLong       DetailCode = "PROJECT_BUILDING_DESCRIPTION_TOO_LONG"
+	DetailProjectKnownIssuesTooLong               DetailCode = "PROJECT_KNOWN_ISSUES_TOO_LONG"
+	DetailProjectAssessmentGoalTooLong            DetailCode = "PROJECT_ASSESSMENT_GOAL_TOO_LONG"
 	DetailProjectAtLeastOneGroupRequired          DetailCode = "PROJECT_AT_LEAST_ONE_GROUP_REQUIRED"
 	DetailProjectGroupNameRequired                DetailCode = "PROJECT_GROUP_NAME_REQUIRED"
+	DetailProjectGroupNameTooLong                 DetailCode = "PROJECT_GROUP_NAME_TOO_LONG"
 	DetailProjectGroupNameDuplicated              DetailCode = "PROJECT_GROUP_NAME_DUPLICATED"
+	DetailProjectImageFileNameTooLong             DetailCode = "PROJECT_IMAGE_FILE_NAME_TOO_LONG"
+	DetailProjectImageFormatInvalid               DetailCode = "PROJECT_IMAGE_FORMAT_INVALID"
 	DetailProjectUploadedImageCountRequired       DetailCode = "PROJECT_UPLOADED_IMAGE_COUNT_REQUIRED"
 	DetailProjectEmptyGroupCountInvalid           DetailCode = "PROJECT_EMPTY_GROUP_COUNT_INVALID"
 	DetailProjectPendingOrFailedImageCountInvalid DetailCode = "PROJECT_PENDING_OR_FAILED_IMAGE_COUNT_INVALID"
@@ -74,9 +83,18 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailInvalidCredentials,
 		DetailInvalidImageContentType,
 		DetailProjectNotAccessible,
+		DetailProjectNameTooLong,
+		DetailProjectBuildingNameTooLong,
+		DetailProjectBuildingLocationTooLong,
+		DetailProjectBuildingDescriptionTooLong,
+		DetailProjectKnownIssuesTooLong,
+		DetailProjectAssessmentGoalTooLong,
 		DetailProjectAtLeastOneGroupRequired,
 		DetailProjectGroupNameRequired,
+		DetailProjectGroupNameTooLong,
 		DetailProjectGroupNameDuplicated,
+		DetailProjectImageFileNameTooLong,
+		DetailProjectImageFormatInvalid,
 		DetailProjectUploadedImageCountRequired,
 		DetailProjectEmptyGroupCountInvalid,
 		DetailProjectPendingOrFailedImageCountInvalid:
