@@ -1,12 +1,10 @@
 package minio
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/url"
 	"strings"
-	"time"
 
 	"icw_core_biz/utils"
 )
@@ -76,20 +74,4 @@ func GenProjectImageThumbnailKey(projectId uint64, imageUuid string) (string, er
 		return "", errors.New("project id is invalid")
 	}
 	return fmt.Sprintf("projects/%s/assets/%s/thumbnail.png", projectCode, imageUuid), nil
-}
-
-// PresignProjectThumbnailURL 获取项目缩略图下载预签名 URL
-func PresignProjectThumbnailURL(ctx context.Context, repo *Repository, projectId uint64, ttl time.Duration) (string, error) {
-	thumbnailKey, err := GenProjectThumbnailKey(projectId)
-	if err != nil {
-		return "", err
-	}
-	exists, err := repo.StatObject(ctx, thumbnailKey)
-	if err != nil {
-		return "", err
-	}
-	if !exists {
-		return "", nil
-	}
-	return repo.PresignGetObject(ctx, thumbnailKey, ttl)
 }
