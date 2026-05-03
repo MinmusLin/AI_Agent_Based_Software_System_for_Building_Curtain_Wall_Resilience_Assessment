@@ -10,7 +10,6 @@ import (
 	projectConsts "icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
 )
 
@@ -231,11 +230,8 @@ func ProjectImageRecordToDTO(ctx context.Context, repo *minio.Repository, record
 	if record.Status != projectConsts.ProjectImageStatusUploaded {
 		return item, nil
 	}
-	thumbnailKey, err := minio.GenProjectImageThumbnailKey(record.ProjectId, record.Uuid)
-	if err != nil {
-		return nil, rpc_err.BadRequestDefault(err.Error())
-	}
-	item.ThumbnailURL, err = repo.PresignGetObject(ctx, thumbnailKey, ttl)
+	var err error
+	item.ThumbnailURL, err = minio.PresignProjectImageThumbnailURL(ctx, repo, record.ProjectId, record.Uuid, ttl)
 	if err != nil {
 		return nil, err
 	}
