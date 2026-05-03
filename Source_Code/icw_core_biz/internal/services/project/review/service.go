@@ -1,6 +1,8 @@
 package review
 
 import (
+	"context"
+
 	"icw_core_biz/internal/services/common"
 )
 
@@ -13,9 +15,9 @@ type PingRequest struct{}
 
 type PingResponse struct{}
 
-func NewService(deps *common.Deps) *Service {
+func NewService(ctx context.Context, deps *common.Deps) *Service {
 	return &Service{
-		BaseService: common.NewBaseService(deps),
+		BaseService: common.NewBaseService(ctx, deps),
 	}
 }
 
