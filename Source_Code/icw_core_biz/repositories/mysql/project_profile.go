@@ -93,8 +93,7 @@ func (r *Repository) UpdateProjectProfile(
 			built_year = ?,
 			building_description = ?,
 			known_issues = ?,
-			assessment_goal = ?,
-			updated_at = NOW(3)
+			assessment_goal = ?
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
 	`, name, buildingName, buildingLocation, builtYearValue, buildingDescription, knownIssues, assessmentGoal, projectId, userId, dto.ProjectProgressInitializationFinished.Uint8(), dto.ProjectStatusActive.String())
 	if err != nil {
