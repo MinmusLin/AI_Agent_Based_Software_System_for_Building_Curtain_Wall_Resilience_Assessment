@@ -39,7 +39,7 @@ func (s *Service) deleteProjectGroup(req *project.DeleteProjectGroupRequest, _ *
 		if imageRecord == nil {
 			continue
 		}
-		if err := utils.RemoveProjectImageObjects(s.Ctx(), s.MinIO(), req.ProjectId, imageRecord.Uuid); err != nil {
+		if err := utils.RemoveProjectImageObjects(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, req.ProjectId, imageRecord.Uuid); err != nil {
 			log.Printf("%s Remove project image objects failed, project_id: %d, image_uuid: %s, err: %v", common.WarnPrefix(), req.ProjectId, imageRecord.Uuid, err)
 		}
 	}

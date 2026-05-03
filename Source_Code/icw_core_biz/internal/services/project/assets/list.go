@@ -32,7 +32,7 @@ func (s *Service) getProjectAssets(req *project.GetProjectAssetsRequest, resp *p
 
 	resp.Groups = make([]*project.ProjectGroup, 0, len(groups))
 	for _, groupRecord := range groups {
-		group, err := mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), groupRecord, imageMap[groupRecord.Id], s.Config().ProjectImageGetTTL)
+		group, err := mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, imageMap[groupRecord.Id], s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}

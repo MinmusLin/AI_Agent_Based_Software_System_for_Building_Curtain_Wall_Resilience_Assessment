@@ -69,7 +69,7 @@ func (s *Service) reportProjectImage(req *project.ReportProjectImageRequest, res
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	resp.Image, err = mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), imageRecord, s.Config().ProjectImageGetTTL)
+	resp.Image, err = mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

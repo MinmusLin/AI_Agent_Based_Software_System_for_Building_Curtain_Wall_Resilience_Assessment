@@ -19,11 +19,11 @@ func (s *Service) listProjects(req *project.ListProjectsRequest, resp *project.L
 	}
 
 	// 获取项目缩略图
-	resp.ActiveProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), activeProjects, s.Config().ProjectImageGetTTL)
+	resp.ActiveProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), activeProjects, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}
-	resp.CompletedProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), completedProjects, s.Config().ProjectImageGetTTL)
+	resp.CompletedProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), completedProjects, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

@@ -47,7 +47,7 @@ func (s *Service) moveProjectImage(req *project.MoveProjectImageRequest, resp *p
 
 	resp.Images = make([]*project.ProjectImage, 0, len(imageRecords))
 	for _, imageRecord := range imageRecords {
-		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), imageRecord, s.Config().ProjectImageGetTTL)
+		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}

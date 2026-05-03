@@ -129,7 +129,7 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 
 	resp.Images = make([]*project.UploadProjectImageResult, 0, len(uploadItems))
 	for index, item := range uploadItems {
-		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), imageRecords[index], s.Config().ProjectImageGetTTL)
+		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecords[index], s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}

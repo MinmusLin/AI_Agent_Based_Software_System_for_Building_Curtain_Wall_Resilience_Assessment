@@ -45,7 +45,7 @@ func (s *Service) deleteProjectImage(req *project.DeleteProjectImageRequest, _ *
 	}
 
 	for _, imageUuid := range imageUuids {
-		if err := utils.RemoveProjectImageObjects(s.Ctx(), s.MinIO(), req.ProjectId, imageUuid); err != nil {
+		if err := utils.RemoveProjectImageObjects(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, req.ProjectId, imageUuid); err != nil {
 			log.Printf("%s Remove project image objects failed, project_id: %d, image_uuid: %s, err: %v", common.WarnPrefix(), req.ProjectId, imageUuid, err)
 		}
 	}

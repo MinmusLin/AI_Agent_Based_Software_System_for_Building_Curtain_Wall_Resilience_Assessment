@@ -23,7 +23,7 @@ func (s *Service) getProjectProfile(req *project.GetProjectProfileRequest, resp 
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectImageGetTTL)
+	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), projectRecord, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

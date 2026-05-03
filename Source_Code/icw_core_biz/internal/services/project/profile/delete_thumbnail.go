@@ -4,6 +4,7 @@ import (
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
+	"icw_core_biz/repositories/redis"
 )
 
 // DeleteProjectThumbnail 删除项目缩略图
@@ -18,6 +19,11 @@ func (s *Service) deleteProjectThumbnail(req *project.DeleteProjectThumbnailRequ
 	thumbnailKey, err := minio.GenProjectThumbnailKey(req.ProjectId)
 	if err != nil {
 		return rpc_err.BadRequestDefault(err.Error())
+	}
+
+	if s.Redis() != nil {
+		// 清除预签名 URL 缓存
+		_ = s.Redis().ClearPresignURL(s.Ctx(), redis.GenProjectThumbnailPresignURLKey(req.UserId, req.ProjectId))
 	}
 
 	// 删除项目缩略图
