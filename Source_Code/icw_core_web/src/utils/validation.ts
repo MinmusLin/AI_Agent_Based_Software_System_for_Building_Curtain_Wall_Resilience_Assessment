@@ -1,5 +1,7 @@
 import type { Rule } from 'antd/es/form';
 
+export const EMAIL_MAX_LENGTH = 254;
+
 export function normalizeEmailAddress(email: string): string {
   return email.trim().toLowerCase();
 }

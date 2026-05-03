@@ -9,7 +9,7 @@ import { getErrorMessage } from '@/api/http';
 import { AuthShell } from '@/components/AuthShell';
 import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
 import type { RegisterRequest } from '@/types/auth';
-import { normalizeEmailAddress, normalizeEmailCode, passwordRules } from '@/utils/validation';
+import { EMAIL_MAX_LENGTH, normalizeEmailAddress, normalizeEmailCode, passwordRules } from '@/utils/validation';
 
 interface RegisterFormValues extends RegisterRequest {
   confirm_password?: string;
@@ -79,7 +79,7 @@ export default function RegisterPage(): ReactElement {
             { type: 'email', message: '邮箱格式错误' },
           ]}
         >
-          <Input placeholder="user@example.com" prefix={<MailOutlined />} size="large" />
+          <Input maxLength={EMAIL_MAX_LENGTH} placeholder="user@example.com" prefix={<MailOutlined />} size="large" />
         </Form.Item>
         <Form.Item label="验证码" required>
           <div className="flex gap-2">
