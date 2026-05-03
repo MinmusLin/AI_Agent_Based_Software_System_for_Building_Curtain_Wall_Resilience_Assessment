@@ -10,27 +10,27 @@ import (
 	"icw_core_api/internal/handlers/common"
 	"icw_core_api/internal/response"
 	"icw_core_api/utils"
-	"icw_core_biz/pkg"
+	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
 )
 
 // ProjectProgressCondition 项目进度校验条件
-type ProjectProgressCondition func(progress pkg.ProjectProgress) bool
+type ProjectProgressCondition func(progress dto.ProjectProgress) bool
 
 // projectProgressIs 校验项目进度是否等于指定值
-func projectProgressIs(expected pkg.ProjectProgress) ProjectProgressCondition {
-	return func(progress pkg.ProjectProgress) bool {
+func projectProgressIs(expected dto.ProjectProgress) ProjectProgressCondition {
+	return func(progress dto.ProjectProgress) bool {
 		return progress == expected
 	}
 }
 
 // ProjectStatusCondition 项目状态校验条件
-type ProjectStatusCondition func(status pkg.ProjectStatus) bool
+type ProjectStatusCondition func(status dto.ProjectStatus) bool
 
 // projectStatusIs 校验项目状态是否等于指定值
-func projectStatusIs(expected pkg.ProjectStatus) ProjectStatusCondition {
-	return func(status pkg.ProjectStatus) bool {
+func projectStatusIs(expected dto.ProjectStatus) ProjectStatusCondition {
+	return func(status dto.ProjectStatus) bool {
 		return status == expected
 	}
 }
@@ -46,6 +46,7 @@ func projectAccessRequired(coreBizClient *common.RPCClient, progressCondition Pr
 			return
 		}
 
+		// 从 HTTP Query 或 JSON Body 中解析项目 ID
 		projectId, err := parseProjectIdFromRequest(c)
 		if err != nil {
 			response.WriteError(c, err)
@@ -58,18 +59,21 @@ func projectAccessRequired(coreBizClient *common.RPCClient, progressCondition Pr
 			ProjectId: projectId,
 		}
 		rpcResp := &project.CheckProjectAccessResponse{}
-		if err := common.CallRPC(coreBizClient, "ProjectAccessService.CheckProjectAccess", rpcReq, rpcResp); err != nil {
+		if err := common.CallRPC(c.Request.Context(), coreBizClient, "ProjectCoreService.CheckProjectAccess", rpcReq, rpcResp); err != nil {
 			response.WriteError(c, err)
 			c.Abort()
 			return
 		}
 
-		if progressCondition != nil && !progressCondition(pkg.ParseProjectProgress(rpcResp.Progress)) {
+		// 根据项目进度按需校验项目阶段编辑权限
+		if progressCondition != nil && !progressCondition(dto.ParseProjectProgress(rpcResp.Progress)) {
 			response.WriteError(c, rpc_err.BadRequestDefault("project progress condition is not satisfied"))
 			c.Abort()
 			return
 		}
-		if statusCondition != nil && !statusCondition(pkg.ParseProjectStatus(rpcResp.Status)) {
+
+		// 根据项目状态按需校验项目阶段编辑权限
+		if statusCondition != nil && !statusCondition(dto.ParseProjectStatus(rpcResp.Status)) {
 			response.WriteError(c, rpc_err.BadRequestDefault("project status condition is not satisfied"))
 			c.Abort()
 			return
@@ -131,8 +135,8 @@ func ProjectAccessible(coreBizClient *common.RPCClient) gin.HandlerFunc {
 func ProjectProfileEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
-		projectProgressIs(pkg.ProjectProgressInitializationFinished),
-		projectStatusIs(pkg.ProjectStatusActive),
+		projectProgressIs(dto.ProjectProgressInitializationFinished),
+		projectStatusIs(dto.ProjectStatusActive),
 	)
 }
 
@@ -140,8 +144,8 @@ func ProjectProfileEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 func ProjectAssetsEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
-		projectProgressIs(pkg.ProjectProgressProfileFinished),
-		projectStatusIs(pkg.ProjectStatusActive),
+		projectProgressIs(dto.ProjectProgressProfileFinished),
+		projectStatusIs(dto.ProjectStatusActive),
 	)
 }
 
@@ -149,8 +153,8 @@ func ProjectAssetsEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 func ProjectDetectionEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
-		projectProgressIs(pkg.ProjectProgressAssetsFinished),
-		projectStatusIs(pkg.ProjectStatusActive),
+		projectProgressIs(dto.ProjectProgressAssetsFinished),
+		projectStatusIs(dto.ProjectStatusActive),
 	)
 }
 
@@ -158,8 +162,8 @@ func ProjectDetectionEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 func ProjectReviewEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
-		projectProgressIs(pkg.ProjectProgressDetectionFinished),
-		projectStatusIs(pkg.ProjectStatusActive),
+		projectProgressIs(dto.ProjectProgressDetectionFinished),
+		projectStatusIs(dto.ProjectStatusActive),
 	)
 }
 
@@ -167,7 +171,7 @@ func ProjectReviewEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 func ProjectReportEditable(coreBizClient *common.RPCClient) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
-		projectProgressIs(pkg.ProjectProgressReviewFinished),
-		projectStatusIs(pkg.ProjectStatusActive),
+		projectProgressIs(dto.ProjectProgressReviewFinished),
+		projectStatusIs(dto.ProjectStatusActive),
 	)
 }

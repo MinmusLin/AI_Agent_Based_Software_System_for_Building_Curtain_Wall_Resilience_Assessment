@@ -20,7 +20,7 @@ func AuthRequired(coreBizClient *common.RPCClient) gin.HandlerFunc {
 			AccessToken: utils.BearerToken(c),
 		}
 		rpcResp := &dto.MeResponse{}
-		if err := common.CallRPC(coreBizClient, "AuthService.Me", rpcReq, rpcResp); err != nil {
+		if err := common.CallRPC(c.Request.Context(), coreBizClient, "AuthService.Me", rpcReq, rpcResp); err != nil {
 			response.WriteError(c, err)
 			c.Abort()
 			return
