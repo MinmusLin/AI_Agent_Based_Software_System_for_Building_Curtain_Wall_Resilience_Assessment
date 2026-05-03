@@ -21,11 +21,6 @@ type ProjectImage struct {
 	CreatedAt    string `json:"created_at"`
 }
 
-type ReportProjectImageItem struct {
-	ImageUuid string
-	Status    string
-}
-
 type UploadProjectImageItem struct {
 	FileName    string
 	ContentType string
@@ -124,11 +119,12 @@ type MoveProjectImageResponse struct {
 type ReportProjectImageRequest struct {
 	UserId    uint64
 	ProjectId uint64
-	Images    []*ReportProjectImageItem
+	ImageUuid string
+	Status    string
 }
 
 type ReportProjectImageResponse struct {
-	Images []*ProjectImage
+	Image *ProjectImage
 }
 
 type UploadProjectImageRequest struct {
