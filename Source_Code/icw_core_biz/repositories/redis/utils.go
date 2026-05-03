@@ -23,3 +23,8 @@ func genRefreshReuseLockKey(tokenId string) string {
 func genAccessBlacklistKey(tokenId string) string {
 	return fmt.Sprintf("auth:access_blacklist:%s", tokenId)
 }
+
+// genProjectGroupSequenceKey 生成新图像组的下一个序号 Key
+func genProjectGroupSequenceKey(projectId uint64) string {
+	return fmt.Sprintf("project:assets:group_seq:%d", projectId)
+}

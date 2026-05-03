@@ -109,3 +109,8 @@ func (r *Repository) AccessTokenBlacklisted(ctx context.Context, tokenId string)
 	}
 	return blacklisted > 0, nil
 }
+
+// NextProjectGroupSequence 分配新图像组的下一个序号
+func (r *Repository) NextProjectGroupSequence(ctx context.Context, projectId uint64) (int64, error) {
+	return r.redis.Incr(ctx, genProjectGroupSequenceKey(projectId)).Result()
+}
