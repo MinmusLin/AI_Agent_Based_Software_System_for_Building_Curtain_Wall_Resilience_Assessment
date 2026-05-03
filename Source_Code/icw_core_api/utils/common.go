@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -45,4 +46,16 @@ func GetCurrentUser(c *gin.Context) (*dto.User, error) {
 		return nil, errors.New("invalid current user in Gin context")
 	}
 	return user, nil
+}
+
+// GetRequestId 从请求上下文中获取请求 ID
+func GetRequestId(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+	requestId, ok := ctx.Value(consts.ContextRequestId).(string)
+	if !ok {
+		return ""
+	}
+	return strings.TrimSpace(requestId)
 }
