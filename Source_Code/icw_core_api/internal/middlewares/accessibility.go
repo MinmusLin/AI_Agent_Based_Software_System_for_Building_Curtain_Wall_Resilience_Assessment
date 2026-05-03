@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -82,10 +81,17 @@ func projectAccessRequired(coreBizClient *common.RPCClient, progressCondition Pr
 
 // parseProjectIdFromRequest 从 HTTP Query 或 JSON Body 中解析项目 ID
 func parseProjectIdFromRequest(c *gin.Context) (uint64, error) {
-	projectCode := strings.TrimSpace(c.Query("project_id"))
+	// 从 HTTP Query 中解析项目 ID
+	projectCode := c.Query("project_id")
 	if projectCode != "" {
-		return 0, nil
+		projectId, err := utils.Decode(projectCode)
+		if err != nil {
+			return 0, rpc_err.BadRequestDefault(err.Error())
+		}
+		return projectId, nil
 	}
+
+	// 从 JSON Body 中解析项目 ID
 	if c.Request.Body == nil {
 		return 0, rpc_err.BadRequestDefault("project id is required")
 	}
@@ -98,16 +104,17 @@ func parseProjectIdFromRequest(c *gin.Context) (uint64, error) {
 		ProjectId string `json:"project_id"`
 	}
 	if err := json.Unmarshal(body, &req); err != nil {
-		return 0, rpc_err.BadRequestDefault("project id is required")
+		return 0, rpc_err.BadRequestDefault(err.Error())
 	}
-	projectCode = strings.TrimSpace(req.ProjectId)
+	projectCode = req.ProjectId
 	if projectCode == "" {
 		return 0, rpc_err.BadRequestDefault("project id is required")
 	}
 	projectId, err := utils.Decode(projectCode)
 	if err != nil {
-		return 0, rpc_err.BadRequestDefault("project id is required")
+		return 0, rpc_err.BadRequestDefault(err.Error())
 	}
+
 	return projectId, nil
 }
 
