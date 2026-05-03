@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
-	"net/rpc"
 
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/configs"
 	"icw_core_api/internal/handlers"
+	"icw_core_api/internal/handlers/common"
 	"icw_core_api/internal/middlewares"
 )
 
@@ -21,12 +21,12 @@ func main() {
 	}
 
 	// 初始化 icw.core.biz 服务
-	coreBizClient, err := rpc.Dial("tcp", cfg.CoreBizAddr)
+	coreBizClient, err := common.NewRPCClient(common.CoreBizPSM, cfg.CoreBizAddr)
 	if err != nil {
 		log.Fatalf("Failed to connect to icw.core.biz service: %v", err)
 	}
-	defer func(coreBizClient *rpc.Client) {
-		_ = coreBizClient.Close()
+	defer func(coreBizRPCClient *common.RPCClient) {
+		_ = coreBizRPCClient.Close()
 	}(coreBizClient)
 
 	// 初始化路由

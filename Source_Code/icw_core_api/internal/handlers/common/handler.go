@@ -22,11 +22,15 @@ type RPCClient struct {
 }
 
 // NewRPCClient 创建带服务标识的 RPC Client
-func NewRPCClient(psm string, client *rpc.Client) *RPCClient {
+func NewRPCClient(psm, address string) (*RPCClient, error) {
+	client, err := rpc.Dial("tcp", address)
+	if err != nil {
+		return nil, err
+	}
 	return &RPCClient{
 		psm:    strings.TrimSpace(psm),
 		client: client,
-	}
+	}, nil
 }
 
 // PSM 获取 RPC 服务标识
@@ -43,6 +47,14 @@ func (c *RPCClient) Raw() *rpc.Client {
 		return nil
 	}
 	return c.client
+}
+
+// Close 关闭原始 RPC Client
+func (c *RPCClient) Close() error {
+	if c == nil || c.client == nil {
+		return nil
+	}
+	return c.client.Close()
 }
 
 // Deps API Handler 的公共依赖集合
