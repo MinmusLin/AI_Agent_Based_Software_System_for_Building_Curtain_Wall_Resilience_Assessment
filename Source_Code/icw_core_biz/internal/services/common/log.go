@@ -19,6 +19,8 @@ const (
 	LogColorBoldRed = "\033[1;31m"
 	// LogColorBoldPurple ANSI 终端颜色码：紫色
 	LogColorBoldPurple = "\033[1;35m"
+	// LogColorBoldYellow ANSI 终端颜色码：黄色
+	LogColorBoldYellow = "\033[1;33m"
 )
 
 // rpcLog 记录 RPC 请求日志
@@ -72,9 +74,14 @@ func getRequestId(req interface{}) string {
 // rpcPrefix RPC 日志前缀
 func rpcPrefix(err interface{}) string {
 	if isEmptyError(err) {
-		return LogColorBoldGreen + "[RPC]" + LogColorReset
+		return LogColorBoldGreen + "[INFO]" + LogColorReset
 	}
-	return LogColorBoldRed + "[RPC]" + LogColorReset
+	return LogColorBoldRed + "[ERROR]" + LogColorReset
+}
+
+// WarnPrefix 警告日志前缀
+func WarnPrefix() string {
+	return LogColorBoldYellow + "[WARN]" + LogColorReset
 }
 
 // formatError 格式化错误日志
