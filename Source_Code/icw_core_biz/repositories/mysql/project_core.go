@@ -163,10 +163,13 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 // PostAdvanceProjectProfileToAssets 项目进度流转后置扩展点：项目基础信息阶段 -> 图像资产构建阶段
 func PostAdvanceProjectProfileToAssets(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error {
 	_, err := tx.ExecContext(ctx, `
-		INSERT IGNORE INTO project_groups(project_id, user_id, name, sort_order)
-		SELECT ?, ?, ?, COALESCE(MAX(sort_order), -1) + 1
-		FROM project_groups
-		WHERE project_id = ? AND user_id = ?
-	`, projectId, userId, consts.DefaultProjectGroupName, projectId, userId)
+		INSERT INTO project_groups(project_id, user_id, name)
+		VALUES (?, ?, ?)
+	`, projectId, userId, consts.DefaultProjectGroupName)
+
+	if IsDuplicateEntryError(err) {
+		return nil
+	}
+
 	return err
 }
