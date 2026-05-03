@@ -20,7 +20,7 @@ func (h *Handler) Logout(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 	rpcResp := &bizDto.LogoutResponse{}
-	_ = h.CallRPC(h.CoreBizRPCClient(), "AuthService.Logout", rpcReq, rpcResp)
+	_ = h.CallRPC(h.CoreBizClient(), "AuthService.Logout", rpcReq, rpcResp)
 
 	// 旧 Refresh Token 失效
 	h.clearRefreshCookie(c)

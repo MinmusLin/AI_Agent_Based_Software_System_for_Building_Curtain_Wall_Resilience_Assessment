@@ -31,7 +31,7 @@ func (h *Handler) GetProjectAssets(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.GetProjectAssetsResponse{}
-	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectAssetsService.GetProjectAssets", rpcReq, rpcResp); err != nil {
+	if err := h.CallRPC(h.CoreBizClient(), "ProjectAssetsService.GetProjectAssets", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

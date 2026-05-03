@@ -31,7 +31,7 @@ func (h *Handler) GetProjectThumbnail(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.GetProjectThumbnailResponse{}
-	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectProfileService.GetProjectThumbnail", rpcReq, rpcResp); err != nil {
+	if err := h.CallRPC(h.CoreBizClient(), "ProjectProfileService.GetProjectThumbnail", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

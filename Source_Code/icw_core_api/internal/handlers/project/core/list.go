@@ -23,7 +23,7 @@ func (h *Handler) ListProjects(c *gin.Context) {
 		UserId: user.Id,
 	}
 	rpcResp := &bizDto.ListProjectsResponse{}
-	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectCoreService.ListProjects", rpcReq, rpcResp); err != nil {
+	if err := h.CallRPC(h.CoreBizClient(), "ProjectCoreService.ListProjects", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

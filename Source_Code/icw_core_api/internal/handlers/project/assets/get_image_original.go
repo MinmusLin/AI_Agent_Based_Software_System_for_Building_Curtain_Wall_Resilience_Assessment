@@ -32,7 +32,7 @@ func (h *Handler) GetProjectImageOriginal(c *gin.Context) {
 		ImageUuid: c.Query("image_uuid"),
 	}
 	rpcResp := &bizDto.GetProjectImageOriginalResponse{}
-	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectAssetsService.GetProjectImageOriginal", rpcReq, rpcResp); err != nil {
+	if err := h.CallRPC(h.CoreBizClient(), "ProjectAssetsService.GetProjectImageOriginal", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

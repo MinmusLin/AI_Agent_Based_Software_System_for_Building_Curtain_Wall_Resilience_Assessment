@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"net/rpc"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/configs"
@@ -19,7 +17,7 @@ import (
 )
 
 // RegisterRoutes 注册路由
-func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.Client) {
+func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *common.RPCClient) {
 	// 创建 API Handler 的公共依赖集合
 	handlerDeps := common.NewDeps(cfg, coreBizClient)
 
@@ -32,7 +30,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 		authRouter.POST("/login", authHandler.Login)
 		// 登出
 		authRouter.POST("/logout", authHandler.Logout)
-		protectedAuth.Use(middlewares.AuthRequired(coreBizClient))
+		protectedAuth.Use(middlewares.AuthRequired(coreBizClient.Raw()))
 		{
 			// 获取用户信息（登录态接口，不允许匿名访问）
 			protectedAuth.GET("/me", authHandler.Me)
@@ -50,7 +48,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 	// 用户业务 Handler
 	userHandler := user.NewHandler(handlerDeps)
 	userRouter := router.Group("/user")
-	userRouter.Use(middlewares.AuthRequired(coreBizClient))
+	userRouter.Use(middlewares.AuthRequired(coreBizClient.Raw()))
 	{
 		// 获取用户头像
 		userRouter.GET("/avatar", userHandler.GetAvatar)
@@ -62,7 +60,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *rpc.C
 
 	// 项目流程 Router
 	projectRouter := router.Group("/project")
-	projectRouter.Use(middlewares.AuthRequired(coreBizClient))
+	projectRouter.Use(middlewares.AuthRequired(coreBizClient.Raw()))
 	{
 		// 项目核心 Handler
 		projectCoreHandler := core.NewHandler(handlerDeps)

@@ -49,7 +49,7 @@ func (h *Handler) UploadProjectImage(c *gin.Context) {
 		rpcReq.Images = append(rpcReq.Images, project.NewUploadProjectImageItem(image))
 	}
 	rpcResp := &bizDto.UploadProjectImageResponse{}
-	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectAssetsService.UploadProjectImage", rpcReq, rpcResp); err != nil {
+	if err := h.CallRPC(h.CoreBizClient(), "ProjectAssetsService.UploadProjectImage", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

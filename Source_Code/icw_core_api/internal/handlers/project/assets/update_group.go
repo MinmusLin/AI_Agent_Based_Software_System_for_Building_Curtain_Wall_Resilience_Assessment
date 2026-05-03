@@ -43,7 +43,7 @@ func (h *Handler) UpdateProjectGroup(c *gin.Context) {
 		Name:      req.Name,
 	}
 	rpcResp := &bizDto.UpdateProjectGroupResponse{}
-	if err := h.CallRPC(h.CoreBizRPCClient(), "ProjectAssetsService.UpdateProjectGroup", rpcReq, rpcResp); err != nil {
+	if err := h.CallRPC(h.CoreBizClient(), "ProjectAssetsService.UpdateProjectGroup", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
