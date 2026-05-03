@@ -29,26 +29,29 @@ func DefaultCode() Code {
 type DetailCode string
 
 const (
-	DetailBadRequest                   DetailCode = "BAD_REQUEST"
-	DetailUnauthorized                 DetailCode = "UNAUTHORIZED"
-	DetailAccountLocked                DetailCode = "ACCOUNT_LOCKED"
-	DetailInternalError                DetailCode = "INTERNAL_ERROR"
-	DetailInvalidEmailAddress          DetailCode = "INVALID_EMAIL_ADDRESS"
-	DetailEmailAlreadyRegistered       DetailCode = "EMAIL_ALREADY_REGISTERED"
-	DetailEmailNotRegistered           DetailCode = "EMAIL_NOT_REGISTERED"
-	DetailEmailCodeSentTooFrequently   DetailCode = "EMAIL_CODE_SENT_TOO_FREQUENTLY"
-	DetailSendEmailCodeFailed          DetailCode = "SEND_EMAIL_CODE_FAILED"
-	DetailPasswordTooShortOrTooLong    DetailCode = "PASSWORD_TOO_SHORT_OR_TOO_LONG"
-	DetailPasswordTooWeak              DetailCode = "PASSWORD_TOO_WEAK"
-	DetailNameRequired                 DetailCode = "NAME_REQUIRED"
-	DetailNameTooLong                  DetailCode = "NAME_TOO_LONG"
-	DetailIncorrectEmailCode           DetailCode = "INCORRECT_EMAIL_CODE"
-	DetailInvalidCredentials           DetailCode = "INVALID_CREDENTIALS"
-	DetailInvalidImageContentType      DetailCode = "INVALID_IMAGE_CONTENT_TYPE"
-	DetailProjectNotAccessible         DetailCode = "PROJECT_NOT_ACCESSIBLE"
-	DetailProjectGroupCannotDeleteLast DetailCode = "PROJECT_GROUP_CANNOT_DELETE_LAST"
-	DetailProjectGroupNameRequired     DetailCode = "PROJECT_GROUP_NAME_REQUIRED"
-	DetailProjectGroupNameDuplicated   DetailCode = "PROJECT_GROUP_NAME_DUPLICATED"
+	DetailBadRequest                              DetailCode = "BAD_REQUEST"
+	DetailUnauthorized                            DetailCode = "UNAUTHORIZED"
+	DetailAccountLocked                           DetailCode = "ACCOUNT_LOCKED"
+	DetailInternalError                           DetailCode = "INTERNAL_ERROR"
+	DetailInvalidEmailAddress                     DetailCode = "INVALID_EMAIL_ADDRESS"
+	DetailEmailAlreadyRegistered                  DetailCode = "EMAIL_ALREADY_REGISTERED"
+	DetailEmailNotRegistered                      DetailCode = "EMAIL_NOT_REGISTERED"
+	DetailEmailCodeSentTooFrequently              DetailCode = "EMAIL_CODE_SENT_TOO_FREQUENTLY"
+	DetailSendEmailCodeFailed                     DetailCode = "SEND_EMAIL_CODE_FAILED"
+	DetailPasswordTooShortOrTooLong               DetailCode = "PASSWORD_TOO_SHORT_OR_TOO_LONG"
+	DetailPasswordTooWeak                         DetailCode = "PASSWORD_TOO_WEAK"
+	DetailNameRequired                            DetailCode = "NAME_REQUIRED"
+	DetailNameTooLong                             DetailCode = "NAME_TOO_LONG"
+	DetailIncorrectEmailCode                      DetailCode = "INCORRECT_EMAIL_CODE"
+	DetailInvalidCredentials                      DetailCode = "INVALID_CREDENTIALS"
+	DetailInvalidImageContentType                 DetailCode = "INVALID_IMAGE_CONTENT_TYPE"
+	DetailProjectNotAccessible                    DetailCode = "PROJECT_NOT_ACCESSIBLE"
+	DetailProjectAtLeastOneGroupRequired          DetailCode = "PROJECT_AT_LEAST_ONE_GROUP_REQUIRED"
+	DetailProjectGroupNameRequired                DetailCode = "PROJECT_GROUP_NAME_REQUIRED"
+	DetailProjectGroupNameDuplicated              DetailCode = "PROJECT_GROUP_NAME_DUPLICATED"
+	DetailProjectUploadedImageCountRequired       DetailCode = "PROJECT_UPLOADED_IMAGE_COUNT_REQUIRED"
+	DetailProjectEmptyGroupCountInvalid           DetailCode = "PROJECT_EMPTY_GROUP_COUNT_INVALID"
+	DetailProjectPendingOrFailedImageCountInvalid DetailCode = "PROJECT_PENDING_OR_FAILED_IMAGE_COUNT_INVALID"
 )
 
 // IsDetailCode 判断是否为已定义错误业务代码
@@ -71,9 +74,12 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailInvalidCredentials,
 		DetailInvalidImageContentType,
 		DetailProjectNotAccessible,
-		DetailProjectGroupCannotDeleteLast,
+		DetailProjectAtLeastOneGroupRequired,
 		DetailProjectGroupNameRequired,
-		DetailProjectGroupNameDuplicated:
+		DetailProjectGroupNameDuplicated,
+		DetailProjectUploadedImageCountRequired,
+		DetailProjectEmptyGroupCountInvalid,
+		DetailProjectPendingOrFailedImageCountInvalid:
 		return true
 	default:
 		return false
