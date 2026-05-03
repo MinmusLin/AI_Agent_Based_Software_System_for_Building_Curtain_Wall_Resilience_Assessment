@@ -371,6 +371,27 @@ func (r *Repository) DeleteProjectGroup(ctx context.Context, userId, projectId, 
 		_ = tx.Rollback()
 	}()
 
+	var (
+		groupCount       uint64
+		targetGroupCount uint64
+	)
+	if err := tx.QueryRowContext(ctx, `
+		SELECT
+			COUNT(*) AS group_count,
+			COUNT(CASE WHEN id = ? THEN 1 END) AS target_group_count
+		FROM project_groups
+		WHERE user_id = ? AND project_id = ?
+		FOR UPDATE
+	`, groupId, userId, projectId).Scan(&groupCount, &targetGroupCount); err != nil {
+		return false, err
+	}
+	if targetGroupCount == 0 {
+		return false, nil
+	}
+	if groupCount <= 1 {
+		return false, ErrProjectGroupCannotDeleteLast
+	}
+
 	if _, err := tx.ExecContext(ctx, `
 		DELETE FROM project_group_images
 		WHERE user_id = ? AND project_id = ? AND group_id = ?
@@ -488,7 +509,7 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_groups
-		SET sort_order = ?, updated_at = NOW(3)
+		SET sort_order = ?
 		WHERE id = ? AND user_id = ? AND project_id = ?
 	`, sortOrder, groupId, userId, projectId)
 	if err != nil {
@@ -506,7 +527,7 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 func (r *Repository) MoveProjectImage(ctx context.Context, userId, projectId uint64, imageUuid string, targetGroupId uint64) (*ProjectImageRecord, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_group_images
-		SET group_id = ?, updated_at = NOW(3)
+		SET group_id = ?
 		WHERE uuid = ? AND user_id = ? AND project_id = ?
 	`, targetGroupId, imageUuid, userId, projectId)
 	if err != nil {
@@ -524,15 +545,14 @@ func (r *Repository) MoveProjectImage(ctx context.Context, userId, projectId uin
 func (r *Repository) UpdateProjectGroupName(ctx context.Context, userId, projectId, groupId uint64, name string) (*ProjectGroupRecord, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_groups
-		SET name = ?, updated_at = NOW(3)
+		SET name = ?
 		WHERE id = ? AND user_id = ? AND project_id = ?
 	`, name, groupId, userId, projectId)
 	if err != nil {
 		return nil, err
 	}
 
-	affected, err := result.RowsAffected()
-	if err != nil {
+	if _, err := result.RowsAffected(); err != nil {
 		return nil, err
 	}
 
@@ -544,8 +564,7 @@ func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, proje
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_group_images
 		SET status = ?,
-			uploaded_at = CASE WHEN ? = ? THEN NOW(3) ELSE NULL END,
-			updated_at = NOW(3)
+			uploaded_at = CASE WHEN ? = ? THEN NOW(3) ELSE NULL END
 		WHERE uuid = ? AND user_id = ? AND project_id = ?
 	`, status.String(), status.String(), consts.ProjectImageStatusUploaded.String(), imageUuid, userId, projectId)
 	if err != nil {
