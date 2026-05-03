@@ -38,7 +38,7 @@ func (s *Service) resetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPassw
 	}
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
-	if err := utils.VerifyEmailCode(s.Ctx, s.Redis(), s.Config().EmailCodeSecret, consts.SceneReset.String(), email, req.EmailCode); err != nil {
+	if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, consts.SceneReset.String(), email, req.EmailCode); err != nil {
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}
@@ -52,12 +52,12 @@ func (s *Service) resetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPassw
 	}
 
 	// 按邮箱更新用户密码
-	if err := s.MySQL().UpdatePasswordByEmail(s.Ctx, email, string(passwordHash)); err != nil {
+	if err := s.MySQL().UpdatePasswordByEmail(s.Ctx(), email, string(passwordHash)); err != nil {
 		return err
 	}
 
 	// 重置密码后吊销所有 Refresh Token
-	if err := s.MySQL().RevokeRefreshTokensByEmail(s.Ctx, email); err != nil {
+	if err := s.MySQL().RevokeRefreshTokensByEmail(s.Ctx(), email); err != nil {
 		log.Printf("[WARN] Revoke refresh tokens by email failed, email: %s, err: %v", email, err)
 	}
 

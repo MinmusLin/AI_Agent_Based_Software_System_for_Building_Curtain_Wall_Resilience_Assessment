@@ -17,7 +17,7 @@ func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest,
 
 func (s *Service) updateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) (err error) {
 	projectRecord, err := s.MySQL().UpdateProjectProfile(
-		s.Ctx,
+		s.Ctx(),
 		req.UserId,
 		req.ProjectId,
 		strings.TrimSpace(req.Name),
@@ -36,7 +36,7 @@ func (s *Service) updateProjectProfile(req *project.UpdateProjectProfileRequest,
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = utils.ProjectRecordToDTOWithThumbnail(s.Ctx, s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
+	resp.Project, err = utils.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}

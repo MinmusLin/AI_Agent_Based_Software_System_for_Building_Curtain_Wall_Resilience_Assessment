@@ -31,11 +31,11 @@ func (s *Service) advanceProject(req *project.AdvanceProjectRequest, resp *proje
 	}
 
 	// 执行项目进度流转前置扩展点
-	if err := utils.PreAdvanceProject(s.Ctx, s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
+	if err := utils.PreAdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
 		return err
 	}
 
-	advanced, err := utils.AdvanceProject(s.Ctx, s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress, nextStatus)
+	advanced, err := utils.AdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress, nextStatus)
 	if err != nil {
 		return err
 	}

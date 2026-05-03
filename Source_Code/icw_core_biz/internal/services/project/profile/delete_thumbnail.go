@@ -21,7 +21,7 @@ func (s *Service) deleteProjectThumbnail(req *project.DeleteProjectThumbnailRequ
 	}
 
 	// 删除项目缩略图
-	if err := s.MinIO().RemoveObject(s.Ctx, thumbnailKey); err != nil {
+	if err := s.MinIO().RemoveObject(s.Ctx(), thumbnailKey); err != nil {
 		return err
 	}
 

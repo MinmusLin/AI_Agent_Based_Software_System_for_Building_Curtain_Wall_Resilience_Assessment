@@ -14,7 +14,7 @@ func (s *Service) GetProjectProfile(req *project.GetProjectProfileRequest, resp 
 }
 
 func (s *Service) getProjectProfile(req *project.GetProjectProfileRequest, resp *project.GetProjectProfileResponse) (err error) {
-	projectRecord, err := s.MySQL().FindProjectByIdAndUserId(s.Ctx, req.UserId, req.ProjectId)
+	projectRecord, err := s.MySQL().FindProjectByIdAndUserId(s.Ctx(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func (s *Service) getProjectProfile(req *project.GetProjectProfileRequest, resp 
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = utils.ProjectRecordToDTOWithThumbnail(s.Ctx, s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
+	resp.Project, err = utils.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}

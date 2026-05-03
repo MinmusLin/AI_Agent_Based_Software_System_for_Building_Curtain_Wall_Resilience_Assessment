@@ -35,7 +35,7 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 注册场景：邮箱必须尚未注册
 	if scene == consts.SceneRegister {
-		user, err := s.MySQL().FindUserByEmail(s.Ctx, email)
+		user, err := s.MySQL().FindUserByEmail(s.Ctx(), email)
 		if err != nil {
 			return err
 		}
@@ -46,7 +46,7 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 登录和重置密码场景：邮箱必须已被注册
 	if scene == consts.SceneLogin || scene == consts.SceneReset {
-		user, err := s.MySQL().FindUserByEmail(s.Ctx, email)
+		user, err := s.MySQL().FindUserByEmail(s.Ctx(), email)
 		if err != nil {
 			return err
 		}
@@ -57,7 +57,7 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 账号锁定（登录失败次数达上限）时不发送登录验证码
 	if scene == consts.SceneLogin {
-		locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx, consts.LoginEmail.String(), email, consts.LoginFailureLimit)
+		locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx(), consts.LoginEmail.String(), email, consts.LoginFailureLimit)
 		if err != nil {
 			return err
 		}
@@ -67,7 +67,7 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	}
 
 	// 验证码未过期时不发送登录验证码
-	exists, err := s.Redis().EmailCodeExists(s.Ctx, sceneValue, email)
+	exists, err := s.Redis().EmailCodeExists(s.Ctx(), sceneValue, email)
 	if err != nil {
 		return err
 	}
@@ -80,19 +80,19 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	if err != nil {
 		return err
 	}
-	if err := s.Redis().SaveEmailCode(s.Ctx, sceneValue, email, utils.HashEmailCode(code, s.Config().EmailCodeSecret), s.Config().EmailCodeTTL); err != nil {
+	if err := s.Redis().SaveEmailCode(s.Ctx(), sceneValue, email, utils.HashEmailCode(code, s.Config().EmailCodeSecret), s.Config().EmailCodeTTL); err != nil {
 		return err
 	}
 
 	// 发送邮箱验证码
 	if err := s.SMTP().SendEmailCode(email, sceneValue, code); err != nil {
-		s.recordEmailSendLog(s.Ctx, email, sceneValue, code, consts.EmailSendStatusFailed, err.Error())
-		if err := s.Redis().ClearEmailCode(s.Ctx, sceneValue, email); err != nil {
+		s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, consts.EmailSendStatusFailed, err.Error())
+		if err := s.Redis().ClearEmailCode(s.Ctx(), sceneValue, email); err != nil {
 			log.Printf("[WARN] Clear email code failed, scene: %s, email: %s, err: %v", sceneValue, email, err)
 		}
 		return rpc_err.InternalError(rpc_err.DetailSendEmailCodeFailed, err.Error())
 	}
-	s.recordEmailSendLog(s.Ctx, email, sceneValue, code, consts.EmailSendStatusSuccess, "")
+	s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, consts.EmailSendStatusSuccess, "")
 
 	// 邮箱验证码发送成功，返回验证码有效期
 	resp.ExpiresInSeconds = int(s.Config().EmailCodeTTL.Seconds())

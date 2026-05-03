@@ -14,7 +14,7 @@ func (s *Service) CheckProjectAccess(req *project.CheckProjectAccessRequest, res
 }
 
 func (s *Service) checkProjectAccess(req *project.CheckProjectAccessRequest, resp *project.CheckProjectAccessResponse) (err error) {
-	projectRecord, err := s.MySQL().FindProjectByIdAndUserId(s.Ctx, req.UserId, req.ProjectId)
+	projectRecord, err := s.MySQL().FindProjectByIdAndUserId(s.Ctx(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err
 	}

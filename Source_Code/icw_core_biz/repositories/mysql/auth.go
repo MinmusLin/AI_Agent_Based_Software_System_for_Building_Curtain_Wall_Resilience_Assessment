@@ -92,15 +92,44 @@ func (r *Repository) FindRefreshToken(ctx context.Context, tokenId, tokenHash st
 	)
 
 	err := r.mysql.QueryRowContext(ctx, `
-		SELECT rt.token_id, rt.user_id, rt.expires_at, rt.revoked_at,
-		       u.id, u.email, u.password_hash, u.name
+		SELECT
+			rt.id,
+			rt.token_id,
+			rt.user_id,
+			rt.token_hash,
+			rt.expires_at,
+			rt.revoked_at,
+			rt.created_at,
+			rt.updated_at,
+			rt.replaced_by_token_id,
+			u.id,
+			u.email,
+			u.password_hash,
+			u.name,
+			u.last_login_at,
+			u.created_at,
+			u.updated_at
 		FROM refresh_tokens rt
 		JOIN users u ON u.id = rt.user_id
 		WHERE rt.token_id = ? AND rt.token_hash = ?
 		LIMIT 1
 	`, tokenId, tokenHash).Scan(
-		&token.TokenId, &token.UserId, &token.ExpiresAt, &token.RevokedAt,
-		&user.Id, &user.Email, &user.PasswordHash, &user.Name,
+		&token.Id,
+		&token.TokenId,
+		&token.UserId,
+		&token.TokenHash,
+		&token.ExpiresAt,
+		&token.RevokedAt,
+		&token.CreatedAt,
+		&token.UpdatedAt,
+		&token.ReplacedByTokenId,
+		&user.Id,
+		&user.Email,
+		&user.PasswordHash,
+		&user.Name,
+		&user.LastLoginAt,
+		&user.CreatedAt,
+		&user.UpdatedAt,
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {

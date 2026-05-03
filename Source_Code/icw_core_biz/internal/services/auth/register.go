@@ -49,7 +49,7 @@ func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) (e
 	}
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
-	if err := utils.VerifyEmailCode(s.Ctx, s.Redis(), s.Config().EmailCodeSecret, consts.SceneRegister.String(), email, req.EmailCode); err != nil {
+	if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, consts.SceneRegister.String(), email, req.EmailCode); err != nil {
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}
@@ -63,7 +63,7 @@ func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) (e
 	}
 
 	// 创建用户
-	if err := s.MySQL().CreateUser(s.Ctx, email, string(passwordHash), name); err != nil {
+	if err := s.MySQL().CreateUser(s.Ctx(), email, string(passwordHash), name); err != nil {
 		if mysql.IsDuplicateEntryError(err) {
 			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "email already registered")
 		}

@@ -22,7 +22,7 @@ func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) (err err
 		if claims.ExpiresAt != nil {
 			ttl := time.Until(claims.ExpiresAt.Time)
 			if ttl > 0 {
-				if err := s.Redis().BlacklistAccessToken(s.Ctx, claims.ID, ttl); err != nil {
+				if err := s.Redis().BlacklistAccessToken(s.Ctx(), claims.ID, ttl); err != nil {
 					log.Printf("[WARN] Blacklist access token failed, claims: %s, err: %v", utils.JSONF(claims), err)
 				}
 			}
@@ -31,7 +31,7 @@ func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) (err err
 
 	// 吊销 Refresh Token
 	if tokenId := authUtils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
-		if err := s.MySQL().RevokeRefreshTokensByTokenId(s.Ctx, tokenId); err != nil {
+		if err := s.MySQL().RevokeRefreshTokensByTokenId(s.Ctx(), tokenId); err != nil {
 			log.Printf("[WARN] Revoke refresh tokens by token id failed, token_id: %s, err: %v", tokenId, err)
 		}
 	}

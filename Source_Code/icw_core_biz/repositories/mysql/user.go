@@ -20,11 +20,11 @@ func (r *Repository) FindUserById(ctx context.Context, id uint64) (*UserRecord, 
 	var user UserRecord
 
 	err := r.mysql.QueryRowContext(ctx, `
-		SELECT id, email, password_hash, name
+		SELECT id, email, password_hash, name, last_login_at, created_at, updated_at
 		FROM users
 		WHERE id = ?
 		LIMIT 1
-	`, id).Scan(&user.Id, &user.Email, &user.PasswordHash, &user.Name)
+	`, id).Scan(&user.Id, &user.Email, &user.PasswordHash, &user.Name, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
@@ -41,11 +41,11 @@ func (r *Repository) FindUserByEmail(ctx context.Context, email string) (*UserRe
 	var user UserRecord
 
 	err := r.mysql.QueryRowContext(ctx, `
-		SELECT id, email, password_hash, name
+		SELECT id, email, password_hash, name, last_login_at, created_at, updated_at
 		FROM users
 		WHERE email = ?
 		LIMIT 1
-	`, email).Scan(&user.Id, &user.Email, &user.PasswordHash, &user.Name)
+	`, email).Scan(&user.Id, &user.Email, &user.PasswordHash, &user.Name, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
