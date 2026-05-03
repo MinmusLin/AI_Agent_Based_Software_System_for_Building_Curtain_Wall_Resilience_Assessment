@@ -1,26 +1,19 @@
 package auth
 
 import (
-	"context"
-
-	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/utils"
 )
 
 // Me 获取用户信息
-func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) (err error) {
-	start := rpc_log.Start("AuthService.Me", req)
-	defer func() {
-		rpc_log.Finish("AuthService.Me", req, resp, start, err)
-	}()
+func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
+	return s.CallRPC("AuthService.Me", req, resp, func() error {
+		return s.me(req, resp)
+	})
+}
 
-	if req == nil {
-		return rpc_err.BadRequestDefault("request is nil")
-	}
-	ctx := context.Background()
-
+func (s *Service) me(req *dto.MeRequest, resp *dto.MeResponse) (err error) {
 	// 校验 Access Token 的签名、过期时间和签名算法
 	claims, err := s.tokens.Verify(req.AccessToken)
 	if err != nil {
@@ -29,7 +22,7 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) (err error) {
 
 	// 检查 Access Token 是否已被黑名单禁用
 	if claims.ID != "" {
-		blacklisted, err := s.Redis().AccessTokenBlacklisted(ctx, claims.ID)
+		blacklisted, err := s.Redis().AccessTokenBlacklisted(s.Ctx, claims.ID)
 		if err != nil {
 			return err
 		}
@@ -39,7 +32,7 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) (err error) {
 	}
 
 	// 按用户 ID 查询用户
-	user, err := s.MySQL().FindUserById(ctx, claims.UserId)
+	user, err := s.MySQL().FindUserById(s.Ctx, claims.UserId)
 	if err != nil {
 		return err
 	}

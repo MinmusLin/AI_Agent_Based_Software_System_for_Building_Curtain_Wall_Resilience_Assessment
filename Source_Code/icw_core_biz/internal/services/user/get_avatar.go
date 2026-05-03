@@ -1,27 +1,20 @@
 package user
 
 import (
-	"context"
-
-	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/internal/services/user/consts"
 	"icw_core_biz/internal/services/user/utils"
 	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
 )
 
 // GetAvatar 获取用户头像
-func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarResponse) (err error) {
-	start := rpc_log.Start("UserService.GetAvatar", req)
-	defer func() {
-		rpc_log.Finish("UserService.GetAvatar", req, resp, start, err)
-	}()
+func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarResponse) error {
+	return s.CallRPC("UserService.GetAvatar", req, resp, func() error {
+		return s.getAvatar(req, resp)
+	})
+}
 
-	if req == nil {
-		return rpc_err.BadRequestDefault("request is nil")
-	}
-	ctx := context.Background()
+func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarResponse) (err error) {
 	resp.AvatarType = consts.AvatarTypeNone
 
 	// 对标准化邮箱地址做 SHA-256 哈希
@@ -32,14 +25,14 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 
 	// 判断用户是否存在自定义头像
 	customKey := minio.GenCustomAvatarKey(emailHash)
-	customExists, err := s.MinIO().StatObject(ctx, customKey)
+	customExists, err := s.MinIO().StatObject(s.Ctx, customKey)
 	if err != nil {
 		return err
 	}
 
 	if customExists {
 		// 返回用户自定义头像下载预签名 URL
-		avatarURL, err := s.MinIO().PresignGetObject(ctx, customKey, s.Config().AvatarGetTTL)
+		avatarURL, err := s.MinIO().PresignGetObject(s.Ctx, customKey, s.Config().AvatarGetTTL)
 		if err != nil {
 			return err
 		}
@@ -51,20 +44,20 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 
 	// 判断用户是否存在默认头像
 	defaultKey := minio.GenDefaultAvatarKey(emailHash)
-	defaultExists, err := s.MinIO().StatObject(ctx, defaultKey)
+	defaultExists, err := s.MinIO().StatObject(s.Ctx, defaultKey)
 	if err != nil {
 		return err
 	}
 
 	if !defaultExists {
 		// 生成用户默认头像
-		if err := s.MinIO().PutObject(ctx, defaultKey, consts.DefaultAvatarContentType, utils.BuildDefaultAvatarSVG(emailHash)); err != nil {
+		if err := s.MinIO().PutObject(s.Ctx, defaultKey, consts.DefaultAvatarContentType, utils.BuildDefaultAvatarSVG(emailHash)); err != nil {
 			return err
 		}
 	}
 
 	// 返回用户默认头像下载预签名 URL
-	avatarURL, err := s.MinIO().PresignGetObject(ctx, minio.GenDefaultAvatarKey(emailHash), s.Config().AvatarGetTTL)
+	avatarURL, err := s.MinIO().PresignGetObject(s.Ctx, minio.GenDefaultAvatarKey(emailHash), s.Config().AvatarGetTTL)
 	if err != nil {
 		return err
 	}

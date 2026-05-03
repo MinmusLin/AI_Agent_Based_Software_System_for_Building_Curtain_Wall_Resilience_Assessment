@@ -1,13 +1,11 @@
 package auth
 
 import (
-	"context"
 	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
-	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/internal/services/auth/consts"
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/pkg/dto"
@@ -15,17 +13,13 @@ import (
 )
 
 // Login 登录
-func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) (err error) {
-	start := rpc_log.Start("AuthService.Login", req)
-	defer func() {
-		rpc_log.Finish("AuthService.Login", req, resp, start, err)
-	}()
+func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
+	return s.CallRPC("AuthService.Login", req, resp, func() error {
+		return s.login(req, resp)
+	})
+}
 
-	if req == nil {
-		return rpc_err.BadRequestDefault("request is nil")
-	}
-	ctx := context.Background()
-
+func (s *Service) login(req *dto.LoginRequest, resp *dto.LoginResponse) (err error) {
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {
@@ -39,7 +33,7 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) (err err
 	}
 
 	// 账号锁定（登录失败次数达上限）时不进行登录操作
-	locked, ttl, err := s.Redis().IsLoginLocked(ctx, scene.String(), email, consts.LoginFailureLimit)
+	locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx, scene.String(), email, consts.LoginFailureLimit)
 	if err != nil {
 		return err
 	}
@@ -48,13 +42,13 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) (err err
 	}
 
 	// 按邮箱查询用户
-	user, err := s.MySQL().FindUserByEmail(ctx, email)
+	user, err := s.MySQL().FindUserByEmail(s.Ctx, email)
 	if err != nil {
 		return err
 	}
 	if user == nil || user.Id == 0 {
 		// 用户不存在视作登录失败，避免泄露邮箱是否存在
-		if err := s.Redis().RecordLoginFailure(ctx, scene.String(), email, s.Config().LoginFailTTL); err != nil {
+		if err := s.Redis().RecordLoginFailure(s.Ctx, scene.String(), email, s.Config().LoginFailTTL); err != nil {
 			return err
 		}
 		return rpc_err.BadRequest(rpc_err.DetailInvalidCredentials, "user not found")
@@ -64,18 +58,18 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) (err err
 	case consts.LoginPassword:
 		// 密码登录
 		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Code)); err != nil {
-			if err := s.Redis().RecordLoginFailure(ctx, scene.String(), email, s.Config().LoginFailTTL); err != nil {
+			if err := s.Redis().RecordLoginFailure(s.Ctx, scene.String(), email, s.Config().LoginFailTTL); err != nil {
 				return err
 			}
 			return rpc_err.BadRequest(rpc_err.DetailInvalidCredentials, err.Error())
 		}
 	case consts.LoginEmail:
 		// 邮箱验证码登录
-		if err := utils.VerifyEmailCode(ctx, s.Redis(), s.Config().EmailCodeSecret, consts.SceneLogin.String(), email, req.Code); err != nil {
+		if err := utils.VerifyEmailCode(s.Ctx, s.Redis(), s.Config().EmailCodeSecret, consts.SceneLogin.String(), email, req.Code); err != nil {
 			if !utils.IsEmailCodeBusinessError(err) {
 				return err
 			}
-			if err := s.Redis().RecordLoginFailure(ctx, scene.String(), email, s.Config().LoginFailTTL); err != nil {
+			if err := s.Redis().RecordLoginFailure(s.Ctx, scene.String(), email, s.Config().LoginFailTTL); err != nil {
 				return err
 			}
 			return rpc_err.BadRequest(rpc_err.DetailIncorrectEmailCode, err.Error())
@@ -85,15 +79,15 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) (err err
 	}
 
 	// 登录成功后清除登录失败计数
-	if err := s.Redis().ClearLoginFailure(ctx, consts.LoginPassword.String(), email); err != nil {
+	if err := s.Redis().ClearLoginFailure(s.Ctx, consts.LoginPassword.String(), email); err != nil {
 		return err
 	}
-	if err := s.Redis().ClearLoginFailure(ctx, consts.LoginEmail.String(), email); err != nil {
+	if err := s.Redis().ClearLoginFailure(s.Ctx, consts.LoginEmail.String(), email); err != nil {
 		return err
 	}
 
 	// 签发 Access Token 和 Refresh Token，并更新用户最近登录时间
-	if err := utils.IssueTokens(ctx, s.Config(), s.MySQL(), s.tokens, user, resp); err != nil {
+	if err := utils.IssueTokens(s.Ctx, s.Config(), s.MySQL(), s.tokens, user, resp); err != nil {
 		return err
 	}
 

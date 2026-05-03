@@ -1,12 +1,10 @@
 package auth
 
 import (
-	"context"
 	"errors"
 
 	"golang.org/x/crypto/bcrypt"
 
-	"icw_core_biz/internal/rpc_log"
 	"icw_core_biz/internal/services/auth/consts"
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/pkg/dto"
@@ -15,17 +13,13 @@ import (
 )
 
 // Register 注册
-func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse) (err error) {
-	start := rpc_log.Start("AuthService.Register", req)
-	defer func() {
-		rpc_log.Finish("AuthService.Register", req, resp, start, err)
-	}()
+func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse) error {
+	return s.CallRPC("AuthService.Register", req, resp, func() error {
+		return s.register(req, resp)
+	})
+}
 
-	if req == nil {
-		return rpc_err.BadRequestDefault("request is nil")
-	}
-	ctx := context.Background()
-
+func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) (err error) {
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {
@@ -55,7 +49,7 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 	}
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
-	if err := utils.VerifyEmailCode(ctx, s.Redis(), s.Config().EmailCodeSecret, consts.SceneRegister.String(), email, req.EmailCode); err != nil {
+	if err := utils.VerifyEmailCode(s.Ctx, s.Redis(), s.Config().EmailCodeSecret, consts.SceneRegister.String(), email, req.EmailCode); err != nil {
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}
@@ -69,7 +63,7 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 	}
 
 	// 创建用户
-	if err := s.MySQL().CreateUser(ctx, email, string(passwordHash), name); err != nil {
+	if err := s.MySQL().CreateUser(s.Ctx, email, string(passwordHash), name); err != nil {
 		if mysql.IsDuplicateEntryError(err) {
 			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "email already registered")
 		}
