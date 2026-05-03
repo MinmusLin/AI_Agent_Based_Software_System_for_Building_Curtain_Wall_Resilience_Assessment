@@ -34,14 +34,14 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	resp.Images = make([]*project.UploadProjectImageResult, 0, len(req.Images))
+	uploadItems := make([]*project.UploadProjectImageItem, 0, len(req.Images))
 	for _, image := range req.Images {
 		if image == nil {
 			continue
 		}
 
-		contentType := image.ContentType
-		if image.ContentType != consts.ProjectImageContentType {
+		contentType := strings.TrimSpace(image.ContentType)
+		if contentType != consts.ProjectImageContentType {
 			return rpc_err.BadRequest(rpc_err.DetailInvalidImageContentType, "image content type must be image/png")
 		}
 		fileName := strings.TrimSpace(image.FileName)
@@ -68,18 +68,42 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 			return rpc_err.BadRequestDefault(err.Error())
 		}
 
-		// 生成对象上传预签名 URL
-		originalUploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), originalKey, s.Config().ProjectImageUploadTTL)
+		uploadItems = append(uploadItems, &project.UploadProjectImageItem{
+			FileName:     fileName,
+			ContentType:  contentType,
+			SizeBytes:    image.SizeBytes,
+			Width:        image.Width,
+			Height:       image.Height,
+			Metadata:     metadata,
+			ImageUuid:    imageUuid,
+			OriginalKey:  originalKey,
+			ThumbnailKey: thumbnailKey,
+		})
+	}
+
+	if len(uploadItems) == 0 {
+		return rpc_err.BadRequestDefault("project images are required")
+	}
+
+	for _, item := range uploadItems {
+		// 生成项目图像原图上传预签名 URL
+		originalUploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), item.OriginalKey, s.Config().ProjectImageUploadTTL)
 		if err != nil {
 			return err
 		}
-		// 生成对象下载预签名 URL
-		thumbnailUploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), thumbnailKey, s.Config().ProjectImageUploadTTL)
+		// 生成项目图像缩略图上传预签名 URL
+		thumbnailUploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), item.ThumbnailKey, s.Config().ProjectImageUploadTTL)
 		if err != nil {
 			return err
 		}
 
-		imageRecord, err := s.MySQL().CreateProjectImage(s.Ctx(), req.UserId, req.ProjectId, req.GroupId, imageUuid, fileName, contentType, image.SizeBytes, image.Width, image.Height, metadata)
+		item.OriginalUploadURL = originalUploadURL
+		item.ThumbnailUploadURL = thumbnailUploadURL
+	}
+
+	resp.Images = make([]*project.UploadProjectImageResult, 0, len(uploadItems))
+	for _, item := range uploadItems {
+		imageRecord, err := s.MySQL().CreateProjectImage(s.Ctx(), req.UserId, req.ProjectId, req.GroupId, item.ImageUuid, item.FileName, item.ContentType, item.SizeBytes, item.Width, item.Height, item.Metadata)
 		if err != nil {
 			return err
 		}
@@ -94,13 +118,9 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 
 		resp.Images = append(resp.Images, &project.UploadProjectImageResult{
 			Image:              projectImage,
-			OriginalUploadURL:  originalUploadURL,
-			ThumbnailUploadURL: thumbnailUploadURL,
+			OriginalUploadURL:  item.OriginalUploadURL,
+			ThumbnailUploadURL: item.ThumbnailUploadURL,
 		})
-	}
-
-	if len(resp.Images) == 0 {
-		return rpc_err.BadRequestDefault("project images are required")
 	}
 
 	return nil

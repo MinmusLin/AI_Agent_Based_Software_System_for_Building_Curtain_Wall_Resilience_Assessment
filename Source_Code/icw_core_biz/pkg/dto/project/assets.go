@@ -26,12 +26,17 @@ type ProjectImage struct {
 }
 
 type UploadProjectImageItem struct {
-	FileName    string
-	ContentType string
-	SizeBytes   uint64
-	Width       uint32
-	Height      uint32
-	Metadata    string
+	FileName           string
+	ContentType        string
+	SizeBytes          uint64
+	Width              uint32
+	Height             uint32
+	Metadata           string
+	ImageUuid          string
+	OriginalKey        string
+	ThumbnailKey       string
+	OriginalUploadURL  string
+	ThumbnailUploadURL string
 }
 
 type UploadProjectImageResult struct {
