@@ -86,10 +86,8 @@ func (r *Repository) RotateRefreshToken(ctx context.Context, oldTokenId, newToke
 
 // FindRefreshToken 按 Token Id 和 Token Hash 查询 Refresh Token 及所属用户
 func (r *Repository) FindRefreshToken(ctx context.Context, tokenId, tokenHash string) (*RefreshTokenRecord, *UserRecord, error) {
-	var (
-		token RefreshTokenRecord
-		user  UserRecord
-	)
+	token := &RefreshTokenRecord{}
+	user := &UserRecord{}
 
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT
@@ -139,7 +137,7 @@ func (r *Repository) FindRefreshToken(ctx context.Context, tokenId, tokenHash st
 		return nil, nil, err
 	}
 
-	return &token, &user, nil
+	return token, user, nil
 }
 
 // RevokeRefreshTokensByTokenId 按 Token Id 吊销 Refresh Token

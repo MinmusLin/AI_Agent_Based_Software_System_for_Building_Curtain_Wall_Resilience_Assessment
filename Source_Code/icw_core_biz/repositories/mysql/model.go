@@ -174,19 +174,20 @@ type ProjectGroupRecord struct {
 }
 
 // ProjectGroupRecordToDTO 将 MySQL 数据模型转换为 RPC 数据模型
-func ProjectGroupRecordToDTO(record *ProjectGroupRecord, images []*project.ProjectImage) *project.ProjectGroup {
+func ProjectGroupRecordToDTO(ctx context.Context, repo *minio.Repository, record *ProjectGroupRecord, images []*ProjectImageRecord, ttl time.Duration) (*project.ProjectGroup, error) {
 	if record == nil {
-		return nil
+		return nil, nil
 	}
-	if images == nil {
-		images = make([]*project.ProjectImage, 0)
+	imageItems, err := ProjectImageRecordsToDTO(ctx, repo, images, ttl)
+	if err != nil {
+		return nil, err
 	}
 	return &project.ProjectGroup{
 		Id:        record.Id,
 		Name:      record.Name,
 		SortOrder: record.SortOrder,
-		Images:    images,
-	}
+		Images:    imageItems,
+	}, nil
 }
 
 // ProjectImageRecord 项目图像记录
@@ -237,4 +238,23 @@ func ProjectImageRecordToDTO(ctx context.Context, repo *minio.Repository, record
 		return nil, err
 	}
 	return item, nil
+}
+
+// ProjectImageRecordsToDTO 将 MySQL 数据模型转换为 RPC 数据模型
+func ProjectImageRecordsToDTO(ctx context.Context, repo *minio.Repository, records []*ProjectImageRecord, ttl time.Duration) ([]*project.ProjectImage, error) {
+	if records == nil {
+		return make([]*project.ProjectImage, 0), nil
+	}
+	items := make([]*project.ProjectImage, 0, len(records))
+	for _, record := range records {
+		if record == nil {
+			continue
+		}
+		item, err := ProjectImageRecordToDTO(ctx, repo, record, ttl)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
 }

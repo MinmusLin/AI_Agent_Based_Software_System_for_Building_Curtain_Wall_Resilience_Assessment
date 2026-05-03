@@ -17,7 +17,7 @@ func (r *Repository) CreateUser(ctx context.Context, email, passwordHash, name s
 
 // FindUserById 按用户 ID 查询用户
 func (r *Repository) FindUserById(ctx context.Context, id uint64) (*UserRecord, error) {
-	var user UserRecord
+	user := &UserRecord{}
 
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT id, email, password_hash, name, last_login_at, created_at, updated_at
@@ -33,12 +33,12 @@ func (r *Repository) FindUserById(ctx context.Context, id uint64) (*UserRecord, 
 		return nil, err
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 // FindUserByEmail 按邮箱查询用户
 func (r *Repository) FindUserByEmail(ctx context.Context, email string) (*UserRecord, error) {
-	var user UserRecord
+	user := &UserRecord{}
 
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT id, email, password_hash, name, last_login_at, created_at, updated_at
@@ -54,7 +54,7 @@ func (r *Repository) FindUserByEmail(ctx context.Context, email string) (*UserRe
 		return nil, err
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 // UpdatePasswordByEmail 按邮箱更新用户密码
