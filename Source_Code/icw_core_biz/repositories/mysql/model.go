@@ -18,6 +18,8 @@ var (
 	ErrRefreshTokenNotReplaceable = errors.New("refresh token not replaceable")
 	// ErrProjectGroupCannotDeleteLast 项目应至少存在一个图像组
 	ErrProjectGroupCannotDeleteLast = errors.New("project must keep at least one group")
+	// ErrProjectImageStatusTransitionInvalid 项目图像状态流转不合法
+	ErrProjectImageStatusTransitionInvalid = errors.New("project image status transition invalid")
 )
 
 // UserRecord 用户记录
@@ -208,6 +210,17 @@ type ProjectImageRecord struct {
 	UploadedAt  sql.NullTime
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+// ProjectImageCreateRecord 项目图像创建记录
+type ProjectImageCreateRecord struct {
+	ImageUuid   string
+	FileName    string
+	ContentType string
+	SizeBytes   uint64
+	Width       uint32
+	Height      uint32
+	Metadata    string
 }
 
 // ProjectImageRecordToDTO 将 MySQL 数据模型转换为 RPC 数据模型

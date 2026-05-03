@@ -2,6 +2,7 @@ package assets
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 
@@ -48,6 +49,12 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 		if fileName == "" {
 			return rpc_err.BadRequestDefault("project image file name is required")
 		}
+		if utf8.RuneCountInString(fileName) > consts.ProjectImageFileNameMaxLength {
+			return rpc_err.BadRequest(rpc_err.DetailProjectImageFileNameTooLong, "project image file name is too long")
+		}
+		if image.SizeBytes == 0 || image.Width == 0 || image.Height == 0 {
+			return rpc_err.BadRequest(rpc_err.DetailProjectImageFormatInvalid, "project image format is invalid")
+		}
 
 		// 标准化项目图像元数据，并返回压缩后的 JSON 字符串
 		metadata, err := utils.NormalizeProjectImageMetadata(image.Metadata)
@@ -85,6 +92,7 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 		return rpc_err.BadRequestDefault("project images are required")
 	}
 
+	createRecords := make([]*mysql.ProjectImageCreateRecord, 0, len(uploadItems))
 	for _, item := range uploadItems {
 		// 生成项目图像原图上传预签名 URL
 		originalUploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), item.OriginalKey, s.Config().ProjectImageUploadTTL)
@@ -99,19 +107,29 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 
 		item.OriginalUploadURL = originalUploadURL
 		item.ThumbnailUploadURL = thumbnailUploadURL
+
+		createRecords = append(createRecords, &mysql.ProjectImageCreateRecord{
+			ImageUuid:   item.ImageUuid,
+			FileName:    item.FileName,
+			ContentType: item.ContentType,
+			SizeBytes:   item.SizeBytes,
+			Width:       item.Width,
+			Height:      item.Height,
+			Metadata:    item.Metadata,
+		})
+	}
+
+	imageRecords, err := s.MySQL().CreateProjectImages(s.Ctx(), req.UserId, req.ProjectId, req.GroupId, createRecords)
+	if err != nil {
+		return err
+	}
+	if len(imageRecords) != len(uploadItems) {
+		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	resp.Images = make([]*project.UploadProjectImageResult, 0, len(uploadItems))
-	for _, item := range uploadItems {
-		imageRecord, err := s.MySQL().CreateProjectImage(s.Ctx(), req.UserId, req.ProjectId, req.GroupId, item.ImageUuid, item.FileName, item.ContentType, item.SizeBytes, item.Width, item.Height, item.Metadata)
-		if err != nil {
-			return err
-		}
-		if imageRecord == nil {
-			return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
-		}
-
-		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), imageRecord, s.Config().ProjectImageGetTTL)
+	for index, item := range uploadItems {
+		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), imageRecords[index], s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}
