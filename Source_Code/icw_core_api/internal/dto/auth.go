@@ -30,7 +30,7 @@ func NewLoginResponse(resp *dto.LoginResponse) *LoginResponse {
 type LogoutResponse struct{}
 
 func NewLogoutResponse(_ *dto.LogoutResponse) *LogoutResponse {
-	return nil
+	return &LogoutResponse{}
 }
 
 type MeResponse struct {
@@ -73,7 +73,7 @@ type RegisterRequest struct {
 type RegisterResponse struct{}
 
 func NewRegisterResponse(_ *dto.RegisterResponse) *RegisterResponse {
-	return nil
+	return &RegisterResponse{}
 }
 
 type ResetPasswordRequest struct {
@@ -85,7 +85,7 @@ type ResetPasswordRequest struct {
 type ResetPasswordResponse struct{}
 
 func NewResetPasswordResponse(_ *dto.ResetPasswordResponse) *ResetPasswordResponse {
-	return nil
+	return &ResetPasswordResponse{}
 }
 
 type SendEmailCodeRequest struct {

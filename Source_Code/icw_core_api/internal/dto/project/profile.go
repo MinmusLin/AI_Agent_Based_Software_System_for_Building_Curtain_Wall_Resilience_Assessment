@@ -73,9 +73,6 @@ func NewUploadProjectThumbnailResponse(resp *project.UploadProjectThumbnailRespo
 
 type DeleteProjectThumbnailResponse struct{}
 
-func NewDeleteProjectThumbnailResponse(resp *project.DeleteProjectThumbnailResponse) *DeleteProjectThumbnailResponse {
-	if resp == nil {
-		return nil
-	}
+func NewDeleteProjectThumbnailResponse(_ *project.DeleteProjectThumbnailResponse) *DeleteProjectThumbnailResponse {
 	return &DeleteProjectThumbnailResponse{}
 }

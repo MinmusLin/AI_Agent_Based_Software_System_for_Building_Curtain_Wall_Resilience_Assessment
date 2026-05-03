@@ -81,10 +81,8 @@ type AdvanceProjectRequest struct {
 type AdvanceProjectResponse struct{}
 
 func NewAdvanceProjectResponse(_ *project.AdvanceProjectResponse) *AdvanceProjectResponse {
-	return nil
+	return &AdvanceProjectResponse{}
 }
-
-type CreateProjectRequest struct{}
 
 type CreateProjectResponse struct {
 	Project *Project `json:"project"`

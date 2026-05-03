@@ -34,9 +34,6 @@ func NewUploadAvatarResponse(resp *dto.UploadAvatarResponse) *UploadAvatarRespon
 
 type DeleteAvatarResponse struct{}
 
-func NewDeleteAvatarResponse(resp *dto.DeleteAvatarResponse) *DeleteAvatarResponse {
-	if resp == nil {
-		return nil
-	}
+func NewDeleteAvatarResponse(_ *dto.DeleteAvatarResponse) *DeleteAvatarResponse {
 	return &DeleteAvatarResponse{}
 }
