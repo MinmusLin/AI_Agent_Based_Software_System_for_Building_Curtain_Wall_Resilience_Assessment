@@ -371,39 +371,11 @@ func (r *Repository) DeleteProjectGroup(ctx context.Context, userId, projectId, 
 		_ = tx.Rollback()
 	}()
 
-	rows, err := tx.QueryContext(ctx, `
-		SELECT uuid
-		FROM project_group_images
+	if _, err := tx.ExecContext(ctx, `
+		DELETE FROM project_group_images
 		WHERE user_id = ? AND project_id = ? AND group_id = ?
-	`, userId, projectId, groupId)
-	if err != nil {
+	`, userId, projectId, groupId); err != nil {
 		return false, err
-	}
-
-	imageUuids := make([]string, 0)
-	for rows.Next() {
-		var imageUuid string
-		if err := rows.Scan(&imageUuid); err != nil {
-			_ = rows.Close()
-			return false, err
-		}
-		imageUuids = append(imageUuids, imageUuid)
-	}
-	if err := rows.Err(); err != nil {
-		_ = rows.Close()
-		return false, err
-	}
-	if err := rows.Close(); err != nil {
-		return false, err
-	}
-
-	for _, imageUuid := range imageUuids {
-		if _, err := tx.ExecContext(ctx, `
-			DELETE FROM project_group_images
-			WHERE uuid = ? AND user_id = ? AND project_id = ? AND group_id = ?
-		`, imageUuid, userId, projectId, groupId); err != nil {
-			return false, err
-		}
 	}
 
 	result, err := tx.ExecContext(ctx, `
@@ -443,31 +415,48 @@ func (r *Repository) DeleteProjectImage(ctx context.Context, userId, projectId u
 	if err != nil {
 		return false, err
 	}
+
 	return affected > 0, nil
 }
 
 // MoveProjectGroup 按用户 ID、项目 ID 和图像组 ID 移动图像组
 func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, groupId, previousGroupId, nextGroupId uint64, moveToFirst, moveToLast bool) (*ProjectGroupRecord, error) {
 	var sortOrder string
-	if moveToFirst {
+
+	// 移动到置顶位置
+	if moveToFirst && !moveToLast {
 		err := r.mysql.QueryRowContext(ctx, `
 			SELECT CAST(COALESCE(MIN(sort_order), 0) - 1 AS CHAR)
 			FROM project_groups
 			WHERE user_id = ? AND project_id = ?
 		`, userId, projectId).Scan(&sortOrder)
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		if err != nil {
 			return nil, err
 		}
-	} else if moveToLast {
+	}
+
+	// 移动到置底位置
+	if !moveToFirst && moveToLast {
 		err := r.mysql.QueryRowContext(ctx, `
 			SELECT CAST(COALESCE(MAX(sort_order), 0) + 1 AS CHAR)
 			FROM project_groups
 			WHERE user_id = ? AND project_id = ?
 		`, userId, projectId).Scan(&sortOrder)
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		if err != nil {
 			return nil, err
 		}
-	} else {
+	}
+
+	// 移动到居中位置
+	if !moveToFirst && !moveToLast {
 		err := r.mysql.QueryRowContext(ctx, `
 			SELECT CAST((previous_group.sort_order + next_group.sort_order) / 2 AS CHAR)
 			FROM project_groups previous_group
@@ -487,6 +476,12 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 			return nil, err
 		}
 	}
+
+	// 非法参数
+	if moveToFirst && moveToLast {
+		return nil, errors.New("move to first and move to last cannot both be true")
+	}
+
 	if sortOrder == "" {
 		return nil, nil
 	}
@@ -500,13 +495,10 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 		return nil, err
 	}
 
-	affected, err := result.RowsAffected()
-	if err != nil {
+	if _, err = result.RowsAffected(); err != nil {
 		return nil, err
 	}
-	if affected == 0 {
-		return r.FindProjectGroupById(ctx, userId, projectId, groupId)
-	}
+
 	return r.FindProjectGroupById(ctx, userId, projectId, groupId)
 }
 
@@ -521,13 +513,10 @@ func (r *Repository) MoveProjectImage(ctx context.Context, userId, projectId uin
 		return nil, err
 	}
 
-	affected, err := result.RowsAffected()
-	if err != nil {
+	if _, err := result.RowsAffected(); err != nil {
 		return nil, err
 	}
-	if affected == 0 {
-		return r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
-	}
+
 	return r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
 }
 
@@ -546,9 +535,7 @@ func (r *Repository) UpdateProjectGroupName(ctx context.Context, userId, project
 	if err != nil {
 		return nil, err
 	}
-	if affected == 0 {
-		return r.FindProjectGroupById(ctx, userId, projectId, groupId)
-	}
+
 	return r.FindProjectGroupById(ctx, userId, projectId, groupId)
 }
 
@@ -565,13 +552,10 @@ func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, proje
 		return nil, err
 	}
 
-	affected, err := result.RowsAffected()
-	if err != nil {
+	if _, err := result.RowsAffected(); err != nil {
 		return nil, err
 	}
-	if affected == 0 {
-		return r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
-	}
+
 	return r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
 }
 
