@@ -84,7 +84,7 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 			return err
 		}
 		if imageRecord == nil {
-			return rpc_err.BadRequestDefault("project group is not accessible")
+			return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 		}
 
 		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), imageRecord, s.Config().ProjectImageGetTTL)
