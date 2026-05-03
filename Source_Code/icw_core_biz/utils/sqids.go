@@ -1,11 +1,12 @@
 package utils
 
 import (
-	"errors"
 	"log"
 	"strings"
 
 	"github.com/sqids/sqids-go"
+
+	"icw_core_biz/pkg/rpc_err"
 )
 
 const (
@@ -42,15 +43,15 @@ func Encode(id uint64) string {
 func Decode(id string) (uint64, error) {
 	id = strings.TrimSpace(id)
 	if id == "" {
-		return 0, errors.New("id is empty")
+		return 0, rpc_err.BadRequestDefault("id is empty")
 	}
 	decoded := projectIdCodec.Decode(id)
 	if len(decoded) != 1 || decoded[0] == 0 {
-		return 0, errors.New("id is invalid")
+		return 0, rpc_err.BadRequestDefault("id is invalid")
 	}
 	canonicalId, err := projectIdCodec.Encode(decoded)
 	if err != nil || canonicalId != id {
-		return 0, errors.New("id is invalid")
+		return 0, rpc_err.BadRequestDefault("id is invalid")
 	}
 	return decoded[0], nil
 }
