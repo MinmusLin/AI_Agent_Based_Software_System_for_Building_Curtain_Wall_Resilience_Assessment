@@ -4,6 +4,7 @@ import (
 	"strings"
 )
 
+// User 用户 Session
 type User struct {
 	Id    uint64
 	Email string
