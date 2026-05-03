@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"icw_core_api/utils"
 	"icw_core_biz/pkg/rpc_err"
 )
 
@@ -33,7 +34,7 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 // WriteError 将 RPC 标准错误转换为 API 层的 HTTP 响应
 func WriteError(c *gin.Context, err error) {
 	code, detailCode, message := rpc_err.Parse(err)
-	log.Printf("[ERROR] %s|%s: %s", code, detailCode, message)
+	log.Printf("[ERROR] [%s] %s|%s: %s", utils.GetRequestId(c.Request.Context()), code, detailCode, message)
 	Error(c, errorStatus(code), errorCode(code, detailCode), errorMessage(detailCode))
 }
 

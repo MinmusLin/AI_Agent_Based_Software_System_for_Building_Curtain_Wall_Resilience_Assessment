@@ -1,18 +1,26 @@
 package common
 
 import (
+	"context"
 	"log"
 	"net/rpc"
+	"reflect"
 	"strings"
 
 	"icw_core_api/configs"
 	"icw_core_api/utils"
+	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
 
 const (
 	// CoreBizPSM icw.core.biz 服务标识
 	CoreBizPSM = "icw.core.biz"
+)
+
+const (
+	// ErrorMessageFormat 错误日志 Format
+	ErrorMessageFormat = "[ERROR] [%s] Call %s %s failed, req: %s, resp: %s, err: %v"
 )
 
 // RPCClient 带服务标识的 RPC Client
@@ -92,30 +100,82 @@ func (h *BaseHandler) Config() configs.Config {
 }
 
 // CoreBizCall 调用 icw.core.biz RPC 服务
-func (h *BaseHandler) CoreBizCall(method string, req interface{}, resp interface{}) error {
+func (h *BaseHandler) CoreBizCall(ctx context.Context, method string, req interface{}, resp interface{}) error {
 	if h == nil || h.deps == nil {
 		return nil
 	}
-	return CallRPC(h.deps.CoreBizClient, method, req, resp)
+	return CallRPC(ctx, h.deps.CoreBizClient, method, req, resp)
 }
 
 // CallRPC RPC 服务通用调用
-func CallRPC(client *RPCClient, method string, req interface{}, resp interface{}) error {
+func CallRPC(ctx context.Context, client *RPCClient, method string, req interface{}, resp interface{}) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	// 从请求上下文中获取请求 ID 并设置 RPC 元数据
+	requestId := utils.GetRequestId(ctx)
+	setRPCMeta(req, requestId)
+
 	psm := client.PSM()
 	if client.Raw() == nil {
 		err := rpc_err.InternalErrorDefault("rpc client is nil")
-		log.Printf("[ERROR] Call %s %s failed, req: %s, resp: %s, err: %v", psm, method, utils.JSONF(req), utils.JSONF(resp), err)
+		log.Printf(ErrorMessageFormat, requestId, psm, method, utils.JSONF(req), utils.JSONF(resp), err)
 		return err
 	}
-	err := client.Raw().Call(method, req, resp)
-	if err != nil {
-		log.Printf("[ERROR] Call %s %s failed, req: %s, resp: %s, err: %v", psm, method, utils.JSONF(req), utils.JSONF(resp), err)
+
+	call := client.Raw().Go(method, req, resp, make(chan *rpc.Call, 1))
+	select {
+	case <-ctx.Done():
+		ctxErr := ctx.Err()
+		if ctxErr == nil {
+			ctxErr = context.Canceled
+		}
+		err := rpc_err.InternalErrorDefault(ctxErr.Error())
+		log.Printf(ErrorMessageFormat, requestId, psm, method, utils.JSONF(req), utils.JSONF(resp), err)
 		return err
+	case done := <-call.Done:
+		if done.Error != nil {
+			log.Printf(ErrorMessageFormat, requestId, psm, method, utils.JSONF(req), utils.JSONF(resp), done.Error)
+			return done.Error
+		}
 	}
+
 	if resp == nil {
-		err = rpc_err.InternalErrorDefault("rpc response is nil")
-		log.Printf("[ERROR] Call %s %s failed, req: %s, resp: %s, err: %v", psm, method, utils.JSONF(req), utils.JSONF(resp), err)
+		err := rpc_err.InternalErrorDefault("rpc response is nil")
+		log.Printf(ErrorMessageFormat, requestId, psm, method, utils.JSONF(req), utils.JSONF(resp), err)
 		return err
 	}
+
 	return nil
+}
+
+// setRPCMeta 设置 RPC 元数据
+func setRPCMeta(req interface{}, requestId string) {
+	requestId = strings.TrimSpace(requestId)
+	if req == nil || requestId == "" {
+		return
+	}
+
+	reqValue := reflect.ValueOf(req)
+	if reqValue.Kind() != reflect.Ptr || reqValue.IsNil() {
+		return
+	}
+
+	elem := reqValue.Elem()
+	if elem.Kind() != reflect.Struct {
+		return
+	}
+
+	metaField := elem.FieldByName("Meta")
+	if !metaField.IsValid() || !metaField.CanSet() {
+		return
+	}
+
+	meta := &dto.Meta{
+		RequestId: requestId,
+	}
+	if metaField.Kind() == reflect.Ptr && metaField.Type() == reflect.TypeOf(meta) {
+		metaField.Set(reflect.ValueOf(meta))
+	}
 }
