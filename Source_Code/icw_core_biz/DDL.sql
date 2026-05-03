@@ -1,6 +1,6 @@
 CREATE TABLE `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '用户 ID',
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址（统一存储小写字母）',
+  `email` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址（统一存储小写字母）',
   `password_hash` char(60) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码哈希',
   `name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名称',
   `last_login_at` datetime(3) DEFAULT NULL COMMENT '最近登录时间',
@@ -30,12 +30,12 @@ CREATE TABLE `refresh_tokens` (
 
 CREATE TABLE `email_send_logs` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '记录 ID',
-  `receiver_email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '收件邮箱地址',
-  `sender_email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发件邮箱地址',
+  `receiver_email` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '收件邮箱地址',
+  `sender_email` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发件邮箱地址',
   `scene` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱验证码业务场景：register|login|reset',
   `email_code` char(6) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱验证码',
   `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮件发送状态：success|failed',
-  `error_message` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮件发送失败原因',
+  `error_message` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮件发送失败原因',
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -62,10 +62,10 @@ CREATE TABLE `projects` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目表';
 
 CREATE TABLE `project_groups` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '组 ID',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '图像组 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
-  `name` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '组名称',
+  `name` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '图像组名称',
   `sort_order` decimal(20,10) NOT NULL DEFAULT '0.0000000000' COMMENT '顺序优先级',
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
@@ -76,15 +76,15 @@ CREATE TABLE `project_groups` (
   KEY `idx_project_groups_user_id_project_id_sort_order` (`user_id`,`project_id`,`sort_order`),
   CONSTRAINT `fk_project_groups_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_groups_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目组表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像组表';
 
 CREATE TABLE `project_group_images` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '图像 ID',
-  `group_id` bigint unsigned NOT NULL COMMENT '组 ID',
+  `group_id` bigint unsigned NOT NULL COMMENT '图像组 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '图像 UUID',
-  `file_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '原图文件名',
+  `file_name` varchar(2048) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '原图文件名',
   `content_type` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '原图 MIME 类型',
   `size_bytes` bigint unsigned NOT NULL DEFAULT '0' COMMENT '原图文件大小',
   `width` int unsigned NOT NULL DEFAULT '0' COMMENT '图像宽度',
