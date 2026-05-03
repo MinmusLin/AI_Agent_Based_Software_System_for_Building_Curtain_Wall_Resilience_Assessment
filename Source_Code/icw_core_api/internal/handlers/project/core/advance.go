@@ -38,7 +38,7 @@ func (h *Handler) AdvanceProject(c *gin.Context) {
 		ToProgress:   req.ToProgress,
 	}
 	rpcResp := &bizDto.AdvanceProjectResponse{}
-	if err := h.CoreBizCall("ProjectCoreService.AdvanceProject", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectCoreService.AdvanceProject", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -43,7 +43,7 @@ func (h *Handler) UpdateProjectProfile(c *gin.Context) {
 		AssessmentGoal:      req.AssessmentGoal,
 	}
 	rpcResp := &bizDto.UpdateProjectProfileResponse{}
-	if err := h.CoreBizCall("ProjectProfileService.UpdateProjectProfile", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectProfileService.UpdateProjectProfile", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -31,7 +31,7 @@ func (h *Handler) DeleteProjectThumbnail(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.DeleteProjectThumbnailResponse{}
-	if err := h.CoreBizCall("ProjectProfileService.DeleteProjectThumbnail", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectProfileService.DeleteProjectThumbnail", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

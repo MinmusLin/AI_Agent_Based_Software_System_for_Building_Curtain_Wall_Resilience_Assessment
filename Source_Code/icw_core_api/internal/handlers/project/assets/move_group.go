@@ -62,7 +62,7 @@ func (h *Handler) MoveProjectGroup(c *gin.Context) {
 		MoveToLast:      req.MoveToLast,
 	}
 	rpcResp := &bizDto.MoveProjectGroupResponse{}
-	if err := h.CoreBizCall("ProjectAssetsService.MoveProjectGroup", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectAssetsService.MoveProjectGroup", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

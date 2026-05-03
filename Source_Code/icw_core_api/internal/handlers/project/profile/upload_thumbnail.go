@@ -37,7 +37,7 @@ func (h *Handler) UploadProjectThumbnail(c *gin.Context) {
 		ContentType: "image/png",
 	}
 	rpcResp := &bizDto.UploadProjectThumbnailResponse{}
-	if err := h.CoreBizCall("ProjectProfileService.UploadProjectThumbnail", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectProfileService.UploadProjectThumbnail", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

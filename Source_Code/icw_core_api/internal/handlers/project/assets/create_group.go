@@ -36,7 +36,7 @@ func (h *Handler) CreateProjectGroup(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.CreateProjectGroupResponse{}
-	if err := h.CoreBizCall("ProjectAssetsService.CreateProjectGroup", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectAssetsService.CreateProjectGroup", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

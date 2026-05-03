@@ -24,7 +24,7 @@ func (h *Handler) GetAvatar(c *gin.Context) {
 		Email:  user.Email,
 	}
 	rpcResp := &bizDto.GetAvatarResponse{}
-	if err := h.CoreBizCall("UserService.GetAvatar", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "UserService.GetAvatar", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -43,7 +43,7 @@ func (h *Handler) MoveProjectImage(c *gin.Context) {
 		TargetGroupId: targetGroupId,
 	}
 	rpcResp := &bizDto.MoveProjectImageResponse{}
-	if err := h.CoreBizCall("ProjectAssetsService.MoveProjectImage", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectAssetsService.MoveProjectImage", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

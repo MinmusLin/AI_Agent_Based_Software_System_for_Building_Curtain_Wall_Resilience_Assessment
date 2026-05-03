@@ -38,7 +38,7 @@ func (h *Handler) ReportProjectImage(c *gin.Context) {
 		Status:    req.Status,
 	}
 	rpcResp := &bizDto.ReportProjectImageResponse{}
-	if err := h.CoreBizCall("ProjectAssetsService.ReportProjectImage", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectAssetsService.ReportProjectImage", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

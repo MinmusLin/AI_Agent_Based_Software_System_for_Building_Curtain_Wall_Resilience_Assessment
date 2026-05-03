@@ -37,7 +37,7 @@ func (h *Handler) DeleteProjectImage(c *gin.Context) {
 		ImageUuids: req.ImageUuids,
 	}
 	rpcResp := &bizDto.DeleteProjectImageResponse{}
-	if err := h.CoreBizCall("ProjectAssetsService.DeleteProjectImage", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectAssetsService.DeleteProjectImage", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

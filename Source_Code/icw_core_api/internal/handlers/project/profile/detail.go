@@ -31,7 +31,7 @@ func (h *Handler) GetProjectProfile(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.GetProjectProfileResponse{}
-	if err := h.CoreBizCall("ProjectProfileService.GetProjectProfile", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectProfileService.GetProjectProfile", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -25,7 +25,7 @@ func (h *Handler) UploadAvatar(c *gin.Context) {
 		ContentType: "image/png",
 	}
 	rpcResp := &bizDto.UploadAvatarResponse{}
-	if err := h.CoreBizCall("UserService.UploadAvatar", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "UserService.UploadAvatar", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -36,7 +36,7 @@ func (h *Handler) DeleteProject(c *gin.Context) {
 		ProjectId: projectId,
 	}
 	rpcResp := &bizDto.DeleteProjectResponse{}
-	if err := h.CoreBizCall("ProjectCoreService.DeleteProject", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "ProjectCoreService.DeleteProject", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
