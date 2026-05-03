@@ -243,27 +243,28 @@ function ProjectThumbnailControl({
               }}
               src={project.thumbnail_url}
             />
-            {!readOnly ? (
+            {!readOnly && !busy ? (
               <div className="absolute inset-0 flex items-center justify-center gap-3 bg-slate-950/0 opacity-0 transition duration-200 group-hover:bg-slate-950/35 group-hover:opacity-100">
                 <Button
                   aria-label="更换缩略图"
-                  className="border-white/70 bg-white/90 text-slate-700 shadow-sm hover:border-white hover:bg-white"
                   disabled={actionDisabled}
-                  icon={busy ? <LoadingOutlined /> : <ReloadOutlined />}
+                  icon={<ReloadOutlined />}
                   onClick={openFileSelector}
                   shape="circle"
                 />
                 <Button
                   aria-label="删除缩略图"
-                  className="border-white/70 bg-white/90 shadow-sm hover:border-white hover:bg-white"
                   danger
                   disabled={actionDisabled}
-                  icon={busy ? <LoadingOutlined /> : <DeleteOutlined />}
-                  onClick={() => {
-                    void handleDelete();
-                  }}
+                  icon={<DeleteOutlined />}
+                  onClick={() => void handleDelete()}
                   shape="circle"
                 />
+              </div>
+            ) : null}
+            {busy ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-950/35 text-white">
+                <LoadingOutlined className="text-2xl" />
               </div>
             ) : null}
           </div>
