@@ -13,7 +13,7 @@ func (s *Service) DeleteAvatar(req *dto.DeleteAvatarRequest, resp *dto.DeleteAva
 	})
 }
 
-func (s *Service) deleteAvatar(req *dto.DeleteAvatarRequest, _ *dto.DeleteAvatarResponse) (err error) {
+func (s *Service) deleteAvatar(req *dto.DeleteAvatarRequest, _ *dto.DeleteAvatarResponse) error {
 	// 对标准化邮箱地址做 SHA-256 哈希
 	emailHash, err := utils.NormalizeEmailHash(req.Email)
 	if err != nil {

@@ -15,7 +15,7 @@ func (s *Service) UploadAvatar(req *dto.UploadAvatarRequest, resp *dto.UploadAva
 	})
 }
 
-func (s *Service) uploadAvatar(req *dto.UploadAvatarRequest, resp *dto.UploadAvatarResponse) (err error) {
+func (s *Service) uploadAvatar(req *dto.UploadAvatarRequest, resp *dto.UploadAvatarResponse) error {
 	if req.ContentType != consts.CustomAvatarContentType {
 		return rpc_err.BadRequest(rpc_err.DetailInvalidImageContentType, "image content type must be image/png")
 	}

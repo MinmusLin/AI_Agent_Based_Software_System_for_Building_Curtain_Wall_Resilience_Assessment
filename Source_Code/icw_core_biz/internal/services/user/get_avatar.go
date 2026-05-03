@@ -14,7 +14,7 @@ func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 	})
 }
 
-func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarResponse) (err error) {
+func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarResponse) error {
 	resp.AvatarType = consts.AvatarTypeNone
 
 	// 对标准化邮箱地址做 SHA-256 哈希
