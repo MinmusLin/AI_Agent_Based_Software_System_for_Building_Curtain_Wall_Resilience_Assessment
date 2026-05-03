@@ -2,17 +2,29 @@ package mysql
 
 import (
 	"context"
+	"database/sql"
 
 	"icw_core_biz/internal/services/project/consts"
+	"icw_core_biz/pkg/dto"
 )
 
+type advanceProjectTxFunc func(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error
+
 // AdvanceProject 按用户 ID 和项目 ID 流转项目进度
-func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, status consts.ProjectStatus) (bool, error) {
-	result, err := r.mysql.ExecContext(ctx, `
+func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress dto.ProjectProgress, status dto.ProjectStatus, fn advanceProjectTxFunc) (bool, error) {
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return false, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	result, err := tx.ExecContext(ctx, `
 		UPDATE projects
 		SET progress = ?, status = ?
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
-	`, toProgress.Uint8(), status.String(), projectId, userId, fromProgress.Uint8(), consts.ProjectStatusActive.String())
+	`, toProgress.Uint8(), status.String(), projectId, userId, fromProgress.Uint8(), dto.ProjectStatusActive.String())
 	if err != nil {
 		return false, err
 	}
@@ -21,8 +33,22 @@ func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint6
 	if err != nil {
 		return false, err
 	}
+	if affected == 0 {
+		return false, nil
+	}
 
-	return affected > 0, nil
+	if fn != nil {
+		// 通过 MySQL 事务执行项目进度流转后置扩展点
+		if err := fn(ctx, tx, userId, projectId); err != nil {
+			return false, err
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // CreateProject 按用户 ID 和项目名称创建项目，并返回最新记录
@@ -49,7 +75,7 @@ func (r *Repository) DeleteProject(ctx context.Context, userId, projectId uint64
 		UPDATE projects
 		SET status = ?
 		WHERE id = ? AND user_id = ? AND status != ?
-	`, consts.ProjectStatusDeleted.String(), projectId, userId, consts.ProjectStatusDeleted.String())
+	`, dto.ProjectStatusDeleted.String(), projectId, userId, dto.ProjectStatusDeleted.String())
 	if err != nil {
 		return false, err
 	}
@@ -65,11 +91,24 @@ func (r *Repository) DeleteProject(ctx context.Context, userId, projectId uint64
 // ListProjects 按用户 ID 查询项目列表
 func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*ProjectRecord, []*ProjectRecord, error) {
 	rows, err := r.mysql.QueryContext(ctx, `
-		SELECT id, user_id, name, building_name, building_location, progress, status, created_at, updated_at
+		SELECT
+			id,
+			user_id,
+			name,
+			building_name,
+			building_location,
+			built_year,
+			building_description,
+			known_issues,
+			assessment_goal,
+			progress,
+			status,
+			created_at,
+			updated_at
 		FROM projects
 		WHERE user_id = ? AND status IN (?, ?)
 		ORDER BY created_at DESC
-	`, userId, consts.ProjectStatusActive.String(), consts.ProjectStatusCompleted.String())
+	`, userId, dto.ProjectStatusActive.String(), dto.ProjectStatusCompleted.String())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -84,7 +123,7 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 	for rows.Next() {
 		project := &ProjectRecord{}
 		var (
-			progress int8
+			progress uint8
 			status   string
 		)
 		if err := rows.Scan(
@@ -93,6 +132,10 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 			&project.Name,
 			&project.BuildingName,
 			&project.BuildingLocation,
+			&project.BuiltYear,
+			&project.BuildingDescription,
+			&project.KnownIssues,
+			&project.AssessmentGoal,
 			&progress,
 			&status,
 			&project.CreatedAt,
@@ -100,11 +143,11 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 		); err != nil {
 			return nil, nil, err
 		}
-		project.Progress = consts.ParseProjectProgress(progress)
-		project.Status = consts.ParseProjectStatus(status)
-		if project.Status == consts.ProjectStatusActive {
+		project.Progress = dto.ParseProjectProgress(progress)
+		project.Status = dto.ParseProjectStatus(status)
+		if project.Status == dto.ProjectStatusActive {
 			activeProjects = append(activeProjects, project)
-		} else if project.Status == consts.ProjectStatusCompleted {
+		} else if project.Status == dto.ProjectStatusCompleted {
 			completedProjects = append(completedProjects, project)
 		} else {
 			continue
@@ -115,4 +158,15 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 	}
 
 	return activeProjects, completedProjects, nil
+}
+
+// PostAdvanceProjectProfileToAssets 项目进度流转后置扩展点：项目基础信息阶段 -> 图像资产构建阶段
+func PostAdvanceProjectProfileToAssets(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error {
+	_, err := tx.ExecContext(ctx, `
+		INSERT IGNORE INTO project_groups(project_id, user_id, name, sort_order)
+		SELECT ?, ?, ?, COALESCE(MAX(sort_order), -1) + 1
+		FROM project_groups
+		WHERE project_id = ? AND user_id = ?
+	`, projectId, userId, consts.DefaultProjectGroupName, projectId, userId)
+	return err
 }
