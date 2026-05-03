@@ -101,6 +101,17 @@ type UploadProjectImageResult struct {
 	ThumbnailUploadURL string        `json:"thumbnail_upload_url"`
 }
 
+func NewUploadProjectImageResult(image *project.UploadProjectImageResult) *UploadProjectImageResult {
+	if image == nil {
+		return nil
+	}
+	return &UploadProjectImageResult{
+		Image:              NewProjectImage(image.Image),
+		OriginalUploadURL:  image.OriginalUploadURL,
+		ThumbnailUploadURL: image.ThumbnailUploadURL,
+	}
+}
+
 type GetProjectAssetsResponse struct {
 	Groups []*ProjectGroup `json:"groups"`
 }
@@ -264,11 +275,7 @@ func NewUploadProjectImageResponse(resp *project.UploadProjectImageResponse) *Up
 		if image == nil {
 			continue
 		}
-		images = append(images, &UploadProjectImageResult{
-			Image:              NewProjectImage(image.Image),
-			OriginalUploadURL:  image.OriginalUploadURL,
-			ThumbnailUploadURL: image.ThumbnailUploadURL,
-		})
+		images = append(images, NewUploadProjectImageResult(image))
 	}
 	return &UploadProjectImageResponse{
 		Images: images,
