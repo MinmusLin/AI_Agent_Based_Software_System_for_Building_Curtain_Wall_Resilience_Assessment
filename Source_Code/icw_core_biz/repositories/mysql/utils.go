@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -28,4 +29,22 @@ func timeToString(value time.Time) string {
 		return ""
 	}
 	return value.Format(time.DateTime)
+}
+
+// lockProjectForUpdate 添加 MySQL 项目锁
+func lockProjectForUpdate(ctx context.Context, tx *sql.Tx, userId, projectId uint64) (bool, error) {
+	var id uint64
+	err := tx.QueryRowContext(ctx, `
+		SELECT id
+		FROM projects
+		WHERE id = ? AND user_id = ?
+		FOR UPDATE
+	`, projectId, userId).Scan(&id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

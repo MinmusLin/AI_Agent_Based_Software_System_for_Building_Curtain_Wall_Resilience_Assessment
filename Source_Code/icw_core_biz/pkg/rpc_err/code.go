@@ -29,23 +29,25 @@ func DefaultCode() Code {
 type DetailCode string
 
 const (
-	DetailBadRequest                 DetailCode = "BAD_REQUEST"
-	DetailUnauthorized               DetailCode = "UNAUTHORIZED"
-	DetailAccountLocked              DetailCode = "ACCOUNT_LOCKED"
-	DetailInternalError              DetailCode = "INTERNAL_ERROR"
-	DetailInvalidEmailAddress        DetailCode = "INVALID_EMAIL_ADDRESS"
-	DetailEmailAlreadyRegistered     DetailCode = "EMAIL_ALREADY_REGISTERED"
-	DetailEmailNotRegistered         DetailCode = "EMAIL_NOT_REGISTERED"
-	DetailEmailCodeSentTooFrequently DetailCode = "EMAIL_CODE_SENT_TOO_FREQUENTLY"
-	DetailSendEmailCodeFailed        DetailCode = "SEND_EMAIL_CODE_FAILED"
-	DetailPasswordTooShortOrTooLong  DetailCode = "PASSWORD_TOO_SHORT_OR_TOO_LONG"
-	DetailPasswordTooWeak            DetailCode = "PASSWORD_TOO_WEAK"
-	DetailNameRequired               DetailCode = "NAME_REQUIRED"
-	DetailNameTooLong                DetailCode = "NAME_TOO_LONG"
-	DetailIncorrectEmailCode         DetailCode = "INCORRECT_EMAIL_CODE"
-	DetailInvalidCredentials         DetailCode = "INVALID_CREDENTIALS"
-	DetailInvalidImageContentType    DetailCode = "INVALID_IMAGE_CONTENT_TYPE"
-	DetailProjectNotAccessible       DetailCode = "PROJECT_NOT_ACCESSIBLE"
+	DetailBadRequest                   DetailCode = "BAD_REQUEST"
+	DetailUnauthorized                 DetailCode = "UNAUTHORIZED"
+	DetailAccountLocked                DetailCode = "ACCOUNT_LOCKED"
+	DetailInternalError                DetailCode = "INTERNAL_ERROR"
+	DetailInvalidEmailAddress          DetailCode = "INVALID_EMAIL_ADDRESS"
+	DetailEmailAlreadyRegistered       DetailCode = "EMAIL_ALREADY_REGISTERED"
+	DetailEmailNotRegistered           DetailCode = "EMAIL_NOT_REGISTERED"
+	DetailEmailCodeSentTooFrequently   DetailCode = "EMAIL_CODE_SENT_TOO_FREQUENTLY"
+	DetailSendEmailCodeFailed          DetailCode = "SEND_EMAIL_CODE_FAILED"
+	DetailPasswordTooShortOrTooLong    DetailCode = "PASSWORD_TOO_SHORT_OR_TOO_LONG"
+	DetailPasswordTooWeak              DetailCode = "PASSWORD_TOO_WEAK"
+	DetailNameRequired                 DetailCode = "NAME_REQUIRED"
+	DetailNameTooLong                  DetailCode = "NAME_TOO_LONG"
+	DetailIncorrectEmailCode           DetailCode = "INCORRECT_EMAIL_CODE"
+	DetailInvalidCredentials           DetailCode = "INVALID_CREDENTIALS"
+	DetailInvalidImageContentType      DetailCode = "INVALID_IMAGE_CONTENT_TYPE"
+	DetailProjectNotAccessible         DetailCode = "PROJECT_NOT_ACCESSIBLE"
+	DetailProjectGroupCannotDeleteLast DetailCode = "PROJECT_GROUP_CANNOT_DELETE_LAST"
+	DetailProjectGroupNameRequired     DetailCode = "PROJECT_GROUP_NAME_REQUIRED"
 )
 
 // IsDetailCode 判断是否为已定义错误业务代码
@@ -67,7 +69,9 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailIncorrectEmailCode,
 		DetailInvalidCredentials,
 		DetailInvalidImageContentType,
-		DetailProjectNotAccessible:
+		DetailProjectNotAccessible,
+		DetailProjectGroupCannotDeleteLast,
+		DetailProjectGroupNameRequired:
 		return true
 	default:
 		return false
