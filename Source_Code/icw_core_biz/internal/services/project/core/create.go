@@ -2,8 +2,8 @@ package core
 
 import (
 	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
+	"icw_core_biz/repositories/mysql"
 )
 
 // CreateProject 创建项目
@@ -20,7 +20,7 @@ func (s *Service) createProject(req *project.CreateProjectRequest, resp *project
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = utils.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
+	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}

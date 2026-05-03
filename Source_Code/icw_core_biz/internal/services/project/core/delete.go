@@ -1,9 +1,9 @@
 package core
 
 import (
-	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
+	"icw_core_biz/repositories/mysql"
 )
 
 // DeleteProject 删除项目
@@ -28,11 +28,11 @@ func (s *Service) deleteProject(req *project.DeleteProjectRequest, resp *project
 	}
 
 	// 获取项目缩略图
-	resp.ActiveProjects, err = utils.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), activeProjects, s.Config().ProjectThumbnailGetTTL)
+	resp.ActiveProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), activeProjects, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}
-	resp.CompletedProjects, err = utils.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), completedProjects, s.Config().ProjectThumbnailGetTTL)
+	resp.CompletedProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), completedProjects, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}

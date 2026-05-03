@@ -1,9 +1,9 @@
 package profile
 
 import (
-	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
+	"icw_core_biz/repositories/mysql"
 )
 
 // GetProjectProfile 获取项目基础信息
@@ -23,7 +23,7 @@ func (s *Service) getProjectProfile(req *project.GetProjectProfileRequest, resp 
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = utils.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
+	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}

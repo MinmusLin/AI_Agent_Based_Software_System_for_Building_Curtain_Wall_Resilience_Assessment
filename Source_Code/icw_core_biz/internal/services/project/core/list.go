@@ -1,8 +1,8 @@
 package core
 
 import (
-	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
+	"icw_core_biz/repositories/mysql"
 )
 
 // ListProjects 获取项目列表
@@ -19,11 +19,11 @@ func (s *Service) listProjects(req *project.ListProjectsRequest, resp *project.L
 	}
 
 	// 获取项目缩略图
-	resp.ActiveProjects, err = utils.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), activeProjects, s.Config().ProjectThumbnailGetTTL)
+	resp.ActiveProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), activeProjects, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}
-	resp.CompletedProjects, err = utils.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), completedProjects, s.Config().ProjectThumbnailGetTTL)
+	resp.CompletedProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), completedProjects, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}

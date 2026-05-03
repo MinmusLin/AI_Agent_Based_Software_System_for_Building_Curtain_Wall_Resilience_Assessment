@@ -12,7 +12,6 @@ import (
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
-	"icw_core_biz/utils"
 )
 
 // TokenMetadata Token 元数据
@@ -27,7 +26,7 @@ type TokenMetadata struct {
 
 // NewTokenMetadata 创建 Token 元数据
 func NewTokenMetadata(cfg configs.Config, tokens *TokenManager, user *mysql.UserRecord) (*TokenMetadata, error) {
-	userDTO := utils.UserRecordToDTO(user)
+	userDTO := mysql.UserRecordToDTO(user)
 	if userDTO == nil {
 		return nil, rpc_err.InternalErrorDefault("user is nil")
 	}

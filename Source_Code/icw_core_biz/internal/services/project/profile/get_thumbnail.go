@@ -1,8 +1,8 @@
 package profile
 
 import (
-	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
+	"icw_core_biz/repositories/mysql"
 )
 
 // GetProjectThumbnail 获取项目缩略图
@@ -14,7 +14,7 @@ func (s *Service) GetProjectThumbnail(req *project.GetProjectThumbnailRequest, r
 
 func (s *Service) getProjectThumbnail(req *project.GetProjectThumbnailRequest, resp *project.GetProjectThumbnailResponse) error {
 	// 获取项目缩略图下载预签名 URL
-	thumbnailURL, err := utils.PresignProjectThumbnailURL(s.Ctx(), s.MinIO(), req.ProjectId, s.Config().ProjectThumbnailGetTTL)
+	thumbnailURL, err := mysql.PresignProjectThumbnailURL(s.Ctx(), s.MinIO(), req.ProjectId, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}
