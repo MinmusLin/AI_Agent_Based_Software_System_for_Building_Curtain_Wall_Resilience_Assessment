@@ -30,6 +30,15 @@ func (s *Service) advanceProject(req *project.AdvanceProjectRequest, _ *project.
 		nextStatus = dto.ProjectStatusCompleted
 	}
 
+	// 如果项目进度已被并发请求流转，请求视为成功
+	alreadyAdvanced, err := utils.ProjectAlreadyAdvanced(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, toProgress, nextStatus)
+	if err != nil {
+		return err
+	}
+	if alreadyAdvanced {
+		return nil
+	}
+
 	// 执行项目进度流转前置扩展点
 	if err := utils.BeforeAdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
 		return err
@@ -41,6 +50,14 @@ func (s *Service) advanceProject(req *project.AdvanceProjectRequest, _ *project.
 		return err
 	}
 	if !advanced {
+		// 如果项目进度已被并发请求流转，请求视为成功
+		alreadyAdvanced, err := utils.ProjectAlreadyAdvanced(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, toProgress, nextStatus)
+		if err != nil {
+			return err
+		}
+		if alreadyAdvanced {
+			return nil
+		}
 		return rpc_err.BadRequestDefault("project status or progress has changed")
 	}
 
