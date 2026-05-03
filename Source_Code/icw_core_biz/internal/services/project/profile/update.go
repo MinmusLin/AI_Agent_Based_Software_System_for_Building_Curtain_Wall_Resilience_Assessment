@@ -1,41 +1,23 @@
 package profile
 
 import (
-	"context"
 	"strings"
 
-	"icw_core_biz/internal/rpc_log"
-	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
 )
 
 // UpdateProjectProfile 更新项目基础信息
-func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) (err error) {
-	start := rpc_log.Start("ProjectProfileService.UpdateProjectProfile", req)
-	defer func() {
-		rpc_log.Finish("ProjectProfileService.UpdateProjectProfile", req, resp, start, err)
-	}()
+func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) error {
+	return s.CallRPC("ProjectProfileService.UpdateProjectProfile", req, resp, func() error {
+		return s.updateProjectProfile(req, resp)
+	})
+}
 
-	if req == nil {
-		return rpc_err.BadRequestDefault("request is nil")
-	}
-	ctx := context.Background()
-
-	// 校验用户是否拥有项目访问权限
-	projectRecord, err := utils.ValidateProjectOwnership(ctx, s.MySQL(), req.UserId, req.ProjectId)
-	if err != nil {
-		return err
-	}
-
-	// 只有项目状态为进行中且项目进度为项目基础信息阶段时，可以更新项目基础信息
-	if projectRecord.Progress != consts.ProjectProgressInitializationFinished || projectRecord.Status != consts.ProjectStatusActive {
-		return rpc_err.BadRequestDefault("project profile can only be updated in progress 0 and active status")
-	}
-
-	projectRecord, err = s.MySQL().UpdateProjectProfile(
-		ctx,
+func (s *Service) updateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) (err error) {
+	projectRecord, err := s.MySQL().UpdateProjectProfile(
+		s.Ctx,
 		req.UserId,
 		req.ProjectId,
 		strings.TrimSpace(req.Name),
@@ -54,7 +36,7 @@ func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest,
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = utils.ProjectRecordToDTOWithThumbnail(ctx, s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
+	resp.Project, err = utils.ProjectRecordToDTOWithThumbnail(s.Ctx, s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {
 		return err
 	}
