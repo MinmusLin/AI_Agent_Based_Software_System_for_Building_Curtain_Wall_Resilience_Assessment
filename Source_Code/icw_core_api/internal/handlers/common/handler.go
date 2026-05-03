@@ -91,8 +91,16 @@ func (h *BaseHandler) Config() configs.Config {
 	return h.deps.Config
 }
 
+// CoreBizCall 调用 icw.core.biz RPC 服务
+func (h *BaseHandler) CoreBizCall(method string, req interface{}, resp interface{}) error {
+	if h == nil || h.deps == nil {
+		return nil
+	}
+	return CallRPC(h.deps.CoreBizClient, method, req, resp)
+}
+
 // CallRPC RPC 服务通用调用
-func (h *BaseHandler) CallRPC(client *RPCClient, method string, req interface{}, resp interface{}) error {
+func CallRPC(client *RPCClient, method string, req interface{}, resp interface{}) error {
 	psm := client.PSM()
 	if client.Raw() == nil {
 		err := rpc_err.InternalErrorDefault("rpc client is nil")
@@ -110,12 +118,4 @@ func (h *BaseHandler) CallRPC(client *RPCClient, method string, req interface{},
 		return err
 	}
 	return nil
-}
-
-// CoreBizClient 获取 icw.core.biz RPC Client
-func (h *BaseHandler) CoreBizClient() *RPCClient {
-	if h == nil || h.deps == nil {
-		return nil
-	}
-	return h.deps.CoreBizClient
 }

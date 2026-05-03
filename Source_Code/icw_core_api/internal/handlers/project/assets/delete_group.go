@@ -42,7 +42,7 @@ func (h *Handler) DeleteProjectGroup(c *gin.Context) {
 		GroupId:   groupId,
 	}
 	rpcResp := &bizDto.DeleteProjectGroupResponse{}
-	if err := h.CallRPC(h.CoreBizClient(), "ProjectAssetsService.DeleteProjectGroup", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall("ProjectAssetsService.DeleteProjectGroup", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

@@ -20,7 +20,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 	rpcResp := &bizDto.RefreshResponse{}
-	if err := h.CallRPC(h.CoreBizClient(), "AuthService.Refresh", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall("AuthService.Refresh", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		code, _, _ := rpc_err.Parse(err)
 		if code == rpc_err.CodeUnauthorized {

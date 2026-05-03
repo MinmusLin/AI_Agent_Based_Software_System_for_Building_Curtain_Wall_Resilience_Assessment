@@ -8,8 +8,10 @@ import (
 	"icw_core_api/internal/handlers/common"
 )
 
-// RefreshCookieName Refresh Token 的 HttpOnly Cookie 名称
-const RefreshCookieName = "icw_refresh_token"
+const (
+	// RefreshCookieName Refresh Token 的 HttpOnly Cookie 名称
+	RefreshCookieName = "icw_refresh_token"
+)
 
 // Handler 登录鉴权 Handler
 type Handler struct {
