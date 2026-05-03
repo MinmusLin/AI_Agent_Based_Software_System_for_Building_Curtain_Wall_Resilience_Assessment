@@ -54,7 +54,9 @@ func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 		return err
 	}
 	if avatarURL == "" {
+		resp.AvatarURL = ""
 		resp.AvatarType = consts.AvatarTypeNone
+		return nil
 	}
 
 	resp.AvatarURL = avatarURL
