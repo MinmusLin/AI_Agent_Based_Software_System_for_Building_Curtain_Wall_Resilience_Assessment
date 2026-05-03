@@ -94,6 +94,20 @@ type UploadProjectImageItem struct {
 	Metadata    string `json:"metadata"`
 }
 
+func NewUploadProjectImageItem(image *UploadProjectImageItem) *project.UploadProjectImageItem {
+	if image == nil {
+		return nil
+	}
+	return &project.UploadProjectImageItem{
+		FileName:    image.FileName,
+		ContentType: image.ContentType,
+		SizeBytes:   image.SizeBytes,
+		Width:       image.Width,
+		Height:      image.Height,
+		Metadata:    image.Metadata,
+	}
+}
+
 type UploadProjectImageResult struct {
 	Image              *ProjectImage `json:"image"`
 	OriginalUploadURL  string        `json:"original_upload_url"`
