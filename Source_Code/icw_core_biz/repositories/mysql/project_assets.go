@@ -371,22 +371,14 @@ func (r *Repository) DeleteProjectGroup(ctx context.Context, userId, projectId, 
 		_ = tx.Rollback()
 	}()
 
-	var (
-		groupCount       uint64
-		targetGroupCount uint64
-	)
+	var groupCount uint64
 	if err := tx.QueryRowContext(ctx, `
-		SELECT
-			COUNT(*) AS group_count,
-			COUNT(CASE WHEN id = ? THEN 1 END) AS target_group_count
+		SELECT COUNT(*)
 		FROM project_groups
 		WHERE user_id = ? AND project_id = ?
 		FOR UPDATE
-	`, groupId, userId, projectId).Scan(&groupCount, &targetGroupCount); err != nil {
+	`, userId, projectId).Scan(&groupCount); err != nil {
 		return false, err
-	}
-	if targetGroupCount == 0 {
-		return false, nil
 	}
 	if groupCount <= 1 {
 		return false, ErrProjectGroupCannotDeleteLast
@@ -581,11 +573,13 @@ func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, proje
 // CountProjectGroups 按用户 ID 和项目 ID 统计图像组数量
 func (r *Repository) CountProjectGroups(ctx context.Context, userId, projectId uint64) (uint64, error) {
 	var count uint64
+
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT COUNT(*)
 		FROM project_groups
 		WHERE user_id = ? AND project_id = ?
 	`, userId, projectId).Scan(&count)
+
 	return count, err
 }
 
@@ -614,5 +608,6 @@ func (r *Repository) GetProjectAssetsReadyStats(ctx context.Context, userId, pro
 	if err != nil {
 		return nil, err
 	}
+
 	return stats, nil
 }
