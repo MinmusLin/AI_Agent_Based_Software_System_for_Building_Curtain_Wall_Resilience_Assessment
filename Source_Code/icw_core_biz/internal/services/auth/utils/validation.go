@@ -38,6 +38,7 @@ func ValidatePassword(password string) (string, error) {
 			hasDigit = true
 		case unicode.IsPunct(item) || unicode.IsSymbol(item):
 			hasSymbol = true
+		default:
 		}
 	}
 	if !hasUpper || !hasLower || !hasDigit || !hasSymbol {

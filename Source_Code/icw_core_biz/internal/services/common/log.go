@@ -1,4 +1,4 @@
-package rpc_log
+package common
 
 import (
 	"fmt"
@@ -21,8 +21,8 @@ const (
 	LogColorBoldPurple = "\033[1;35m"
 )
 
-// Log 记录 RPC 请求日志
-func Log(method string, req interface{}, resp interface{}, start time.Time, err error) {
+// rpcLog 记录 RPC 请求日志
+func rpcLog(method string, req interface{}, resp interface{}, start time.Time, err error) {
 	requestId := getRequestId(req)
 	if requestId == "" {
 		requestId = "-"
