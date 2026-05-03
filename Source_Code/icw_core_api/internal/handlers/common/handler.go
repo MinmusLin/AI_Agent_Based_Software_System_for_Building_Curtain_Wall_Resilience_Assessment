@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/rpc"
 	"reflect"
@@ -19,8 +20,12 @@ const (
 )
 
 const (
-	// ErrorMessageFormat 错误日志 Format
-	ErrorMessageFormat = "[ERROR] [%s] Call %s %s failed, req: %s, resp: %s, err: %v"
+	// LogColorReset ANSI 终端颜色重置码
+	LogColorReset = "\033[0m"
+	// LogColorBoldRed ANSI 终端颜色码：红色
+	LogColorBoldRed = "\033[1;31m"
+	// LogColorBoldPurple ANSI 终端颜色码：紫色
+	LogColorBoldPurple = "\033[1;35m"
 )
 
 // RPCClient 带服务标识的 RPC Client
@@ -120,7 +125,7 @@ func CallRPC(ctx context.Context, client *RPCClient, method string, req interfac
 	psm := client.PSM()
 	if client.Raw() == nil {
 		err := rpc_err.InternalErrorDefault("rpc client is nil")
-		log.Printf(ErrorMessageFormat, requestId, psm, method, utils.JSONF(req), utils.JSONF(resp), err)
+		log.Print(errorMessage(requestId, psm, method, req, resp, err))
 		return err
 	}
 
@@ -132,18 +137,18 @@ func CallRPC(ctx context.Context, client *RPCClient, method string, req interfac
 			ctxErr = context.Canceled
 		}
 		err := rpc_err.InternalErrorDefault(ctxErr.Error())
-		log.Printf(ErrorMessageFormat, requestId, psm, method, utils.JSONF(req), utils.JSONF(resp), err)
+		log.Print(errorMessage(requestId, psm, method, req, resp, err))
 		return err
 	case done := <-call.Done:
 		if done.Error != nil {
-			log.Printf(ErrorMessageFormat, requestId, psm, method, utils.JSONF(req), utils.JSONF(resp), done.Error)
+			log.Print(errorMessage(requestId, psm, method, req, resp, done.Error))
 			return done.Error
 		}
 	}
 
 	if resp == nil {
 		err := rpc_err.InternalErrorDefault("rpc response is nil")
-		log.Printf(ErrorMessageFormat, requestId, psm, method, utils.JSONF(req), utils.JSONF(resp), err)
+		log.Print(errorMessage(requestId, psm, method, req, resp, err))
 		return err
 	}
 
@@ -178,4 +183,27 @@ func setRPCMeta(req interface{}, requestId string) {
 	if metaField.Kind() == reflect.Ptr && metaField.Type() == reflect.TypeOf(meta) {
 		metaField.Set(reflect.ValueOf(meta))
 	}
+}
+
+// errorMessage 生成失败日志
+func errorMessage(requestId, psm, method string, req interface{}, resp interface{}, err interface{}) string {
+	return fmt.Sprintf("%s[ERROR]%s [%s] Call %s %s failed, req: %s, resp: %s, err: %s",
+		LogColorBoldRed,
+		LogColorReset,
+		requestId,
+		psm,
+		method,
+		utils.JSONF(req),
+		utils.JSONF(resp),
+		formatError(err),
+	)
+}
+
+// formatError 格式化错误日志
+func formatError(err interface{}) string {
+	msg := strings.TrimSpace(fmt.Sprint(err))
+	if msg == "" || msg == "<nil>" {
+		return msg
+	}
+	return LogColorBoldPurple + msg + LogColorReset
 }
