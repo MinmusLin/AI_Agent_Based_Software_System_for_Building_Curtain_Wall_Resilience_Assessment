@@ -13,7 +13,7 @@ func (s *Service) CreateProject(req *project.CreateProjectRequest, resp *project
 	})
 }
 
-func (s *Service) createProject(req *project.CreateProjectRequest, resp *project.CreateProjectResponse) (err error) {
+func (s *Service) createProject(req *project.CreateProjectRequest, resp *project.CreateProjectResponse) error {
 	projectRecord, err := s.MySQL().CreateProject(s.Ctx(), req.UserId, consts.DefaultProjectName)
 	if err != nil {
 		return err

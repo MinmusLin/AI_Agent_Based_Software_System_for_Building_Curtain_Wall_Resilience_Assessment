@@ -12,7 +12,7 @@ func (s *Service) ListProjects(req *project.ListProjectsRequest, resp *project.L
 	})
 }
 
-func (s *Service) listProjects(req *project.ListProjectsRequest, resp *project.ListProjectsResponse) (err error) {
+func (s *Service) listProjects(req *project.ListProjectsRequest, resp *project.ListProjectsResponse) error {
 	activeProjects, completedProjects, err := s.MySQL().ListProjects(s.Ctx(), req.UserId)
 	if err != nil {
 		return err

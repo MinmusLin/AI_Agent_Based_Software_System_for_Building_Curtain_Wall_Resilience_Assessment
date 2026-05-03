@@ -13,7 +13,7 @@ func (s *Service) DeleteProject(req *project.DeleteProjectRequest, resp *project
 	})
 }
 
-func (s *Service) deleteProject(req *project.DeleteProjectRequest, resp *project.DeleteProjectResponse) (err error) {
+func (s *Service) deleteProject(req *project.DeleteProjectRequest, resp *project.DeleteProjectResponse) error {
 	deleted, err := s.MySQL().DeleteProject(s.Ctx(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err

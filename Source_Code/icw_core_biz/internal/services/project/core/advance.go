@@ -14,7 +14,7 @@ func (s *Service) AdvanceProject(req *project.AdvanceProjectRequest, resp *proje
 	})
 }
 
-func (s *Service) advanceProject(req *project.AdvanceProjectRequest, resp *project.AdvanceProjectResponse) (err error) {
+func (s *Service) advanceProject(req *project.AdvanceProjectRequest, _ *project.AdvanceProjectResponse) error {
 	// 校验项目进度推进合法
 	maxProgress := dto.ProjectProgressReportFinished.Uint8()
 	if req.FromProgress >= maxProgress || req.ToProgress > maxProgress {
@@ -31,10 +31,11 @@ func (s *Service) advanceProject(req *project.AdvanceProjectRequest, resp *proje
 	}
 
 	// 执行项目进度流转前置扩展点
-	if err := utils.PreAdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
+	if err := utils.BeforeAdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
 		return err
 	}
 
+	// 执行项目进度流转扩展点
 	advanced, err := utils.AdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress, nextStatus)
 	if err != nil {
 		return err
