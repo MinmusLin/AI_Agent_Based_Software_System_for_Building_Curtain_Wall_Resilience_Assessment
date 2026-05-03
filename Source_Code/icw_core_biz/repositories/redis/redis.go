@@ -127,8 +127,8 @@ func (r *Repository) GetPresignURL(ctx context.Context, key string) (string, err
 	return presignURL, nil
 }
 
-// SavePresignURL 保存预签名 URL 缓存
-func (r *Repository) SavePresignURL(ctx context.Context, key, presignURL string, ttl time.Duration) error {
+// SetPresignURL 设置预签名 URL 缓存
+func (r *Repository) SetPresignURL(ctx context.Context, key, presignURL string, ttl time.Duration) error {
 	if key == "" || presignURL == "" || ttl <= 0 {
 		return nil
 	}
