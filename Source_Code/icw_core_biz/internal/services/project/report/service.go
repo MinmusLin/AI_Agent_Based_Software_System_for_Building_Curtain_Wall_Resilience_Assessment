@@ -19,6 +19,13 @@ func NewService(deps *common.Deps) *Service {
 	}
 }
 
-func (s *Service) Ping(_ *PingRequest, _ *PingResponse) error {
+// Ping .
+func (s *Service) Ping(req *PingRequest, resp *PingResponse) error {
+	return s.CallRPC("ProjectReportService.Ping", req, resp, func() error {
+		return s.ping(req, resp)
+	})
+}
+
+func (s *Service) ping(_ *PingRequest, _ *PingResponse) error {
 	return nil
 }
