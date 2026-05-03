@@ -31,7 +31,7 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 
 // WriteError 将 RPC 标准错误转换为 API 层的 HTTP 响应
 func WriteError(c *gin.Context, err error) {
-	code, detailCode, message := rpc_err.Parse(err)
+	code, detailCode, _ := rpc_err.Parse(err)
 	Error(c, errorStatus(code), errorCode(code, detailCode), errorMessage(detailCode))
 }
 
