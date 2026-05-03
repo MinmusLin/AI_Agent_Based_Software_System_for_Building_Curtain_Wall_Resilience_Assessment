@@ -114,3 +114,31 @@ func (r *Repository) AccessTokenBlacklisted(ctx context.Context, tokenId string)
 func (r *Repository) NextProjectGroupSequence(ctx context.Context, projectId uint64) (int64, error) {
 	return r.redis.Incr(ctx, genProjectGroupSequenceKey(projectId)).Result()
 }
+
+// GetPresignURL 获取预签名 URL 缓存
+func (r *Repository) GetPresignURL(ctx context.Context, key string) (string, error) {
+	presignURL, err := r.redis.Get(ctx, key).Result()
+	if errors.Is(err, redis.Nil) {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return presignURL, nil
+}
+
+// SavePresignURL 保存预签名 URL 缓存
+func (r *Repository) SavePresignURL(ctx context.Context, key, presignURL string, ttl time.Duration) error {
+	if key == "" || presignURL == "" || ttl <= 0 {
+		return nil
+	}
+	return r.redis.Set(ctx, key, presignURL, ttl).Err()
+}
+
+// ClearPresignURL 清除预签名 URL 缓存
+func (r *Repository) ClearPresignURL(ctx context.Context, key string) error {
+	if key == "" {
+		return nil
+	}
+	return r.redis.Del(ctx, key).Err()
+}

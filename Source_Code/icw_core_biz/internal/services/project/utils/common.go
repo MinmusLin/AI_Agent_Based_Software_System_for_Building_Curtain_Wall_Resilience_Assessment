@@ -12,6 +12,7 @@ import (
 	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
+	"icw_core_biz/repositories/redis"
 )
 
 // ProjectProfileFields 项目基础信息字段
@@ -89,7 +90,13 @@ func validateStringMaxLength(value string, maxLength int, detailCode rpc_err.Det
 }
 
 // RemoveProjectImageObjects 删除项目图像原图和缩略图对象
-func RemoveProjectImageObjects(ctx context.Context, repo *minio.Repository, projectId uint64, imageUuid string) error {
+func RemoveProjectImageObjects(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, userId, projectId uint64, imageUuid string) error {
+	if redisRepo != nil {
+		// 清除预签名 URL 缓存
+		_ = redisRepo.ClearPresignURL(ctx, redis.GenProjectImageOriginalPresignURLKey(userId, projectId, imageUuid))
+		_ = redisRepo.ClearPresignURL(ctx, redis.GenProjectImageThumbnailPresignURLKey(userId, projectId, imageUuid))
+	}
+
 	originalKey, err := minio.GenProjectImageOriginalKey(projectId, imageUuid)
 	if err != nil {
 		return rpc_err.BadRequestDefault(err.Error())
@@ -98,12 +105,14 @@ func RemoveProjectImageObjects(ctx context.Context, repo *minio.Repository, proj
 	if err != nil {
 		return rpc_err.BadRequestDefault(err.Error())
 	}
+
 	var removeErr error
-	if err := repo.RemoveObject(ctx, originalKey); err != nil {
+	if err := minioRepo.RemoveObject(ctx, originalKey); err != nil {
 		removeErr = errors.Join(removeErr, fmt.Errorf("remove project image original object failed: %w", err))
 	}
-	if err := repo.RemoveObject(ctx, thumbnailKey); err != nil {
+	if err := minioRepo.RemoveObject(ctx, thumbnailKey); err != nil {
 		removeErr = errors.Join(removeErr, fmt.Errorf("remove project image thumbnail object failed: %w", err))
 	}
+
 	return removeErr
 }
