@@ -313,18 +313,67 @@ func (r *Repository) FindProjectImageByUuid(ctx context.Context, userId, project
 
 // CreateProjectGroup 按用户 ID 和项目 ID 创建图像组
 func (r *Repository) CreateProjectGroup(ctx context.Context, userId, projectId uint64, name string) (*ProjectGroupRecord, error) {
-	result, err := r.mysql.ExecContext(ctx, `
-		INSERT INTO project_groups(project_id, user_id, name, sort_order)
-		SELECT ?, ?, ?, COALESCE(MAX(sort_order), -1) + 1
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	if err != nil || !projectExists {
+		return nil, err
+	}
+
+	rows, err := tx.QueryContext(ctx, `
+		SELECT id
 		FROM project_groups
-		WHERE project_id = ? AND user_id = ?
-	`, projectId, userId, name, projectId, userId)
+		WHERE user_id = ? AND project_id = ?
+		ORDER BY sort_order ASC, id ASC
+		FOR UPDATE
+	`, userId, projectId)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var lockedGroupId uint64
+		if err := rows.Scan(&lockedGroupId); err != nil {
+			_ = rows.Close()
+			return nil, err
+		}
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return nil, err
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	var sortOrder string
+	if err := tx.QueryRowContext(ctx, `
+		SELECT CAST(COALESCE(MAX(sort_order), -1) + 1 AS CHAR)
+		FROM project_groups
+		WHERE user_id = ? AND project_id = ?
+	`, userId, projectId).Scan(&sortOrder); err != nil {
+		return nil, err
+	}
+
+	result, err := tx.ExecContext(ctx, `
+		INSERT INTO project_groups(project_id, user_id, name, sort_order)
+		VALUES (?, ?, ?, ?)
+	`, projectId, userId, name, sortOrder)
 	if err != nil {
 		return nil, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -347,10 +396,20 @@ func (r *Repository) CreateProjectImage(ctx context.Context, userId, projectId, 
 			metadata,
 			status
 		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, groupId, projectId, userId, imageUuid, fileName, contentType, sizeBytes, width, height, metadata, consts.ProjectImageStatusPending.String())
+		SELECT id, project_id, user_id, ?, ?, ?, ?, ?, ?, ?, ?
+		FROM project_groups
+		WHERE id = ? AND user_id = ? AND project_id = ?
+	`, imageUuid, fileName, contentType, sizeBytes, width, height, metadata, consts.ProjectImageStatusPending.String(), groupId, userId, projectId)
 	if err != nil {
 		return nil, err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if affected == 0 {
+		return nil, nil
 	}
 
 	id, err := result.LastInsertId()
@@ -371,14 +430,43 @@ func (r *Repository) DeleteProjectGroup(ctx context.Context, userId, projectId, 
 		_ = tx.Rollback()
 	}()
 
+	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	if err != nil || !projectExists {
+		return false, err
+	}
+
 	var groupCount uint64
-	if err := tx.QueryRowContext(ctx, `
-		SELECT COUNT(*)
+	groupExists := false
+	rows, err := tx.QueryContext(ctx, `
+		SELECT id
 		FROM project_groups
 		WHERE user_id = ? AND project_id = ?
+		ORDER BY id ASC
 		FOR UPDATE
-	`, userId, projectId).Scan(&groupCount); err != nil {
+	`, userId, projectId)
+	if err != nil {
 		return false, err
+	}
+	for rows.Next() {
+		var currentGroupId uint64
+		if err := rows.Scan(&currentGroupId); err != nil {
+			_ = rows.Close()
+			return false, err
+		}
+		groupCount++
+		if currentGroupId == groupId {
+			groupExists = true
+		}
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return false, err
+	}
+	if err := rows.Close(); err != nil {
+		return false, err
+	}
+	if !groupExists {
+		return false, nil
 	}
 	if groupCount <= 1 {
 		return false, ErrProjectGroupCannotDeleteLast
@@ -414,31 +502,116 @@ func (r *Repository) DeleteProjectGroup(ctx context.Context, userId, projectId, 
 	return true, nil
 }
 
-// DeleteProjectImage 按用户 ID、项目 ID 和图像 UUID 删除项目图像记录
-func (r *Repository) DeleteProjectImage(ctx context.Context, userId, projectId uint64, imageUuid string) (bool, error) {
-	result, err := r.mysql.ExecContext(ctx, `
-		DELETE FROM project_group_images
-		WHERE uuid = ? AND user_id = ? AND project_id = ?
-	`, imageUuid, userId, projectId)
+// DeleteProjectImages 按用户 ID、项目 ID 和图像 UUID 列表批量删除项目图像记录
+func (r *Repository) DeleteProjectImages(ctx context.Context, userId, projectId uint64, imageUuids []string) (bool, error) {
+	if len(imageUuids) == 0 {
+		return false, nil
+	}
+
+	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return false, err
 	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
-	affected, err := result.RowsAffected()
-	if err != nil {
+	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	if err != nil || !projectExists {
 		return false, err
 	}
 
-	return affected > 0, nil
+	for _, imageUuid := range imageUuids {
+		var id uint64
+		err := tx.QueryRowContext(ctx, `
+			SELECT id
+			FROM project_group_images
+			WHERE uuid = ? AND user_id = ? AND project_id = ?
+			FOR UPDATE
+		`, imageUuid, userId, projectId).Scan(&id)
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		if err != nil {
+			return false, err
+		}
+	}
+
+	for _, imageUuid := range imageUuids {
+		result, err := tx.ExecContext(ctx, `
+			DELETE FROM project_group_images
+			WHERE uuid = ? AND user_id = ? AND project_id = ?
+		`, imageUuid, userId, projectId)
+		if err != nil {
+			return false, err
+		}
+
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return false, err
+		}
+		if affected == 0 {
+			return false, nil
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // MoveProjectGroup 按用户 ID、项目 ID 和图像组 ID 移动图像组
 func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, groupId, previousGroupId, nextGroupId uint64, moveToFirst, moveToLast bool) (*ProjectGroupRecord, error) {
+	if moveToFirst && moveToLast {
+		return nil, errors.New("move to first and move to last cannot both be true")
+	}
+
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	if err != nil || !projectExists {
+		return nil, err
+	}
+
+	rows, err := tx.QueryContext(ctx, `
+		SELECT id
+		FROM project_groups
+		WHERE user_id = ? AND project_id = ?
+		ORDER BY sort_order ASC, id ASC
+		FOR UPDATE
+	`, userId, projectId)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var lockedGroupId uint64
+		if err := rows.Scan(&lockedGroupId); err != nil {
+			_ = rows.Close()
+			return nil, err
+		}
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return nil, err
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
 	var sortOrder string
 
 	// 移动到置顶位置
 	if moveToFirst && !moveToLast {
-		err := r.mysql.QueryRowContext(ctx, `
+		err := tx.QueryRowContext(ctx, `
 			SELECT CAST(COALESCE(MIN(sort_order), 0) - 1 AS CHAR)
 			FROM project_groups
 			WHERE user_id = ? AND project_id = ?
@@ -454,7 +627,7 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 
 	// 移动到置底位置
 	if !moveToFirst && moveToLast {
-		err := r.mysql.QueryRowContext(ctx, `
+		err := tx.QueryRowContext(ctx, `
 			SELECT CAST(COALESCE(MAX(sort_order), 0) + 1 AS CHAR)
 			FROM project_groups
 			WHERE user_id = ? AND project_id = ?
@@ -470,7 +643,7 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 
 	// 移动到居中位置
 	if !moveToFirst && !moveToLast {
-		err := r.mysql.QueryRowContext(ctx, `
+		err := tx.QueryRowContext(ctx, `
 			SELECT CAST((previous_group.sort_order + next_group.sort_order) / 2 AS CHAR)
 			FROM project_groups previous_group
 			JOIN project_groups next_group
@@ -490,16 +663,11 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 		}
 	}
 
-	// 非法参数
-	if moveToFirst && moveToLast {
-		return nil, errors.New("move to first and move to last cannot both be true")
-	}
-
 	if sortOrder == "" {
 		return nil, nil
 	}
 
-	result, err := r.mysql.ExecContext(ctx, `
+	result, err := tx.ExecContext(ctx, `
 		UPDATE project_groups
 		SET sort_order = ?
 		WHERE id = ? AND user_id = ? AND project_id = ?
@@ -512,25 +680,90 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 		return nil, err
 	}
 
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
 	return r.FindProjectGroupById(ctx, userId, projectId, groupId)
 }
 
-// MoveProjectImage 按用户 ID、项目 ID 和图像 UUID 移动图像
-func (r *Repository) MoveProjectImage(ctx context.Context, userId, projectId uint64, imageUuid string, targetGroupId uint64) (*ProjectImageRecord, error) {
-	result, err := r.mysql.ExecContext(ctx, `
-		UPDATE project_group_images
-		SET group_id = ?
-		WHERE uuid = ? AND user_id = ? AND project_id = ?
-	`, targetGroupId, imageUuid, userId, projectId)
+// MoveProjectImages 按用户 ID、项目 ID 和图像 UUID 列表批量移动图像
+func (r *Repository) MoveProjectImages(ctx context.Context, userId, projectId uint64, imageUuids []string, targetGroupId uint64) ([]*ProjectImageRecord, error) {
+	if len(imageUuids) == 0 {
+		return nil, nil
+	}
+
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	if err != nil || !projectExists {
+		return nil, err
+	}
+
+	var groupId uint64
+	err = tx.QueryRowContext(ctx, `
+		SELECT id
+		FROM project_groups
+		WHERE id = ? AND user_id = ? AND project_id = ?
+		FOR UPDATE
+	`, targetGroupId, userId, projectId).Scan(&groupId)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := result.RowsAffected(); err != nil {
+	for _, imageUuid := range imageUuids {
+		var id uint64
+		err := tx.QueryRowContext(ctx, `
+			SELECT id
+			FROM project_group_images
+			WHERE uuid = ? AND user_id = ? AND project_id = ?
+			FOR UPDATE
+		`, imageUuid, userId, projectId).Scan(&id)
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, imageUuid := range imageUuids {
+		if _, err := tx.ExecContext(ctx, `
+			UPDATE project_group_images
+			SET group_id = ?
+			WHERE uuid = ? AND user_id = ? AND project_id = ?
+		`, targetGroupId, imageUuid, userId, projectId); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
-	return r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
+	images := make([]*ProjectImageRecord, 0, len(imageUuids))
+	for _, imageUuid := range imageUuids {
+		image, err := r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
+		if err != nil || image == nil {
+			return nil, err
+		}
+		if image.GroupId != targetGroupId {
+			return nil, nil
+		}
+		images = append(images, image)
+	}
+
+	return images, nil
 }
 
 // UpdateProjectGroupName 按用户 ID、项目 ID 和图像组 ID 更新图像组名称
@@ -596,8 +829,8 @@ func (r *Repository) GetProjectAssetsReadyStats(ctx context.Context, userId, pro
 		FROM project_groups g
 		LEFT JOIN project_group_images i
 			ON i.group_id = g.id
-			AND i.project_id = g.project_id
 			AND i.user_id = g.user_id
+			AND i.project_id = g.project_id
 		WHERE g.user_id = ? AND g.project_id = ?
 	`, consts.ProjectImageStatusPending.String(), consts.ProjectImageStatusUploaded.String(), consts.ProjectImageStatusFailed.String(), userId, projectId).Scan(
 		&stats.PendingImageCount,

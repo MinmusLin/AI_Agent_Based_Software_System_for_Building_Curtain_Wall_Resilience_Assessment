@@ -16,6 +16,8 @@ const (
 const (
 	// ThumbnailContentType 项目缩略图 MIME 类型
 	ThumbnailContentType = "image/png"
+	// ProjectImageContentType 项目图像 MIME 类型
+	ProjectImageContentType = "image/png"
 )
 
 // ProjectImageStatus 项目图像状态枚举
