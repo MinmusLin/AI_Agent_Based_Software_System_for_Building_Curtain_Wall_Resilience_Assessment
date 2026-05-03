@@ -50,24 +50,31 @@ type ProjectListItem struct {
 	CreatedAt        string `json:"created_at"`
 }
 
+func NewProjectListItem(project *project.ProjectListItem) *ProjectListItem {
+	if project == nil {
+		return nil
+	}
+	return &ProjectListItem{
+		Id:               utils.Encode(project.Id),
+		Name:             project.Name,
+		BuildingName:     project.BuildingName,
+		BuildingLocation: project.BuildingLocation,
+		ThumbnailURL:     project.ThumbnailURL,
+		Progress:         project.Progress,
+		CreatedAt:        project.CreatedAt,
+	}
+}
+
 func NewProjectListItems(projects []*project.ProjectListItem) []*ProjectListItem {
 	if projects == nil {
 		return make([]*ProjectListItem, 0)
 	}
 	items := make([]*ProjectListItem, 0, len(projects))
-	for _, p := range projects {
-		if p == nil {
+	for _, item := range projects {
+		if item == nil {
 			continue
 		}
-		items = append(items, &ProjectListItem{
-			Id:               utils.Encode(p.Id),
-			Name:             p.Name,
-			BuildingName:     p.BuildingName,
-			BuildingLocation: p.BuildingLocation,
-			ThumbnailURL:     p.ThumbnailURL,
-			Progress:         p.Progress,
-			CreatedAt:        p.CreatedAt,
-		})
+		items = append(items, NewProjectListItem(item))
 	}
 	return items
 }
