@@ -1,8 +1,7 @@
 package profile
 
 import (
-	"strings"
-
+	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
@@ -16,17 +15,29 @@ func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest,
 }
 
 func (s *Service) updateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) error {
+	fields, err := utils.NormalizeProjectProfileFields(
+		req.Name,
+		req.BuildingName,
+		req.BuildingLocation,
+		req.BuildingDescription,
+		req.KnownIssues,
+		req.AssessmentGoal,
+	)
+	if err != nil {
+		return err
+	}
+
 	projectRecord, err := s.MySQL().UpdateProjectProfile(
 		s.Ctx(),
 		req.UserId,
 		req.ProjectId,
-		strings.TrimSpace(req.Name),
-		strings.TrimSpace(req.BuildingName),
-		strings.TrimSpace(req.BuildingLocation),
+		fields.Name,
+		fields.BuildingName,
+		fields.BuildingLocation,
 		req.BuiltYear,
-		strings.TrimSpace(req.BuildingDescription),
-		strings.TrimSpace(req.KnownIssues),
-		strings.TrimSpace(req.AssessmentGoal),
+		fields.BuildingDescription,
+		fields.KnownIssues,
+		fields.AssessmentGoal,
 	)
 	if err != nil {
 		return err
