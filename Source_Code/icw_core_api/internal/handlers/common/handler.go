@@ -202,8 +202,14 @@ func errorMessage(requestId, psm, method string, req interface{}, resp interface
 // formatError 格式化错误日志
 func formatError(err interface{}) string {
 	msg := strings.TrimSpace(fmt.Sprint(err))
-	if msg == "" || msg == "<nil>" {
+	if isEmptyError(err) {
 		return msg
 	}
 	return LogColorBoldPurple + msg + LogColorReset
+}
+
+// isEmptyError 判断错误是否为空错误
+func isEmptyError(err interface{}) bool {
+	msg := strings.TrimSpace(fmt.Sprint(err))
+	return msg == "" || msg == "nil" || msg == "<nil>"
 }

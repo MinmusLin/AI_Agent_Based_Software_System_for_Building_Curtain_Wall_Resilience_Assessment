@@ -20,6 +20,8 @@ import (
 
 // main icw.core.biz 服务入口
 func main() {
+	ctx := context.Background()
+
 	// 加载服务配置
 	configs.LoadDotEnv(".env")
 	cfg, err := configs.Load()
@@ -32,7 +34,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to MySQL: %v", err)
 	}
-	if err := dataMySQL.Ping(); err != nil {
+	if err := dataMySQL.PingContext(ctx); err != nil {
 		log.Fatalf("Failed to connect to MySQL: %v", err)
 	}
 
@@ -42,7 +44,7 @@ func main() {
 		Password: cfg.RedisPassword,
 		DB:       cfg.RedisDB,
 	})
-	if err := dataRedis.Ping(context.Background()).Err(); err != nil {
+	if err := dataRedis.Ping(ctx).Err(); err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 
@@ -51,7 +53,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to MinIO: %v", err)
 	}
-	bucketExists, err := dataMinIO.BucketExists(context.Background(), cfg.MinIOBucket)
+	bucketExists, err := dataMinIO.BucketExists(ctx, cfg.MinIOBucket)
 	if err != nil {
 		log.Fatalf("Failed to connect to MinIO: %v", err)
 	}
@@ -69,7 +71,7 @@ func main() {
 	)
 
 	// 注册 RPC 服务
-	services.RegisterRPCServices(serviceDeps)
+	services.RegisterRPCServices(ctx, serviceDeps)
 
 	// 运行 icw.core.biz 服务
 	log.Printf("icw.core.biz service starts running on %s", cfg.CoreBizAddr)
