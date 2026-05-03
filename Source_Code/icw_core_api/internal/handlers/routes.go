@@ -86,7 +86,7 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *commo
 			// 删除项目
 			projectCoreRouter.POST("/delete", projectAccessible, projectCoreHandler.DeleteProject)
 			// 获取项目列表
-			projectCoreRouter.GET("/list", projectAccessible, projectCoreHandler.ListProjects)
+			projectCoreRouter.GET("/list", projectCoreHandler.ListProjects)
 		}
 
 		// 基础信息 Handler
