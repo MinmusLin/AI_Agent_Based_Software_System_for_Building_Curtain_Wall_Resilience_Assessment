@@ -31,7 +31,7 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 			return err
 		}
 		if groupCount == 0 {
-			return rpc_err.BadRequest(rpc_err.DetailProjectGroupCannotDeleteLast, "project must keep at least one group")
+			return rpc_err.BadRequest(rpc_err.DetailProjectAtLeastOneGroupRequired, "project must keep at least one group")
 		}
 
 		stats, err := repo.GetProjectAssetsReadyStats(ctx, userId, projectId)
@@ -42,13 +42,13 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 			return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 		}
 		if stats.UploadedImageCount == 0 {
-			return rpc_err.BadRequestDefault("project must keep at least one uploaded image")
+			return rpc_err.BadRequest(rpc_err.DetailProjectUploadedImageCountRequired, "project must keep at least one uploaded image")
 		}
 		if stats.EmptyGroupCount > 0 {
-			return rpc_err.BadRequestDefault("project must not have empty groups")
+			return rpc_err.BadRequest(rpc_err.DetailProjectEmptyGroupCountInvalid, "project must not have empty groups")
 		}
 		if stats.PendingImageCount > 0 || stats.FailedImageCount > 0 {
-			return rpc_err.BadRequestDefault("project must not have pending or failed images")
+			return rpc_err.BadRequest(rpc_err.DetailProjectPendingOrFailedImageCountInvalid, "project must not have pending or failed images")
 		}
 		return nil
 	}
