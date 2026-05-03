@@ -21,7 +21,7 @@ func (s *Service) deleteAvatar(req *dto.DeleteAvatarRequest, _ *dto.DeleteAvatar
 	}
 
 	// 删除用户自定义头像
-	if err := s.MinIO().RemoveObject(s.Ctx, minio.GenCustomAvatarKey(emailHash)); err != nil {
+	if err := s.MinIO().RemoveObject(s.Ctx(), minio.GenCustomAvatarKey(emailHash)); err != nil {
 		return err
 	}
 

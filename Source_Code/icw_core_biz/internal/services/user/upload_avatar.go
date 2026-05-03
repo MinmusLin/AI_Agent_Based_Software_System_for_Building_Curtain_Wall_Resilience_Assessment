@@ -27,7 +27,7 @@ func (s *Service) uploadAvatar(req *dto.UploadAvatarRequest, resp *dto.UploadAva
 	}
 
 	// 返回用户自定义头像上传预签名 URL
-	uploadURL, err := s.MinIO().PresignPutObject(s.Ctx, minio.GenCustomAvatarKey(emailHash), s.Config().AvatarUploadTTL)
+	uploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), minio.GenCustomAvatarKey(emailHash), s.Config().AvatarUploadTTL)
 	if err != nil {
 		return err
 	}
