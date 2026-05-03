@@ -1,8 +1,7 @@
 package project
 
 import (
-	"strconv"
-
+	"icw_core_api/utils"
 	"icw_core_biz/pkg/dto/project"
 )
 
@@ -18,7 +17,7 @@ func NewProjectGroup(group *project.ProjectGroup) *ProjectGroup {
 		return nil
 	}
 	return &ProjectGroup{
-		Id:        strconv.FormatUint(group.Id, 10),
+		Id:        utils.Encode(group.Id),
 		Name:      group.Name,
 		SortOrder: group.SortOrder,
 		Images:    NewProjectImages(group.Images),

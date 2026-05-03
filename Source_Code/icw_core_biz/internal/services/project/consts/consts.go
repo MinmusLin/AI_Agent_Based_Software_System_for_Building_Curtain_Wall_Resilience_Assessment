@@ -1,7 +1,6 @@
 package consts
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -10,6 +9,8 @@ const (
 	DefaultProjectName = "新项目"
 	// DefaultProjectGroupName 默认图像组名称
 	DefaultProjectGroupName = "默认图像组"
+	// DefaultNewProjectGroupName 默认新图像组名称
+	DefaultNewProjectGroupName = "新图像组"
 )
 
 const (
@@ -45,11 +46,9 @@ func ParseProjectStatus(value string) ProjectStatus {
 }
 
 // ProjectProgress 项目进度枚举
-type ProjectProgress int8
+type ProjectProgress uint8
 
 const (
-	// ProjectProgressUnknown 未知项目进度
-	ProjectProgressUnknown ProjectProgress = -1
 	// ProjectProgressInitializationFinished 项目初始化完成，当前项目基础信息阶段
 	ProjectProgressInitializationFinished ProjectProgress = 0
 	// ProjectProgressProfileFinished 项目基础信息完成，当前图像资产构建阶段
@@ -64,21 +63,13 @@ const (
 	ProjectProgressReportFinished ProjectProgress = 5
 )
 
-// String 将项目进度枚举转换为字符串
-func (p ProjectProgress) String() string {
-	return strconv.FormatInt(int64(p), 10)
-}
-
 // Uint8 将项目进度枚举转换为 uint8
 func (p ProjectProgress) Uint8() uint8 {
-	if p < 0 {
-		return 0
-	}
 	return uint8(p)
 }
 
 // ParseProjectProgress 将外部输入转换为项目进度枚举
-func ParseProjectProgress(value int8) ProjectProgress {
+func ParseProjectProgress(value uint8) ProjectProgress {
 	switch progress := ProjectProgress(value); progress {
 	case ProjectProgressInitializationFinished,
 		ProjectProgressProfileFinished,
@@ -88,14 +79,33 @@ func ParseProjectProgress(value int8) ProjectProgress {
 		ProjectProgressReportFinished:
 		return progress
 	default:
-		return ProjectProgressUnknown
+		return ProjectProgressInitializationFinished
 	}
 }
 
-// ParseProjectProgressFromUint8 将外部输入转换为项目进度枚举
-func ParseProjectProgressFromUint8(value uint8) ProjectProgress {
-	if value > ProjectProgressReportFinished.Uint8() {
-		return ProjectProgressUnknown
+// ProjectImageStatus 项目图像状态枚举
+type ProjectImageStatus string
+
+const (
+	// ProjectImageStatusPending 图像上传中
+	ProjectImageStatusPending ProjectImageStatus = "pending"
+	// ProjectImageStatusUploaded 图像上传成功
+	ProjectImageStatusUploaded ProjectImageStatus = "uploaded"
+	// ProjectImageStatusFailed 图像上传失败
+	ProjectImageStatusFailed ProjectImageStatus = "failed"
+)
+
+// String 将项目图像状态枚举转换为字符串
+func (s ProjectImageStatus) String() string {
+	return string(s)
+}
+
+// ParseProjectImageStatus 将外部输入转换为项目图像状态枚举
+func ParseProjectImageStatus(value string) ProjectImageStatus {
+	switch status := ProjectImageStatus(strings.TrimSpace(value)); status {
+	case ProjectImageStatusPending, ProjectImageStatusUploaded, ProjectImageStatusFailed:
+		return status
+	default:
+		return ""
 	}
-	return ParseProjectProgress(int8(value))
 }
