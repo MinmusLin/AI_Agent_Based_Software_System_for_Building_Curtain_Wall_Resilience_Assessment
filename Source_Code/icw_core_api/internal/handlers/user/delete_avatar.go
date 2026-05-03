@@ -12,7 +12,7 @@ import (
 // DeleteAvatar 删除用户自定义头像
 // @router /user/avatar [DELETE]
 func (h *Handler) DeleteAvatar(c *gin.Context) {
-	// GetCurrentUser 从 Gin Context 中获取当前登录用户
+	// 从 Gin Context 中获取当前登录用户
 	user, err := utils.GetCurrentUser(c)
 	if err != nil {
 		response.WriteError(c, err)

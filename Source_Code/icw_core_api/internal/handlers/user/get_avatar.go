@@ -12,7 +12,7 @@ import (
 // GetAvatar 获取用户头像
 // @router /user/avatar [GET]
 func (h *Handler) GetAvatar(c *gin.Context) {
-	// GetCurrentUser 从 Gin Context 中获取当前登录用户
+	// 从 Gin Context 中获取当前登录用户
 	user, err := utils.GetCurrentUser(c)
 	if err != nil {
 		response.WriteError(c, err)
