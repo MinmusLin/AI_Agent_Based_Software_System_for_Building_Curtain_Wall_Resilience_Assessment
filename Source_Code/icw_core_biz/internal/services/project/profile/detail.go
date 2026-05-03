@@ -13,7 +13,7 @@ func (s *Service) GetProjectProfile(req *project.GetProjectProfileRequest, resp 
 	})
 }
 
-func (s *Service) getProjectProfile(req *project.GetProjectProfileRequest, resp *project.GetProjectProfileResponse) (err error) {
+func (s *Service) getProjectProfile(req *project.GetProjectProfileRequest, resp *project.GetProjectProfileResponse) error {
 	projectRecord, err := s.MySQL().FindProjectByIdAndUserId(s.Ctx(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err

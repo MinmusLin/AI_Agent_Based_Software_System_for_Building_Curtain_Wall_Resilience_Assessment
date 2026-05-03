@@ -19,7 +19,7 @@ func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse)
 	})
 }
 
-func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) (err error) {
+func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) error {
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {

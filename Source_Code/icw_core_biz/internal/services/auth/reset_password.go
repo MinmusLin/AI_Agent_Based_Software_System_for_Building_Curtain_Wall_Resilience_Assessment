@@ -19,7 +19,7 @@ func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, resp *dto.ResetPa
 	})
 }
 
-func (s *Service) resetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPasswordResponse) (err error) {
+func (s *Service) resetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPasswordResponse) error {
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {

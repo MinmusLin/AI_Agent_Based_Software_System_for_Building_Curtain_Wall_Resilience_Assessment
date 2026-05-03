@@ -17,7 +17,7 @@ func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 	})
 }
 
-func (s *Service) refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) (err error) {
+func (s *Service) refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) error {
 	// 解析 Refresh Token Id
 	refreshToken := strings.TrimSpace(req.RefreshToken)
 	tokenId := utils.ParseRefreshTokenId(refreshToken)

@@ -19,7 +19,7 @@ func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	})
 }
 
-func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEmailCodeResponse) (err error) {
+func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEmailCodeResponse) error {
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {

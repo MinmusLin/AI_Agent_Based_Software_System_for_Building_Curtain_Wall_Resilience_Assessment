@@ -14,7 +14,7 @@ func (s *Service) UploadProjectThumbnail(req *project.UploadProjectThumbnailRequ
 	})
 }
 
-func (s *Service) uploadProjectThumbnail(req *project.UploadProjectThumbnailRequest, resp *project.UploadProjectThumbnailResponse) (err error) {
+func (s *Service) uploadProjectThumbnail(req *project.UploadProjectThumbnailRequest, resp *project.UploadProjectThumbnailResponse) error {
 	if req.ContentType != consts.ThumbnailContentType {
 		return rpc_err.BadRequest(rpc_err.DetailInvalidImageContentType, "image content type must be image/png")
 	}

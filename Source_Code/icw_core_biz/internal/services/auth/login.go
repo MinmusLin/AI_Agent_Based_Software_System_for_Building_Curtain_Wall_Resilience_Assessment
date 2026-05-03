@@ -19,7 +19,7 @@ func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 	})
 }
 
-func (s *Service) login(req *dto.LoginRequest, resp *dto.LoginResponse) (err error) {
+func (s *Service) login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {

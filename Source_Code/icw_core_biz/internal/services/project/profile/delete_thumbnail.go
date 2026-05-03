@@ -13,7 +13,7 @@ func (s *Service) DeleteProjectThumbnail(req *project.DeleteProjectThumbnailRequ
 	})
 }
 
-func (s *Service) deleteProjectThumbnail(req *project.DeleteProjectThumbnailRequest, resp *project.DeleteProjectThumbnailResponse) (err error) {
+func (s *Service) deleteProjectThumbnail(req *project.DeleteProjectThumbnailRequest, _ *project.DeleteProjectThumbnailResponse) error {
 	// 生成项目缩略图对象 Key
 	thumbnailKey, err := minio.GenProjectThumbnailKey(req.ProjectId)
 	if err != nil {

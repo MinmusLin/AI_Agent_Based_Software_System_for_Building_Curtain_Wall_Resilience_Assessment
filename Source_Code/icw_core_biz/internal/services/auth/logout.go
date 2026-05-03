@@ -16,7 +16,7 @@ func (s *Service) Logout(req *dto.LogoutRequest, resp *dto.LogoutResponse) error
 	})
 }
 
-func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) (err error) {
+func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
 	// 将未过期的 Access Token 加入 Redis 黑名单
 	if claims, err := s.tokens.ParseAny(req.AccessToken); err == nil && claims.ID != "" {
 		if claims.ExpiresAt != nil {

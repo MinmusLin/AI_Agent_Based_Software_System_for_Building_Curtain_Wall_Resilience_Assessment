@@ -13,7 +13,7 @@ func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
 	})
 }
 
-func (s *Service) me(req *dto.MeRequest, resp *dto.MeResponse) (err error) {
+func (s *Service) me(req *dto.MeRequest, resp *dto.MeResponse) error {
 	// 校验 Access Token 的签名、过期时间和签名算法
 	claims, err := s.tokens.Verify(req.AccessToken)
 	if err != nil {

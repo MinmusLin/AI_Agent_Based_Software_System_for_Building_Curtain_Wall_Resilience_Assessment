@@ -12,7 +12,7 @@ func (s *Service) GetProjectThumbnail(req *project.GetProjectThumbnailRequest, r
 	})
 }
 
-func (s *Service) getProjectThumbnail(req *project.GetProjectThumbnailRequest, resp *project.GetProjectThumbnailResponse) (err error) {
+func (s *Service) getProjectThumbnail(req *project.GetProjectThumbnailRequest, resp *project.GetProjectThumbnailResponse) error {
 	// 获取项目缩略图下载预签名 URL
 	thumbnailURL, err := utils.PresignProjectThumbnailURL(s.Ctx(), s.MinIO(), req.ProjectId, s.Config().ProjectThumbnailGetTTL)
 	if err != nil {

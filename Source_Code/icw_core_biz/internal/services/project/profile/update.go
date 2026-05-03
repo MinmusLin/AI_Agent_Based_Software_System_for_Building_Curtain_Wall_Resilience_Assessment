@@ -15,7 +15,7 @@ func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest,
 	})
 }
 
-func (s *Service) updateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) (err error) {
+func (s *Service) updateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) error {
 	projectRecord, err := s.MySQL().UpdateProjectProfile(
 		s.Ctx(),
 		req.UserId,
