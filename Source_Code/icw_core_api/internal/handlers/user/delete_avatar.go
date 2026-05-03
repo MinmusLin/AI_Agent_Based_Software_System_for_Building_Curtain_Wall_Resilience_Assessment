@@ -24,7 +24,7 @@ func (h *Handler) DeleteAvatar(c *gin.Context) {
 		Email:  user.Email,
 	}
 	rpcResp := &bizDto.DeleteAvatarResponse{}
-	if err := h.CallRPC(h.CoreBizClient(), "UserService.DeleteAvatar", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall("UserService.DeleteAvatar", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
