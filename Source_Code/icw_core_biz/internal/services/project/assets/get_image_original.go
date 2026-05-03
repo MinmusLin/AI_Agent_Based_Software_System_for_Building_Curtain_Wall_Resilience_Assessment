@@ -30,13 +30,16 @@ func (s *Service) getProjectImageOriginal(req *project.GetProjectImageOriginalRe
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 	if imageRecord.Status != consts.ProjectImageStatusUploaded {
-		return nil
+		return rpc_err.BadRequestDefault("project image status is not uploaded")
 	}
 
 	// 获取项目图像原图下载预签名 URL
 	originalURL, err := minio.PresignProjectImageOriginalURL(s.Ctx(), s.MinIO(), req.ProjectId, imageUuid, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
+	}
+	if originalURL == "" {
+		return rpc_err.BadRequest(rpc_err.DetailProjectImageExpired, "project image original object is not found")
 	}
 	resp.OriginalURL = originalURL
 

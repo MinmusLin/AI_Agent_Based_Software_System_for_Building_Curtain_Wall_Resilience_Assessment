@@ -39,6 +39,7 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 	rpc_err.DetailProjectGroupNameDuplicated:              "图像组名称已存在",
 	rpc_err.DetailProjectImageFileNameTooLong:             "图像文件名不能超过 255 个字符",
 	rpc_err.DetailProjectImageFormatInvalid:               "图像格式不合法",
+	rpc_err.DetailProjectImageExpired:                     "图片已失效，请重新上传",
 	rpc_err.DetailProjectUploadedImageCountRequired:       "项目应至少存在一张已上传图像",
 	rpc_err.DetailProjectEmptyGroupCountInvalid:           "项目中不能存在空图像组",
 	rpc_err.DetailProjectPendingOrFailedImageCountInvalid: "项目中不能存在上传中或上传失败的图像",

@@ -58,6 +58,7 @@ const (
 	DetailProjectGroupNameDuplicated              DetailCode = "PROJECT_GROUP_NAME_DUPLICATED"
 	DetailProjectImageFileNameTooLong             DetailCode = "PROJECT_IMAGE_FILE_NAME_TOO_LONG"
 	DetailProjectImageFormatInvalid               DetailCode = "PROJECT_IMAGE_FORMAT_INVALID"
+	DetailProjectImageExpired                     DetailCode = "PROJECT_IMAGE_EXPIRED"
 	DetailProjectUploadedImageCountRequired       DetailCode = "PROJECT_UPLOADED_IMAGE_COUNT_REQUIRED"
 	DetailProjectEmptyGroupCountInvalid           DetailCode = "PROJECT_EMPTY_GROUP_COUNT_INVALID"
 	DetailProjectPendingOrFailedImageCountInvalid DetailCode = "PROJECT_PENDING_OR_FAILED_IMAGE_COUNT_INVALID"
@@ -95,6 +96,7 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailProjectGroupNameDuplicated,
 		DetailProjectImageFileNameTooLong,
 		DetailProjectImageFormatInvalid,
+		DetailProjectImageExpired,
 		DetailProjectUploadedImageCountRequired,
 		DetailProjectEmptyGroupCountInvalid,
 		DetailProjectPendingOrFailedImageCountInvalid:
