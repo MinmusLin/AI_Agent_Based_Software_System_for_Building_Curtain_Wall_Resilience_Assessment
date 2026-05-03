@@ -4,6 +4,11 @@ import (
 	"strings"
 )
 
+// Meta RPC 元数据
+type Meta struct {
+	RequestId string
+}
+
 // User 用户 Session
 type User struct {
 	Id    uint64

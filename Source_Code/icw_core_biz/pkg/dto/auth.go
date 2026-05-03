@@ -1,6 +1,7 @@
 package dto
 
 type LoginRequest struct {
+	Meta  *Meta
 	Email string
 	Scene string
 	Code  string
@@ -15,6 +16,7 @@ type LoginResponse struct {
 }
 
 type LogoutRequest struct {
+	Meta         *Meta
 	AccessToken  string
 	RefreshToken string
 }
@@ -22,6 +24,7 @@ type LogoutRequest struct {
 type LogoutResponse struct{}
 
 type MeRequest struct {
+	Meta        *Meta
 	AccessToken string
 }
 
@@ -30,6 +33,7 @@ type MeResponse struct {
 }
 
 type RefreshRequest struct {
+	Meta         *Meta
 	RefreshToken string
 }
 
@@ -42,6 +46,7 @@ type RefreshResponse struct {
 }
 
 type RegisterRequest struct {
+	Meta      *Meta
 	Email     string
 	EmailCode string
 	Password  string
@@ -51,6 +56,7 @@ type RegisterRequest struct {
 type RegisterResponse struct{}
 
 type ResetPasswordRequest struct {
+	Meta        *Meta
 	Email       string
 	EmailCode   string
 	NewPassword string
@@ -59,6 +65,7 @@ type ResetPasswordRequest struct {
 type ResetPasswordResponse struct{}
 
 type SendEmailCodeRequest struct {
+	Meta  *Meta
 	Email string
 	Scene string
 }

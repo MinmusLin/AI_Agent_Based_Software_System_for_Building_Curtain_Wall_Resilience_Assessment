@@ -1,5 +1,9 @@
 package project
 
+import (
+	"icw_core_biz/pkg/dto"
+)
+
 type ProjectGroup struct {
 	Id        uint64
 	Name      string
@@ -37,6 +41,7 @@ type UploadProjectImageResult struct {
 }
 
 type GetProjectAssetsRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 }
@@ -46,6 +51,7 @@ type GetProjectAssetsResponse struct {
 }
 
 type CreateProjectGroupRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 }
@@ -55,6 +61,7 @@ type CreateProjectGroupResponse struct {
 }
 
 type DeleteProjectGroupRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 	GroupId   uint64
@@ -63,6 +70,7 @@ type DeleteProjectGroupRequest struct {
 type DeleteProjectGroupResponse struct{}
 
 type MoveProjectGroupRequest struct {
+	Meta            *dto.Meta
 	UserId          uint64
 	ProjectId       uint64
 	GroupId         uint64
@@ -77,6 +85,7 @@ type MoveProjectGroupResponse struct {
 }
 
 type UpdateProjectGroupRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 	GroupId   uint64
@@ -88,6 +97,7 @@ type UpdateProjectGroupResponse struct {
 }
 
 type DeleteProjectImageRequest struct {
+	Meta       *dto.Meta
 	UserId     uint64
 	ProjectId  uint64
 	ImageUuids []string
@@ -96,6 +106,7 @@ type DeleteProjectImageRequest struct {
 type DeleteProjectImageResponse struct{}
 
 type GetProjectImageOriginalRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 	ImageUuid string
@@ -106,6 +117,7 @@ type GetProjectImageOriginalResponse struct {
 }
 
 type MoveProjectImageRequest struct {
+	Meta          *dto.Meta
 	UserId        uint64
 	ProjectId     uint64
 	ImageUuids    []string
@@ -117,6 +129,7 @@ type MoveProjectImageResponse struct {
 }
 
 type ReportProjectImageRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 	ImageUuid string
@@ -128,6 +141,7 @@ type ReportProjectImageResponse struct {
 }
 
 type UploadProjectImageRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 	GroupId   uint64

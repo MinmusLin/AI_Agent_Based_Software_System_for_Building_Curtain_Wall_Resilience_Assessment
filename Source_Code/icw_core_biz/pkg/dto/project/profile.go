@@ -1,6 +1,11 @@
 package project
 
+import (
+	"icw_core_biz/pkg/dto"
+)
+
 type GetProjectProfileRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 }
@@ -10,6 +15,7 @@ type GetProjectProfileResponse struct {
 }
 
 type GetProjectThumbnailRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 }
@@ -19,6 +25,7 @@ type GetProjectThumbnailResponse struct {
 }
 
 type UploadProjectThumbnailRequest struct {
+	Meta        *dto.Meta
 	UserId      uint64
 	ProjectId   uint64
 	ContentType string
@@ -29,6 +36,7 @@ type UploadProjectThumbnailResponse struct {
 }
 
 type DeleteProjectThumbnailRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 }
@@ -36,6 +44,7 @@ type DeleteProjectThumbnailRequest struct {
 type DeleteProjectThumbnailResponse struct{}
 
 type UpdateProjectProfileRequest struct {
+	Meta                *dto.Meta
 	UserId              uint64
 	ProjectId           uint64
 	Name                string

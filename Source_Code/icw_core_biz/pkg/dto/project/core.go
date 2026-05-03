@@ -1,5 +1,9 @@
 package project
 
+import (
+	"icw_core_biz/pkg/dto"
+)
+
 type Project struct {
 	Id                  uint64
 	Name                string
@@ -25,7 +29,20 @@ type ProjectListItem struct {
 	CreatedAt        string
 }
 
+type CheckProjectAccessRequest struct {
+	Meta      *dto.Meta
+	UserId    uint64
+	ProjectId uint64
+}
+
+type CheckProjectAccessResponse struct {
+	ProjectId uint64
+	Progress  uint8
+	Status    string
+}
+
 type AdvanceProjectRequest struct {
+	Meta         *dto.Meta
 	UserId       uint64
 	ProjectId    uint64
 	FromProgress uint8
@@ -35,6 +52,7 @@ type AdvanceProjectRequest struct {
 type AdvanceProjectResponse struct{}
 
 type CreateProjectRequest struct {
+	Meta   *dto.Meta
 	UserId uint64
 }
 
@@ -43,6 +61,7 @@ type CreateProjectResponse struct {
 }
 
 type DeleteProjectRequest struct {
+	Meta      *dto.Meta
 	UserId    uint64
 	ProjectId uint64
 }
@@ -53,6 +72,7 @@ type DeleteProjectResponse struct {
 }
 
 type ListProjectsRequest struct {
+	Meta   *dto.Meta
 	UserId uint64
 }
 
