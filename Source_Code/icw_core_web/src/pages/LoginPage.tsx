@@ -9,7 +9,12 @@ import { getErrorMessage } from '@/api/http';
 import { AuthShell } from '@/components/AuthShell';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
-import { EMAIL_MAX_LENGTH, normalizeEmailAddress, normalizeEmailCode } from '@/utils/validation';
+import {
+  EMAIL_MAX_LENGTH,
+  normalizeEmailAddress,
+  normalizeEmailCode,
+  normalizeNonWhitespaceAscii,
+} from '@/utils/validation';
 
 type LoginMode = 'password' | 'email';
 
@@ -91,6 +96,7 @@ export default function LoginPage(): ReactElement {
         <Form.Item
           label="邮箱"
           name="email"
+          normalize={normalizeEmailAddress}
           rules={[
             { required: true, message: '请输入邮箱' },
             { type: 'email', message: '邮箱格式错误' },
@@ -99,7 +105,12 @@ export default function LoginPage(): ReactElement {
           <Input maxLength={EMAIL_MAX_LENGTH} placeholder="user@example.com" prefix={<MailOutlined />} size="large" />
         </Form.Item>
         {mode === 'password' ? (
-          <Form.Item label="密码" name="password" rules={[{ required: true, message: '请输入密码' }]}>
+          <Form.Item
+            label="密码"
+            name="password"
+            normalize={normalizeNonWhitespaceAscii}
+            rules={[{ required: true, message: '请输入密码' }]}
+          >
             <Input.Password placeholder="请输入密码" prefix={<LockOutlined />} size="large" />
           </Form.Item>
         ) : (

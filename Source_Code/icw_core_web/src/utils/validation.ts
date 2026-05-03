@@ -2,8 +2,17 @@ import type { Rule } from 'antd/es/form';
 
 export const EMAIL_MAX_LENGTH = 254;
 
+const NON_WHITESPACE_ASCII_PATTERN = /[^\x21-\x7E]/g;
+
 export function normalizeEmailAddress(email: string): string {
-  return email.trim().toLowerCase();
+  return normalizeNonWhitespaceAscii(email).toLowerCase();
+}
+
+export function normalizeNonWhitespaceAscii(value: unknown): string {
+  if (typeof value !== 'string' && typeof value !== 'number') {
+    return '';
+  }
+  return String(value).replace(NON_WHITESPACE_ASCII_PATTERN, '');
 }
 
 export function normalizeEmailCode(value: unknown): string {

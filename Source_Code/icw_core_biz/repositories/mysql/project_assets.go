@@ -380,44 +380,84 @@ func (r *Repository) CreateProjectGroup(ctx context.Context, userId, projectId u
 	return r.FindProjectGroupById(ctx, userId, projectId, uint64(id))
 }
 
-// CreateProjectImage 按用户 ID、项目 ID 和图像组 ID 创建图像
-func (r *Repository) CreateProjectImage(ctx context.Context, userId, projectId, groupId uint64, imageUuid, fileName, contentType string, sizeBytes uint64, width, height uint32, metadata string) (*ProjectImageRecord, error) {
-	result, err := r.mysql.ExecContext(ctx, `
-		INSERT INTO project_group_images(
-			group_id,
-			project_id,
-			user_id,
-			uuid,
-			file_name,
-			content_type,
-			size_bytes,
-			width,
-			height,
-			metadata,
-			status
-		)
-		SELECT id, project_id, user_id, ?, ?, ?, ?, ?, ?, ?, ?
+// CreateProjectImages 按用户 ID、项目 ID 和图像组 ID 批量创建图像
+func (r *Repository) CreateProjectImages(ctx context.Context, userId, projectId, groupId uint64, images []*ProjectImageCreateRecord) ([]*ProjectImageRecord, error) {
+	if len(images) == 0 {
+		return make([]*ProjectImageRecord, 0), nil
+	}
+
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	var lockedGroupId uint64
+	err = tx.QueryRowContext(ctx, `
+		SELECT id
 		FROM project_groups
 		WHERE id = ? AND user_id = ? AND project_id = ?
-	`, imageUuid, fileName, contentType, sizeBytes, width, height, metadata, consts.ProjectImageStatusPending.String(), groupId, userId, projectId)
-	if err != nil {
-		return nil, err
-	}
-
-	affected, err := result.RowsAffected()
-	if err != nil {
-		return nil, err
-	}
-	if affected == 0 {
+		FOR UPDATE
+	`, groupId, userId, projectId).Scan(&lockedGroupId)
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
-
-	id, err := result.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
 
-	return r.FindProjectImageById(ctx, userId, projectId, uint64(id))
+	imageIds := make([]uint64, 0, len(images))
+	for _, image := range images {
+		if image == nil {
+			continue
+		}
+		result, err := tx.ExecContext(ctx, `
+			INSERT INTO project_group_images(
+				group_id,
+				project_id,
+				user_id,
+				uuid,
+				file_name,
+				content_type,
+				size_bytes,
+				width,
+				height,
+				metadata,
+				status
+			)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`, groupId, projectId, userId, image.ImageUuid, image.FileName, image.ContentType, image.SizeBytes, image.Width, image.Height, image.Metadata, consts.ProjectImageStatusPending.String())
+		if err != nil {
+			return nil, err
+		}
+
+		id, err := result.LastInsertId()
+		if err != nil {
+			return nil, err
+		}
+
+		imageIds = append(imageIds, uint64(id))
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	records := make([]*ProjectImageRecord, 0, len(imageIds))
+	for _, imageId := range imageIds {
+		image, err := r.FindProjectImageById(ctx, userId, projectId, imageId)
+		if err != nil {
+			return nil, err
+		}
+		if image == nil {
+			return nil, nil
+		}
+		records = append(records, image)
+	}
+
+	return records, nil
 }
 
 // DeleteProjectGroup 按用户 ID、项目 ID 和图像组 ID 删除图像组
@@ -791,13 +831,33 @@ func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, proje
 		SET status = ?,
 			uploaded_at = CASE WHEN ? = ? THEN NOW(3) ELSE NULL END
 		WHERE uuid = ? AND user_id = ? AND project_id = ?
-	`, status.String(), status.String(), consts.ProjectImageStatusUploaded.String(), imageUuid, userId, projectId)
+			AND (status = ? AND ? IN (?, ?))
+	`,
+		status.String(),
+		status.String(),
+		consts.ProjectImageStatusUploaded.String(),
+		imageUuid,
+		userId,
+		projectId,
+		consts.ProjectImageStatusPending.String(),
+		status.String(),
+		consts.ProjectImageStatusUploaded.String(),
+		consts.ProjectImageStatusFailed.String(),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := result.RowsAffected(); err != nil {
+	affected, err := result.RowsAffected()
+	if err != nil {
 		return nil, err
+	}
+	if affected == 0 {
+		imageRecord, err := r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
+		if err != nil || imageRecord == nil {
+			return imageRecord, err
+		}
+		return nil, ErrProjectImageStatusTransitionInvalid
 	}
 
 	return r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)

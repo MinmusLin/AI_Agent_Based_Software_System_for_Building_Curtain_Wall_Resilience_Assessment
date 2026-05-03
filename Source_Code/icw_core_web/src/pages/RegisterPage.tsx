@@ -9,7 +9,13 @@ import { getErrorMessage } from '@/api/http';
 import { AuthShell } from '@/components/AuthShell';
 import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
 import type { RegisterRequest } from '@/types/auth';
-import { EMAIL_MAX_LENGTH, normalizeEmailAddress, normalizeEmailCode, passwordRules } from '@/utils/validation';
+import {
+  EMAIL_MAX_LENGTH,
+  normalizeEmailAddress,
+  normalizeEmailCode,
+  normalizeNonWhitespaceAscii,
+  passwordRules,
+} from '@/utils/validation';
 
 interface RegisterFormValues extends RegisterRequest {
   confirm_password?: string;
@@ -74,6 +80,7 @@ export default function RegisterPage(): ReactElement {
         <Form.Item
           label="邮箱"
           name="email"
+          normalize={normalizeEmailAddress}
           rules={[
             { required: true, message: '请输入邮箱' },
             { type: 'email', message: '邮箱格式错误' },
@@ -117,13 +124,19 @@ export default function RegisterPage(): ReactElement {
         >
           <Input maxLength={8} placeholder="不能超过 8 个字符" prefix={<UserOutlined />} size="large" />
         </Form.Item>
-        <Form.Item label="密码" name="password" rules={passwordRules('请输入密码')}>
+        <Form.Item
+          label="密码"
+          name="password"
+          normalize={normalizeNonWhitespaceAscii}
+          rules={passwordRules('请输入密码')}
+        >
           <Input.Password maxLength={24} placeholder="请输入密码" prefix={<LockOutlined />} size="large" />
         </Form.Item>
         <Form.Item
           dependencies={['password']}
           label="确认密码"
           name="confirm_password"
+          normalize={normalizeNonWhitespaceAscii}
           rules={[
             { required: true, message: '请再次输入密码' },
             ({ getFieldValue }) => ({

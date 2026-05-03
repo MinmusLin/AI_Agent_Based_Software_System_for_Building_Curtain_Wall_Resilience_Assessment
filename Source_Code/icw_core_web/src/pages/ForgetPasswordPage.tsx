@@ -9,7 +9,13 @@ import { getErrorMessage } from '@/api/http';
 import { AuthShell } from '@/components/AuthShell';
 import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
 import type { ResetPasswordRequest } from '@/types/auth';
-import { EMAIL_MAX_LENGTH, normalizeEmailAddress, normalizeEmailCode, passwordRules } from '@/utils/validation';
+import {
+  EMAIL_MAX_LENGTH,
+  normalizeEmailAddress,
+  normalizeEmailCode,
+  normalizeNonWhitespaceAscii,
+  passwordRules,
+} from '@/utils/validation';
 
 interface ForgetPasswordFormValues extends ResetPasswordRequest {
   confirm_password?: string;
@@ -73,6 +79,7 @@ export default function ForgetPasswordPage(): ReactElement {
         <Form.Item
           label="邮箱"
           name="email"
+          normalize={normalizeEmailAddress}
           rules={[
             { required: true, message: '请输入邮箱' },
             { type: 'email', message: '邮箱格式错误' },
@@ -106,13 +113,19 @@ export default function ForgetPasswordPage(): ReactElement {
             </Button>
           </div>
         </Form.Item>
-        <Form.Item label="新密码" name="new_password" rules={passwordRules('请输入新密码')}>
+        <Form.Item
+          label="新密码"
+          name="new_password"
+          normalize={normalizeNonWhitespaceAscii}
+          rules={passwordRules('请输入新密码')}
+        >
           <Input.Password placeholder="请输入新密码" prefix={<LockOutlined />} size="large" />
         </Form.Item>
         <Form.Item
           dependencies={['new_password']}
           label="确认新密码"
           name="confirm_password"
+          normalize={normalizeNonWhitespaceAscii}
           rules={[
             { required: true, message: '请再次输入新密码' },
             ({ getFieldValue }) => ({
