@@ -25,7 +25,7 @@ func (s *Service) deleteProjectGroup(req *project.DeleteProjectGroupRequest, _ *
 
 	deleted, err := s.MySQL().DeleteProjectGroup(s.Ctx(), req.UserId, req.ProjectId, req.GroupId)
 	if errors.Is(err, mysql.ErrProjectGroupCannotDeleteLast) {
-		return rpc_err.BadRequest(rpc_err.DetailProjectGroupCannotDeleteLast, "project must keep at least one image group")
+		return rpc_err.BadRequest(rpc_err.DetailProjectGroupCannotDeleteLast, "project must keep at least one group")
 	}
 	if err != nil {
 		return err
