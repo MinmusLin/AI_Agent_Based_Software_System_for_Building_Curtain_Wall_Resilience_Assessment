@@ -20,7 +20,7 @@ func (s *Service) createProject(req *project.CreateProjectRequest, resp *project
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectThumbnailGetTTL)
+	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), projectRecord, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

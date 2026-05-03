@@ -26,7 +26,7 @@ func (s *Service) uploadProjectThumbnail(req *project.UploadProjectThumbnailRequ
 	}
 
 	// 返回用户自定义头像上传预签名 URL
-	uploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), thumbnailKey, s.Config().ProjectThumbnailUploadTTL)
+	uploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), thumbnailKey, s.Config().ProjectImageUploadTTL)
 	if err != nil {
 		return err
 	}
