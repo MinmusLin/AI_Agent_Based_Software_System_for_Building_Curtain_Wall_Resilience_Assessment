@@ -22,7 +22,7 @@ func (h *Handler) Login(c *gin.Context) {
 		Code:  req.Code,
 	}
 	rpcResp := &bizDto.LoginResponse{}
-	if err := h.CoreBizCall("AuthService.Login", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "AuthService.Login", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

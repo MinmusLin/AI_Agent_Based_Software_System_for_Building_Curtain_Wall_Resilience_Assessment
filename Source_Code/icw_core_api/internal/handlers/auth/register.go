@@ -23,7 +23,7 @@ func (h *Handler) Register(c *gin.Context) {
 		Name:      req.Name,
 	}
 	rpcResp := &bizDto.RegisterResponse{}
-	if err := h.CoreBizCall("AuthService.Register", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "AuthService.Register", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

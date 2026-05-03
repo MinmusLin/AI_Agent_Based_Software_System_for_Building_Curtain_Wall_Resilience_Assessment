@@ -26,7 +26,7 @@ func (h *Handler) Me(c *gin.Context) {
 		AccessToken: utils.BearerToken(c),
 	}
 	rpcResp := &bizDto.MeResponse{}
-	if err := h.CoreBizCall("AuthService.Me", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "AuthService.Me", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

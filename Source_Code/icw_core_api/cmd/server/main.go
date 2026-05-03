@@ -32,7 +32,7 @@ func main() {
 	// 初始化路由
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Use(gin.Logger(), gin.Recovery(), middlewares.CORS())
+	router.Use(middlewares.RequestId(), middlewares.Logger(), gin.Recovery(), middlewares.CORS())
 	handlers.RegisterRoutes(router, cfg, coreBizClient)
 
 	// 运行 icw.core.api 服务

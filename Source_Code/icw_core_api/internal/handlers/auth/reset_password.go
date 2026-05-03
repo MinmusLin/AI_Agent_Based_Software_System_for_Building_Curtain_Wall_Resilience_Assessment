@@ -22,7 +22,7 @@ func (h *Handler) ResetPassword(c *gin.Context) {
 		NewPassword: req.NewPassword,
 	}
 	rpcResp := &bizDto.ResetPasswordResponse{}
-	if err := h.CoreBizCall("AuthService.ResetPassword", rpcReq, rpcResp); err != nil {
+	if err := h.CoreBizCall(c.Request.Context(), "AuthService.ResetPassword", rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
