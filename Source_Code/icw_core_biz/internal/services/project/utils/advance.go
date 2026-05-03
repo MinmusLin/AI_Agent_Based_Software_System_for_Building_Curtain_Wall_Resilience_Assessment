@@ -26,6 +26,30 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 
 	// 图像资产构建阶段 -> Agent 智能检测阶段
 	if fromProgress == dto.ProjectProgressProfileFinished && toProgress == dto.ProjectProgressAssetsFinished {
+		groupCount, err := repo.CountProjectGroups(ctx, userId, projectId)
+		if err != nil {
+			return err
+		}
+		if groupCount == 0 {
+			return rpc_err.BadRequest(rpc_err.DetailProjectGroupCannotDeleteLast, "project must keep at least one group")
+		}
+
+		stats, err := repo.GetProjectAssetsReadyStats(ctx, userId, projectId)
+		if err != nil {
+			return err
+		}
+		if stats == nil {
+			return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		}
+		if stats.UploadedImageCount == 0 {
+			return rpc_err.BadRequestDefault("project must keep at least one uploaded image")
+		}
+		if stats.EmptyGroupCount > 0 {
+			return rpc_err.BadRequestDefault("project must not have empty groups")
+		}
+		if stats.PendingImageCount > 0 || stats.FailedImageCount > 0 {
+			return rpc_err.BadRequestDefault("project must not have pending or failed images")
+		}
 		return nil
 	}
 
@@ -51,7 +75,7 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress dto.ProjectProgress, nextStatus dto.ProjectStatus) (bool, error) {
 	// 项目基础信息阶段 -> 图像资产构建阶段
 	if fromProgress == dto.ProjectProgressInitializationFinished && toProgress == dto.ProjectProgressProfileFinished {
-		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
+		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, mysql.PostAdvanceProjectProfileToAssets)
 	}
 
 	// 图像资产构建阶段 -> Agent 智能检测阶段
