@@ -48,6 +48,7 @@ const (
 	DetailProjectNotAccessible         DetailCode = "PROJECT_NOT_ACCESSIBLE"
 	DetailProjectGroupCannotDeleteLast DetailCode = "PROJECT_GROUP_CANNOT_DELETE_LAST"
 	DetailProjectGroupNameRequired     DetailCode = "PROJECT_GROUP_NAME_REQUIRED"
+	DetailProjectGroupNameDuplicated   DetailCode = "PROJECT_GROUP_NAME_DUPLICATED"
 )
 
 // IsDetailCode 判断是否为已定义错误业务代码
@@ -71,7 +72,8 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailInvalidImageContentType,
 		DetailProjectNotAccessible,
 		DetailProjectGroupCannotDeleteLast,
-		DetailProjectGroupNameRequired:
+		DetailProjectGroupNameRequired,
+		DetailProjectGroupNameDuplicated:
 		return true
 	default:
 		return false

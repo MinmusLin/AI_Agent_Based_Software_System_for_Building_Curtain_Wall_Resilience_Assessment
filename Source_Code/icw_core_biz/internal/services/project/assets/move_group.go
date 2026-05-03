@@ -49,7 +49,7 @@ func (s *Service) moveProjectGroup(req *project.MoveProjectGroupRequest, resp *p
 		return err
 	}
 	if groupRecord == nil {
-		return rpc_err.BadRequestDefault("move project group failed")
+		return rpc_err.BadRequestDefault("project group is not accessible")
 	}
 
 	resp.Group, err = mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), groupRecord, nil, s.Config().ProjectImageGetTTL)

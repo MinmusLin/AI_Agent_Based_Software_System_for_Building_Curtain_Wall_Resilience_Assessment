@@ -29,6 +29,7 @@ var RpcErrorMessages = map[rpc_err.DetailCode]string{
 	rpc_err.DetailProjectNotAccessible:         "无项目访问权限",
 	rpc_err.DetailProjectGroupCannotDeleteLast: "项目应至少存在一个图像组",
 	rpc_err.DetailProjectGroupNameRequired:     "图像组名称不能为空",
+	rpc_err.DetailProjectGroupNameDuplicated:   "图像组名称已存在",
 }
 
 // WriteError 将 RPC 标准错误转换为 API 层的 HTTP 响应
