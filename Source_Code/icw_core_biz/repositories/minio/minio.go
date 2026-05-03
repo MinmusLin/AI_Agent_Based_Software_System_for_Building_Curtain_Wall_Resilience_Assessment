@@ -49,7 +49,7 @@ func (r *Repository) StatObject(ctx context.Context, key string) (bool, error) {
 }
 
 // PutObject 上传对象
-func (r *Repository) PutObject(ctx context.Context, key string, contentType string, data []byte) error {
+func (r *Repository) PutObject(ctx context.Context, key, contentType string, data []byte) error {
 	_, err := r.client.PutObject(ctx, r.bucket, key, bytes.NewReader(data), int64(len(data)), minio.PutObjectOptions{
 		ContentType: contentType,
 	})

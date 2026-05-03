@@ -105,7 +105,7 @@ func (h *BaseHandler) Config() configs.Config {
 }
 
 // CoreBizCall 调用 icw.core.biz RPC 服务
-func (h *BaseHandler) CoreBizCall(ctx context.Context, method string, req interface{}, resp interface{}) error {
+func (h *BaseHandler) CoreBizCall(ctx context.Context, method string, req, resp interface{}) error {
 	if h == nil || h.deps == nil {
 		return nil
 	}
@@ -113,7 +113,7 @@ func (h *BaseHandler) CoreBizCall(ctx context.Context, method string, req interf
 }
 
 // CallRPC RPC 服务通用调用
-func CallRPC(ctx context.Context, client *RPCClient, method string, req interface{}, resp interface{}) error {
+func CallRPC(ctx context.Context, client *RPCClient, method string, req, resp interface{}) error {
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -186,7 +186,7 @@ func setRPCMeta(req interface{}, requestId string) {
 }
 
 // errorMessage 生成失败日志
-func errorMessage(requestId, psm, method string, req interface{}, resp interface{}, err interface{}) string {
+func errorMessage(requestId, psm, method string, req, resp, err interface{}) string {
 	return fmt.Sprintf("%s[ERROR]%s [%s] Call %s %s failed, req: %s, resp: %s, err: %s",
 		LogColorBoldRed,
 		LogColorReset,

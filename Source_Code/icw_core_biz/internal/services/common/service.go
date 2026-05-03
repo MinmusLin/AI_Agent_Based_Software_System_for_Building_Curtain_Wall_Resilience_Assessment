@@ -52,7 +52,7 @@ func NewBaseService(ctx context.Context, deps *Deps) *BaseService {
 }
 
 // CallRPC RPC 服务通用调用
-func (s *BaseService) CallRPC(method string, req interface{}, resp interface{}, fn func() error) (err error) {
+func (s *BaseService) CallRPC(method string, req, resp interface{}, fn func() error) (err error) {
 	start := time.Now()
 	defer func() {
 		rpcLog(method, req, resp, start, err)

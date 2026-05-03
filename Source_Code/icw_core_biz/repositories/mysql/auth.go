@@ -178,7 +178,7 @@ func (r *Repository) RevokeRefreshTokensByEmail(ctx context.Context, email strin
 }
 
 // CreateEmailSendLog 创建邮件发送记录
-func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail string, senderEmail string, scene string, emailCode string, status consts.EmailSendStatus, errorMessage string) error {
+func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail, senderEmail, scene, emailCode string, status consts.EmailSendStatus, errorMessage string) error {
 	var nullErrorMessage sql.NullString
 	if strings.TrimSpace(errorMessage) != "" {
 		nullErrorMessage = sql.NullString{

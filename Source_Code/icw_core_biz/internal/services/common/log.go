@@ -24,7 +24,7 @@ const (
 )
 
 // rpcLog 记录 RPC 请求日志
-func rpcLog(method string, req interface{}, resp interface{}, start time.Time, err error) {
+func rpcLog(method string, req, resp interface{}, start time.Time, err error) {
 	requestId := getRequestId(req)
 	if requestId == "" {
 		requestId = "-"

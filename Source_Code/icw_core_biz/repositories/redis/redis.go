@@ -20,7 +20,7 @@ func NewRepository(rdb *redis.Client) *Repository {
 }
 
 // SaveEmailCode 保存邮箱验证码哈希
-func (r *Repository) SaveEmailCode(ctx context.Context, scene, email string, codeHash string, ttl time.Duration) error {
+func (r *Repository) SaveEmailCode(ctx context.Context, scene, email, codeHash string, ttl time.Duration) error {
 	return r.redis.Set(ctx, genEmailCodeKey(scene, email), codeHash, ttl).Err()
 }
 
