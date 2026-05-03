@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 
+	"icw_core_biz/internal/services/common"
 	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
@@ -39,7 +40,7 @@ func (s *Service) deleteProjectGroup(req *project.DeleteProjectGroupRequest, _ *
 			continue
 		}
 		if err := utils.RemoveProjectImageObjects(s.Ctx(), s.MinIO(), req.ProjectId, imageRecord.Uuid); err != nil {
-			log.Printf("[WARN] Remove project image objects failed, project_id: %d, image_uuid: %s, err: %v", req.ProjectId, imageRecord.Uuid, err)
+			log.Printf("%s Remove project image objects failed, project_id: %d, image_uuid: %s, err: %v", common.WarnPrefix(), req.ProjectId, imageRecord.Uuid, err)
 		}
 	}
 

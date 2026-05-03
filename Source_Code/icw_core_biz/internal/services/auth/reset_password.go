@@ -8,6 +8,7 @@ import (
 
 	"icw_core_biz/internal/services/auth/consts"
 	"icw_core_biz/internal/services/auth/utils"
+	"icw_core_biz/internal/services/common"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
@@ -58,7 +59,7 @@ func (s *Service) resetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPassw
 
 	// 重置密码后吊销所有 Refresh Token
 	if err := s.MySQL().RevokeRefreshTokensByEmail(s.Ctx(), email); err != nil {
-		log.Printf("[WARN] Revoke refresh tokens by email failed, email: %s, err: %v", email, err)
+		log.Printf("%s Revoke refresh tokens by email failed, email: %s, err: %v", common.WarnPrefix(), email, err)
 	}
 
 	return nil

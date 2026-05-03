@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"icw_core_biz/internal/services/auth/utils"
+	"icw_core_biz/internal/services/common"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
 )
@@ -35,7 +36,7 @@ func (s *Service) refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 	}
 	defer func() {
 		if err := s.Redis().ClearRefreshReuseLock(s.Ctx(), tokenId); err != nil {
-			log.Printf("[WARN] Clear refresh reuse lock failed, token_id: %s, err: %v", tokenId, err)
+			log.Printf("%s Clear refresh reuse lock failed, token_id: %s, err: %v", common.WarnPrefix(), tokenId, err)
 		}
 	}()
 

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	authUtils "icw_core_biz/internal/services/auth/utils"
+	"icw_core_biz/internal/services/common"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/utils"
 )
@@ -23,7 +24,7 @@ func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
 			ttl := time.Until(claims.ExpiresAt.Time)
 			if ttl > 0 {
 				if err := s.Redis().BlacklistAccessToken(s.Ctx(), claims.ID, ttl); err != nil {
-					log.Printf("[WARN] Blacklist access token failed, claims: %s, err: %v", utils.JSONF(claims), err)
+					log.Printf("%s Blacklist access token failed, claims: %s, err: %v", common.WarnPrefix(), utils.JSONF(claims), err)
 				}
 			}
 		}
@@ -32,7 +33,7 @@ func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
 	// 吊销 Refresh Token
 	if tokenId := authUtils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
 		if err := s.MySQL().RevokeRefreshTokensByTokenId(s.Ctx(), tokenId); err != nil {
-			log.Printf("[WARN] Revoke refresh tokens by token id failed, token_id: %s, err: %v", tokenId, err)
+			log.Printf("%s Revoke refresh tokens by token id failed, token_id: %s, err: %v", common.WarnPrefix(), tokenId, err)
 		}
 	}
 
