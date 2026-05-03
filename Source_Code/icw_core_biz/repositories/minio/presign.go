@@ -8,13 +8,13 @@ import (
 )
 
 // PresignDefaultAvatarURL 获取用户默认头像下载预签名 URL
-func PresignDefaultAvatarURL(ctx context.Context, repo *Repository, redisRepo *redis.Repository, userId uint64, emailHash string, ttl time.Duration) (string, error) {
-	return presignExistingObjectURL(ctx, repo, redisRepo, redis.GenDefaultAvatarPresignURLKey(userId, emailHash), GenDefaultAvatarKey(emailHash), ttl)
+func PresignDefaultAvatarURL(ctx context.Context, repo *Repository, redisRepo *redis.Repository, emailHash string, ttl time.Duration) (string, error) {
+	return presignExistingObjectURL(ctx, repo, redisRepo, redis.GenDefaultAvatarPresignURLKey(emailHash), GenDefaultAvatarKey(emailHash), ttl)
 }
 
 // PresignCustomAvatarURL 获取用户自定义头像下载预签名 URL
-func PresignCustomAvatarURL(ctx context.Context, repo *Repository, redisRepo *redis.Repository, userId uint64, emailHash string, ttl time.Duration) (string, error) {
-	return presignExistingObjectURL(ctx, repo, redisRepo, redis.GenCustomAvatarPresignURLKey(userId, emailHash), GenCustomAvatarKey(emailHash), ttl)
+func PresignCustomAvatarURL(ctx context.Context, repo *Repository, redisRepo *redis.Repository, emailHash string, ttl time.Duration) (string, error) {
+	return presignExistingObjectURL(ctx, repo, redisRepo, redis.GenCustomAvatarPresignURLKey(emailHash), GenCustomAvatarKey(emailHash), ttl)
 }
 
 // PresignProjectThumbnailURL 获取项目缩略图下载预签名 URL

@@ -24,7 +24,7 @@ func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 	}
 
 	// 获取用户自定义头像下载预签名 URL
-	avatarURL, err := minio.PresignCustomAvatarURL(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, emailHash, s.Config().AvatarGetTTL)
+	avatarURL, err := minio.PresignCustomAvatarURL(s.Ctx(), s.MinIO(), s.Redis(), emailHash, s.Config().AvatarGetTTL)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 	}
 
 	// 获取用户默认头像下载预签名 URL
-	avatarURL, err = minio.PresignDefaultAvatarURL(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, emailHash, s.Config().AvatarGetTTL)
+	avatarURL, err = minio.PresignDefaultAvatarURL(s.Ctx(), s.MinIO(), s.Redis(), emailHash, s.Config().AvatarGetTTL)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 	if err := s.MinIO().PutObject(s.Ctx(), minio.GenDefaultAvatarKey(emailHash), consts.DefaultAvatarContentType, utils.BuildDefaultAvatarSVG(emailHash)); err != nil {
 		return err
 	}
-	avatarURL, err = minio.PresignDefaultAvatarURL(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, emailHash, s.Config().AvatarGetTTL)
+	avatarURL, err = minio.PresignDefaultAvatarURL(s.Ctx(), s.MinIO(), s.Redis(), emailHash, s.Config().AvatarGetTTL)
 	if err != nil {
 		return err
 	}
