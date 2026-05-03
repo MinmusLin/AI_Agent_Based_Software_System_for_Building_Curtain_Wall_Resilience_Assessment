@@ -8,8 +8,10 @@ import (
 	"github.com/sqids/sqids-go"
 )
 
-// MinProjectIdLength 生成 Sqids ID 的最小长度
-const MinProjectIdLength uint8 = 10
+const (
+	// MinProjectIdLength 生成 Sqids ID 的最小长度
+	MinProjectIdLength uint8 = 10
+)
 
 var projectIdCodec = mustNewProjectIdCodec()
 

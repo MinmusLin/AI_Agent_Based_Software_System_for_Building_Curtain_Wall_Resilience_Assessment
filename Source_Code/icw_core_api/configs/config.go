@@ -10,6 +10,7 @@ import (
 
 // Config 服务配置
 type Config struct {
+	GinMode     string
 	CoreApiAddr string
 	CoreBizAddr string
 }
@@ -21,6 +22,7 @@ func (cfg *Config) Validate() error {
 		key   string
 		value string
 	}{
+		{key: "GIN_MODE", value: cfg.GinMode},
 		{key: "ICW_CORE_API_ADDR", value: cfg.CoreApiAddr},
 		{key: "ICW_CORE_BIZ_ADDR", value: cfg.CoreBizAddr},
 	}
@@ -38,6 +40,7 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
+		GinMode:     env("GIN_MODE"),
 		CoreApiAddr: env("ICW_CORE_API_ADDR"),
 		CoreBizAddr: env("ICW_CORE_BIZ_ADDR"),
 	}
