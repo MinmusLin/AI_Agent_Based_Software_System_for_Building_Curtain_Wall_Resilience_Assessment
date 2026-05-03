@@ -71,8 +71,8 @@ CREATE TABLE `project_groups` (
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_project_groups_project_id_user_id_name` (`project_id`,`user_id`,`name`),
-  KEY `idx_user_id_project_id_sort_order_created_at` (`user_id`,`project_id`,`sort_order`,`created_at`),
-  KEY `idx_user_id_project_id` (`user_id`,`project_id`),
+  KEY `idx_project_groups_user_id_project_id_sort_order_created_at` (`user_id`,`project_id`,`sort_order`,`created_at`),
+  KEY `idx_project_groups_user_id_project_id` (`user_id`,`project_id`),
   CONSTRAINT `fk_project_groups_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_groups_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目组表';
@@ -97,9 +97,9 @@ CREATE TABLE `project_group_images` (
   UNIQUE KEY `uk_project_group_images_uuid` (`uuid`),
   KEY `fk_project_group_images_group_id` (`group_id`),
   KEY `fk_project_group_images_project_id` (`project_id`),
-  KEY `idx_user_id_project_id_created_at` (`user_id`,`project_id`,`created_at`),
-  KEY `idx_user_id_project_id_group_id_created_at` (`user_id`,`project_id`,`group_id`,`created_at`),
-  KEY `idx_user_id_project_id_group_id` (`user_id`,`project_id`,`group_id`),
+  KEY `idx_project_group_images_user_id_project_id_created_at` (`user_id`,`project_id`,`created_at`),
+  KEY `idx_project_group_images_user_id_project_id_group_id_created_at` (`user_id`,`project_id`,`group_id`,`created_at`),
+  KEY `idx_project_group_images_user_id_project_id_group_id` (`user_id`,`project_id`,`group_id`),
   CONSTRAINT `fk_project_group_images_group_id` FOREIGN KEY (`group_id`) REFERENCES `project_groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_project_group_images_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_group_images_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
