@@ -40,7 +40,7 @@ func (s *Service) deleteProjectImage(req *project.DeleteProjectImageRequest, _ *
 		return err
 	}
 	if !deleted {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project image is not accessible")
+		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	for _, imageUuid := range imageUuids {

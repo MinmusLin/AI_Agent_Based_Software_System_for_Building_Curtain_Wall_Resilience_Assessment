@@ -27,7 +27,7 @@ func (s *Service) getProjectImageOriginal(req *project.GetProjectImageOriginalRe
 		return err
 	}
 	if imageRecord == nil {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project image is not accessible")
+		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 	if imageRecord.Status != consts.ProjectImageStatusUploaded {
 		return nil
