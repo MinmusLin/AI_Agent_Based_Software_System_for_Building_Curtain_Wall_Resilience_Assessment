@@ -51,27 +51,27 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress dto.ProjectProgress, nextStatus dto.ProjectStatus) (bool, error) {
 	// 项目基础信息阶段 -> 图像资产构建阶段
 	if fromProgress == dto.ProjectProgressInitializationFinished && toProgress == dto.ProjectProgressProfileFinished {
-		return repo.AdvanceProjectProfileToAssets(ctx, userId, projectId, nextStatus)
+		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
 	// 图像资产构建阶段 -> Agent 智能检测阶段
 	if fromProgress == dto.ProjectProgressProfileFinished && toProgress == dto.ProjectProgressAssetsFinished {
-		return repo.AdvanceProjectAssetsToDetection(ctx, userId, projectId, nextStatus)
+		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
 	// Agent 智能检测阶段 -> 人工复核确认阶段
 	if fromProgress == dto.ProjectProgressAssetsFinished && toProgress == dto.ProjectProgressDetectionFinished {
-		return repo.AdvanceProjectDetectionToReview(ctx, userId, projectId, nextStatus)
+		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
 	// 人工复核确认阶段 -> 评估报告生成阶段
 	if fromProgress == dto.ProjectProgressDetectionFinished && toProgress == dto.ProjectProgressReviewFinished {
-		return repo.AdvanceProjectReviewToReport(ctx, userId, projectId, nextStatus)
+		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
 	// 评估报告生成阶段 -> 项目已完成
 	if fromProgress == dto.ProjectProgressReviewFinished && toProgress == dto.ProjectProgressReportFinished {
-		return repo.AdvanceProjectReportToFinished(ctx, userId, projectId, nextStatus)
+		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
 	return false, rpc_err.BadRequestDefault("invalid from progress and to progress")
