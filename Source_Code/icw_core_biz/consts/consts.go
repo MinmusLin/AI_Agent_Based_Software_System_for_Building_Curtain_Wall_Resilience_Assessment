@@ -22,6 +22,8 @@ const (
 const (
 	// LogScopeInit 服务初始化日志域
 	LogScopeInit = "INIT"
+	// LogScopeHTTP HTTP 服务日志域
+	LogScopeHTTP = "HTTP"
 	// LogScopeRPC RPC 服务日志域
 	LogScopeRPC = "RPC"
 	// LogScopeMQ 消息队列日志域

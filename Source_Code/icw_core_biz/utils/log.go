@@ -48,7 +48,7 @@ func logInfoPrefix(scope, color string) string {
 // logErrorPrefix 全局错误日志前缀
 func logErrorPrefix(scope string) string {
 	if scope == "" {
-		return "[" + scope + "ERROR]"
+		return "[ERROR]"
 	}
 	return consts.LogColorBoldRed + "[" + scope + " ERROR]" + consts.LogColorReset
 }
@@ -56,7 +56,7 @@ func logErrorPrefix(scope string) string {
 // logWarnPrefix 全局警告日志前缀
 func logWarnPrefix(scope string) string {
 	if scope == "" {
-		return "[" + scope + "WARN]"
+		return "[WARN]"
 	}
 	return consts.LogColorBoldYellow + "[" + scope + " WARN]" + consts.LogColorReset
 }
@@ -64,7 +64,7 @@ func logWarnPrefix(scope string) string {
 // logFatalPrefix 全局致命错误日志前缀
 func logFatalPrefix(scope string) string {
 	if scope == "" {
-		return "[FAULT]"
+		return "[FATAL]"
 	}
-	return consts.LogColorBoldWhiteOnRed + "[" + scope + " FAULT]" + consts.LogColorBoldWhiteOnRed
+	return consts.LogColorBoldWhiteOnRed + "[" + scope + " FATAL]" + consts.LogColorReset
 }
