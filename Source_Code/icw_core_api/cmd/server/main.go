@@ -23,7 +23,7 @@ func main() {
 	}
 	utils.LogInfo(bizConsts.LogScopeInit, "", "Config initialized successfully")
 
-	// 初始化 WebSocket Hub 和 RocketMQ 事件消费者
+	// 初始化 WebSocket Hub
 	webSocketHub := socket.NewHub()
 	utils.LogInfo(bizConsts.LogScopeInit, "", "WebSocket initialized successfully")
 
