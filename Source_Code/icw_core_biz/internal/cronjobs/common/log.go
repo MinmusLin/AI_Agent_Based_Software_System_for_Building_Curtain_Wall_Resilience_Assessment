@@ -1,0 +1,37 @@
+package common
+
+import (
+	"time"
+
+	"icw_core_biz/consts"
+	"icw_core_biz/utils"
+)
+
+// cronLog 输出定时任务执行日志
+func cronLog(name string, start time.Time, err error) {
+	if utils.IsEmptyError(err) {
+		CronInfo("[%s] cost=%s", name, time.Since(start))
+		return
+	}
+	CronError("[%s] cost=%s err=%s", name, time.Since(start), utils.FormatErrorLog(err))
+}
+
+// CronInfo 输出标准定时任务日志
+func CronInfo(format string, args ...interface{}) {
+	utils.LogInfo(consts.LogScopeCron, consts.LogColorBoldPink, format, args...)
+}
+
+// CronWarn 输出警告定时任务日志
+func CronWarn(format string, args ...interface{}) {
+	utils.LogWarn(consts.LogScopeCron, format, args...)
+}
+
+// CronError 输出错误定时任务日志
+func CronError(format string, args ...interface{}) {
+	utils.LogError(consts.LogScopeCron, format, args...)
+}
+
+// CronFault 输出致命错误定时任务日志并退出进程
+func CronFault(format string, args ...interface{}) {
+	utils.LogFault(consts.LogScopeCron, format, args...)
+}

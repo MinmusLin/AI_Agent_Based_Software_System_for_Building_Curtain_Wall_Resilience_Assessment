@@ -1,40 +1,26 @@
 package common
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 	"strings"
 	"time"
 
+	"icw_core_biz/consts"
 	"icw_core_biz/utils"
 )
 
-const (
-	// LogColorReset ANSI 终端颜色重置码
-	LogColorReset = "\033[0m"
-	// LogColorBoldGreen ANSI 终端颜色码：绿色
-	LogColorBoldGreen = "\033[1;32m"
-	// LogColorBoldRed ANSI 终端颜色码：红色
-	LogColorBoldRed = "\033[1;31m"
-	// LogColorBoldPurple ANSI 终端颜色码：紫色
-	LogColorBoldPurple = "\033[1;35m"
-	// LogColorBoldYellow ANSI 终端颜色码：黄色
-	LogColorBoldYellow = "\033[1;33m"
-)
-
-// rpcLog 记录 RPC 请求日志
+// rpcLog 输出 RPC 请求日志
 func rpcLog(method string, req, resp interface{}, start time.Time, err error) {
 	requestId := getRequestId(req)
 	if requestId == "" {
 		requestId = "-"
 	}
 
-	if isEmptyError(err) {
-		log.Printf("%s [%s] [%s] cost=%s req=%s resp=%s", RpcInfoAndErrorPrefix(err), method, requestId, time.Since(start), utils.JSONF(req), utils.JSONF(resp))
+	if utils.IsEmptyError(err) {
+		RpcInfo("[%s] [%s] cost=%s req=%s resp=%s", method, requestId, time.Since(start), utils.JSONF(req), utils.JSONF(resp))
 		return
 	}
-	log.Printf("%s [%s] [%s] cost=%s req=%s resp=%s err=%s", RpcInfoAndErrorPrefix(err), method, requestId, time.Since(start), utils.JSONF(req), utils.JSONF(resp), formatError(err))
+	RpcError("[%s] [%s] cost=%s req=%s resp=%s err=%s", method, requestId, time.Since(start), utils.JSONF(req), utils.JSONF(resp), utils.FormatErrorLog(err))
 }
 
 // getRequestId 从 RPC 元数据中获取请求 ID
@@ -71,30 +57,22 @@ func getRequestId(req interface{}) string {
 	return strings.TrimSpace(requestIdField.String())
 }
 
-// RpcInfoAndErrorPrefix RPC 正常和错误日志前缀
-func RpcInfoAndErrorPrefix(err interface{}) string {
-	if isEmptyError(err) {
-		return LogColorBoldGreen + "[RPC INFO]" + LogColorReset
-	}
-	return LogColorBoldRed + "[RPC ERROR]" + LogColorReset
+// RpcInfo 输出标准 RPC 日志
+func RpcInfo(format string, args ...interface{}) {
+	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, format, args...)
 }
 
-// RpcWarnPrefix RPC 警告日志前缀
-func RpcWarnPrefix() string {
-	return LogColorBoldYellow + "[WARN]" + LogColorReset
+// RpcWarn 输出警告 RPC 日志
+func RpcWarn(format string, args ...interface{}) {
+	utils.LogWarn(consts.LogScopeRPC, format, args...)
 }
 
-// formatError 格式化错误日志
-func formatError(err interface{}) string {
-	msg := strings.TrimSpace(fmt.Sprint(err))
-	if isEmptyError(err) {
-		return msg
-	}
-	return LogColorBoldPurple + msg + LogColorReset
+// RpcError 输出错误 RPC 日志
+func RpcError(format string, args ...interface{}) {
+	utils.LogError(consts.LogScopeRPC, format, args...)
 }
 
-// isEmptyError 判断错误是否为空错误
-func isEmptyError(err interface{}) bool {
-	msg := strings.TrimSpace(fmt.Sprint(err))
-	return msg == "" || msg == "nil" || msg == "<nil>"
+// RpcFault 输出致命错误 RPC 日志并退出进程
+func RpcFault(format string, args ...interface{}) {
+	utils.LogFault(consts.LogScopeRPC, format, args...)
 }
