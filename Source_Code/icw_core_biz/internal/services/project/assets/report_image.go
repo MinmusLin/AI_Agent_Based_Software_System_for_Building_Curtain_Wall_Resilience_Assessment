@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"icw_core_biz/internal/services/project/consts"
+	"icw_core_biz/internal/services/project/events"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
@@ -75,7 +76,7 @@ func (s *Service) reportProjectImage(req *project.ReportProjectImageRequest, _ *
 	}
 
 	// 发布项目图像状态变化事件
-	s.publishProjectImageStatusChangedEvent(req.UserId, req.ProjectId, image)
+	events.PublishProjectImageStatusChangedEvent(s.Ctx(), s.RocketMQ(), req.UserId, req.ProjectId, image)
 
 	return nil
 }

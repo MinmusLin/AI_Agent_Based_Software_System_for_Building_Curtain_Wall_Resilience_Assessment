@@ -1,7 +1,6 @@
 package assets
 
 import (
-	"log"
 	"strings"
 
 	"icw_core_biz/internal/services/common"
@@ -46,7 +45,7 @@ func (s *Service) deleteProjectImage(req *project.DeleteProjectImageRequest, _ *
 
 	for _, imageUuid := range imageUuids {
 		if err := utils.RemoveProjectImageObjects(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, req.ProjectId, imageUuid); err != nil {
-			log.Printf("%s Remove project image objects failed, project_id: %d, image_uuid: %s, err: %v", common.RpcWarnPrefix(), req.ProjectId, imageUuid, err)
+			common.RpcWarn("Remove project image objects failed, project_id: %d, image_uuid: %s, err: %v", req.ProjectId, imageUuid, err)
 		}
 	}
 
