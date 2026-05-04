@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"log"
 	"strings"
 
 	"github.com/sqids/sqids-go"
@@ -22,7 +21,7 @@ func mustNewProjectIdCodec() *sqids.Sqids {
 		MinLength: MinProjectIdLength,
 	})
 	if err != nil {
-		log.Fatalf("Failed to initialize sqids codec: %v", err)
+		LogFatal("Failed to initialize sqids codec: %v", err)
 	}
 	return codec
 }

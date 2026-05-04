@@ -72,7 +72,7 @@ func RpcError(format string, args ...interface{}) {
 	utils.LogError(consts.LogScopeRPC, format, args...)
 }
 
-// RpcFault 输出致命错误 RPC 日志并退出进程
-func RpcFault(format string, args ...interface{}) {
-	utils.LogFault(consts.LogScopeRPC, format, args...)
+// RpcFatal 输出致命错误 RPC 日志并退出进程
+func RpcFatal(format string, args ...interface{}) {
+	utils.LogFatal(consts.LogScopeRPC, format, args...)
 }

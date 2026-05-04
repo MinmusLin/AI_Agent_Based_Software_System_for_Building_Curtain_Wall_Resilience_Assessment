@@ -10,6 +10,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
+	"github.com/apache/rocketmq-client-go/v2/rlog"
 
 	"icw_core_biz/configs"
 	"icw_core_biz/pkg/dto/project"
@@ -31,6 +32,7 @@ func NewRepository(producer rocketmq.Producer, topic string) *Repository {
 
 // NewProducer 创建 RocketMQ SDK 生产者
 func NewProducer(cfg configs.Config) (rocketmq.Producer, error) {
+	rlog.SetLogLevel("fatal")
 	messageProducer, err := rocketmq.NewProducer(
 		producer.WithNameServer([]string{cfg.RocketMQNamesrvAddr}),
 		producer.WithRetry(3),

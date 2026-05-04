@@ -63,18 +63,18 @@ type JobFactory func(*BaseCronJob) CronJob
 // Start 启动定时任务
 func Start(ctx context.Context, deps *Deps, name, expression string, factory JobFactory) error {
 	if name == "" {
-		CronFault("Failed to start cron job: %v", errors.New("name is required"))
+		CronFatal("Failed to start cron job: %v", errors.New("name is required"))
 	}
 	if expression == "" {
-		CronFault("Failed to start cron job: %v", errors.New("cron expression is required"))
+		CronFatal("Failed to start cron job: %v", errors.New("cron expression is required"))
 	}
 	parser := cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 	_, err := parser.Parse(expression)
 	if err != nil {
-		CronFault("Failed to start cron job: %v", err.Error())
+		CronFatal("Failed to start cron job: %v", err.Error())
 	}
 	if deps == nil || deps.MySQL == nil || deps.Redis == nil || deps.MinIO == nil || deps.RocketMQ == nil {
-		CronFault("Failed to start cron job: %v", errors.New("dependencies are required"))
+		CronFatal("Failed to start cron job: %v", errors.New("dependencies are required"))
 	}
 
 	// 按 Cron 表达式执行定时任务

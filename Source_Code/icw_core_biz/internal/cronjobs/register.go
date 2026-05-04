@@ -24,7 +24,7 @@ func Start(ctx context.Context, deps *common.Deps) {
 
 	for _, item := range register(deps) {
 		if err := common.Start(ctx, deps, item.name, item.cron, item.start); err != nil {
-			common.CronFault("Failed to start cron job %s: %v", item.name, err)
+			common.CronFatal("Failed to start cron job %s: %v", item.name, err)
 		}
 	}
 }

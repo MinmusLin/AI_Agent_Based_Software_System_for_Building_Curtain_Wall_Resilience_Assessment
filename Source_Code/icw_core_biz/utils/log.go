@@ -21,9 +21,9 @@ func LogError(scope, format string, args ...interface{}) {
 	logWithScope(logErrorPrefix(scope), format, args...)
 }
 
-// LogFault 输出致命错误日志并退出进程
-func LogFault(scope, format string, args ...interface{}) {
-	log.Printf("%s "+format, append([]interface{}{logFaultPrefix(scope)}, args...)...)
+// LogFatal 输出致命错误日志并退出进程
+func LogFatal(scope, format string, args ...interface{}) {
+	log.Fatalf("%s "+format, append([]interface{}{logFatalPrefix(scope)}, args...)...)
 }
 
 // logWithScope 输出日志所属功能域和内容
@@ -61,8 +61,8 @@ func logWarnPrefix(scope string) string {
 	return consts.LogColorBoldYellow + "[" + scope + " WARN]" + consts.LogColorReset
 }
 
-// logFaultPrefix 全局致命错误日志前缀
-func logFaultPrefix(scope string) string {
+// logFatalPrefix 全局致命错误日志前缀
+func logFatalPrefix(scope string) string {
 	if scope == "" {
 		return "[FAULT]"
 	}

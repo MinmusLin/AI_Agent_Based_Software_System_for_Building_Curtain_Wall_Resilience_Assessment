@@ -40,7 +40,7 @@ func CronError(format string, args ...interface{}) {
 	utils.LogError(consts.LogScopeCron, format, args...)
 }
 
-// CronFault 输出致命错误定时任务日志并退出进程
-func CronFault(format string, args ...interface{}) {
-	utils.LogFault(consts.LogScopeCron, format, args...)
+// CronFatal 输出致命错误定时任务日志并退出进程
+func CronFatal(format string, args ...interface{}) {
+	utils.LogFatal(consts.LogScopeCron, format, args...)
 }
