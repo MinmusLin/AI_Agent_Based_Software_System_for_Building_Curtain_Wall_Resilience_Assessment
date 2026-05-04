@@ -1,8 +1,8 @@
-import type { User } from './common';
+import type { EmailCodeScene, LoginScene, User } from './common';
 
 export interface LoginRequest {
   email: string;
-  scene: 'password' | 'email';
+  scene: LoginScene;
   code: string;
 }
 
@@ -27,5 +27,5 @@ export interface ResetPasswordRequest {
 
 export interface SendEmailCodeRequest {
   email: string;
-  scene: 'register' | 'login' | 'reset';
+  scene: EmailCodeScene;
 }

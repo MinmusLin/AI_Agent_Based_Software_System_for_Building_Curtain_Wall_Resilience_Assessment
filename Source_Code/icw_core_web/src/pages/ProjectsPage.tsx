@@ -273,9 +273,7 @@ export default function ProjectsPage(): ReactElement {
     async (project: ProjectListItem): Promise<void> => {
       setDeletingProjectId(project.id);
       try {
-        const data = await deleteProject({
-          project_id: project.id,
-        });
+        const data = await deleteProject(project.id);
         setActiveProjects(data.active_projects);
         setCompletedProjects(data.completed_projects);
         void messageApi.success('项目删除成功');

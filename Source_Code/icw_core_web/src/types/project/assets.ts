@@ -1,11 +1,4 @@
-export const PROJECT_IMAGE_STATUS_PENDING = 'pending';
-export const PROJECT_IMAGE_STATUS_UPLOADED = 'uploaded';
-export const PROJECT_IMAGE_STATUS_FAILED = 'failed';
-
-export type ProjectImageStatus =
-  | typeof PROJECT_IMAGE_STATUS_PENDING
-  | typeof PROJECT_IMAGE_STATUS_UPLOADED
-  | typeof PROJECT_IMAGE_STATUS_FAILED;
+import type { ProjectImageStatus } from '@/types/common';
 
 export interface ProjectGroup {
   id: string;

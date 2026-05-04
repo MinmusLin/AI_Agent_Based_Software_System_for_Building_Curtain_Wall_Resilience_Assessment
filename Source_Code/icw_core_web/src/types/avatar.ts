@@ -1,4 +1,4 @@
-export type AvatarType = 'custom' | 'default' | 'none';
+import type { AvatarType } from './common';
 
 export interface GetAvatarResponse {
   avatar_type: AvatarType;

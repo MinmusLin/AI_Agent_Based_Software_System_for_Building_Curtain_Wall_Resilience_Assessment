@@ -9,6 +9,7 @@ import { getErrorMessage } from '@/api/http';
 import { AuthShell } from '@/components/AuthShell';
 import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
 import type { ResetPasswordRequest } from '@/types/auth';
+import { EMAIL_CODE_SCENE_RESET } from '@/types/common';
 import {
   EMAIL_MAX_LENGTH,
   normalizeEmailAddress,
@@ -37,7 +38,7 @@ export default function ForgetPasswordPage(): ReactElement {
     }
     setSending(true);
     try {
-      const result = await sendEmailCode(email, 'reset');
+      const result = await sendEmailCode(email, EMAIL_CODE_SCENE_RESET);
       startCountdown(result.expires_in);
       message.success('已发送邮箱验证码');
     } catch (error: unknown) {

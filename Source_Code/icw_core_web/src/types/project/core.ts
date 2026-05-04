@@ -33,10 +33,6 @@ export interface CreateProjectResponse {
   project: Project;
 }
 
-export interface DeleteProjectRequest {
-  project_id: string;
-}
-
 export interface DeleteProjectResponse {
   active_projects: ProjectListItem[];
   completed_projects: ProjectListItem[];

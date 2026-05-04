@@ -3,7 +3,8 @@ import type { ChangeEvent, RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 import { deleteAvatar, getAvatar, uploadAvatar } from '@/api/avatar';
-import type { AvatarType } from '@/types/avatar';
+import type { AvatarType } from '@/types/common';
+import { AVATAR_TYPE_CUSTOM, AVATAR_TYPE_NONE } from '@/types/common';
 import { AVATAR_OUTPUT_CONTENT_TYPE, isAllowedAvatarFile, resizeAvatarToPng } from '@/utils/images';
 
 interface UseUserAvatarResult {
@@ -19,7 +20,7 @@ interface UseUserAvatarResult {
 
 export function useUserAvatar(email?: string): UseUserAvatarResult {
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
-  const [avatarType, setAvatarType] = useState<AvatarType>('none');
+  const [avatarType, setAvatarType] = useState<AvatarType>(AVATAR_TYPE_NONE);
   const [avatarURL, setAvatarURL] = useState('');
   const [avatarLoading, setAvatarLoading] = useState(false);
 
@@ -34,7 +35,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
         }
       } catch {
         if (active) {
-          setAvatarType('none');
+          setAvatarType(AVATAR_TYPE_NONE);
           setAvatarURL('');
         }
       }
@@ -42,7 +43,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
     if (email) {
       void loadAvatar();
     } else {
-      setAvatarType('none');
+      setAvatarType(AVATAR_TYPE_NONE);
       setAvatarURL('');
     }
     return () => {
@@ -103,7 +104,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
       setAvatarType(result.avatar_type);
       setAvatarURL(result.avatar_url);
     } catch {
-      setAvatarType('none');
+      setAvatarType(AVATAR_TYPE_NONE);
       setAvatarURL('');
     }
   };
@@ -126,7 +127,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
         setAvatarType(result.avatar_type);
         setAvatarURL(result.avatar_url);
       } catch {
-        setAvatarType('none');
+        setAvatarType(AVATAR_TYPE_NONE);
         setAvatarURL('');
       }
       setAvatarLoading(false);
@@ -137,7 +138,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
     avatarInputRef,
     avatarLoading,
     avatarURL,
-    canDeleteAvatar: avatarType === 'custom',
+    canDeleteAvatar: avatarType === AVATAR_TYPE_CUSTOM,
     deleteCurrentAvatar,
     handleAvatarLoadError,
     handleAvatarFileChange,

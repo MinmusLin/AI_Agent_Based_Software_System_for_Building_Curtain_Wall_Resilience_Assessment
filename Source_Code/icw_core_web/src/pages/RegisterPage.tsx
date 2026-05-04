@@ -9,6 +9,7 @@ import { getErrorMessage } from '@/api/http';
 import { AuthShell } from '@/components/AuthShell';
 import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
 import type { RegisterRequest } from '@/types/auth';
+import { EMAIL_CODE_SCENE_REGISTER } from '@/types/common';
 import {
   EMAIL_MAX_LENGTH,
   normalizeEmailAddress,
@@ -37,7 +38,7 @@ export default function RegisterPage(): ReactElement {
     }
     setSending(true);
     try {
-      const result = await sendEmailCode(email, 'register');
+      const result = await sendEmailCode(email, EMAIL_CODE_SCENE_REGISTER);
       startCountdown(result.expires_in);
       message.success('已发送邮箱验证码');
     } catch (error: unknown) {
