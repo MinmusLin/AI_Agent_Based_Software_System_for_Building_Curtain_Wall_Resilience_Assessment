@@ -30,8 +30,4 @@ type ValidateSocketTicketRequest struct {
 	Ticket      string
 }
 
-type ValidateSocketTicketResponse struct {
-	UserId      uint64
-	ProjectId   uint64
-	ProjectCode string
-}
+type ValidateSocketTicketResponse struct{}

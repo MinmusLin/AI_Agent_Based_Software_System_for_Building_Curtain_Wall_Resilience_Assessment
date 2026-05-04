@@ -16,7 +16,7 @@ func (s *Service) ValidateSocketTicket(req *dto.ValidateSocketTicketRequest, res
 	})
 }
 
-func (s *Service) validateSocketTicket(req *dto.ValidateSocketTicketRequest, resp *dto.ValidateSocketTicketResponse) error {
+func (s *Service) validateSocketTicket(req *dto.ValidateSocketTicketRequest, _ *dto.ValidateSocketTicketResponse) error {
 	ticket := strings.TrimSpace(req.Ticket)
 	projectCode := strings.TrimSpace(req.ProjectCode)
 	socketScope := strings.TrimSpace(req.SocketScope)
@@ -41,10 +41,6 @@ func (s *Service) validateSocketTicket(req *dto.ValidateSocketTicketRequest, res
 	if ticketContext.ProjectCode != projectCode || ticketContext.SocketScope != socketScope {
 		return rpc_err.BadRequestDefault("socket ticket is mismatched")
 	}
-
-	resp.UserId = ticketContext.UserId
-	resp.ProjectId = ticketContext.ProjectId
-	resp.ProjectCode = ticketContext.ProjectCode
 
 	return nil
 }
