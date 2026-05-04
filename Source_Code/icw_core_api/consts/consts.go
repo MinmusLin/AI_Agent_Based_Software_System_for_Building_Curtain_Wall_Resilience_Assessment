@@ -1,6 +1,11 @@
 package consts
 
 const (
+	// CoreApiPSM icw.core.api 服务标识
+	CoreApiPSM = "icw.core.api"
+)
+
+const (
 	// ContextUser 请求上下文用户信息 Key
 	ContextUser = "current_user"
 )

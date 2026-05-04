@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/configs"
@@ -16,10 +19,16 @@ import (
 	"icw_core_api/internal/handlers/user"
 	"icw_core_api/internal/middlewares"
 	ws "icw_core_api/internal/socket"
+	"icw_core_biz/consts"
+	"icw_core_biz/utils"
 )
 
 // RegisterRoutes 注册路由
-func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *common.RPCClient, socketHub *ws.Hub) {
+func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketHub *ws.Hub) *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.Use(middlewares.RequestId(), middlewares.Logger(), gin.Recovery(), middlewares.CORS())
+
 	// 创建 API Handler 的公共依赖集合
 	handlerDeps := common.NewDeps(cfg, coreBizClient)
 
@@ -190,4 +199,41 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *commo
 			}
 		}
 	}
+
+	utils.LogInfo(consts.LogScopeInit, "", "HTTP routes registered, waiting for requests:\n%s", formatRoutesTable(router.Routes()))
+	return router
+}
+
+// formatRoutesTable 将 Gin 路由表格式化为表格
+func formatRoutesTable(routes gin.RoutesInfo) string {
+	const (
+		methodHeader  = "method"
+		pathHeader    = "path"
+		handlerHeader = "handler"
+	)
+	methodWidth := len(methodHeader)
+	pathWidth := len(pathHeader)
+	handlerWidth := len(handlerHeader)
+	for _, route := range routes {
+		methodWidth = max(methodWidth, len(route.Method))
+		pathWidth = max(pathWidth, len(route.Path))
+		handlerWidth = max(handlerWidth, len(route.Handler))
+	}
+	border := fmt.Sprintf(
+		"+-%s-+-%s-+-%s-+",
+		strings.Repeat("-", methodWidth),
+		strings.Repeat("-", pathWidth),
+		strings.Repeat("-", handlerWidth),
+	)
+	var builder strings.Builder
+	builder.WriteString(border)
+	builder.WriteString("\n")
+	builder.WriteString(fmt.Sprintf("| %-*s | %-*s | %-*s |\n", methodWidth, methodHeader, pathWidth, pathHeader, handlerWidth, handlerHeader))
+	builder.WriteString(border)
+	builder.WriteString("\n")
+	for _, route := range routes {
+		builder.WriteString(fmt.Sprintf("| %-*s | %-*s | %-*s |\n", methodWidth, route.Method, pathWidth, route.Path, handlerWidth, route.Handler))
+	}
+	builder.WriteString(border)
+	return builder.String()
 }

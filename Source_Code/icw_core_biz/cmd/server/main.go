@@ -24,6 +24,8 @@ import (
 
 // main icw.core.biz 服务入口
 func main() {
+	utils.LogInfo(consts.LogScopeInit, "", "Initializing service %s...", consts.CoreBizPSM)
+
 	ctx := context.Background()
 
 	// 加载服务配置
