@@ -31,15 +31,14 @@ func Logger() gin.HandlerFunc {
 			param.Latency = param.Latency.Truncate(time.Second)
 		}
 
-		return fmt.Sprintf("%s[HTTP]%s %v | %s |%s %3d %s| %13v | %15s |%s %-7s %s %#v\n%s",
+		return fmt.Sprintf("%v %s[HTTP INFO]%s [%s] %s %-7s %s %s %3d %s cost=%v path=%s\n%s",
+			param.TimeStamp.Format("2006/01/02 15:04:05"),
 			consts.LogColorBoldGreen,
 			consts.LogColorReset,
-			param.TimeStamp.Format("2006/01/02 15:04:05"),
 			requestId,
+			methodColor, param.Method, resetColor,
 			statusColor, param.StatusCode, resetColor,
 			param.Latency,
-			param.ClientIP,
-			methodColor, param.Method, resetColor,
 			param.Path,
 			param.ErrorMessage,
 		)
