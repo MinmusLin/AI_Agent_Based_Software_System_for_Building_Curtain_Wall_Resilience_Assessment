@@ -71,17 +71,17 @@ func (r *Repository) send(to, subject, htmlBody string) error {
 	if err != nil {
 		return err
 	}
-	defer func(conn *tls.Conn) {
+	defer func() {
 		_ = conn.Close()
-	}(conn)
+	}()
 
 	client, err := smtp.NewClient(conn, r.SMTPHost)
 	if err != nil {
 		return err
 	}
-	defer func(client *smtp.Client) {
+	defer func() {
 		_ = client.Quit()
-	}(client)
+	}()
 
 	if err := client.Auth(auth); err != nil {
 		return err

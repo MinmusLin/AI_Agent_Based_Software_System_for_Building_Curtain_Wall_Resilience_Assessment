@@ -160,9 +160,9 @@ func LoadDotEnv(path string) {
 	if err != nil {
 		log.Fatalf("Failed to open .env file: %v", err)
 	}
-	defer func(file *os.File) {
+	defer func() {
 		_ = file.Close()
-	}(file)
+	}()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {

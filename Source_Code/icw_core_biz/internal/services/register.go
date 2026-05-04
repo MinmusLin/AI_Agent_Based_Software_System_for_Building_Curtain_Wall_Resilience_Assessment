@@ -13,11 +13,18 @@ import (
 	"icw_core_biz/internal/services/project/profile"
 	"icw_core_biz/internal/services/project/report"
 	"icw_core_biz/internal/services/project/review"
+	"icw_core_biz/internal/services/socket"
 	"icw_core_biz/internal/services/user"
 )
 
 // RegisterRPCServices 注册 RPC 服务
 func RegisterRPCServices(ctx context.Context, serviceDeps *common.Deps) {
+	// 注册 WebSocket Service
+	socketService := socket.NewService(ctx, serviceDeps)
+	if err := rpc.RegisterName("SocketService", socketService); err != nil {
+		log.Fatalf("Failed to register socket rpc service: %v", err)
+	}
+
 	// 注册用户业务 Service
 	userService := user.NewService(ctx, serviceDeps)
 	if err := rpc.RegisterName("UserService", userService); err != nil {

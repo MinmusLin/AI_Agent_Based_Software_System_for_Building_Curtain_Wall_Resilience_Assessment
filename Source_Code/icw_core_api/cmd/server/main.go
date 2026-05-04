@@ -27,9 +27,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to icw.core.biz service: %v", err)
 	}
-	defer func(coreBizRPCClient *common.RPCClient) {
-		_ = coreBizRPCClient.Close()
-	}(coreBizClient)
+	defer func() {
+		_ = coreBizClient.Close()
+	}()
 
 	// 初始化 WebSocket Hub 和 RocketMQ 事件消费者
 	webSocketHub := socket.NewHub()
@@ -40,9 +40,9 @@ func main() {
 	if err := eventConsumer.Start(); err != nil {
 		log.Fatalf("Failed to start RocketMQ event consumer: %v", err)
 	}
-	defer func(eventConsumer *rocketmq.Consumer) {
+	defer func() {
 		_ = eventConsumer.Close()
-	}(eventConsumer)
+	}()
 
 	// 初始化路由
 	gin.SetMode(gin.ReleaseMode)
