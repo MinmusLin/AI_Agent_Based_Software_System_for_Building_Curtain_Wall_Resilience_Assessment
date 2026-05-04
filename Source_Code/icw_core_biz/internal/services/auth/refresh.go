@@ -36,7 +36,7 @@ func (s *Service) refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 	}
 	defer func() {
 		if err := s.Redis().ClearRefreshReuseLock(s.Ctx(), tokenId); err != nil {
-			log.Printf("%s Clear refresh reuse lock failed, token_id: %s, err: %v", common.WarnPrefix(), tokenId, err)
+			log.Printf("%s Clear refresh reuse lock failed, token_id: %s, err: %v", common.RpcWarnPrefix(), tokenId, err)
 		}
 	}()
 

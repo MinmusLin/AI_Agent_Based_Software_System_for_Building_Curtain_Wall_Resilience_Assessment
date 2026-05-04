@@ -60,7 +60,7 @@ func (s *Service) resetPassword(req *dto.ResetPasswordRequest, _ *dto.ResetPassw
 
 	// 重置密码后吊销所有 Refresh Token
 	if err := s.MySQL().RevokeRefreshTokensByEmail(s.Ctx(), email); err != nil {
-		log.Printf("%s Revoke refresh tokens by email failed, email: %s, err: %v", common.WarnPrefix(), email, err)
+		log.Printf("%s Revoke refresh tokens by email failed, email: %s, err: %v", common.RpcWarnPrefix(), email, err)
 	}
 
 	return nil

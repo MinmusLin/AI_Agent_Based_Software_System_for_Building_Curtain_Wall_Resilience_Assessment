@@ -18,7 +18,7 @@ func (s *Service) ReportProjectImage(req *project.ReportProjectImageRequest, res
 	})
 }
 
-func (s *Service) reportProjectImage(req *project.ReportProjectImageRequest, resp *project.ReportProjectImageResponse) error {
+func (s *Service) reportProjectImage(req *project.ReportProjectImageRequest, _ *project.ReportProjectImageResponse) error {
 	imageUuid := strings.TrimSpace(req.ImageUuid)
 	if imageUuid == "" {
 		return rpc_err.BadRequestDefault("image uuid is required")
@@ -69,10 +69,13 @@ func (s *Service) reportProjectImage(req *project.ReportProjectImageRequest, res
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	resp.Image, err = mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
+	image, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}
+
+	// 发布项目图像状态变化事件
+	s.publishProjectImageStatusChangedEvent(req.UserId, req.ProjectId, image)
 
 	return nil
 }
