@@ -77,8 +77,8 @@ func (h *Hub) BroadcastProject(projectId uint64, projectCode string, payload []b
 	}
 
 	if dropped > 0 {
-		WSError("[%s] Broadcast websocket message failed, clients=%d sent=%d dropped=%d payload_bytes=%d", projectCode, len(clients), sent, dropped, len(payload))
+		WSError("[%s] Broadcast failed, clients=%d sent=%d dropped=%d payload_bytes=%d", projectCode, len(clients), sent, dropped, len(payload))
 		return
 	}
-	WSInfo("[%s] Broadcast websocket message succeeded, clients=%d payload_bytes=%d", projectCode, len(clients), len(payload))
+	WSInfo("[%s] Broadcast succeeded, clients=%d payload_bytes=%d", projectCode, len(clients), len(payload))
 }

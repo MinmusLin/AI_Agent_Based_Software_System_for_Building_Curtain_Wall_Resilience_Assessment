@@ -48,10 +48,10 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 				}
 				start := time.Now()
 				if err := dispatchProjectImageStatusChangedEvent(hub, message); err != nil {
-					MQError("[%s] cost=%s tag=%s msg_id=%s err=%s", message.Topic, time.Since(start), message.GetTags(), message.MsgId, utils.FormatErrorLog(err))
+					MQError("[CONSUME|%s] cost=%s tag=%s msg_id=%s err=%s", message.Topic, time.Since(start), message.GetTags(), message.MsgId, utils.FormatErrorLog(err))
 					continue
 				}
-				MQInfo("[%s] cost=%s tag=%s msg_id=%s", message.Topic, time.Since(start), message.GetTags(), message.MsgId)
+				MQInfo("[CONSUME|%s] cost=%s tag=%s msg_id=%s", message.Topic, time.Since(start), message.GetTags(), message.MsgId)
 			}
 			return consumer.ConsumeSuccess, nil
 		},
@@ -86,6 +86,7 @@ func (c *Consumer) Close() error {
 	return nil
 }
 
+// dispatchProjectImageStatusChangedEvent 分发项目图像状态变化事件
 func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.MessageExt) error {
 	if hub == nil {
 		return errors.New("websocket hub is nil")
