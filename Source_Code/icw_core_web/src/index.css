@@ -6,6 +6,11 @@ body {
   color: #1F2937;
 }
 
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .auth-shell {
   min-height: 100vh;
   background:

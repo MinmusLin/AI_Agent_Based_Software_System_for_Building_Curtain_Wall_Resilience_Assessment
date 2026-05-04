@@ -86,6 +86,10 @@ export function isProjectImageUnavailable(image: ProjectImage): boolean {
   );
 }
 
+export function canMoveProjectImage(status: ProjectImageStatus): boolean {
+  return status === PROJECT_IMAGE_STATUS_UPLOADED || status === PROJECT_IMAGE_STATUS_FAILED;
+}
+
 export function sortProjectImages(images: ProjectImage[]): ProjectImage[] {
   return [...images].sort((left, right) => {
     const leftTime = new Date(left.created_at).getTime();

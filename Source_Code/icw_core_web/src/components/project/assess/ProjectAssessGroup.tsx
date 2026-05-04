@@ -20,7 +20,7 @@ import {
   PROJECT_IMAGE_STATUS_UPLOADED,
 } from '@/types/common';
 import type { ProjectGroup, ProjectImage } from '@/types/project/assets';
-import { EMPTY_ITEMS_COUNT, NEXT_INDEX_OFFSET, projectImageStats } from '@/utils/assetsStage';
+import { canMoveProjectImage, EMPTY_ITEMS_COUNT, NEXT_INDEX_OFFSET, projectImageStats } from '@/utils/assetsStage';
 
 interface ProjectAssetImageCardProps {
   batchMode: boolean;
@@ -28,7 +28,7 @@ interface ProjectAssetImageCardProps {
   image: ProjectImage;
   onDeleteImage: (imageUuid: string) => void;
   onDragEnd: () => void;
-  onDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string) => void;
+  onDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string, imageStatus: ProjectImageStatus) => void;
   onOpenImageViewer: (imageUuid: string) => void;
   onToggleSelectedImage: (imageUuid: string, checked?: boolean) => void;
   readOnly: boolean;
@@ -47,6 +47,18 @@ interface ProjectImageActionOverlayProps {
   imageUploaded: boolean;
   onDeleteImage: (imageUuid: string) => void;
   onOpenImageViewer: (imageUuid: string) => void;
+  readOnly: boolean;
+}
+
+interface ProjectImageCardState {
+  actionVisible: boolean;
+  batchSelectable: boolean;
+  movable: boolean;
+  ready: boolean;
+  uploaded: boolean;
+}
+
+interface ProjectGroupDragHandleProps {
   readOnly: boolean;
 }
 
@@ -70,7 +82,12 @@ interface ProjectAssessGroupProps {
   onGroupDragStart: (event: DragEvent<HTMLDivElement>, group: ProjectGroup) => void;
   onGroupDrop: (event: DragEvent<HTMLElement>, groupId: string) => void;
   onImageDragEnd: () => void;
-  onImageDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string, sourceGroupId: string) => void;
+  onImageDragStart: (
+    event: DragEvent<HTMLDivElement>,
+    imageUuid: string,
+    sourceGroupId: string,
+    imageStatus: ProjectImageStatus,
+  ) => void;
   onOpenImageViewer: (imageUuid: string) => void;
   onSaveEditGroup: () => void;
   onSelectGroupImages: (imageUuids: string[]) => void;
@@ -119,6 +136,19 @@ function imageStatusNode(status: ProjectImageStatus): ReactElement {
   }
 }
 
+function projectImageCardState(image: ProjectImage, batchMode: boolean, readOnly: boolean): ProjectImageCardState {
+  const uploaded = image.status === PROJECT_IMAGE_STATUS_UPLOADED;
+  const failed = image.status === PROJECT_IMAGE_STATUS_FAILED;
+
+  return {
+    actionVisible: !batchMode && (uploaded || (!readOnly && failed)),
+    batchSelectable: batchMode && image.status !== PROJECT_IMAGE_STATUS_PENDING,
+    movable: !readOnly && !batchMode && canMoveProjectImage(image.status),
+    ready: uploaded && image.thumbnail_url !== '',
+    uploaded,
+  };
+}
+
 function ProjectAssetImageCard({
   batchMode,
   deleting,
@@ -131,29 +161,30 @@ function ProjectAssetImageCard({
   readOnly,
   selected,
 }: ProjectAssetImageCardProps): ReactElement {
-  const imageUploaded = image.status === PROJECT_IMAGE_STATUS_UPLOADED;
-  const imageFailed = image.status === PROJECT_IMAGE_STATUS_FAILED;
-  const imageBatchSelectable = batchMode && image.status !== PROJECT_IMAGE_STATUS_PENDING;
-  const imageReady = imageUploaded && image.thumbnail_url !== '';
-  const imageActionVisible = !batchMode && (imageUploaded || (!readOnly && imageFailed));
+  const imageState = projectImageCardState(image, batchMode, readOnly);
 
   return (
     <div
       className={`group/image relative aspect-square overflow-hidden rounded-lg border bg-white ${
         selected ? 'border-[#1677FF]' : 'border-slate-200'
       } ${batchMode ? 'cursor-pointer' : ''}`}
-      draggable={!readOnly && !batchMode}
+      draggable={imageState.movable}
       onClick={() => {
-        if (imageBatchSelectable) {
+        if (imageState.batchSelectable) {
           onToggleSelectedImage(image.uuid);
         }
       }}
       onDragEnd={onDragEnd}
       onDragStart={(event: DragEvent<HTMLDivElement>) => {
-        onDragStart(event, image.uuid);
+        if (!imageState.movable) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        onDragStart(event, image.uuid, image.status);
       }}
     >
-      {imageBatchSelectable ? (
+      {imageState.batchSelectable ? (
         <Checkbox
           checked={selected}
           className="absolute left-2 top-2 z-20"
@@ -165,17 +196,17 @@ function ProjectAssetImageCard({
           }}
         />
       ) : null}
-      {imageReady ? (
-        <img alt={image.file_name} className="size-full object-cover" src={image.thumbnail_url} />
+      {imageState.ready ? (
+        <img alt={image.file_name} className="size-full object-cover" draggable={false} src={image.thumbnail_url} />
       ) : (
         <div className="flex size-full flex-col items-center justify-center gap-2 px-3 text-center text-xs text-slate-500">
           {imageStatusNode(image.status)}
         </div>
       )}
-      {imageActionVisible ? (
+      {imageState.actionVisible ? (
         <ProjectImageActionOverlay
           deleting={deleting}
-          imageUploaded={imageUploaded}
+          imageUploaded={imageState.uploaded}
           imageUuid={image.uuid}
           onDeleteImage={onDeleteImage}
           onOpenImageViewer={onOpenImageViewer}
@@ -269,6 +300,13 @@ function ProjectImageUploadTile({ accept, onUploadFiles, uploading }: ProjectIma
   );
 }
 
+function ProjectGroupDragHandle({ readOnly }: ProjectGroupDragHandleProps): ReactElement | null {
+  if (readOnly) {
+    return null;
+  }
+  return <DragOutlined className="cursor-grab text-slate-400" />;
+}
+
 export function ProjectAssessGroup({
   accept,
   batchMode,
@@ -350,7 +388,7 @@ export function ProjectAssessGroup({
           size="small"
           type="text"
         />
-        <DragOutlined className="cursor-grab text-slate-400" />
+        <ProjectGroupDragHandle readOnly={readOnly} />
         {editing ? (
           <Input
             autoFocus
@@ -430,8 +468,8 @@ export function ProjectAssessGroup({
                 key={image.uuid}
                 onDeleteImage={onDeleteImage}
                 onDragEnd={onImageDragEnd}
-                onDragStart={(event, imageUuid) => {
-                  onImageDragStart(event, imageUuid, group.id);
+                onDragStart={(event, imageUuid, imageStatus) => {
+                  onImageDragStart(event, imageUuid, group.id, imageStatus);
                 }}
                 onOpenImageViewer={onOpenImageViewer}
                 onToggleSelectedImage={onToggleSelectedImage}

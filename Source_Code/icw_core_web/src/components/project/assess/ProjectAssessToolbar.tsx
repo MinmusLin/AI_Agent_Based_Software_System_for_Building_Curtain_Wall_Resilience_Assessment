@@ -61,6 +61,7 @@ interface ProjectAssessBatchActionsProps {
   onBatchMoveImages: (targetGroupId: string) => void;
   onCollapseAllGroups: () => void;
   onExpandAllGroups: () => void;
+  readOnly: boolean;
 }
 
 export function ProjectAssessToolbar({
@@ -88,8 +89,6 @@ export function ProjectAssessToolbar({
   readOnly,
   totalImageCount,
 }: ProjectAssessToolbarProps): ReactElement {
-  const readonlyOrLoading = readOnly || assetsLoading;
-
   return (
     <div className="mb-4 flex items-center justify-between gap-4">
       <div>
@@ -118,28 +117,34 @@ export function ProjectAssessToolbar({
           onBatchMoveImages={onBatchMoveImages}
           onCollapseAllGroups={onCollapseAllGroups}
           onExpandAllGroups={onExpandAllGroups}
+          readOnly={readOnly}
         />
-        {batchMode ? (
-          <Button disabled={readonlyOrLoading} icon={<CloseOutlined />} onClick={onBatchModeToggle}>
+        {!readOnly && batchMode ? (
+          <Button disabled={assetsLoading} icon={<CloseOutlined />} onClick={onBatchModeToggle}>
             退出批量
           </Button>
-        ) : (
-          <Button disabled={readonlyOrLoading} icon={<CopyOutlined />} onClick={onBatchModeToggle}>
+        ) : null}
+        {!readOnly && !batchMode ? (
+          <Button disabled={assetsLoading} icon={<CopyOutlined />} onClick={onBatchModeToggle}>
             批量操作
           </Button>
-        )}
-        <Button disabled={assetsLoading} icon={<ReloadOutlined />} onClick={onRefresh}>
-          刷新
-        </Button>
-        <Button
-          disabled={readonlyOrLoading}
-          icon={<PlusOutlined />}
-          loading={creatingGroup}
-          onClick={onCreateGroup}
-          type="primary"
-        >
-          新建图像组
-        </Button>
+        ) : null}
+        {!readOnly ? (
+          <Button disabled={assetsLoading} icon={<ReloadOutlined />} onClick={onRefresh}>
+            刷新
+          </Button>
+        ) : null}
+        {!readOnly ? (
+          <Button
+            disabled={assetsLoading}
+            icon={<PlusOutlined />}
+            loading={creatingGroup}
+            onClick={onCreateGroup}
+            type="primary"
+          >
+            新建图像组
+          </Button>
+        ) : null}
         {canComplete ? (
           <Button
             disabled={assetsLoading}
@@ -196,8 +201,9 @@ function ProjectAssessBatchActions({
   onBatchMoveImages,
   onCollapseAllGroups,
   onExpandAllGroups,
+  readOnly,
 }: ProjectAssessBatchActionsProps): ReactElement | null {
-  if (!batchMode || !hasSelectedImages) {
+  if (readOnly || !batchMode || !hasSelectedImages) {
     return (
       <>
         <Button disabled={assetsLoading} icon={<MenuFoldOutlined />} onClick={onCollapseAllGroups}>

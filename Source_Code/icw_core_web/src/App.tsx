@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { DragEvent, ReactElement } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from './components/AppLayout';
@@ -10,24 +10,32 @@ import ProjectsPage from './pages/ProjectsPage';
 import RegisterPage from './pages/RegisterPage';
 import { GuestRoute, ProtectedRoute } from './routes/RouteGuards';
 
+function preventNativeImageDrag(event: DragEvent<HTMLDivElement>): void {
+  if (event.target instanceof HTMLImageElement) {
+    event.preventDefault();
+  }
+}
+
 export default function App(): ReactElement {
   return (
-    <Routes>
-      <Route element={<Navigate replace to="/dashboard" />} path="/" />
-      <Route element={<GuestRoute />}>
-        <Route element={<LoginPage />} path="/login" />
-        <Route element={<RegisterPage />} path="/register" />
-        <Route element={<ForgetPasswordPage />} path="/forget-password" />
-      </Route>
-      <Route element={<ProtectedRoute />}>
-        <Route element={<AppLayout />}>
-          <Route element={<DashboardPage />} path="/dashboard" />
-          <Route element={<ProjectsPage />} path="/projects" />
-          <Route element={<ProjectDetailPage />} path="/projects/:projectId" />
-          <Route element={<ProjectDetailPage />} path="/projects/:projectId/:stage" />
+    <div className="contents" onDragStartCapture={preventNativeImageDrag}>
+      <Routes>
+        <Route element={<Navigate replace to="/dashboard" />} path="/" />
+        <Route element={<GuestRoute />}>
+          <Route element={<LoginPage />} path="/login" />
+          <Route element={<RegisterPage />} path="/register" />
+          <Route element={<ForgetPasswordPage />} path="/forget-password" />
         </Route>
-      </Route>
-      <Route element={<Navigate replace to="/dashboard" />} path="*" />
-    </Routes>
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            <Route element={<DashboardPage />} path="/dashboard" />
+            <Route element={<ProjectsPage />} path="/projects" />
+            <Route element={<ProjectDetailPage />} path="/projects/:projectId" />
+            <Route element={<ProjectDetailPage />} path="/projects/:projectId/:stage" />
+          </Route>
+        </Route>
+        <Route element={<Navigate replace to="/dashboard" />} path="*" />
+      </Routes>
+    </div>
   );
 }

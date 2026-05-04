@@ -3,9 +3,11 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { getErrorMessage } from '@/api/http';
 import { moveProjectGroup, moveProjectImage } from '@/api/project/assets';
+import type { ProjectImageStatus } from '@/types/common';
 import type { ProjectGroup } from '@/types/project/assets';
 import type { DraggingImage } from '@/utils/assetsStage';
 import {
+  canMoveProjectImage,
   EMPTY_ITEMS_COUNT,
   GROUP_MOVE_ANIMATION_MS,
   GROUP_MOVE_DELTA_EPSILON,
@@ -37,7 +39,12 @@ interface UseProjectAssetsDragResult {
   handleGroupDragStart: (event: DragEvent<HTMLDivElement>, group: ProjectGroup) => void;
   handleGroupDropEvent: (event: DragEvent<HTMLElement>, groupId: string) => void;
   handleImageDragEnd: () => void;
-  handleImageDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string, sourceGroupId: string) => void;
+  handleImageDragStart: (
+    event: DragEvent<HTMLDivElement>,
+    imageUuid: string,
+    sourceGroupId: string,
+    imageStatus: ProjectImageStatus,
+  ) => void;
   handleCollapseAllGroups: () => void;
   handleExpandAllGroups: () => void;
   handleToggleCollapsed: (groupId: string) => void;
@@ -235,8 +242,15 @@ export function useProjectAssetsDrag({
   );
 
   const handleImageDragStart = useCallback(
-    (event: DragEvent<HTMLDivElement>, imageUuid: string, sourceGroupId: string): void => {
-      if (readOnly || batchMode) {
+    (
+      event: DragEvent<HTMLDivElement>,
+      imageUuid: string,
+      sourceGroupId: string,
+      imageStatus: ProjectImageStatus,
+    ): void => {
+      if (readOnly || batchMode || !canMoveProjectImage(imageStatus)) {
+        event.preventDefault();
+        event.stopPropagation();
         return;
       }
       event.stopPropagation();
@@ -251,7 +265,7 @@ export function useProjectAssetsDrag({
 
   const handleImageDrop = useCallback(
     async (targetGroupId: string): Promise<void> => {
-      if (readOnly || !draggingImage || draggingImage.sourceGroupId === targetGroupId) {
+      if (readOnly || batchMode || !draggingImage || draggingImage.sourceGroupId === targetGroupId) {
         return;
       }
 
@@ -268,7 +282,7 @@ export function useProjectAssetsDrag({
         setDraggingImage(null);
       }
     },
-    [draggingImage, onError, projectId, readOnly, setGroups],
+    [batchMode, draggingImage, onError, projectId, readOnly, setGroups],
   );
 
   const handleGroupDropEvent = useCallback(
