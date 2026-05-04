@@ -3,7 +3,6 @@ import type { ApiEnvelope } from '@/types/common';
 import type {
   AdvanceProjectProgressRequest,
   CreateProjectResponse,
-  DeleteProjectRequest,
   DeleteProjectResponse,
   ListProjectsResponse,
 } from '@/types/project/core';
@@ -23,8 +22,10 @@ export async function createProject(): Promise<CreateProjectResponse> {
 
 // 删除项目
 // @router /project/core/delete [POST]
-export async function deleteProject(payload: DeleteProjectRequest): Promise<DeleteProjectResponse> {
-  const { data } = await http.post<ApiEnvelope<DeleteProjectResponse>>('/project/core/delete', payload);
+export async function deleteProject(projectId: string): Promise<DeleteProjectResponse> {
+  const { data } = await http.post<ApiEnvelope<DeleteProjectResponse>>('/project/core/delete', {
+    project_id: projectId,
+  });
   return data.data;
 }
 
