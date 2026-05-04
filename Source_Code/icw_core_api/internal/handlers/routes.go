@@ -217,7 +217,7 @@ func formatRoutesTable(routes gin.RoutesInfo) string {
 	for _, route := range routes {
 		methodWidth = max(methodWidth, len(route.Method))
 		pathWidth = max(pathWidth, len(route.Path))
-		handlerWidth = max(handlerWidth, len(route.Handler))
+		handlerWidth = max(handlerWidth, len(strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")))
 	}
 	border := fmt.Sprintf(
 		"+-%s-+-%s-+-%s-+",
@@ -232,7 +232,7 @@ func formatRoutesTable(routes gin.RoutesInfo) string {
 	builder.WriteString(border)
 	builder.WriteString("\n")
 	for _, route := range routes {
-		builder.WriteString(fmt.Sprintf("| %-*s | %-*s | %-*s |\n", methodWidth, route.Method, pathWidth, route.Path, handlerWidth, route.Handler))
+		builder.WriteString(fmt.Sprintf("| %-*s | %-*s | %-*s |\n", methodWidth, route.Method, pathWidth, route.Path, handlerWidth, strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")))
 	}
 	builder.WriteString(border)
 	return builder.String()
