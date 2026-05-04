@@ -45,15 +45,15 @@ func (s *Service) refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 		return err
 	}
 	if token == nil || user == nil {
-		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "refresh token not found")
+		return rpc_err.UnauthorizedDefault("refresh token not found")
 	}
 
 	// 检查 Refresh Token 是否已吊销或已过期
 	if token.RevokedAt.Valid {
-		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "refresh token revoked")
+		return rpc_err.UnauthorizedDefault("refresh token revoked")
 	}
 	if time.Now().After(token.ExpiresAt) {
-		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "refresh token expired")
+		return rpc_err.UnauthorizedDefault("refresh token expired")
 	}
 
 	// 签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
@@ -62,7 +62,7 @@ func (s *Service) refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 	}
 	newTokenId := utils.ParseRefreshTokenId(resp.RefreshToken)
 	if newTokenId == "" {
-		return rpc_err.Unauthorized(rpc_err.DetailUnauthorized, "invalid new refresh token")
+		return rpc_err.UnauthorizedDefault("invalid new refresh token")
 	}
 
 	return nil
