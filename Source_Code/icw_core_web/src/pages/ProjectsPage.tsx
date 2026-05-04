@@ -12,6 +12,7 @@ import { formatDateTime } from '@/utils/datetime';
 
 const PROJECT_CARD_CLASS = 'h-full border-slate-200 shadow-none [&_.ant-card-body]:px-4';
 const PROJECT_CARD_BODY_CLASS = 'flex h-[9.8rem] flex-col';
+const EMPTY_PROJECT_COUNT = 0;
 
 function displayText(value: string, fallback: string): string {
   const trimmedValue = value.trim();
@@ -207,7 +208,7 @@ function ProjectSection({
         <h2 className="text-base font-semibold text-slate-900">{title}</h2>
         <span className="text-sm text-slate-500">{projects.length} 个项目</span>
       </div>
-      {projects.length > 0 ? (
+      {projects.length > EMPTY_PROJECT_COUNT ? (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {projects.map((project) => (
             <ProjectCard

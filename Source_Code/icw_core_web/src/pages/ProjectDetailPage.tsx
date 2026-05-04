@@ -9,16 +9,24 @@ import { getProjectProfile } from '@/api/project/profile';
 import { ProjectAssetsStage } from '@/components/project/ProjectAssetsStage';
 import { ProjectProfileStage } from '@/components/project/ProjectProfileStage';
 import { LAST_VISIBLE_PROGRESS, progressFromStageKey, PROJECT_STAGES, stageKeyFromProgress } from '@/constants/project';
+import type { ProjectProgress } from '@/types/common';
+import {
+  PROJECT_PROGRESS_INITIALIZATION_FINISHED,
+  PROJECT_PROGRESS_PROFILE_FINISHED,
+  PROJECT_STAGE_KEY_ASSETS,
+  PROJECT_STAGE_KEY_DETECTION,
+  PROJECT_STAGE_KEY_PROFILE,
+  PROJECT_STAGE_KEY_REPORT,
+  PROJECT_STAGE_KEY_REVIEW,
+} from '@/types/common';
 import type { Project } from '@/types/project/core';
 
-const PROFILE_PROGRESS = 0;
-const ASSETS_PROGRESS = 1;
 const PROJECT_STAGE_ICONS: ReactElement[] = [
-  <ProfileOutlined key="profile" />,
-  <PictureOutlined key="assets" />,
-  <RobotOutlined key="detection" />,
-  <AuditOutlined key="review" />,
-  <FileTextOutlined key="report" />,
+  <ProfileOutlined key={PROJECT_STAGE_KEY_PROFILE} />,
+  <PictureOutlined key={PROJECT_STAGE_KEY_ASSETS} />,
+  <RobotOutlined key={PROJECT_STAGE_KEY_DETECTION} />,
+  <AuditOutlined key={PROJECT_STAGE_KEY_REVIEW} />,
+  <FileTextOutlined key={PROJECT_STAGE_KEY_REPORT} />,
 ];
 
 function selectedStageIcon(index: number): ReactElement {
@@ -40,27 +48,27 @@ function emptyProject(projectId: string): Project {
     known_issues: '',
     assessment_goal: '',
     thumbnail_url: '',
-    progress: PROFILE_PROGRESS,
+    progress: PROJECT_PROGRESS_INITIALIZATION_FINISHED,
     created_at: '',
     updated_at: '',
   };
 }
 
-function currentVisibleProgress(progress: number): number {
-  return Math.min(progress, LAST_VISIBLE_PROGRESS);
+function currentVisibleProgress(progress: ProjectProgress): ProjectProgress {
+  return Math.min(progress, LAST_VISIBLE_PROGRESS) as ProjectProgress;
 }
 
-function projectRoute(projectId: string, progress: number): string {
+function projectRoute(projectId: string, progress: ProjectProgress): string {
   return `/projects/${projectId}/${stageKeyFromProgress(progress)}`;
 }
 
 interface ProjectStageContentProps {
   loading?: boolean;
-  onProgressChange: (progress: number) => void;
+  onProgressChange: (progress: ProjectProgress) => void;
   onProjectChange: (project: Project) => void;
   project: Project;
   projectId: string;
-  selectedProgress: number;
+  selectedProgress: ProjectProgress;
 }
 
 function ProjectStageContent({
@@ -71,7 +79,7 @@ function ProjectStageContent({
   projectId,
   selectedProgress,
 }: ProjectStageContentProps): ReactElement {
-  if (selectedProgress === PROFILE_PROGRESS) {
+  if (selectedProgress === PROJECT_PROGRESS_INITIALIZATION_FINISHED) {
     return (
       <ProjectProfileStage
         loading={loading}
@@ -84,7 +92,7 @@ function ProjectStageContent({
     );
   }
 
-  if (selectedProgress === ASSETS_PROGRESS) {
+  if (selectedProgress === PROJECT_PROGRESS_PROFILE_FINISHED) {
     return (
       <ProjectAssetsStage
         loading={loading}
@@ -113,7 +121,7 @@ export default function ProjectDetailPage(): ReactElement {
 
   const projectId = useMemo(() => params.projectId?.trim() ?? '', [params.projectId]);
   const routeProgress = useMemo(() => progressFromStageKey(params.stage), [params.stage]);
-  const selectedProgress = routeProgress ?? PROFILE_PROGRESS;
+  const selectedProgress = routeProgress ?? PROJECT_PROGRESS_INITIALIZATION_FINISHED;
 
   const loadProject = useCallback(async (): Promise<void> => {
     if (projectId === '') {
@@ -138,13 +146,13 @@ export default function ProjectDetailPage(): ReactElement {
       if (!project || projectId === '' || nextProgress > project.progress) {
         return;
       }
-      void navigate(projectRoute(projectId, nextProgress));
+      void navigate(projectRoute(projectId, nextProgress as ProjectProgress));
     },
     [navigate, project, projectId],
   );
 
   const handleProgressChange = useCallback(
-    (nextProgress: number): void => {
+    (nextProgress: ProjectProgress): void => {
       if (projectId === '') {
         return;
       }
@@ -197,7 +205,7 @@ export default function ProjectDetailPage(): ReactElement {
           onProjectChange={setProject}
           project={loadingProject}
           projectId={projectId}
-          selectedProgress={PROFILE_PROGRESS}
+          selectedProgress={PROJECT_PROGRESS_INITIALIZATION_FINISHED}
         />
       </div>
     );
@@ -215,7 +223,7 @@ export default function ProjectDetailPage(): ReactElement {
   const visibleProgress =
     routeProgress === null
       ? currentVisibleProgress(project.progress)
-      : Math.min(selectedProgress, currentVisibleProgress(project.progress));
+      : (Math.min(selectedProgress, currentVisibleProgress(project.progress)) as ProjectProgress);
   const visibleStage = PROJECT_STAGES[visibleProgress];
 
   return (
