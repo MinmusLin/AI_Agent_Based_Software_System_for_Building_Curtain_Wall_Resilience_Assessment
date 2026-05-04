@@ -13,6 +13,7 @@ import (
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/pkg/rpc_err"
+	bizUtils "icw_core_biz/utils"
 )
 
 // ProjectProgressCondition 项目进度校验条件
@@ -88,7 +89,7 @@ func parseProjectIdFromRequest(c *gin.Context) (uint64, error) {
 	// 从 HTTP Query 中解析项目 ID
 	projectCode := c.Query("project_id")
 	if projectCode != "" {
-		projectId, err := utils.Decode(projectCode)
+		projectId, err := bizUtils.Decode(projectCode)
 		if err != nil {
 			return 0, rpc_err.BadRequestDefault(err.Error())
 		}
@@ -114,7 +115,7 @@ func parseProjectIdFromRequest(c *gin.Context) (uint64, error) {
 	if projectCode == "" {
 		return 0, rpc_err.BadRequestDefault("project id is required")
 	}
-	projectId, err := utils.Decode(projectCode)
+	projectId, err := bizUtils.Decode(projectCode)
 	if err != nil {
 		return 0, rpc_err.BadRequestDefault(err.Error())
 	}

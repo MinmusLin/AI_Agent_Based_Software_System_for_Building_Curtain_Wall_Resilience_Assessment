@@ -7,13 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/utils"
-)
-
-const (
-	// LogColorReset ANSI 终端颜色重置码
-	LogColorReset = "\033[0m"
-	// LogColorBoldGreen ANSI 终端颜色码：绿色
-	LogColorBoldGreen = "\033[1;32m"
+	"icw_core_biz/consts"
 )
 
 // Logger 保持 Gin 默认日志输出格式，添加请求 ID 输出
@@ -38,8 +32,8 @@ func Logger() gin.HandlerFunc {
 		}
 
 		return fmt.Sprintf("%s[HTTP]%s %v | %s |%s %3d %s| %13v | %15s |%s %-7s %s %#v\n%s",
-			LogColorBoldGreen,
-			LogColorReset,
+			consts.LogColorBoldGreen,
+			consts.LogColorReset,
 			param.TimeStamp.Format("2006/01/02 15:04:05"),
 			requestId,
 			statusColor, param.StatusCode, resetColor,
