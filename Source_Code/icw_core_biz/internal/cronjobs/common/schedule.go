@@ -5,14 +5,14 @@ import (
 )
 
 // Schedule 按 Cron 表达式启动定时任务
-func (j *CronJob) Schedule(name, expression string, fn func() error) error {
+func (c *CronJob) Schedule(name, expression string, fn func() error) error {
 	scheduler := cron.New(
 		cron.WithSeconds(),
 		cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)),
 	)
 
 	if _, err := scheduler.AddFunc(expression, func() {
-		_ = j.Run(name, fn)
+		_ = c.Run(name, fn)
 	}); err != nil {
 		return err
 	}
@@ -20,7 +20,7 @@ func (j *CronJob) Schedule(name, expression string, fn func() error) error {
 	scheduler.Start()
 
 	go func() {
-		<-j.Ctx().Done()
+		<-c.Ctx().Done()
 		stopCtx := scheduler.Stop()
 		<-stopCtx.Done()
 	}()

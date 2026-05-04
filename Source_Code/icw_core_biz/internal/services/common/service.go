@@ -42,11 +42,11 @@ type BaseService struct {
 }
 
 func NewBaseService(ctx context.Context, deps *Deps) *BaseService {
-	if deps == nil {
-		deps = &Deps{}
-	}
 	if ctx == nil {
 		ctx = context.Background()
+	}
+	if deps == nil {
+		deps = &Deps{}
 	}
 	return &BaseService{
 		deps: deps,
