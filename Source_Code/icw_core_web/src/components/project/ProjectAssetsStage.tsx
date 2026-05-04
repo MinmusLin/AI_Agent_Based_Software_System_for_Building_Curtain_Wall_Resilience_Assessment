@@ -970,9 +970,9 @@ export function ProjectAssetsStage({
                               {imageActionVisible ? (
                                 <div className="absolute inset-0 flex items-center justify-center gap-2 bg-slate-950/0 opacity-0 transition duration-200 group-hover/image:bg-slate-950/35 group-hover/image:opacity-100">
                                   {imageUploaded ? (
-                                    <Tooltip title="查看原图">
+                                    <Tooltip title="图像详情">
                                       <Button
-                                        aria-label="查看原图"
+                                        aria-label="图像详情"
                                         icon={<EyeOutlined />}
                                         onClick={() => void openImageViewer(image.uuid)}
                                         shape="circle"
@@ -1049,13 +1049,13 @@ export function ProjectAssetsStage({
         width={1040}
       >
         {viewer ? (
-          <div className="grid min-h-[520px] grid-cols-[minmax(0,1fr)_320px] gap-5">
+          <div className="grid h-[520px] grid-cols-[minmax(0,1fr)_320px] gap-5">
             <div className="relative flex min-h-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
               {viewer.loading ? (
                 <Spin />
               ) : (
                 <img
-                  alt={viewerImage?.image.file_name ?? '项目原图'}
+                  alt={viewerImage?.image.file_name ?? '图像原图'}
                   className="max-h-[520px] max-w-full object-contain"
                   src={viewer.originalUrl}
                 />
