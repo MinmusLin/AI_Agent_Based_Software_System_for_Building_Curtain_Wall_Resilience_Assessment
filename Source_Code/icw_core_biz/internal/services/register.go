@@ -19,7 +19,7 @@ import (
 
 // RegisterRPCServices 注册 RPC 服务
 func RegisterRPCServices(ctx context.Context, serviceDeps *common.Deps) {
-	// 注册 WebSocket Service
+	// 注册 WebSocket 连接票据 Service
 	socketService := socket.NewService(ctx, serviceDeps)
 	if err := rpc.RegisterName("SocketService", socketService); err != nil {
 		log.Fatalf("Failed to register socket rpc service: %v", err)

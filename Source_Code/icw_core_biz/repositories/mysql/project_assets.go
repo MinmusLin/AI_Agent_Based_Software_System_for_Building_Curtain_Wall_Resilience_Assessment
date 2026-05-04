@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"icw_core_biz/internal/services/project/consts"
 )
@@ -903,4 +904,101 @@ func (r *Repository) GetProjectAssetsReadyStats(ctx context.Context, userId, pro
 	}
 
 	return stats, nil
+}
+
+// FailTimeoutPendingProjectImages 将超时的上传中项目图像状态更新为上传失败
+func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeout time.Duration) ([]*ProjectImageRecord, error) {
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	rows, err := tx.QueryContext(ctx, `
+		SELECT
+			id,
+			group_id,
+			project_id,
+			user_id,
+			uuid,
+			file_name,
+			content_type,
+			size_bytes,
+			width,
+			height,
+			CAST(metadata AS CHAR),
+			status,
+			uploaded_at,
+			created_at,
+			updated_at
+		FROM project_group_images
+		WHERE status = ? AND created_at < NOW(3) - INTERVAL ? SECOND
+		ORDER BY created_at ASC, id ASC
+		FOR UPDATE
+	`, consts.ProjectImageStatusPending.String(), int64(timeout.Seconds()))
+	if err != nil {
+		return nil, err
+	}
+
+	images := make([]*ProjectImageRecord, 0)
+	for rows.Next() {
+		image := &ProjectImageRecord{}
+		if err := rows.Scan(
+			&image.Id,
+			&image.GroupId,
+			&image.ProjectId,
+			&image.UserId,
+			&image.Uuid,
+			&image.FileName,
+			&image.ContentType,
+			&image.SizeBytes,
+			&image.Width,
+			&image.Height,
+			&image.Metadata,
+			&image.Status,
+			&image.UploadedAt,
+			&image.CreatedAt,
+			&image.UpdatedAt,
+		); err != nil {
+			_ = rows.Close()
+			return nil, err
+		}
+		images = append(images, image)
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return nil, err
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	for _, image := range images {
+		result, err := tx.ExecContext(ctx, `
+			UPDATE project_group_images
+			SET status = ?
+			WHERE id = ? AND status = ?
+		`, consts.ProjectImageStatusFailed.String(), image.Id, consts.ProjectImageStatusPending.String())
+		if err != nil {
+			return nil, err
+		}
+
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return nil, err
+		}
+		if affected == 0 {
+			continue
+		}
+
+		image.Status = consts.ProjectImageStatusFailed
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return images, nil
 }
