@@ -1,3 +1,5 @@
+import type { ProjectProgress } from '@/types/common';
+
 export interface Project {
   id: string;
   name: string;
@@ -8,7 +10,7 @@ export interface Project {
   known_issues: string;
   assessment_goal: string;
   thumbnail_url: string;
-  progress: number;
+  progress: ProjectProgress;
   created_at: string;
   updated_at: string;
 }
@@ -19,14 +21,14 @@ export interface ProjectListItem {
   building_name: string;
   building_location: string;
   thumbnail_url: string;
-  progress: number;
+  progress: ProjectProgress;
   created_at: string;
 }
 
 export interface AdvanceProjectProgressRequest {
   project_id: string;
-  from_progress: number;
-  to_progress: number;
+  from_progress: ProjectProgress;
+  to_progress: ProjectProgress;
 }
 
 export interface CreateProjectResponse {
