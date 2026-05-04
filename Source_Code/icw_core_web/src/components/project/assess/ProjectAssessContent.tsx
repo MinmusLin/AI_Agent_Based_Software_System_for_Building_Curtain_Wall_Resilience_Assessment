@@ -36,6 +36,7 @@ interface ProjectAssessContentProps {
   registerGroupRef: (groupId: string, node: HTMLElement | null) => void;
   savingGroupId: string;
   selectedImageUuids: Set<string>;
+  uploadingImages: boolean;
 }
 
 export function ProjectAssessContent({
@@ -69,6 +70,7 @@ export function ProjectAssessContent({
   registerGroupRef,
   savingGroupId,
   selectedImageUuids,
+  uploadingImages,
 }: ProjectAssessContentProps): ReactElement {
   if (assetsLoading) {
     return (
@@ -121,6 +123,7 @@ export function ProjectAssessContent({
           registerGroupRef={registerGroupRef}
           savingGroup={savingGroupId === group.id}
           selectedImageUuids={selectedImageUuids}
+          uploadingImages={uploadingImages}
         />
       ))}
     </div>

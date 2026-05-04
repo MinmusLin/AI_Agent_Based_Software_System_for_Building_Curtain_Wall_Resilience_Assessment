@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { getErrorMessage } from '@/api/http';
 import {
@@ -72,6 +72,7 @@ interface UseProjectAssetsActionsResult {
   setEditingGroupName: Dispatch<SetStateAction<string>>;
   setGroups: Dispatch<SetStateAction<ProjectGroup[]>>;
   startEditGroup: (group: ProjectGroup) => void;
+  uploadingImages: boolean;
 }
 
 export function useProjectAssetsActions({
@@ -92,6 +93,8 @@ export function useProjectAssetsActions({
   const [savingGroupId, setSavingGroupId] = useState('');
   const [deletingGroupIds, setDeletingGroupIds] = useState<Set<string>>(() => new Set());
   const [deletingImageUuids, setDeletingImageUuids] = useState<Set<string>>(() => new Set());
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const uploadingImagesRef = useRef(false);
 
   const readOnly =
     loading ||
@@ -201,6 +204,10 @@ export function useProjectAssetsActions({
 
   const handleUploadFiles = useCallback(
     async (groupId: string, files: File[]): Promise<void> => {
+      if (uploadingImagesRef.current) {
+        return;
+      }
+
       const validFiles = files.filter((file) => isAllowedProjectAssetImageFile(file));
       if (validFiles.length !== files.length) {
         onError('请上传 JPG、PNG 或 WebP 格式的图片');
@@ -209,6 +216,8 @@ export function useProjectAssetsActions({
         return;
       }
 
+      uploadingImagesRef.current = true;
+      setUploadingImages(true);
       try {
         const preparedImages = await Promise.all(validFiles.map((file) => prepareUploadImage(file)));
         const uploadItems = preparedImages.map((image) => uploadItemFromPreparedImage(image));
@@ -227,6 +236,9 @@ export function useProjectAssetsActions({
         );
       } catch (error: unknown) {
         onError(getErrorMessage(error));
+      } finally {
+        uploadingImagesRef.current = false;
+        setUploadingImages(false);
       }
     },
     [onError, projectId],
@@ -301,6 +313,7 @@ export function useProjectAssetsActions({
     setEditingGroupName,
     setGroups,
     startEditGroup,
+    uploadingImages,
   };
 }
 

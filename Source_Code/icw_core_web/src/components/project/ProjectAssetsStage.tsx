@@ -62,6 +62,7 @@ export function ProjectAssetsStage({
     setEditingGroupName,
     setGroups,
     startEditGroup,
+    uploadingImages,
   } = useProjectAssetsActions({
     loading,
     onError: showError,
@@ -206,6 +207,7 @@ export function ProjectAssetsStage({
           registerGroupRef={registerGroupRef}
           savingGroupId={savingGroupId}
           selectedImageUuids={selectedImageUuids}
+          uploadingImages={uploadingImages}
         />
       </div>
       <ProjectAssessViewer

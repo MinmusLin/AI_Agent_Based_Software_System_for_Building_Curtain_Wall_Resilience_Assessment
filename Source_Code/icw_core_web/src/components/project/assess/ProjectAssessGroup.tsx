@@ -37,6 +37,7 @@ interface ProjectAssetImageCardProps {
 interface ProjectImageUploadTileProps {
   accept: string;
   onUploadFiles: (files: File[]) => void;
+  uploading: boolean;
 }
 
 interface ProjectImageActionOverlayProps {
@@ -79,6 +80,7 @@ interface ProjectAssessGroupProps {
   registerGroupRef: (groupId: string, node: HTMLElement | null) => void;
   savingGroup: boolean;
   selectedImageUuids: Set<string>;
+  uploadingImages: boolean;
 }
 
 function ImageUnavailableIcon(): ReactElement {
@@ -224,23 +226,36 @@ function ProjectImageActionOverlay({
   );
 }
 
-function ProjectImageUploadTile({ accept, onUploadFiles }: ProjectImageUploadTileProps): ReactElement {
+function ProjectImageUploadTile({ accept, onUploadFiles, uploading }: ProjectImageUploadTileProps): ReactElement {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <button
-      className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-white text-sm text-slate-500 transition duration-200 hover:border-[#1677FF] hover:text-[#1677FF]"
+      className={`flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-white text-sm transition duration-200 ${
+        uploading
+          ? 'cursor-not-allowed border-slate-200 text-slate-400'
+          : 'border-slate-300 text-slate-500 hover:border-[#1677FF] hover:text-[#1677FF]'
+      }`}
+      disabled={uploading}
       onClick={() => {
+        if (uploading) {
+          return;
+        }
         inputRef.current?.click();
       }}
       type="button"
     >
-      <UploadOutlined className="text-2xl" />
+      {uploading ? <LoadingOutlined className="text-2xl" /> : <UploadOutlined className="text-2xl" />}
       <input
         accept={accept}
         className="hidden"
+        disabled={uploading}
         multiple
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
+          if (uploading) {
+            event.target.value = '';
+            return;
+          }
           const selectedFiles = Array.from(event.target.files ?? []);
           event.target.value = '';
           onUploadFiles(selectedFiles);
@@ -283,6 +298,7 @@ export function ProjectAssessGroup({
   registerGroupRef,
   savingGroup,
   selectedImageUuids,
+  uploadingImages,
 }: ProjectAssessGroupProps): ReactElement {
   const canDeleteGroup = !readOnly && groupCount > NEXT_INDEX_OFFSET;
 
@@ -406,6 +422,7 @@ export function ProjectAssessGroup({
                 onUploadFiles={(files) => {
                   onUploadFiles(group.id, files);
                 }}
+                uploading={uploadingImages}
               />
             ) : null}
           </div>
