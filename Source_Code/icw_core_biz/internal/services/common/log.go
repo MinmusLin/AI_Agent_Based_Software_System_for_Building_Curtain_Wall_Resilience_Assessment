@@ -31,10 +31,10 @@ func rpcLog(method string, req, resp interface{}, start time.Time, err error) {
 	}
 
 	if isEmptyError(err) {
-		log.Printf("%s [%s] [%s] cost=%s req=%s resp=%s", rpcPrefix(err), method, requestId, time.Since(start), utils.JSONF(req), utils.JSONF(resp))
+		log.Printf("%s [%s] [%s] cost=%s req=%s resp=%s", RpcInfoAndErrorPrefix(err), method, requestId, time.Since(start), utils.JSONF(req), utils.JSONF(resp))
 		return
 	}
-	log.Printf("%s [%s] [%s] cost=%s req=%s resp=%s err=%s", rpcPrefix(err), method, requestId, time.Since(start), utils.JSONF(req), utils.JSONF(resp), formatError(err))
+	log.Printf("%s [%s] [%s] cost=%s req=%s resp=%s err=%s", RpcInfoAndErrorPrefix(err), method, requestId, time.Since(start), utils.JSONF(req), utils.JSONF(resp), formatError(err))
 }
 
 // getRequestId 从 RPC 元数据中获取请求 ID
@@ -71,16 +71,16 @@ func getRequestId(req interface{}) string {
 	return strings.TrimSpace(requestIdField.String())
 }
 
-// rpcPrefix RPC 日志前缀
-func rpcPrefix(err interface{}) string {
+// RpcInfoAndErrorPrefix RPC 正常和错误日志前缀
+func RpcInfoAndErrorPrefix(err interface{}) string {
 	if isEmptyError(err) {
-		return LogColorBoldGreen + "[INFO]" + LogColorReset
+		return LogColorBoldGreen + "[RPC INFO]" + LogColorReset
 	}
-	return LogColorBoldRed + "[ERROR]" + LogColorReset
+	return LogColorBoldRed + "[RPC ERROR]" + LogColorReset
 }
 
-// WarnPrefix 警告日志前缀
-func WarnPrefix() string {
+// RpcWarnPrefix RPC 警告日志前缀
+func RpcWarnPrefix() string {
 	return LogColorBoldYellow + "[WARN]" + LogColorReset
 }
 
