@@ -23,7 +23,7 @@ func (s *Service) deleteAvatar(req *dto.DeleteAvatarRequest, _ *dto.DeleteAvatar
 
 	if s.Redis() != nil {
 		// 清除预签名 URL 缓存
-		_ = s.Redis().ClearPresignURL(s.Ctx(), redis.GenCustomAvatarPresignURLKey(req.UserId, emailHash))
+		_ = s.Redis().ClearPresignURL(s.Ctx(), redis.GenCustomAvatarPresignURLKey(emailHash))
 	}
 
 	// 删除用户自定义头像

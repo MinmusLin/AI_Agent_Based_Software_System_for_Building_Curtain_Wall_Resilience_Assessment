@@ -7,13 +7,13 @@ import (
 )
 
 // genEmailCodeKey 生成邮箱验证码哈希 Key
-func genEmailCodeKey(scene, email string) string {
-	return fmt.Sprintf("auth:email_code:%s:%s", scene, email) // todo email hash
+func genEmailCodeKey(scene, emailHash string) string {
+	return fmt.Sprintf("auth:email_code:%s:%s", scene, emailHash)
 }
 
 // genLoginFailureKey 生成指定登录方式的登录失败次数 Key
-func genLoginFailureKey(scene, email string) string {
-	return fmt.Sprintf("auth:login_fail:%s:%s", scene, email) // todo email hash
+func genLoginFailureKey(scene, emailHash string) string {
+	return fmt.Sprintf("auth:login_fail:%s:%s", scene, emailHash)
 }
 
 // genRefreshReuseLockKey 生成 Refresh Token 轮换并发锁 Key

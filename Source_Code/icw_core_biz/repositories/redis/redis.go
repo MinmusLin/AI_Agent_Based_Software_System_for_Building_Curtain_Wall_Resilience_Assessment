@@ -20,13 +20,13 @@ func NewRepository(rdb *redis.Client) *Repository {
 }
 
 // SaveEmailCode 保存邮箱验证码哈希
-func (r *Repository) SaveEmailCode(ctx context.Context, scene, email, codeHash string, ttl time.Duration) error {
-	return r.redis.Set(ctx, genEmailCodeKey(scene, email), codeHash, ttl).Err()
+func (r *Repository) SaveEmailCode(ctx context.Context, scene, emailHash, codeHash string, ttl time.Duration) error {
+	return r.redis.Set(ctx, genEmailCodeKey(scene, emailHash), codeHash, ttl).Err()
 }
 
 // GetEmailCode 获取邮箱验证码哈希
-func (r *Repository) GetEmailCode(ctx context.Context, scene, email string) (string, error) {
-	codeHash, err := r.redis.Get(ctx, genEmailCodeKey(scene, email)).Result()
+func (r *Repository) GetEmailCode(ctx context.Context, scene, emailHash string) (string, error) {
+	codeHash, err := r.redis.Get(ctx, genEmailCodeKey(scene, emailHash)).Result()
 	if errors.Is(err, redis.Nil) {
 		return "", nil
 	}
@@ -37,35 +37,35 @@ func (r *Repository) GetEmailCode(ctx context.Context, scene, email string) (str
 }
 
 // ClearEmailCode 清除邮箱验证码哈希
-func (r *Repository) ClearEmailCode(ctx context.Context, scene, email string) error {
-	return r.redis.Del(ctx, genEmailCodeKey(scene, email)).Err()
+func (r *Repository) ClearEmailCode(ctx context.Context, scene, emailHash string) error {
+	return r.redis.Del(ctx, genEmailCodeKey(scene, emailHash)).Err()
 }
 
 // EmailCodeExists 判断邮箱验证码是否在有效期内
-func (r *Repository) EmailCodeExists(ctx context.Context, scene, email string) (bool, error) {
-	exists, err := r.redis.Exists(ctx, genEmailCodeKey(scene, email)).Result()
+func (r *Repository) EmailCodeExists(ctx context.Context, scene, emailHash string) (bool, error) {
+	exists, err := r.redis.Exists(ctx, genEmailCodeKey(scene, emailHash)).Result()
 	return exists > 0, err
 }
 
 // RecordLoginFailure 记录一次登录失败
-func (r *Repository) RecordLoginFailure(ctx context.Context, loginScene, email string, ttl time.Duration) error {
+func (r *Repository) RecordLoginFailure(ctx context.Context, loginScene, emailHash string, ttl time.Duration) error {
 	return redis.NewScript(`
 	local count = redis.call("INCR", KEYS[1])
 	if count == 1 then
 		redis.call("EXPIRE", KEYS[1], ARGV[1])
 	end
 	return count
-	`).Run(ctx, r.redis, []string{genLoginFailureKey(loginScene, email)}, int64(ttl.Seconds())).Err()
+	`).Run(ctx, r.redis, []string{genLoginFailureKey(loginScene, emailHash)}, int64(ttl.Seconds())).Err()
 }
 
 // ClearLoginFailure 清除登录失败计数
-func (r *Repository) ClearLoginFailure(ctx context.Context, loginScene, email string) error {
-	return r.redis.Del(ctx, genLoginFailureKey(loginScene, email)).Err()
+func (r *Repository) ClearLoginFailure(ctx context.Context, loginScene, emailHash string) error {
+	return r.redis.Del(ctx, genLoginFailureKey(loginScene, emailHash)).Err()
 }
 
 // IsLoginLocked 判断指定登录方式是否达到登录失败次数上限
-func (r *Repository) IsLoginLocked(ctx context.Context, loginScene, email string, limit int) (bool, time.Duration, error) {
-	key := genLoginFailureKey(loginScene, email)
+func (r *Repository) IsLoginLocked(ctx context.Context, loginScene, emailHash string, limit int) (bool, time.Duration, error) {
+	key := genLoginFailureKey(loginScene, emailHash)
 	count, err := r.redis.Get(ctx, key).Int()
 	if errors.Is(err, redis.Nil) {
 		return false, 0, nil

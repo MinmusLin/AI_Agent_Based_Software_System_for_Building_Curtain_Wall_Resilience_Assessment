@@ -26,6 +26,7 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	if err != nil {
 		return rpc_err.BadRequest(rpc_err.DetailInvalidEmailAddress, err.Error())
 	}
+	emailHash := utils.HashEmailAddress(email)
 
 	// 获取邮箱验证码业务场景枚举
 	scene := consts.ParseEmailCodeScene(req.Scene)
@@ -58,7 +59,7 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 
 	// 账号锁定（登录失败次数达上限）时不发送登录验证码
 	if scene == consts.SceneLogin {
-		locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx(), consts.LoginEmail.String(), email, consts.LoginFailureLimit)
+		locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx(), consts.LoginEmail.String(), emailHash, consts.LoginFailureLimit)
 		if err != nil {
 			return err
 		}
@@ -68,7 +69,7 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	}
 
 	// 验证码未过期时不发送登录验证码
-	exists, err := s.Redis().EmailCodeExists(s.Ctx(), sceneValue, email)
+	exists, err := s.Redis().EmailCodeExists(s.Ctx(), sceneValue, emailHash)
 	if err != nil {
 		return err
 	}
@@ -81,14 +82,14 @@ func (s *Service) sendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEma
 	if err != nil {
 		return err
 	}
-	if err := s.Redis().SaveEmailCode(s.Ctx(), sceneValue, email, utils.HashEmailCode(code, s.Config().EmailCodeSecret), s.Config().EmailCodeTTL); err != nil {
+	if err := s.Redis().SaveEmailCode(s.Ctx(), sceneValue, emailHash, utils.HashEmailCode(code, s.Config().EmailCodeSecret), s.Config().EmailCodeTTL); err != nil {
 		return err
 	}
 
 	// 发送邮箱验证码
 	if err := s.SMTP().SendEmailCode(email, sceneValue, code); err != nil {
 		s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, consts.EmailSendStatusFailed, err.Error())
-		if err := s.Redis().ClearEmailCode(s.Ctx(), sceneValue, email); err != nil {
+		if err := s.Redis().ClearEmailCode(s.Ctx(), sceneValue, emailHash); err != nil {
 			log.Printf("%s Clear email code failed, scene: %s, email: %s, err: %v", common.WarnPrefix(), sceneValue, email, err)
 		}
 		return rpc_err.InternalError(rpc_err.DetailSendEmailCodeFailed, err.Error())

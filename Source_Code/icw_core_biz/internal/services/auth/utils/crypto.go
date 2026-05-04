@@ -27,6 +27,12 @@ func HashEmailCode(code, secret string) string {
 	return hex.EncodeToString(sum[:])
 }
 
+// HashEmailAddress 对标准化邮箱地址做 SHA-256 哈希
+func HashEmailAddress(email string) string {
+	sum := sha256.Sum256([]byte(strings.TrimSpace(strings.ToLower(email))))
+	return hex.EncodeToString(sum[:])
+}
+
 // NewRefreshToken 生成 Refresh Token 明文和对应 Token Id
 // 明文格式为 <token_id>.<random_secret>，Token Id 便于数据库定位记录，Random Secret 用于证明客户端持有真实 Token
 func NewRefreshToken() (string, string, error) {

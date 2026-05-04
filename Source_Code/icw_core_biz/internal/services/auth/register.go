@@ -25,6 +25,7 @@ func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) er
 	if err != nil {
 		return rpc_err.BadRequest(rpc_err.DetailInvalidEmailAddress, err.Error())
 	}
+	emailHash := utils.HashEmailAddress(email)
 
 	// 校验用户名称
 	name, err := utils.ValidateName(req.Name)
@@ -49,7 +50,7 @@ func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) er
 	}
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
-	if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, consts.SceneRegister.String(), email, req.EmailCode); err != nil {
+	if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, consts.SceneRegister.String(), emailHash, req.EmailCode); err != nil {
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}
