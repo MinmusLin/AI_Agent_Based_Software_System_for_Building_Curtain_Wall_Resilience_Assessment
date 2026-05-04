@@ -4,7 +4,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-// Schedule 按 Cron 表达式启动定时任务
+// Schedule 按 Cron 表达式执行定时任务
 func (c *CronJob) Schedule(name, expression string, fn func() error) error {
 	scheduler := cron.New(
 		cron.WithSeconds(),
