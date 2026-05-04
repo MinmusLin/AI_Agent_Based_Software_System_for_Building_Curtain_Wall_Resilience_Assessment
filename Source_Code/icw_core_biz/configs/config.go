@@ -40,7 +40,7 @@ type Config struct {
 	ProjectImageUploadTTL      time.Duration
 	SocketTicketTTL            time.Duration
 	ProjectImagePendingTimeout time.Duration
-	ProjectImagePendingSweep   time.Duration
+	PendingImageTimeoutJobCron string
 }
 
 // Validate 校验服务配置
@@ -66,6 +66,7 @@ func (cfg *Config) Validate() error {
 		{key: "ROCKETMQ_PROJECT_EVENT_TOPIC", value: cfg.RocketMQProjectEventTopic},
 		{key: "JWT_SECRET", value: cfg.JWTSecret},
 		{key: "EMAIL_CODE_SECRET", value: cfg.EmailCodeSecret},
+		{key: "PENDING_IMAGE_TIMEOUT_JOB_CRON", value: cfg.PendingImageTimeoutJobCron},
 	}
 	for _, item := range required {
 		if strings.TrimSpace(item.value) == "" {
@@ -108,9 +109,6 @@ func (cfg *Config) Validate() error {
 	if cfg.ProjectImagePendingTimeout <= 0 {
 		problems = append(problems, "PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES must be greater than 0")
 	}
-	if cfg.ProjectImagePendingSweep <= 0 {
-		problems = append(problems, "PROJECT_IMAGE_PENDING_SWEEP_MINUTES must be greater than 0")
-	}
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "; "))
 	}
@@ -148,7 +146,7 @@ func Load() (Config, error) {
 		ProjectImageUploadTTL:      time.Duration(envInt("PROJECT_IMAGE_UPLOAD_TTL_MINUTES")) * time.Minute,
 		SocketTicketTTL:            time.Duration(envInt("SOCKET_TICKET_TTL_MINUTES")) * time.Minute,
 		ProjectImagePendingTimeout: time.Duration(envInt("PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES")) * time.Minute,
-		ProjectImagePendingSweep:   time.Duration(envInt("PROJECT_IMAGE_PENDING_SWEEP_MINUTES")) * time.Minute,
+		PendingImageTimeoutJobCron: env("PENDING_IMAGE_TIMEOUT_JOB_CRON"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
