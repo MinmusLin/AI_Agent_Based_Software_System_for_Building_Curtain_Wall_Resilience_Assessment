@@ -5,8 +5,8 @@ import (
 	"icw_core_biz/utils"
 )
 
-// MQSuccess 输出成功 MQ 日志
-func MQSuccess(format string, args ...interface{}) {
+// MQInfo 输出标准 MQ 日志
+func MQInfo(format string, args ...interface{}) {
 	utils.LogInfo(consts.LogScopeMQ, consts.LogColorBoldCyan, format, args...)
 }
 

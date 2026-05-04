@@ -32,6 +32,7 @@ func main() {
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to load config: %v", err)
 	}
+	utils.LogInfo(consts.LogScopeInit, "", "Config initialized successfully")
 
 	// 初始化 MySQL
 	dataMySQL, err := sql.Open("mysql", cfg.MySQLDSN)
@@ -41,6 +42,7 @@ func main() {
 	if err := dataMySQL.PingContext(ctx); err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to connect to MySQL: %v", err)
 	}
+	utils.LogInfo(consts.LogScopeInit, "", "MySQL initialized successfully")
 
 	// 初始化 Redis
 	dataRedis := goredis.NewClient(&goredis.Options{
@@ -51,6 +53,7 @@ func main() {
 	if err := dataRedis.Ping(ctx).Err(); err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to connect to Redis: %v", err)
 	}
+	utils.LogInfo(consts.LogScopeInit, "", "Redis initialized successfully")
 
 	// 初始化 MinIO
 	dataMinIO, err := minio.NewClient(cfg)
@@ -64,6 +67,7 @@ func main() {
 	if !bucketExists {
 		utils.LogFatal(consts.LogScopeInit, "Failed to find MinIO bucket: %s", cfg.MinIOBucket)
 	}
+	utils.LogInfo(consts.LogScopeInit, "", "MinIO initialized successfully")
 
 	// 初始化 RocketMQ 生产者
 	dataRocketMQ, err := rocketmq.NewProducer(cfg)
@@ -73,6 +77,7 @@ func main() {
 	defer func() {
 		_ = dataRocketMQ.Shutdown()
 	}()
+	rocketmq.MQInfo("RocketMQ producer starts running")
 
 	// 注册 RPC 服务
 	services.RegisterRPCServices(ctx, serviceCommon.NewDeps(
