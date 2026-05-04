@@ -115,6 +115,30 @@ func (r *Repository) NextProjectGroupSequence(ctx context.Context, projectId uin
 	return r.redis.Incr(ctx, genProjectGroupSequenceKey(projectId)).Result()
 }
 
+// SaveSocketTicket 保存 WebSocket 连接票据上下文
+func (r *Repository) SaveSocketTicket(ctx context.Context, ticketHash, ticketContext string, ttl time.Duration) error {
+	return r.redis.Set(ctx, genSocketTicketKey(ticketHash), ticketContext, ttl).Err()
+}
+
+// ConsumeSocketTicket 消费 WebSocket 连接票据上下文
+func (r *Repository) ConsumeSocketTicket(ctx context.Context, ticketHash string) (string, error) {
+	ticketContext, err := redis.NewScript(`
+	local value = redis.call("GET", KEYS[1])
+	if not value then
+		return nil
+	end
+	redis.call("DEL", KEYS[1])
+	return value
+	`).Run(ctx, r.redis, []string{genSocketTicketKey(ticketHash)}).Text()
+	if errors.Is(err, redis.Nil) {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return ticketContext, nil
+}
+
 // GetPresignURL 获取预签名 URL 缓存
 func (r *Repository) GetPresignURL(ctx context.Context, key string) (string, error) {
 	presignURL, err := r.redis.Get(ctx, key).Result()
@@ -127,8 +151,8 @@ func (r *Repository) GetPresignURL(ctx context.Context, key string) (string, err
 	return presignURL, nil
 }
 
-// SetPresignURL 设置预签名 URL 缓存
-func (r *Repository) SetPresignURL(ctx context.Context, key, presignURL string, ttl time.Duration) error {
+// SavePresignURL 保存预签名 URL 缓存
+func (r *Repository) SavePresignURL(ctx context.Context, key, presignURL string, ttl time.Duration) error {
 	if key == "" || presignURL == "" || ttl <= 0 {
 		return nil
 	}

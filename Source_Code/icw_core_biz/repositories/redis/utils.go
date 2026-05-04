@@ -31,6 +31,11 @@ func genProjectGroupSequenceKey(projectId uint64) string {
 	return fmt.Sprintf("project:assets:group_seq:%s", utils.Encode(projectId))
 }
 
+// genSocketTicketKey 生成 WebSocket 连接票据上下文 Key
+func genSocketTicketKey(ticketHash string) string {
+	return fmt.Sprintf("socket:ticket:%s", ticketHash)
+}
+
 // GenDefaultAvatarPresignURLKey 生成用户默认头像预签名 URL 缓存 Key
 func GenDefaultAvatarPresignURLKey(emailHash string) string {
 	return fmt.Sprintf("presign:avatar:default:%s", emailHash)

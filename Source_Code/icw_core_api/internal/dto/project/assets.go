@@ -256,17 +256,10 @@ type ReportProjectImageRequest struct {
 	Status    string `json:"status"`
 }
 
-type ReportProjectImageResponse struct {
-	Image *ProjectImage `json:"image"`
-}
+type ReportProjectImageResponse struct{}
 
-func NewReportProjectImageResponse(resp *project.ReportProjectImageResponse) *ReportProjectImageResponse {
-	if resp == nil {
-		return nil
-	}
-	return &ReportProjectImageResponse{
-		Image: NewProjectImage(resp.Image),
-	}
+func NewReportProjectImageResponse(_ *project.ReportProjectImageResponse) *ReportProjectImageResponse {
+	return &ReportProjectImageResponse{}
 }
 
 type UploadProjectImageRequest struct {
