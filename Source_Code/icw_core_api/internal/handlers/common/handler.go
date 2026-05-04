@@ -173,7 +173,7 @@ func setRPCMeta(req interface{}, requestId string) {
 
 // rpcErrorLog 输出 RPC 调用失败日志
 func rpcErrorLog(requestId, psm, method string, req, resp, err interface{}) {
-	bizUtils.LogError(consts.LogScopeHTTP, "[%s] Call %s %s failed, req=%s, resp=%s, err=%s",
+	bizUtils.LogError(consts.LogScopeHTTP, "[%s] Call %s %s failed, req=%s resp=%s err=%s",
 		requestId,
 		psm,
 		method,

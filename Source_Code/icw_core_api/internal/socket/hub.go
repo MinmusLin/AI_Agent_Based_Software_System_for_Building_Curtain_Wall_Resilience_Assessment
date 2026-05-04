@@ -53,7 +53,7 @@ func (h *Hub) Unregister(client *Client) {
 }
 
 // BroadcastProject 向指定项目的所有 WebSocket 连接广播消息
-func (h *Hub) BroadcastProject(projectId uint64, payload []byte) {
+func (h *Hub) BroadcastProject(projectId uint64, projectCode string, payload []byte) {
 	if h == nil || len(payload) == 0 {
 		return
 	}
@@ -63,11 +63,32 @@ func (h *Hub) BroadcastProject(projectId uint64, payload []byte) {
 		clients = append(clients, client)
 	}
 	h.mu.RUnlock()
+
+	sent := 0
+	dropped := 0
 	for _, client := range clients {
 		select {
 		case client.send <- payload:
+			sent++
 		default:
+			dropped++
 			h.Unregister(client)
 		}
 	}
+
+	if dropped > 0 {
+		WSError("[%s] Broadcast websocket message failed, clients=%d sent=%d dropped=%d payload_bytes=%d",
+			projectCode,
+			len(clients),
+			sent,
+			dropped,
+			len(payload),
+		)
+		return
+	}
+	WSInfo("[%s] Broadcast websocket message succeeded, clients=%d payload_bytes=%d",
+		projectCode,
+		len(clients),
+		len(payload),
+	)
 }
