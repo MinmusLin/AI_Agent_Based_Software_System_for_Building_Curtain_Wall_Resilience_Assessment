@@ -19,10 +19,10 @@ func cronLog(name string, start time.Time, result interface{}, err error) {
 		return
 	}
 	if resultStr == "" {
-		CronError("[%s] cost=%s", name, time.Since(start))
+		CronError("[%s] cost=%s err=%s", name, time.Since(start), utils.FormatErrorLog(err))
 		return
 	}
-	CronError("[%s] cost=%s result=%s", name, time.Since(start), resultStr)
+	CronError("[%s] cost=%s result=%s err=%s", name, time.Since(start), resultStr, utils.FormatErrorLog(err))
 }
 
 // CronInfo 输出标准定时任务日志
