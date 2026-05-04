@@ -7,6 +7,7 @@ import (
 	"icw_core_api/internal/response"
 	"icw_core_api/utils"
 	bizDto "icw_core_biz/pkg/dto/project"
+	bizUtils "icw_core_biz/utils"
 )
 
 // GetProjectImageOriginal 获取原图
@@ -20,7 +21,7 @@ func (h *Handler) GetProjectImageOriginal(c *gin.Context) {
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
-	projectId, err := utils.Decode(c.Query("project_id"))
+	projectId, err := bizUtils.Decode(c.Query("project_id"))
 	if err != nil {
 		response.WriteError(c, err)
 		return

@@ -7,6 +7,7 @@ import (
 	"icw_core_api/internal/response"
 	"icw_core_api/utils"
 	bizDto "icw_core_biz/pkg/dto/project"
+	bizUtils "icw_core_biz/utils"
 )
 
 // UpdateProjectGroup 更新图像组
@@ -25,12 +26,12 @@ func (h *Handler) UpdateProjectGroup(c *gin.Context) {
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
-	projectId, err := utils.Decode(req.ProjectId)
+	projectId, err := bizUtils.Decode(req.ProjectId)
 	if err != nil {
 		response.WriteError(c, err)
 		return
 	}
-	groupId, err := utils.Decode(req.GroupId)
+	groupId, err := bizUtils.Decode(req.GroupId)
 	if err != nil {
 		response.WriteError(c, err)
 		return

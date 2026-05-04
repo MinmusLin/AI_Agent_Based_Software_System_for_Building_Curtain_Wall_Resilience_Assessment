@@ -3,9 +3,11 @@ package configs
 import (
 	"bufio"
 	"errors"
-	"log"
 	"os"
 	"strings"
+
+	"icw_core_biz/consts"
+	"icw_core_biz/utils"
 )
 
 // Config 服务配置
@@ -63,7 +65,7 @@ func Load() (Config, error) {
 func LoadDotEnv(path string) {
 	file, err := os.Open(path)
 	if err != nil {
-		log.Fatalf("Failed to open .env file: %v", err)
+		utils.LogFatal(consts.LogScopeInit, "Failed to open .env file: %v", err)
 	}
 	defer func() {
 		_ = file.Close()
@@ -86,13 +88,13 @@ func LoadDotEnv(path string) {
 		}
 		if _, exists := os.LookupEnv(key); !exists {
 			if err := os.Setenv(key, value); err != nil {
-				log.Fatalf("Failed to set environment variable %s=%s: %v", key, value, err)
+				utils.LogFatal(consts.LogScopeInit, "Failed to set environment variable %s=%s: %v", key, value, err)
 			}
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatalf("Failed to read .env file: %v", err)
+		utils.LogFatal(consts.LogScopeInit, "Failed to read .env file: %v", err)
 	}
 }
 

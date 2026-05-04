@@ -7,6 +7,7 @@ import (
 	"icw_core_api/internal/response"
 	"icw_core_api/utils"
 	bizDto "icw_core_biz/pkg/dto/project"
+	bizUtils "icw_core_biz/utils"
 )
 
 // MoveProjectImage 移动图像
@@ -25,12 +26,12 @@ func (h *Handler) MoveProjectImage(c *gin.Context) {
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
-	projectId, err := utils.Decode(req.ProjectId)
+	projectId, err := bizUtils.Decode(req.ProjectId)
 	if err != nil {
 		response.WriteError(c, err)
 		return
 	}
-	targetGroupId, err := utils.Decode(req.TargetGroupId)
+	targetGroupId, err := bizUtils.Decode(req.TargetGroupId)
 	if err != nil {
 		response.WriteError(c, err)
 		return

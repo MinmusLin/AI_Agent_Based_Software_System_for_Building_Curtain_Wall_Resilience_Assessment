@@ -1,8 +1,8 @@
 package project
 
 import (
-	"icw_core_api/utils"
 	"icw_core_biz/pkg/dto/project"
+	"icw_core_biz/utils"
 )
 
 type ProjectGroup struct {

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_core_api/configs"
@@ -11,6 +9,8 @@ import (
 	"icw_core_api/internal/middlewares"
 	"icw_core_api/internal/rocketmq"
 	"icw_core_api/internal/socket"
+	"icw_core_biz/consts"
+	"icw_core_biz/utils"
 )
 
 // main icw.core.api 服务入口
@@ -19,13 +19,13 @@ func main() {
 	configs.LoadDotEnv(".env")
 	cfg, err := configs.Load()
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		utils.LogFatal(consts.LogScopeInit, "Failed to load config: %v", err)
 	}
 
 	// 初始化 icw.core.biz 服务
 	coreBizClient, err := common.NewRPCClient(common.CoreBizPSM, cfg.CoreBizAddr)
 	if err != nil {
-		log.Fatalf("Failed to connect to icw.core.biz service: %v", err)
+		utils.LogFatal(consts.LogScopeInit, "Failed to connect to icw.core.biz service: %v", err)
 	}
 	defer func() {
 		_ = coreBizClient.Close()
@@ -35,10 +35,10 @@ func main() {
 	webSocketHub := socket.NewHub()
 	eventConsumer, err := rocketmq.NewConsumer(cfg, webSocketHub)
 	if err != nil {
-		log.Fatalf("Failed to create RocketMQ event consumer: %v", err)
+		utils.LogFatal(consts.LogScopeInit, "Failed to create RocketMQ event consumer: %v", err)
 	}
 	if err := eventConsumer.Start(); err != nil {
-		log.Fatalf("Failed to start RocketMQ event consumer: %v", err)
+		utils.LogFatal(consts.LogScopeInit, "Failed to start RocketMQ event consumer: %v", err)
 	}
 	defer func() {
 		_ = eventConsumer.Close()
@@ -51,8 +51,8 @@ func main() {
 	handlers.RegisterRoutes(router, cfg, coreBizClient, webSocketHub)
 
 	// 运行 icw.core.api 服务
-	log.Printf("icw.core.api service starts running on %s", cfg.CoreApiAddr)
+	utils.LogInfo(consts.LogScopeInit, "", "icw.core.api service starts running on %s", cfg.CoreApiAddr)
 	if err := router.Run(cfg.CoreApiAddr); err != nil {
-		log.Fatalf("Failed to run icw.core.api service: %v", err)
+		utils.LogFatal(consts.LogScopeInit, "Failed to run icw.core.api service: %v", err)
 	}
 }
