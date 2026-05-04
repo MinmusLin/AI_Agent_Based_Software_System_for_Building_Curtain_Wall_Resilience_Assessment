@@ -25,6 +25,9 @@ func main() {
 
 	// 初始化 WebSocket Hub 和 RocketMQ 事件消费者
 	webSocketHub := socket.NewHub()
+	utils.LogInfo(bizConsts.LogScopeInit, "", "WebSocket initialized successfully")
+
+	// 初始化 RocketMQ 事件消费者
 	eventConsumer, err := rocketmq.NewConsumer(cfg, webSocketHub)
 	if err != nil {
 		utils.LogFatal(bizConsts.LogScopeInit, "Failed to create RocketMQ event consumer: %v", err)
@@ -35,7 +38,7 @@ func main() {
 	defer func() {
 		_ = eventConsumer.Close()
 	}()
-	utils.LogInfo(bizConsts.LogScopeInit, "", "WebSocket initialized successfully")
+	utils.LogInfo(bizConsts.LogScopeInit, "", "RocketMQ consumer starts running")
 
 	// 初始化 icw.core.biz 服务
 	coreBizClient, err := common.NewRPCClient(bizConsts.CoreBizPSM, cfg.CoreBizAddr)
