@@ -1,19 +1,25 @@
 import {
   CaretDownOutlined,
+  CloseOutlined,
+  CopyOutlined,
   DeleteOutlined,
   DragOutlined,
   EyeOutlined,
+  LeftOutlined,
   LoadingOutlined,
   PictureOutlined,
   PlusOutlined,
   ReloadOutlined,
+  RightOutlined,
   StepForwardOutlined,
   StopOutlined,
+  SwapOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
-import { Button, Empty, Input, message, Modal, Spin, Tooltip } from 'antd';
+import type { MenuProps } from 'antd';
+import { Button, Checkbox, Dropdown, Empty, Input, message, Modal, Spin, Tooltip } from 'antd';
 import type { ChangeEvent, DragEvent, ReactElement } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { getErrorMessage } from '@/api/http';
 import {
@@ -64,6 +70,8 @@ const NOT_FOUND_INDEX = -1;
 const UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp';
 const WEBSOCKET_RECONNECT_DELAY_MS = 2000;
 const JSON_FORMAT_INDENT = 2;
+const GROUP_MOVE_ANIMATION_MS = 220;
+const GROUP_MOVE_DELTA_EPSILON = 0.5;
 
 interface ProjectAssetsStageProps {
   loading?: boolean;
@@ -149,6 +157,31 @@ function removeImages(groups: ProjectGroup[], imageUuids: string[]): ProjectGrou
     ...group,
     images: group.images.filter((image) => !imageUuidSet.has(image.uuid)),
   }));
+}
+
+function imageUuidSetFromGroups(groups: ProjectGroup[]): Set<string> {
+  return new Set(groups.flatMap((group) => group.images.map((image) => image.uuid)));
+}
+
+function selectedGroupIdsFromGroups(groups: ProjectGroup[], selectedImageUuids: Set<string>): Set<string> {
+  const selectedGroupIds = new Set<string>();
+  groups.forEach((group) => {
+    if (group.images.some((image) => selectedImageUuids.has(image.uuid))) {
+      selectedGroupIds.add(group.id);
+    }
+  });
+  return selectedGroupIds;
+}
+
+function pruneSelectedImageUuids(selectedImageUuids: Set<string>, groups: ProjectGroup[]): Set<string> {
+  const existingImageUuids = imageUuidSetFromGroups(groups);
+  const nextSelectedImageUuids = new Set(
+    [...selectedImageUuids].filter((imageUuid) => existingImageUuids.has(imageUuid)),
+  );
+  if (nextSelectedImageUuids.size === selectedImageUuids.size) {
+    return selectedImageUuids;
+  }
+  return nextSelectedImageUuids;
 }
 
 function replaceImage(groups: ProjectGroup[], nextImage: ProjectImage): ProjectGroup[] {
@@ -270,6 +303,17 @@ function groupMovePosition(groups: ProjectGroup[], sourceGroupId: string, target
   const [sourceGroup] = nextGroups.splice(sourceIndex, NEXT_INDEX_OFFSET);
   nextGroups.splice(targetIndex, EMPTY_ITEMS_COUNT, sourceGroup);
   return nextGroups;
+}
+
+function isSameGroupOrder(leftGroups: ProjectGroup[], rightGroups: ProjectGroup[]): boolean {
+  if (leftGroups.length !== rightGroups.length) {
+    return false;
+  }
+  return leftGroups.every((group, index) => group.id === rightGroups[index]?.id);
+}
+
+function groupIdsSet(groups: ProjectGroup[]): Set<string> {
+  return new Set(groups.map((group) => group.id));
 }
 
 function groupMovePayload(
@@ -410,9 +454,19 @@ export function ProjectAssetsStage({
   selectedProgress,
 }: ProjectAssetsStageProps): ReactElement {
   const [messageApi, contextHolder] = message.useMessage();
+  const collapsedGroupSnapshotRef = useRef<Set<string> | null>(null);
+  const groupMoveAnimationFrameRef = useRef<number | null>(null);
+  const groupMoveRectsRef = useRef<Map<string, DOMRect> | null>(null);
+  const groupSectionRefs = useRef(new Map<string, HTMLElement>());
+  const draggingGroupTargetRef = useRef('');
+  const draggingGroupSnapshotRef = useRef<ProjectGroup[] | null>(null);
+  const movingGroupRef = useRef(false);
   const uploadInputRefs = useRef(new Map<string, HTMLInputElement>());
   const [groups, setGroups] = useState<ProjectGroup[]>([]);
   const [assetsLoading, setAssetsLoading] = useState(true);
+  const [batchDeleting, setBatchDeleting] = useState(false);
+  const [batchMode, setBatchMode] = useState(false);
+  const [batchMoving, setBatchMoving] = useState(false);
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [advancing, setAdvancing] = useState(false);
   const [collapsedGroupIds, setCollapsedGroupIds] = useState<Set<string>>(() => new Set());
@@ -423,6 +477,7 @@ export function ProjectAssetsStage({
   const [deletingImageUuids, setDeletingImageUuids] = useState<Set<string>>(() => new Set());
   const [draggingGroupId, setDraggingGroupId] = useState('');
   const [draggingImage, setDraggingImage] = useState<DraggingImage | null>(null);
+  const [selectedImageUuids, setSelectedImageUuids] = useState<Set<string>>(() => new Set());
   const [viewer, setViewer] = useState<ImageViewerState | null>(null);
 
   const readOnly =
@@ -434,6 +489,73 @@ export function ProjectAssetsStage({
     project.progress === PROJECT_PROGRESS_PROFILE_FINISHED &&
     selectedProgress === PROJECT_PROGRESS_PROFILE_FINISHED;
   const uploadedImages = useMemo(() => flattenUploadedImages(groups), [groups]);
+  const selectedGroupIds = useMemo(
+    () => selectedGroupIdsFromGroups(groups, selectedImageUuids),
+    [groups, selectedImageUuids],
+  );
+  const selectedImageUuidList = useMemo(() => [...selectedImageUuids], [selectedImageUuids]);
+  const batchMoveMenuItems = useMemo<NonNullable<MenuProps['items']>>(() => {
+    const shouldExcludeOnlySelectedGroup = selectedGroupIds.size === NEXT_INDEX_OFFSET;
+    return groups
+      .filter((group) => !(shouldExcludeOnlySelectedGroup && selectedGroupIds.has(group.id)))
+      .map((group) => ({
+        key: group.id,
+        label: group.name,
+      }));
+  }, [groups, selectedGroupIds]);
+  const hasSelectedImages = selectedImageUuids.size > EMPTY_ITEMS_COUNT;
+  const batchMoveDisabled = batchMoving || !hasSelectedImages || batchMoveMenuItems.length === EMPTY_ITEMS_COUNT;
+
+  const getGroupRects = useCallback((): Map<string, DOMRect> => {
+    const rects = new Map<string, DOMRect>();
+    groupSectionRefs.current.forEach((element, groupId) => {
+      rects.set(groupId, element.getBoundingClientRect());
+    });
+    return rects;
+  }, []);
+
+  const animateGroupMove = useCallback((previousRects: Map<string, DOMRect>): void => {
+    if (groupMoveAnimationFrameRef.current !== null) {
+      window.cancelAnimationFrame(groupMoveAnimationFrameRef.current);
+      groupMoveAnimationFrameRef.current = null;
+    }
+
+    groupSectionRefs.current.forEach((element, groupId) => {
+      const previousRect = previousRects.get(groupId);
+      if (!previousRect) {
+        return;
+      }
+
+      const nextRect = element.getBoundingClientRect();
+      const deltaX = previousRect.left - nextRect.left;
+      const deltaY = previousRect.top - nextRect.top;
+      if (Math.abs(deltaX) < GROUP_MOVE_DELTA_EPSILON && Math.abs(deltaY) < GROUP_MOVE_DELTA_EPSILON) {
+        return;
+      }
+
+      element.style.transitionDuration = '0ms';
+      element.style.transitionProperty = 'transform';
+      element.style.transform = `translate(${String(deltaX)}px, ${String(deltaY)}px)`;
+      element.style.zIndex = '1';
+      groupMoveAnimationFrameRef.current = window.requestAnimationFrame(() => {
+        element.style.transition = `transform ${String(GROUP_MOVE_ANIMATION_MS)}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+        element.style.transform = 'translate(0, 0)';
+        window.setTimeout(() => {
+          element.style.transition = '';
+          element.style.transform = '';
+          element.style.zIndex = '';
+        }, GROUP_MOVE_ANIMATION_MS);
+      });
+    });
+  }, []);
+
+  const restoreCollapsedGroups = useCallback((): void => {
+    if (!collapsedGroupSnapshotRef.current) {
+      return;
+    }
+    setCollapsedGroupIds(collapsedGroupSnapshotRef.current);
+    collapsedGroupSnapshotRef.current = null;
+  }, []);
 
   const handleSocketMessage = useCallback(
     (data: unknown): void => {
@@ -474,6 +596,72 @@ export function ProjectAssetsStage({
     }
   }, [messageApi, projectId]);
 
+  const handleBatchModeToggle = useCallback((): void => {
+    if (batchMode) {
+      setBatchMode(false);
+      setSelectedImageUuids(new Set());
+      return;
+    }
+    setBatchMode(true);
+  }, [batchMode]);
+
+  const toggleSelectedImage = useCallback((imageUuid: string, checked?: boolean): void => {
+    setSelectedImageUuids((currentImageUuids) => {
+      const nextImageUuids = new Set(currentImageUuids);
+      const nextChecked = checked ?? !nextImageUuids.has(imageUuid);
+      if (nextChecked) {
+        nextImageUuids.add(imageUuid);
+      } else {
+        nextImageUuids.delete(imageUuid);
+      }
+      return nextImageUuids;
+    });
+  }, []);
+
+  const handleBatchDeleteImages = useCallback(async (): Promise<void> => {
+    if (!hasSelectedImages) {
+      return;
+    }
+
+    setBatchDeleting(true);
+    try {
+      await deleteProjectImage({
+        image_uuids: selectedImageUuidList,
+        project_id: projectId,
+      });
+      setGroups((currentGroups) => removeImages(currentGroups, selectedImageUuidList));
+      setSelectedImageUuids(new Set());
+    } catch (error: unknown) {
+      void messageApi.error(getErrorMessage(error));
+    } finally {
+      setBatchDeleting(false);
+    }
+  }, [hasSelectedImages, messageApi, projectId, selectedImageUuidList]);
+
+  const handleBatchMoveImages = useCallback(
+    async (targetGroupId: string): Promise<void> => {
+      if (!hasSelectedImages || targetGroupId === '') {
+        return;
+      }
+
+      setBatchMoving(true);
+      try {
+        const data = await moveProjectImage({
+          image_uuids: selectedImageUuidList,
+          project_id: projectId,
+          target_group_id: targetGroupId,
+        });
+        setGroups((currentGroups) => moveImagesToGroup(currentGroups, targetGroupId, data.images));
+        setSelectedImageUuids(new Set());
+      } catch (error: unknown) {
+        void messageApi.error(getErrorMessage(error));
+      } finally {
+        setBatchMoving(false);
+      }
+    },
+    [hasSelectedImages, messageApi, projectId, selectedImageUuidList],
+  );
+
   const handleDeleteGroup = useCallback(
     async (groupId: string): Promise<void> => {
       setDeletingGroupIds((currentIds) => new Set(currentIds).add(groupId));
@@ -513,6 +701,11 @@ export function ProjectAssetsStage({
     }
 
     const nextName = editingGroupName.trim();
+    if (nextName === '') {
+      setEditingGroupName(currentGroup.name);
+      setEditingGroupId('');
+      return;
+    }
     if (nextName === currentGroup.name) {
       setEditingGroupId('');
       return;
@@ -534,29 +727,66 @@ export function ProjectAssetsStage({
     }
   }, [editingGroupId, editingGroupName, groups, messageApi, projectId, savingGroupId]);
 
-  const handleGroupDrop = useCallback(
-    async (targetGroupId: string): Promise<void> => {
-      if (readOnly || draggingGroupId === '' || draggingGroupId === targetGroupId) {
+  const handleGroupDrop = useCallback(async (): Promise<void> => {
+    if (readOnly || draggingGroupId === '') {
+      return;
+    }
+
+    const originalGroups = draggingGroupSnapshotRef.current ?? groups;
+    if (isSameGroupOrder(originalGroups, groups)) {
+      draggingGroupSnapshotRef.current = null;
+      draggingGroupTargetRef.current = '';
+      restoreCollapsedGroups();
+      setDraggingGroupId('');
+      return;
+    }
+
+    movingGroupRef.current = true;
+    try {
+      const payload = groupMovePayload(projectId, draggingGroupId, groups);
+      const data = await moveProjectGroup(payload);
+      setGroups((currentGroups) => replaceGroup(currentGroups, data.group));
+    } catch (error: unknown) {
+      setGroups(originalGroups);
+      void messageApi.error(getErrorMessage(error));
+    } finally {
+      movingGroupRef.current = false;
+      draggingGroupSnapshotRef.current = null;
+      draggingGroupTargetRef.current = '';
+      restoreCollapsedGroups();
+      setDraggingGroupId('');
+    }
+  }, [draggingGroupId, groups, messageApi, projectId, readOnly, restoreCollapsedGroups]);
+
+  const handleGroupDragOver = useCallback(
+    (targetGroupId: string): void => {
+      if (
+        readOnly ||
+        draggingGroupId === '' ||
+        draggingGroupId === targetGroupId ||
+        draggingGroupTargetRef.current === targetGroupId
+      ) {
         return;
       }
 
-      const nextGroups = groupMovePosition(groups, draggingGroupId, targetGroupId);
-      if (nextGroups === groups) {
-        return;
-      }
-
-      try {
-        const payload = groupMovePayload(projectId, draggingGroupId, nextGroups);
-        const data = await moveProjectGroup(payload);
-        setGroups(replaceGroup(nextGroups, data.group));
-      } catch (error: unknown) {
-        void messageApi.error(getErrorMessage(error));
-      } finally {
-        setDraggingGroupId('');
-      }
+      draggingGroupTargetRef.current = targetGroupId;
+      groupMoveRectsRef.current = getGroupRects();
+      setGroups((currentGroups) => groupMovePosition(currentGroups, draggingGroupId, targetGroupId));
     },
-    [draggingGroupId, groups, messageApi, projectId, readOnly],
+    [draggingGroupId, getGroupRects, readOnly],
   );
+
+  const handleGroupDragEnd = useCallback((): void => {
+    if (!movingGroupRef.current && draggingGroupSnapshotRef.current) {
+      setGroups(draggingGroupSnapshotRef.current);
+    }
+    if (!movingGroupRef.current) {
+      draggingGroupSnapshotRef.current = null;
+      draggingGroupTargetRef.current = '';
+      restoreCollapsedGroups();
+      setDraggingGroupId('');
+    }
+  }, [restoreCollapsedGroups]);
 
   const handleImageDrop = useCallback(
     async (targetGroupId: string): Promise<void> => {
@@ -650,6 +880,11 @@ export function ProjectAssetsStage({
           project_id: projectId,
         });
         setGroups((currentGroups) => removeImages(currentGroups, [imageUuid]));
+        setSelectedImageUuids((currentImageUuids) => {
+          const nextImageUuids = new Set(currentImageUuids);
+          nextImageUuids.delete(imageUuid);
+          return nextImageUuids;
+        });
       } catch (error: unknown) {
         void messageApi.error(getErrorMessage(error));
       } finally {
@@ -708,6 +943,19 @@ export function ProjectAssetsStage({
   useEffect(() => {
     void loadAssets();
   }, [loadAssets]);
+
+  useEffect(() => {
+    setSelectedImageUuids((currentImageUuids) => pruneSelectedImageUuids(currentImageUuids, groups));
+  }, [groups]);
+
+  useLayoutEffect(() => {
+    if (!groupMoveRectsRef.current) {
+      return;
+    }
+    const previousRects = groupMoveRectsRef.current;
+    groupMoveRectsRef.current = null;
+    animateGroupMove(previousRects);
+  }, [animateGroupMove, groups]);
 
   useEffect(() => {
     if (projectId === '') {
@@ -775,16 +1023,58 @@ export function ProjectAssetsStage({
     return uploadedImages.findIndex((item) => item.image.uuid === viewer.imageUuid);
   }, [uploadedImages, viewer]);
   const viewerImage = viewerIndex >= FIRST_INDEX ? uploadedImages[viewerIndex] : null;
+  const totalImageCount = useMemo(
+    () => groups.reduce((count, group) => count + group.images.length, EMPTY_ITEMS_COUNT),
+    [groups],
+  );
 
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">
       {contextHolder}
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-slate-900">图像资产构建</h2>
-          <p className="mt-1 text-sm text-slate-500">按立面或区域组织幕墙图像，上传完成后进入智能检测阶段。</p>
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold text-slate-900">图像资产构建</h2>
+            <span className="flex items-center gap-2 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
+              <span>{groups.length} 个图像组</span>
+              <span>{totalImageCount} 张图像</span>
+            </span>
+          </div>
+          <p className="mt-1 text-sm text-slate-500">按建筑立面或区域组织幕墙图像，上传完成后执行 Agent 智能检测</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
+          {batchMode && hasSelectedImages ? (
+            <>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                loading={batchDeleting}
+                onClick={() => void handleBatchDeleteImages()}
+              >
+                批量删除
+              </Button>
+              <Dropdown
+                disabled={batchMoveDisabled}
+                menu={{
+                  items: batchMoveMenuItems,
+                  onClick: ({ key }) => void handleBatchMoveImages(key),
+                }}
+              >
+                <Button icon={<SwapOutlined />} loading={batchMoving}>
+                  批量移动
+                </Button>
+              </Dropdown>
+            </>
+          ) : null}
+          {batchMode ? (
+            <Button disabled={readOnly} icon={<CloseOutlined />} onClick={handleBatchModeToggle}>
+              退出批量
+            </Button>
+          ) : (
+            <Button disabled={readOnly} icon={<CopyOutlined />} onClick={handleBatchModeToggle}>
+              批量操作
+            </Button>
+          )}
           <Button disabled={assetsLoading} icon={<ReloadOutlined />} onClick={() => void loadAssets()}>
             刷新
           </Button>
@@ -822,10 +1112,17 @@ export function ProjectAssetsStage({
               const deletingGroup = deletingGroupIds.has(group.id);
               return (
                 <section
-                  className="rounded-lg border border-slate-200 bg-slate-50"
+                  className={`overflow-hidden rounded-lg border bg-slate-50 transition-[border-color,box-shadow,background-color] duration-200 ${
+                    draggingGroupId === group.id ? 'border-slate-300 shadow-sm' : 'border-slate-200'
+                  }`}
                   key={group.id}
                   onDragOver={(event: DragEvent<HTMLElement>) => {
-                    if (draggingGroupId !== '' || draggingImage) {
+                    if (draggingGroupId !== '' && !draggingImage) {
+                      event.preventDefault();
+                      handleGroupDragOver(group.id);
+                      return;
+                    }
+                    if (draggingImage) {
                       event.preventDefault();
                     }
                   }}
@@ -835,19 +1132,28 @@ export function ProjectAssetsStage({
                       void handleImageDrop(group.id);
                       return;
                     }
-                    void handleGroupDrop(group.id);
+                    void handleGroupDrop();
+                  }}
+                  ref={(node) => {
+                    if (node) {
+                      groupSectionRefs.current.set(group.id, node);
+                    } else {
+                      groupSectionRefs.current.delete(group.id);
+                    }
                   }}
                 >
                   <div
-                    className="group flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3"
+                    className="group flex items-center gap-3 rounded-t-lg border-b border-slate-200 bg-white px-4 py-3"
                     draggable={!readOnly}
-                    onDragEnd={() => {
-                      setDraggingGroupId('');
-                    }}
+                    onDragEnd={handleGroupDragEnd}
                     onDragStart={(event: DragEvent<HTMLDivElement>) => {
                       if (readOnly) {
                         return;
                       }
+                      draggingGroupSnapshotRef.current = groups;
+                      draggingGroupTargetRef.current = '';
+                      collapsedGroupSnapshotRef.current = new Set(collapsedGroupIds);
+                      setCollapsedGroupIds(groupIdsSet(groups));
                       setDraggingGroupId(group.id);
                       event.dataTransfer.effectAllowed = 'move';
                     }}
@@ -929,23 +1235,32 @@ export function ProjectAssetsStage({
                     }`}
                   >
                     <div className="min-h-0 overflow-hidden">
-                      <div className="grid grid-cols-4 gap-3 p-4 md:grid-cols-8 xl:grid-cols-12">
+                      <div className="grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-3 p-4">
                         {group.images.map((image) => {
                           const deletingImage = deletingImageUuids.has(image.uuid);
                           const imageUploaded = image.status === PROJECT_IMAGE_STATUS_UPLOADED;
                           const imageFailed = image.status === PROJECT_IMAGE_STATUS_FAILED;
+                          const imageBatchSelectable = batchMode && image.status !== PROJECT_IMAGE_STATUS_PENDING;
                           const imageReady = imageUploaded && image.thumbnail_url !== '';
-                          const imageActionVisible = imageUploaded || (!readOnly && imageFailed);
+                          const imageActionVisible = !batchMode && (imageUploaded || (!readOnly && imageFailed));
+                          const imageSelected = selectedImageUuids.has(image.uuid);
                           return (
                             <div
-                              className="group/image relative aspect-square overflow-hidden rounded-lg border border-slate-200 bg-white"
-                              draggable={!readOnly && imageUploaded}
+                              className={`group/image relative aspect-square overflow-hidden rounded-lg border bg-white ${
+                                imageSelected ? 'border-[#1677FF]' : 'border-slate-200'
+                              } ${batchMode ? 'cursor-pointer' : ''}`}
+                              draggable={!readOnly && !batchMode}
                               key={image.uuid}
+                              onClick={() => {
+                                if (imageBatchSelectable) {
+                                  toggleSelectedImage(image.uuid);
+                                }
+                              }}
                               onDragEnd={() => {
                                 setDraggingImage(null);
                               }}
                               onDragStart={(event: DragEvent<HTMLDivElement>) => {
-                                if (readOnly || !imageUploaded) {
+                                if (readOnly || batchMode) {
                                   return;
                                 }
                                 event.stopPropagation();
@@ -956,6 +1271,18 @@ export function ProjectAssetsStage({
                                 });
                               }}
                             >
+                              {imageBatchSelectable ? (
+                                <Checkbox
+                                  checked={imageSelected}
+                                  className="absolute left-2 top-2 z-20"
+                                  onChange={(event) => {
+                                    toggleSelectedImage(image.uuid, event.target.checked);
+                                  }}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                  }}
+                                />
+                              ) : null}
                               {imageReady ? (
                                 <img
                                   alt={image.file_name}
@@ -976,6 +1303,7 @@ export function ProjectAssetsStage({
                                         icon={<EyeOutlined />}
                                         onClick={() => void openImageViewer(image.uuid)}
                                         shape="circle"
+                                        size="small"
                                       />
                                     </Tooltip>
                                   ) : null}
@@ -988,6 +1316,7 @@ export function ProjectAssetsStage({
                                         loading={deletingImage}
                                         onClick={() => void handleDeleteImage(image.uuid)}
                                         shape="circle"
+                                        size="small"
                                       />
                                     </Tooltip>
                                   ) : null}
@@ -1107,6 +1436,7 @@ export function ProjectAssetsStage({
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   disabled={viewerIndex <= FIRST_INDEX}
+                  icon={<LeftOutlined />}
                   onClick={() => {
                     if (viewerIndex > FIRST_INDEX) {
                       void openImageViewer(uploadedImages[viewerIndex - NEXT_INDEX_OFFSET].image.uuid);
@@ -1124,6 +1454,7 @@ export function ProjectAssetsStage({
                   }}
                 >
                   下一张
+                  <RightOutlined />
                 </Button>
               </div>
             </div>
