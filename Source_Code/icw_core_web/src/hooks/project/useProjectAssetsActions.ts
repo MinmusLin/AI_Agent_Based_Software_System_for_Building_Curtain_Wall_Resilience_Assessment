@@ -218,6 +218,7 @@ export function useProjectAssetsActions({
 
       uploadingImagesRef.current = true;
       setUploadingImages(true);
+      let backgroundUploads: Promise<void>[] = [];
       try {
         const preparedImages = await Promise.all(validFiles.map((file) => prepareUploadImage(file)));
         const uploadItems = preparedImages.map((image) => uploadItemFromPreparedImage(image));
@@ -228,17 +229,19 @@ export function useProjectAssetsActions({
         });
         const pendingImages = data.images.map((item) => item.image);
         setGroups((currentGroups) => appendImagesToGroup(currentGroups, groupId, pendingImages));
-
-        await Promise.all(
-          data.images.map(async (result, index): Promise<void> => {
-            await uploadOneImage(projectId, result, preparedImages[index]);
-          }),
-        );
+        backgroundUploads = data.images.map(async (result, index): Promise<void> => {
+          await uploadOneImage(projectId, result, preparedImages[index]);
+        });
       } catch (error: unknown) {
         onError(getErrorMessage(error));
       } finally {
         uploadingImagesRef.current = false;
         setUploadingImages(false);
+      }
+      if (backgroundUploads.length > EMPTY_ITEMS_COUNT) {
+        void Promise.all(backgroundUploads).catch((error: unknown) => {
+          onError(getErrorMessage(error));
+        });
       }
     },
     [onError, projectId],

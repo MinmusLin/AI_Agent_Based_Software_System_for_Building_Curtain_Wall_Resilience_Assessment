@@ -95,7 +95,7 @@ function ImageUnavailableIcon(): ReactElement {
 function imageStatusNode(status: ProjectImageStatus): ReactElement {
   switch (status) {
     case PROJECT_IMAGE_STATUS_PENDING:
-      return <LoadingOutlined className="text-xl text-slate-400" />;
+      return <LoadingOutlined className="text-2xl text-slate-400" />;
     case PROJECT_IMAGE_STATUS_FAILED:
       return (
         <Tooltip title="图像已失效">
