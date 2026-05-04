@@ -12,12 +12,14 @@ import (
 	"icw_core_api/internal/handlers/project/profile"
 	"icw_core_api/internal/handlers/project/report"
 	"icw_core_api/internal/handlers/project/review"
+	"icw_core_api/internal/handlers/socket"
 	"icw_core_api/internal/handlers/user"
 	"icw_core_api/internal/middlewares"
+	ws "icw_core_api/internal/socket"
 )
 
 // RegisterRoutes 注册路由
-func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *common.RPCClient) {
+func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *common.RPCClient, socketHub *ws.Hub) {
 	// 创建 API Handler 的公共依赖集合
 	handlerDeps := common.NewDeps(cfg, coreBizClient)
 
@@ -56,6 +58,26 @@ func RegisterRoutes(router *gin.Engine, cfg configs.Config, coreBizClient *commo
 		userRouter.POST("/avatar", userHandler.UploadAvatar)
 		// 删除用户自定义头像
 		userRouter.DELETE("/avatar", userHandler.DeleteAvatar)
+	}
+
+	// WebSocket Handler
+	socketHandler := socket.NewHandler(handlerDeps, socketHub)
+	socketRouter := router.Group("/socket")
+	{
+		// Socket 建连 Router
+		socketSetupRouter := socketRouter.Group("/setup")
+		{
+			// 建立图像资产 WebSocket 连接
+			socketSetupRouter.GET("/assets", socketHandler.SetupAssetsWebSocket)
+		}
+
+		// Socket 票据 Router
+		socketTicketRouter := socketRouter.Group("")
+		socketTicketRouter.Use(middlewares.AuthRequired(coreBizClient))
+		{
+			// 创建 WebSocket 连接票据
+			socketTicketRouter.POST("/ticket", middlewares.ProjectAccessible(coreBizClient), socketHandler.CreateSocketTicket)
+		}
 	}
 
 	// 项目流程 Router
