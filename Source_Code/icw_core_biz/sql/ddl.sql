@@ -77,8 +77,6 @@ CREATE TABLE `project_groups` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_project_groups_project_id_user_id_name` (`project_id`,`user_id`,`name`),
   KEY `idx_project_groups_user_id_project_id_sort_order_created_at` (`user_id`,`project_id`,`sort_order`,`created_at`),
-  KEY `idx_project_groups_user_id_project_id` (`user_id`,`project_id`),
-  KEY `idx_project_groups_user_id_project_id_sort_order` (`user_id`,`project_id`,`sort_order`),
   CONSTRAINT `fk_project_groups_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_groups_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像组表';
@@ -106,7 +104,6 @@ CREATE TABLE `project_group_images` (
   KEY `fk_project_group_images_project_id` (`project_id`),
   KEY `idx_project_group_images_user_id_project_id_created_at` (`user_id`,`project_id`,`created_at`),
   KEY `idx_project_group_images_user_id_project_id_group_id_created_at` (`user_id`,`project_id`,`group_id`,`created_at`),
-  KEY `idx_project_group_images_user_id_project_id_group_id` (`user_id`,`project_id`,`group_id`),
   KEY `idx_project_group_images_status_created_at` (`status`,`created_at`),
   CONSTRAINT `fk_project_group_images_group_id` FOREIGN KEY (`group_id`) REFERENCES `project_groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_project_group_images_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
