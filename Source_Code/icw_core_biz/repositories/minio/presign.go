@@ -70,8 +70,8 @@ func presignExistingObjectURL(ctx context.Context, repo *Repository, redisRepo *
 	}
 
 	if redisRepo != nil {
-		// 设置预签名 URL 缓存
-		_ = redisRepo.SetPresignURL(ctx, cacheKey, presignURL, ttl)
+		// 保存预签名 URL 缓存
+		_ = redisRepo.SavePresignURL(ctx, cacheKey, presignURL, ttl)
 	}
 
 	return presignURL, nil
