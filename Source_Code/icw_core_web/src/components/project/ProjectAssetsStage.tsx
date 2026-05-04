@@ -82,6 +82,8 @@ export function ProjectAssetsStage({
     handleBatchDeleteImages,
     handleBatchModeToggle,
     handleBatchMoveImages,
+    handleClearGroupImages,
+    handleSelectGroupImages,
     hasSelectedImages,
     pruneSelectedImages,
     selectedImageUuids,
@@ -187,6 +189,7 @@ export function ProjectAssetsStage({
           onDeleteImage={(imageUuid) => {
             void handleDeleteImage(imageUuid);
           }}
+          onDeselectGroupImages={handleClearGroupImages}
           onEditingGroupNameChange={setEditingGroupName}
           onGroupDragEnd={handleGroupDragEnd}
           onGroupDragOver={handleGroupDragOverEvent}
@@ -200,6 +203,7 @@ export function ProjectAssetsStage({
           onSaveEditGroup={() => {
             void saveEditingGroup();
           }}
+          onSelectGroupImages={handleSelectGroupImages}
           onStartEditGroup={startEditGroup}
           onToggleCollapsed={handleToggleCollapsed}
           onToggleSelectedImage={toggleSelectedImage}

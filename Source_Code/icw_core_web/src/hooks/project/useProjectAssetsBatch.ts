@@ -30,6 +30,8 @@ interface UseProjectAssetsBatchResult {
   handleBatchDeleteImages: () => Promise<void>;
   handleBatchModeToggle: () => void;
   handleBatchMoveImages: (targetGroupId: string) => Promise<void>;
+  handleClearGroupImages: (imageUuids: string[]) => void;
+  handleSelectGroupImages: (imageUuids: string[]) => void;
   hasSelectedImages: boolean;
   pruneSelectedImages: (groups: ProjectGroup[]) => void;
   selectedImageUuids: Set<string>;
@@ -82,6 +84,26 @@ export function useProjectAssetsBatch({
       } else {
         nextImageUuids.delete(imageUuid);
       }
+      return nextImageUuids;
+    });
+  }, []);
+
+  const handleSelectGroupImages = useCallback((imageUuids: string[]): void => {
+    setSelectedImageUuids((currentImageUuids) => {
+      const nextImageUuids = new Set(currentImageUuids);
+      imageUuids.forEach((imageUuid) => {
+        nextImageUuids.add(imageUuid);
+      });
+      return nextImageUuids;
+    });
+  }, []);
+
+  const handleClearGroupImages = useCallback((imageUuids: string[]): void => {
+    setSelectedImageUuids((currentImageUuids) => {
+      const nextImageUuids = new Set(currentImageUuids);
+      imageUuids.forEach((imageUuid) => {
+        nextImageUuids.delete(imageUuid);
+      });
       return nextImageUuids;
     });
   }, []);
@@ -143,6 +165,8 @@ export function useProjectAssetsBatch({
     handleBatchDeleteImages,
     handleBatchModeToggle,
     handleBatchMoveImages,
+    handleClearGroupImages,
+    handleSelectGroupImages,
     hasSelectedImages,
     pruneSelectedImages,
     selectedImageUuids,

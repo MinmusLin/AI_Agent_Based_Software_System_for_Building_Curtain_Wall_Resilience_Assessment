@@ -228,7 +228,9 @@ function ProjectAssessBatchActions({
             onBatchMoveImages(key);
           },
         }}
-        popupRender={(menus) => <div className="max-h-64 overflow-y-auto">{menus}</div>}
+        popupRender={(menus) => (
+          <div className="max-h-64 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-sm">{menus}</div>
+        )}
       >
         <Button disabled={assetsLoading || batchMoveDisabled} icon={<SwapOutlined />} loading={batchMoving}>
           批量移动

@@ -18,6 +18,7 @@ interface ProjectAssessContentProps {
   groups: ProjectGroup[];
   onDeleteGroup: (groupId: string) => void;
   onDeleteImage: (imageUuid: string) => void;
+  onDeselectGroupImages: (imageUuids: string[]) => void;
   onEditingGroupNameChange: (name: string) => void;
   onGroupDragEnd: () => void;
   onGroupDragOver: (event: DragEvent<HTMLElement>, groupId: string) => void;
@@ -27,6 +28,7 @@ interface ProjectAssessContentProps {
   onImageDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string, sourceGroupId: string) => void;
   onOpenImageViewer: (imageUuid: string) => void;
   onSaveEditGroup: () => void;
+  onSelectGroupImages: (imageUuids: string[]) => void;
   onStartEditGroup: (group: ProjectGroup) => void;
   onToggleCollapsed: (groupId: string) => void;
   onToggleSelectedImage: (imageUuid: string, checked?: boolean) => void;
@@ -51,6 +53,7 @@ export function ProjectAssessContent({
   groups,
   onDeleteGroup,
   onDeleteImage,
+  onDeselectGroupImages,
   onEditingGroupNameChange,
   onGroupDragEnd,
   onGroupDragOver,
@@ -60,6 +63,7 @@ export function ProjectAssessContent({
   onImageDragStart,
   onOpenImageViewer,
   onSaveEditGroup,
+  onSelectGroupImages,
   onStartEditGroup,
   onToggleCollapsed,
   onToggleSelectedImage,
@@ -103,6 +107,7 @@ export function ProjectAssessContent({
           key={group.id}
           onDeleteGroup={onDeleteGroup}
           onDeleteImage={onDeleteImage}
+          onDeselectGroupImages={onDeselectGroupImages}
           onEditingGroupNameChange={onEditingGroupNameChange}
           onGroupDragEnd={onGroupDragEnd}
           onGroupDragOver={onGroupDragOver}
@@ -112,6 +117,7 @@ export function ProjectAssessContent({
           onImageDragStart={onImageDragStart}
           onOpenImageViewer={onOpenImageViewer}
           onSaveEditGroup={onSaveEditGroup}
+          onSelectGroupImages={onSelectGroupImages}
           onStartEditGroup={onStartEditGroup}
           onToggleCollapsed={onToggleCollapsed}
           onToggleSelectedImage={onToggleSelectedImage}

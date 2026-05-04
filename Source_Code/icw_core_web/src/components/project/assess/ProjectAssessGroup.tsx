@@ -12,6 +12,7 @@ import { Button, Checkbox, Input, Tooltip } from 'antd';
 import type { ChangeEvent, DragEvent, ReactElement } from 'react';
 import { useRef } from 'react';
 
+import { ProjectAssessGroupHeaderActions } from '@/components/project/assess/ProjectAssessGroupHeaderActions';
 import type { ProjectImageStatus } from '@/types/common';
 import {
   PROJECT_IMAGE_STATUS_FAILED,
@@ -62,6 +63,7 @@ interface ProjectAssessGroupProps {
   groupCount: number;
   onDeleteGroup: (groupId: string) => void;
   onDeleteImage: (imageUuid: string) => void;
+  onDeselectGroupImages: (imageUuids: string[]) => void;
   onEditingGroupNameChange: (name: string) => void;
   onGroupDragEnd: () => void;
   onGroupDragOver: (event: DragEvent<HTMLElement>, groupId: string) => void;
@@ -71,6 +73,7 @@ interface ProjectAssessGroupProps {
   onImageDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string, sourceGroupId: string) => void;
   onOpenImageViewer: (imageUuid: string) => void;
   onSaveEditGroup: () => void;
+  onSelectGroupImages: (imageUuids: string[]) => void;
   onStartEditGroup: (group: ProjectGroup) => void;
   onToggleCollapsed: (groupId: string) => void;
   onToggleSelectedImage: (imageUuid: string, checked?: boolean) => void;
@@ -279,6 +282,7 @@ export function ProjectAssessGroup({
   groupCount,
   onDeleteGroup,
   onDeleteImage,
+  onDeselectGroupImages,
   onEditingGroupNameChange,
   onGroupDragEnd,
   onGroupDragOver,
@@ -288,6 +292,7 @@ export function ProjectAssessGroup({
   onImageDragStart,
   onOpenImageViewer,
   onSaveEditGroup,
+  onSelectGroupImages,
   onStartEditGroup,
   onToggleCollapsed,
   onToggleSelectedImage,
@@ -300,10 +305,17 @@ export function ProjectAssessGroup({
 }: ProjectAssessGroupProps): ReactElement {
   const canDeleteGroup = !readOnly && groupCount > NEXT_INDEX_OFFSET;
   const imageStats = projectImageStats(group.images);
+  const selectableImageUuids = group.images
+    .filter((image) => image.status !== PROJECT_IMAGE_STATUS_PENDING)
+    .map((image) => image.uuid);
+  const hasSelectableImages = selectableImageUuids.length > EMPTY_ITEMS_COUNT;
+  const allSelectableImagesSelected =
+    hasSelectableImages && selectableImageUuids.every((imageUuid) => selectedImageUuids.has(imageUuid));
+  const hasSelectedGroupImages = selectableImageUuids.some((imageUuid) => selectedImageUuids.has(imageUuid));
 
   return (
     <section
-      className={`overflow-hidden rounded-lg border bg-slate-50 transition-[border-color,box-shadow,background-color] duration-200 ${
+      className={`group overflow-hidden rounded-lg border bg-slate-50 transition-[border-color,box-shadow,background-color] duration-200 ${
         dragging ? 'border-slate-300 shadow-sm' : 'border-slate-200'
       }`}
       onDragOver={(event: DragEvent<HTMLElement>) => {
@@ -317,7 +329,7 @@ export function ProjectAssessGroup({
       }}
     >
       <div
-        className="group flex items-center gap-3 rounded-t-lg border-b border-slate-200 bg-white px-4 py-3"
+        className="flex items-center gap-3 rounded-t-lg border-b border-slate-200 bg-white px-4 py-3"
         draggable={!readOnly && !editing}
         onDragEnd={onGroupDragEnd}
         onDragStart={(event: DragEvent<HTMLDivElement>) => {
@@ -388,21 +400,20 @@ export function ProjectAssessGroup({
             {imageStats.pending} 张上传中
           </span>
         ) : null}
-        {canDeleteGroup ? (
-          <Button
-            aria-label="删除图像组"
-            className="ml-auto opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-            danger
-            icon={<DeleteOutlined />}
-            loading={deletingGroup}
-            onClick={() => {
-              onDeleteGroup(group.id);
-            }}
-            shape="circle"
-            size="small"
-            type="text"
-          />
-        ) : null}
+        <ProjectAssessGroupHeaderActions
+          allSelectableImagesSelected={allSelectableImagesSelected}
+          batchMode={batchMode}
+          canDeleteGroup={canDeleteGroup}
+          deletingGroup={deletingGroup}
+          groupId={group.id}
+          groupImageCount={group.images.length}
+          hasSelectableImages={hasSelectableImages}
+          hasSelectedGroupImages={hasSelectedGroupImages}
+          onDeleteGroup={onDeleteGroup}
+          onDeselectGroupImages={onDeselectGroupImages}
+          onSelectGroupImages={onSelectGroupImages}
+          selectableImageUuids={selectableImageUuids}
+        />
       </div>
       <div
         className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${

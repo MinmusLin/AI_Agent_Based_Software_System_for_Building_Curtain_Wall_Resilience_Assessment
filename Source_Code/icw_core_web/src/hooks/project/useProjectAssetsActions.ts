@@ -94,6 +94,8 @@ export function useProjectAssetsActions({
   const [deletingGroupIds, setDeletingGroupIds] = useState<Set<string>>(() => new Set());
   const [deletingImageUuids, setDeletingImageUuids] = useState<Set<string>>(() => new Set());
   const [uploadingImages, setUploadingImages] = useState(false);
+  const editingGroupIdRef = useRef('');
+  const savingGroupIdsRef = useRef<Set<string>>(new Set());
   const uploadingImagesRef = useRef(false);
 
   const readOnly =
@@ -156,46 +158,60 @@ export function useProjectAssetsActions({
   );
 
   const startEditGroup = useCallback((group: ProjectGroup): void => {
+    editingGroupIdRef.current = group.id;
     setEditingGroupId(group.id);
     setEditingGroupName(group.name);
   }, []);
 
   const saveEditingGroup = useCallback(async (): Promise<void> => {
-    if (editingGroupId === '' || savingGroupId !== '') {
+    const targetGroupId = editingGroupId;
+    if (targetGroupId === '' || savingGroupIdsRef.current.has(targetGroupId)) {
       return;
     }
 
-    const currentGroup = groups.find((group) => group.id === editingGroupId);
+    const currentGroup = groups.find((group) => group.id === targetGroupId);
     if (!currentGroup) {
-      setEditingGroupId('');
+      if (editingGroupIdRef.current === targetGroupId) {
+        editingGroupIdRef.current = '';
+        setEditingGroupId('');
+      }
       return;
     }
 
     const nextName = formatProjectGroupName(editingGroupName);
-    setEditingGroupName(nextName);
+    if (editingGroupIdRef.current === targetGroupId) {
+      setEditingGroupName(nextName);
+    }
     setGroups((currentGroups) =>
       replaceGroup(currentGroups, {
         ...currentGroup,
         name: nextName,
       }),
     );
-    setSavingGroupId(editingGroupId);
+    savingGroupIdsRef.current.add(targetGroupId);
+    setSavingGroupId(targetGroupId);
     try {
       const data = await updateProjectGroup({
-        group_id: editingGroupId,
+        group_id: targetGroupId,
         name: nextName,
         project_id: projectId,
       });
       setGroups((currentGroups) => replaceGroup(currentGroups, data.group));
     } catch (error: unknown) {
-      setEditingGroupName(currentGroup.name);
+      if (editingGroupIdRef.current === targetGroupId) {
+        setEditingGroupName(currentGroup.name);
+      }
       setGroups((currentGroups) => replaceGroup(currentGroups, currentGroup));
       onError(getErrorMessage(error));
     } finally {
-      setEditingGroupId('');
-      setSavingGroupId('');
+      savingGroupIdsRef.current.delete(targetGroupId);
+      if (editingGroupIdRef.current === targetGroupId) {
+        editingGroupIdRef.current = '';
+        setEditingGroupId('');
+      }
+      setSavingGroupId((currentGroupId) => (currentGroupId === targetGroupId ? '' : currentGroupId));
     }
-  }, [editingGroupId, editingGroupName, groups, onError, projectId, savingGroupId]);
+  }, [editingGroupId, editingGroupName, groups, onError, projectId]);
 
   const handleUploadFiles = useCallback(
     async (groupId: string, files: File[]): Promise<void> => {
