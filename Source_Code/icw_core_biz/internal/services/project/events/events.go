@@ -25,7 +25,7 @@ func PublishProjectImageStatusChangedEvent(ctx context.Context, rocketMQ *rocket
 		Image:       image,
 		OccurredAt:  time.Now().Format("2006-01-02 15:04:05"),
 	}
-	if err := rocketMQ.PublishProjectImageStatusChangedEvent(ctx, event); err != nil {
-		rocketmq.MQWarn("Publish project image status changed event failed, event: %s, err: %v", utils.JSONF(event), err)
-	}
+
+	// 发布项目图像状态变化事件
+	_ = rocketMQ.PublishProjectImageStatusChangedEvent(ctx, event)
 }
