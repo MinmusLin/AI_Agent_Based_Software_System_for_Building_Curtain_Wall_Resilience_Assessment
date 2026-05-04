@@ -18,6 +18,8 @@ import { setPostLogoutRedirect } from '@/utils/redirect';
 
 const { Header, Sider, Content } = Layout;
 
+const USER_PROFILE_MENU_KEY = 'profile';
+
 interface UserMenuOptions {
   avatarURL: string;
   canDeleteAvatar: boolean;
@@ -48,7 +50,7 @@ function buildUserItems(options: UserMenuOptions): MenuProps['items'] {
 
   return [
     {
-      key: 'profile',
+      key: USER_PROFILE_MENU_KEY,
       className: 'app-user-profile-item',
       label: (
         <div className="flex min-w-56 items-center gap-3 py-1">

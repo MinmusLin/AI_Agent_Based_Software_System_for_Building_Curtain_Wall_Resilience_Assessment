@@ -2,10 +2,13 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 
 import type { ApiEnvelope } from '@/types/common';
+import { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_UNAUTHORIZED } from '@/types/common';
 import { getRequiredEnv } from '@/utils/env';
 
 const API_BASE_URL = getRequiredEnv('VITE_API_BASE_URL');
 const REFRESH_MAX_ATTEMPTS = 3;
+const FIRST_REFRESH_ATTEMPT = 1;
+const REFRESH_ATTEMPT_STEP = 1;
 const REFRESH_RETRY_DELAY_MS = 300;
 const DEFAULT_ERROR_MESSAGE = '服务暂时不可用，请稍后重试';
 
@@ -74,7 +77,12 @@ http.interceptors.response.use(
 
     // 只有登录态接口返回 401 时才尝试刷新 Access Token
     // 返回非 401、已经重试过、或者 /auth/refresh 请求失败，直接把错误交回业务代码处理
-    if (!original || error.response?.status !== 401 || original._retried || original.url?.includes('/auth/refresh')) {
+    if (
+      !original ||
+      error.response?.status !== HTTP_STATUS_UNAUTHORIZED ||
+      original._retried ||
+      original.url?.includes('/auth/refresh')
+    ) {
       return Promise.reject(error);
     }
 
@@ -105,7 +113,7 @@ export async function refreshAccessToken(): Promise<string | null> {
 // 调用 /auth/refresh 获取新的 Access Token
 // Refresh Token 保存在 HttpOnly Cookie 中，JavaScript 不能读取，浏览器会自动随请求发送给 API
 async function requestRefreshAccessToken(): Promise<string | null> {
-  for (let attempt = 1; attempt <= REFRESH_MAX_ATTEMPTS; attempt += 1) {
+  for (let attempt = FIRST_REFRESH_ATTEMPT; attempt <= REFRESH_MAX_ATTEMPTS; attempt += REFRESH_ATTEMPT_STEP) {
     try {
       const res = await http.post<ApiEnvelope<{ access_token: string }>>('/auth/refresh');
       const token = res.data.data.access_token;
@@ -132,7 +140,7 @@ function shouldRetryRefresh(error: unknown): boolean {
   if (!error.response) {
     return true;
   }
-  return error.response.status >= 500;
+  return error.response.status >= HTTP_STATUS_INTERNAL_SERVER_ERROR;
 }
 
 // 简单线性退避：第 1/2/3 次失败之间分别等待 300ms 和 600ms

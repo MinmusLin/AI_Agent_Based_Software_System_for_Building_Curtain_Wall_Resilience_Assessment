@@ -78,6 +78,10 @@ const styleRules = {
       selector: String.raw`TemplateElement[value.raw=/#(?:[0-9A-Fa-f]{1,5}|[0-9A-Fa-f]{7}|[0-9A-Fa-f]{9,})(?![0-9A-Fa-f])/]`,
       message: 'Hex color literals must use #RRGGBB or #RRGGBBAA notation.',
     },
+    {
+      selector: String.raw`Literal[value=/^(?:custom|default|none|pending|uploaded|failed|profile|assets|detection|review|report|initializing|authenticated|anonymous)$/]:not(VariableDeclarator > Literal)`,
+      message: 'Enum-like string literals must be defined in src/types/common.ts and imported as constants.',
+    },
   ],
   'perfectionist/sort-jsx-props': ['error', { ignoreCase: true, order: 'asc', type: 'alphabetical' }],
   'simple-import-sort/exports': 'error',
@@ -144,6 +148,19 @@ const qualityRules = {
   ],
   '@typescript-eslint/no-explicit-any': 'error',
   '@typescript-eslint/no-import-type-side-effects': 'error',
+  '@typescript-eslint/no-magic-numbers': [
+    'error',
+    {
+      detectObjects: false,
+      enforceConst: true,
+      ignore: [-1],
+      ignoreArrayIndexes: true,
+      ignoreDefaultValues: true,
+      ignoreEnums: true,
+      ignoreNumericLiteralTypes: true,
+      ignoreReadonlyClassProperties: true,
+    },
+  ],
   '@typescript-eslint/no-non-null-assertion': 'error',
   '@typescript-eslint/no-unnecessary-condition': 'error',
   '@typescript-eslint/prefer-nullish-coalescing': 'error',
@@ -211,4 +228,10 @@ export default tseslint.config(
       ...styleRules,
     },
   })),
+  {
+    files: ['src/types/common.ts'],
+    rules: {
+      'no-restricted-syntax': 'off',
+    },
+  },
 );

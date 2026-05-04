@@ -18,6 +18,8 @@ import {
   updateProjectProfile,
   uploadProjectThumbnail,
 } from '@/api/project/profile';
+import type { ProjectProgress } from '@/types/common';
+import { PROJECT_PROGRESS_INITIALIZATION_FINISHED, PROJECT_PROGRESS_PROFILE_FINISHED } from '@/types/common';
 import type { Project } from '@/types/project/core';
 import type { UpdateProjectProfileRequest } from '@/types/project/profile';
 import { formatDateTime } from '@/utils/datetime';
@@ -29,13 +31,13 @@ import {
 
 const { TextArea } = Input;
 
-const PROFILE_PROGRESS = 0;
-const NEXT_PROFILE_PROGRESS = 1;
 const MIN_BUILT_YEAR = 1800;
 const MAX_PROJECT_NAME_LENGTH = 32;
 const MAX_BUILDING_NAME_LENGTH = 32;
 const MAX_BUILDING_LOCATION_LENGTH = 128;
 const MAX_PROJECT_TEXT_LENGTH = 5000;
+const YEAR_STEP = 1;
+const EMPTY_BUILT_YEAR = 0;
 
 interface ProfileFormState {
   name: string;
@@ -75,7 +77,7 @@ function formToPayload(projectId: string, form: ProfileFormState): UpdateProject
 function buildYearOptions(): { label: string; value: number }[] {
   const currentYear = new Date().getFullYear();
   const options: { label: string; value: number }[] = [];
-  for (let year = currentYear; year >= MIN_BUILT_YEAR; year -= 1) {
+  for (let year = currentYear; year >= MIN_BUILT_YEAR; year -= YEAR_STEP) {
     options.push({
       label: `${String(year)} 年`,
       value: year,
@@ -286,11 +288,11 @@ function ProjectThumbnailControl({
 
 interface ProjectProfileStageProps {
   loading?: boolean;
-  onProgressChange: (progress: number) => void;
+  onProgressChange: (progress: ProjectProgress) => void;
   onProjectChange: (project: Project) => void;
   project: Project;
   projectId: string;
-  selectedProgress: number;
+  selectedProgress: ProjectProgress;
 }
 
 export function ProjectProfileStage({
@@ -308,8 +310,14 @@ export function ProjectProfileStage({
   const yearOptions = useMemo(() => buildYearOptions(), []);
   const createdAtText = useMemo(() => formatDateTime(project.created_at), [project.created_at]);
   const updatedAtText = useMemo(() => formatDateTime(project.updated_at), [project.updated_at]);
-  const readOnly = loading || project.progress > PROFILE_PROGRESS || selectedProgress !== PROFILE_PROGRESS;
-  const canComplete = loading || (project.progress === PROFILE_PROGRESS && selectedProgress === PROFILE_PROGRESS);
+  const readOnly =
+    loading ||
+    project.progress > PROJECT_PROGRESS_INITIALIZATION_FINISHED ||
+    selectedProgress !== PROJECT_PROGRESS_INITIALIZATION_FINISHED;
+  const canComplete =
+    loading ||
+    (project.progress === PROJECT_PROGRESS_INITIALIZATION_FINISHED &&
+      selectedProgress === PROJECT_PROGRESS_INITIALIZATION_FINISHED);
 
   const updateFormField = useCallback(
     <Key extends keyof ProfileFormState>(key: Key, value: ProfileFormState[Key]): void => {
@@ -341,13 +349,13 @@ export function ProjectProfileStage({
       await advanceProject({
         project_id: projectId,
         from_progress: project.progress,
-        to_progress: NEXT_PROFILE_PROGRESS,
+        to_progress: PROJECT_PROGRESS_PROFILE_FINISHED,
       });
       onProjectChange({
         ...project,
-        progress: NEXT_PROFILE_PROGRESS,
+        progress: PROJECT_PROGRESS_PROFILE_FINISHED,
       });
-      onProgressChange(NEXT_PROFILE_PROGRESS);
+      onProgressChange(PROJECT_PROGRESS_PROFILE_FINISHED);
     } catch (error: unknown) {
       void messageApi.error(getErrorMessage(error));
     } finally {
@@ -433,11 +441,11 @@ export function ProjectProfileStage({
                 className="w-full"
                 disabled={readOnly}
                 onChange={(value: number | undefined) => {
-                  updateFormField('builtYear', value ?? 0);
+                  updateFormField('builtYear', value ?? EMPTY_BUILT_YEAR);
                 }}
                 options={yearOptions}
                 placeholder="请选择年份"
-                value={form.builtYear > 0 ? form.builtYear : undefined}
+                value={form.builtYear > EMPTY_BUILT_YEAR ? form.builtYear : undefined}
               />
             </label>
           </div>

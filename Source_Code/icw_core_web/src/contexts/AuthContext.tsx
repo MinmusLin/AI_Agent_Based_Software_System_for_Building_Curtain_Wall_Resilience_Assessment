@@ -5,14 +5,18 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { getMe, login as loginRequest, logout as logoutRequest } from '@/api/auth';
 import { refreshAccessToken, setAccessToken, setAuthHooks } from '@/api/http';
 import type { LoginRequest } from '@/types/auth';
-import type { User } from '@/types/common';
+import type { AuthStatus, User } from '@/types/common';
+import {
+  AUTH_STATUS_ANONYMOUS,
+  AUTH_STATUS_AUTHENTICATED,
+  AUTH_STATUS_INITIALIZING,
+  HTTP_STATUS_UNAUTHORIZED,
+} from '@/types/common';
 
 // 登录态分为三个阶段：
 // initializing：应用启动中，正在尝试用 Refresh Token 恢复登录态
 // authenticated：已有可用 Access Token，可以访问登录态页面
 // anonymous：未登录或 Refresh Token 已不可用，只能访问匿名页面
-type AuthStatus = 'initializing' | 'authenticated' | 'anonymous';
-
 interface AuthContextValue {
   status: AuthStatus;
   user: User | null;
@@ -26,7 +30,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }): ReactElement {
   // token/user/status 是 React 侧登录态
   // http.ts 内部也保存一份 Access Token，用于 Axios 请求拦截器自动添加 Authorization Header
-  const [status, setStatus] = useState<AuthStatus>('initializing');
+  const [status, setStatus] = useState<AuthStatus>(AUTH_STATUS_INITIALIZING);
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState('');
 
@@ -36,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
     setToken('');
     setAccessToken('');
     setUser(null);
-    setStatus('anonymous');
+    setStatus(AUTH_STATUS_ANONYMOUS);
   }
 
   useEffect(() => {
@@ -75,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
           // /auth/me 接口返回非 401 通常是临时服务异常，保留已恢复的 Access Token 和 authenticated 状态，避免因为 /auth/me 短暂不可用让用户强制退出登录态
         }
 
-        setStatus('authenticated');
+        setStatus(AUTH_STATUS_AUTHENTICATED);
       } catch {
         // 初始化流程发生非预期异常时，恢复匿名状态，避免页面长期停留在 initializing 阶段
         clearAuth();
@@ -97,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
         setAccessToken(result.access_token);
         setToken(result.access_token);
         setUser(result.user);
-        setStatus('authenticated');
+        setStatus(AUTH_STATUS_AUTHENTICATED);
       },
       async logout() {
         // 登出时会通知 API 吊销 Refresh Token 并清理 HttpOnly Cookie
@@ -106,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
         setAccessToken('');
         setToken('');
         setUser(null);
-        setStatus('anonymous');
+        setStatus(AUTH_STATUS_ANONYMOUS);
       },
     }),
     [status, token, user],
@@ -117,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
 
 // 只有 401 表示登录态不可用，5xx 或网络错误可能是基础服务临时异常，不应该直接清空登录态
 function isUnauthorizedError(error: unknown): boolean {
-  return isAxiosError(error) && error.response?.status === 401;
+  return isAxiosError(error) && error.response?.status === HTTP_STATUS_UNAUTHORIZED;
 }
 
 // 统一读取登录态 Context，调用方要求必须在 AuthProvider 下

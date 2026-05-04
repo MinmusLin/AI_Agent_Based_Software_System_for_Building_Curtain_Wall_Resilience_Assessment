@@ -1,6 +1,9 @@
-export const PROJECT_STAGE_KEYS = ['profile', 'assets', 'detection', 'review', 'report'] as const;
-
-export type ProjectStageKey = (typeof PROJECT_STAGE_KEYS)[number];
+import type { ProjectProgress, ProjectStageKey } from '@/types/common';
+import {
+  LAST_VISIBLE_PROJECT_PROGRESS,
+  PROJECT_PROGRESS_INITIALIZATION_FINISHED,
+  PROJECT_STAGE_KEYS,
+} from '@/types/common';
 
 export interface ProjectStageMeta {
   description: string;
@@ -30,21 +33,21 @@ export const PROJECT_STAGES: ProjectStageMeta[] = [
   },
 ];
 
-export const LAST_VISIBLE_PROGRESS = PROJECT_STAGE_KEYS.length - 1;
+export const LAST_VISIBLE_PROGRESS = LAST_VISIBLE_PROJECT_PROGRESS;
 
-export function stageKeyFromProgress(progress: number): ProjectStageKey {
-  const visibleProgress = Math.min(Math.max(progress, 0), LAST_VISIBLE_PROGRESS);
+export function stageKeyFromProgress(progress: ProjectProgress): ProjectStageKey {
+  const visibleProgress = Math.min(Math.max(progress, PROJECT_PROGRESS_INITIALIZATION_FINISHED), LAST_VISIBLE_PROGRESS);
   return PROJECT_STAGE_KEYS[visibleProgress];
 }
 
-export function progressFromStageKey(stageKey: string | undefined): number | null {
+export function progressFromStageKey(stageKey: string | undefined): ProjectProgress | null {
   if (!stageKey) {
     return null;
   }
 
   const progress = PROJECT_STAGE_KEYS.findIndex((key) => key === stageKey);
-  if (progress < 0) {
+  if (progress < PROJECT_PROGRESS_INITIALIZATION_FINISHED) {
     return null;
   }
-  return progress;
+  return progress as ProjectProgress;
 }
