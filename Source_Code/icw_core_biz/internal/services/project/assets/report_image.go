@@ -1,7 +1,6 @@
 package assets
 
 import (
-	"errors"
 	"strings"
 
 	"icw_core_biz/internal/services/project/consts"
@@ -60,9 +59,6 @@ func (s *Service) reportProjectImage(req *project.ReportProjectImageRequest, _ *
 	}
 
 	imageRecord, err = s.MySQL().UpdateProjectImageStatus(s.Ctx(), req.UserId, req.ProjectId, imageUuid, status)
-	if errors.Is(err, mysql.ErrProjectImageStatusTransitionInvalid) {
-		return rpc_err.BadRequestDefault("project image status transition is invalid")
-	}
 	if err != nil {
 		return err
 	}

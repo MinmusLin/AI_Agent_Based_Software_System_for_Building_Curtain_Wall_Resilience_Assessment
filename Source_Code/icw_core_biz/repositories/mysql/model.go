@@ -19,8 +19,6 @@ var (
 	ErrRefreshTokenNotReplaceable = errors.New("refresh token not replaceable")
 	// ErrProjectGroupCannotDeleteLast 项目应至少存在一个图像组
 	ErrProjectGroupCannotDeleteLast = errors.New("project must keep at least one group")
-	// ErrProjectImageStatusTransitionInvalid 项目图像状态流转不合法
-	ErrProjectImageStatusTransitionInvalid = errors.New("project image status transition invalid")
 )
 
 // UserRecord 用户记录

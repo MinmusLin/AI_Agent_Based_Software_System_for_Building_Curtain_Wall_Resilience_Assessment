@@ -849,16 +849,8 @@ func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, proje
 		return nil, err
 	}
 
-	affected, err := result.RowsAffected()
-	if err != nil {
+	if _, err = result.RowsAffected(); err != nil {
 		return nil, err
-	}
-	if affected == 0 {
-		imageRecord, err := r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
-		if err != nil || imageRecord == nil {
-			return imageRecord, err
-		}
-		return nil, ErrProjectImageStatusTransitionInvalid
 	}
 
 	return r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
