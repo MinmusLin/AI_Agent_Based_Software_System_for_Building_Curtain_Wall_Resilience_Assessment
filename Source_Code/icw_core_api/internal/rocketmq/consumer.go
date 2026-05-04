@@ -3,6 +3,9 @@ package rocketmq
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
 
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
@@ -13,6 +16,7 @@ import (
 	"icw_core_api/internal/dto"
 	"icw_core_api/internal/socket"
 	"icw_core_biz/pkg/dto/project"
+	"icw_core_biz/utils"
 )
 
 // Consumer RocketMQ 消息队列消费者
@@ -39,7 +43,15 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 		},
 		func(_ context.Context, messages ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 			for _, message := range messages {
-				dispatchProjectImageStatusChangedEvent(hub, message)
+				if message == nil {
+					continue
+				}
+				start := time.Now()
+				if err := dispatchProjectImageStatusChangedEvent(hub, message); err != nil {
+					MQError("[%s] cost=%s tag=%s msg_id=%s err=%s", message.Topic, time.Since(start), message.GetTags(), message.MsgId, utils.FormatErrorLog(err))
+					continue
+				}
+				MQInfo("[%s] cost=%s tag=%s msg_id=%s", message.Topic, time.Since(start), message.GetTags(), message.MsgId)
 			}
 			return consumer.ConsumeSuccess, nil
 		},
@@ -74,21 +86,22 @@ func (c *Consumer) Close() error {
 	return nil
 }
 
-func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.MessageExt) {
-	if hub == nil || message == nil {
-		return
+func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.MessageExt) error {
+	if hub == nil {
+		return errors.New("websocket hub is nil")
 	}
 	var event project.ProjectImageStatusChangedEvent
 	if err := json.Unmarshal(message.Body, &event); err != nil {
-		return
+		return err
 	}
 	if event.EventType != project.EventTypeProjectImageStatusChanged {
-		return
+		return fmt.Errorf("unexpected event type: %s", event.EventType)
 	}
 	socketMessage := dto.NewProjectImageStatusChangedMessage(&event)
 	messageBytes, err := json.Marshal(socketMessage)
 	if err != nil {
-		return
+		return err
 	}
-	hub.BroadcastProject(event.ProjectId, messageBytes)
+	hub.BroadcastProject(event.ProjectId, event.ProjectCode, messageBytes)
+	return nil
 }
