@@ -1,11 +1,11 @@
 import {
   CaretDownOutlined,
+  CloseCircleFilled,
   DeleteOutlined,
   DragOutlined,
   EyeOutlined,
+  FileImageOutlined,
   LoadingOutlined,
-  PictureOutlined,
-  StopOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
 import { Button, Checkbox, Input, Tooltip } from 'antd';
@@ -84,8 +84,8 @@ interface ProjectAssessGroupProps {
 function ImageUnavailableIcon(): ReactElement {
   return (
     <span className="relative inline-flex size-8 items-center justify-center text-slate-400">
-      <PictureOutlined className="text-3xl" />
-      <StopOutlined className="absolute -right-1 -bottom-1 rounded-full bg-white text-sm text-red-500" />
+      <FileImageOutlined className="text-3xl" />
+      <CloseCircleFilled className="absolute -right-1 -bottom-1 rounded-full bg-white text-sm text-red-500" />
     </span>
   );
 }
