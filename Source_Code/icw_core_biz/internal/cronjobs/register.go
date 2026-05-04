@@ -11,7 +11,7 @@ import (
 type CronJob struct {
 	name  string
 	cron  string
-	start common.CronJobFunc
+	start common.JobFactory
 }
 
 // Start 启动定时任务
@@ -32,7 +32,7 @@ func register(deps *common.Deps) []CronJob {
 		{
 			name:  "icw.cron.pending_image_timeout",
 			cron:  deps.Config.PendingImageTimeoutJobCron,
-			start: jobs.StartPendingImageTimeoutJob,
+			start: jobs.NewPendingImageTimeoutJob,
 		},
 	}
 }
