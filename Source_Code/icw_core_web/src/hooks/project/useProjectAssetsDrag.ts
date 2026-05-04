@@ -1,4 +1,4 @@
-import type { Dispatch, DragEvent, SetStateAction } from 'react';
+import type { Dispatch, DragEvent, RefObject, SetStateAction } from 'react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { getErrorMessage } from '@/api/http';
@@ -6,6 +6,7 @@ import { moveProjectGroup, moveProjectImage } from '@/api/project/assets';
 import type { ProjectGroup } from '@/types/project/assets';
 import type { DraggingImage } from '@/utils/assetsStage';
 import {
+  EMPTY_ITEMS_COUNT,
   GROUP_MOVE_ANIMATION_MS,
   GROUP_MOVE_DELTA_EPSILON,
   groupIdsSet,
@@ -14,6 +15,8 @@ import {
   isSameGroupOrder,
   moveImagesToGroup,
   replaceGroup,
+  SCROLL_EDGE_SIZE,
+  SCROLL_MAX_STEP,
 } from '@/utils/assetsStage';
 
 interface UseProjectAssetsDragParams {
@@ -22,6 +25,7 @@ interface UseProjectAssetsDragParams {
   onError: (message: string) => void;
   projectId: string;
   readOnly: boolean;
+  scrollContainerRef: RefObject<HTMLDivElement | null>;
   setGroups: Dispatch<SetStateAction<ProjectGroup[]>>;
 }
 
@@ -34,6 +38,8 @@ interface UseProjectAssetsDragResult {
   handleGroupDropEvent: (event: DragEvent<HTMLElement>, groupId: string) => void;
   handleImageDragEnd: () => void;
   handleImageDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string, sourceGroupId: string) => void;
+  handleCollapseAllGroups: () => void;
+  handleExpandAllGroups: () => void;
   handleToggleCollapsed: (groupId: string) => void;
   registerGroupRef: (groupId: string, node: HTMLElement | null) => void;
 }
@@ -44,13 +50,13 @@ export function useProjectAssetsDrag({
   onError,
   projectId,
   readOnly,
+  scrollContainerRef,
   setGroups,
 }: UseProjectAssetsDragParams): UseProjectAssetsDragResult {
   const collapsedGroupSnapshotRef = useRef<Set<string> | null>(null);
   const groupMoveAnimationFrameRef = useRef<number | null>(null);
   const groupMoveRectsRef = useRef<Map<string, DOMRect> | null>(null);
   const groupSectionRefs = useRef(new Map<string, HTMLElement>());
-  const draggingGroupTargetRef = useRef('');
   const draggingGroupSnapshotRef = useRef<ProjectGroup[] | null>(null);
   const movingGroupRef = useRef(false);
   const [collapsedGroupIds, setCollapsedGroupIds] = useState<Set<string>>(() => new Set());
@@ -128,6 +134,25 @@ export function useProjectAssetsDrag({
     });
   }, []);
 
+  const handleCollapseAllGroups = useCallback((): void => {
+    setCollapsedGroupIds(groupIdsSet(groups));
+  }, [groups]);
+
+  const handleExpandAllGroups = useCallback((): void => {
+    setCollapsedGroupIds(new Set());
+  }, []);
+
+  const scrollNearEdge = useCallback(
+    (event: DragEvent<HTMLElement>): void => {
+      const scrollContainer = scrollContainerRef.current;
+      if (!scrollContainer) {
+        return;
+      }
+      scrollContainerNearEdge(scrollContainer, event.clientY);
+    },
+    [scrollContainerRef],
+  );
+
   const handleGroupDrop = useCallback(async (): Promise<void> => {
     if (readOnly || draggingGroupId === '') {
       return;
@@ -136,7 +161,6 @@ export function useProjectAssetsDrag({
     const originalGroups = draggingGroupSnapshotRef.current ?? groups;
     if (isSameGroupOrder(originalGroups, groups)) {
       draggingGroupSnapshotRef.current = null;
-      draggingGroupTargetRef.current = '';
       restoreCollapsedGroups();
       setDraggingGroupId('');
       return;
@@ -153,7 +177,6 @@ export function useProjectAssetsDrag({
     } finally {
       movingGroupRef.current = false;
       draggingGroupSnapshotRef.current = null;
-      draggingGroupTargetRef.current = '';
       restoreCollapsedGroups();
       setDraggingGroupId('');
     }
@@ -161,16 +184,10 @@ export function useProjectAssetsDrag({
 
   const handleGroupDragOver = useCallback(
     (targetGroupId: string): void => {
-      if (
-        readOnly ||
-        draggingGroupId === '' ||
-        draggingGroupId === targetGroupId ||
-        draggingGroupTargetRef.current === targetGroupId
-      ) {
+      if (readOnly || draggingGroupId === '' || draggingGroupId === targetGroupId) {
         return;
       }
 
-      draggingGroupTargetRef.current = targetGroupId;
       groupMoveRectsRef.current = getGroupRects();
       setGroups((currentGroups) => groupMovePosition(currentGroups, draggingGroupId, targetGroupId));
     },
@@ -183,7 +200,6 @@ export function useProjectAssetsDrag({
     }
     if (!movingGroupRef.current) {
       draggingGroupSnapshotRef.current = null;
-      draggingGroupTargetRef.current = '';
       restoreCollapsedGroups();
       setDraggingGroupId('');
     }
@@ -195,7 +211,6 @@ export function useProjectAssetsDrag({
         return;
       }
       draggingGroupSnapshotRef.current = groups;
-      draggingGroupTargetRef.current = '';
       collapsedGroupSnapshotRef.current = new Set(collapsedGroupIds);
       setCollapsedGroupIds(groupIdsSet(groups));
       setDraggingGroupId(group.id);
@@ -206,6 +221,7 @@ export function useProjectAssetsDrag({
 
   const handleGroupDragOverEvent = useCallback(
     (event: DragEvent<HTMLElement>, groupId: string): void => {
+      scrollNearEdge(event);
       if (draggingGroupId !== '' && !draggingImage) {
         event.preventDefault();
         handleGroupDragOver(groupId);
@@ -215,7 +231,7 @@ export function useProjectAssetsDrag({
         event.preventDefault();
       }
     },
-    [draggingGroupId, draggingImage, handleGroupDragOver],
+    [draggingGroupId, draggingImage, handleGroupDragOver, scrollNearEdge],
   );
 
   const handleImageDragStart = useCallback(
@@ -283,6 +299,8 @@ export function useProjectAssetsDrag({
   return {
     collapsedGroupIds,
     draggingGroupId,
+    handleCollapseAllGroups,
+    handleExpandAllGroups,
     handleGroupDragEnd,
     handleGroupDragOverEvent,
     handleGroupDragStart,
@@ -292,4 +310,26 @@ export function useProjectAssetsDrag({
     handleToggleCollapsed,
     registerGroupRef,
   };
+}
+
+function scrollContainerNearEdge(scrollContainer: HTMLElement, clientY: number): void {
+  const rect = scrollContainer.getBoundingClientRect();
+  const topDistance = clientY - rect.top;
+  const bottomDistance = rect.bottom - clientY;
+  let scrollStep = EMPTY_ITEMS_COUNT;
+  if (topDistance >= EMPTY_ITEMS_COUNT && topDistance < SCROLL_EDGE_SIZE) {
+    scrollStep = -scrollStepByEdgeDistance(topDistance);
+  }
+  if (bottomDistance >= EMPTY_ITEMS_COUNT && bottomDistance < SCROLL_EDGE_SIZE) {
+    scrollStep = scrollStepByEdgeDistance(bottomDistance);
+  }
+  if (scrollStep !== EMPTY_ITEMS_COUNT) {
+    scrollContainer.scrollBy({
+      top: scrollStep,
+    });
+  }
+}
+
+function scrollStepByEdgeDistance(distance: number): number {
+  return Math.ceil(((SCROLL_EDGE_SIZE - distance) / SCROLL_EDGE_SIZE) * SCROLL_MAX_STEP);
 }

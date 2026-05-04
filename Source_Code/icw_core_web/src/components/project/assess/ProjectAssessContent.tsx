@@ -16,7 +16,6 @@ interface ProjectAssessContentProps {
   editingGroupId: string;
   editingGroupName: string;
   groups: ProjectGroup[];
-  onCancelEditGroup: () => void;
   onDeleteGroup: (groupId: string) => void;
   onDeleteImage: (imageUuid: string) => void;
   onEditingGroupNameChange: (name: string) => void;
@@ -50,7 +49,6 @@ export function ProjectAssessContent({
   editingGroupId,
   editingGroupName,
   groups,
-  onCancelEditGroup,
   onDeleteGroup,
   onDeleteImage,
   onEditingGroupNameChange,
@@ -103,7 +101,6 @@ export function ProjectAssessContent({
           group={group}
           groupCount={groups.length}
           key={group.id}
-          onCancelEditGroup={onCancelEditGroup}
           onDeleteGroup={onDeleteGroup}
           onDeleteImage={onDeleteImage}
           onEditingGroupNameChange={onEditingGroupNameChange}

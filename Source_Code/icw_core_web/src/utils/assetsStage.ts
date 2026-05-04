@@ -17,10 +17,13 @@ export const GROUP_MOVE_DELTA_EPSILON = 0.5;
 export const KILOBYTE_SIZE_BYTES = 1024;
 export const NEXT_INDEX_OFFSET = 1;
 export const NOT_FOUND_INDEX = -1;
+export const SCROLL_EDGE_SIZE = 80;
+export const SCROLL_MAX_STEP = 12;
 export const UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp';
 export const WEBSOCKET_RECONNECT_DELAY_MS = 2000;
 
 const JSON_FORMAT_INDENT = 2;
+const CONTINUOUS_WHITESPACE_PATTERN = /\s+/g;
 
 export interface DraggingImage {
   imageUuid: string;
@@ -45,6 +48,42 @@ export interface PreparedImageUpload {
   sourceFile: File;
   thumbnailBlob: Blob;
   width: number;
+}
+
+export interface ProjectImageStats {
+  failed: number;
+  pending: number;
+  total: number;
+}
+
+export function formatProjectGroupName(name: string): string {
+  return name.trim().replace(CONTINUOUS_WHITESPACE_PATTERN, ' ');
+}
+
+export function projectImageStats(images: ProjectImage[]): ProjectImageStats {
+  return images.reduce<ProjectImageStats>(
+    (stats, image) => ({
+      failed: stats.failed + (isProjectImageUnavailable(image) ? NEXT_INDEX_OFFSET : EMPTY_ITEMS_COUNT),
+      pending: stats.pending + (image.status === PROJECT_IMAGE_STATUS_PENDING ? NEXT_INDEX_OFFSET : EMPTY_ITEMS_COUNT),
+      total: stats.total + NEXT_INDEX_OFFSET,
+    }),
+    {
+      failed: EMPTY_ITEMS_COUNT,
+      pending: EMPTY_ITEMS_COUNT,
+      total: EMPTY_ITEMS_COUNT,
+    },
+  );
+}
+
+export function projectGroupImageStats(groups: ProjectGroup[]): ProjectImageStats {
+  return projectImageStats(groups.flatMap((group) => group.images));
+}
+
+export function isProjectImageUnavailable(image: ProjectImage): boolean {
+  return (
+    image.status === PROJECT_IMAGE_STATUS_FAILED ||
+    (image.status === PROJECT_IMAGE_STATUS_UPLOADED && image.thumbnail_url.trim() === '')
+  );
 }
 
 export function sortProjectImages(images: ProjectImage[]): ProjectImage[] {

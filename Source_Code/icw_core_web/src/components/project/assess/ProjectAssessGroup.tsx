@@ -19,7 +19,7 @@ import {
   PROJECT_IMAGE_STATUS_UPLOADED,
 } from '@/types/common';
 import type { ProjectGroup, ProjectImage } from '@/types/project/assets';
-import { NEXT_INDEX_OFFSET } from '@/utils/assetsStage';
+import { EMPTY_ITEMS_COUNT, NEXT_INDEX_OFFSET, projectImageStats } from '@/utils/assetsStage';
 
 interface ProjectAssetImageCardProps {
   batchMode: boolean;
@@ -60,7 +60,6 @@ interface ProjectAssessGroupProps {
   editingGroupName: string;
   group: ProjectGroup;
   groupCount: number;
-  onCancelEditGroup: () => void;
   onDeleteGroup: (groupId: string) => void;
   onDeleteImage: (imageUuid: string) => void;
   onEditingGroupNameChange: (name: string) => void;
@@ -278,7 +277,6 @@ export function ProjectAssessGroup({
   editingGroupName,
   group,
   groupCount,
-  onCancelEditGroup,
   onDeleteGroup,
   onDeleteImage,
   onEditingGroupNameChange,
@@ -301,6 +299,7 @@ export function ProjectAssessGroup({
   uploadingImages,
 }: ProjectAssessGroupProps): ReactElement {
   const canDeleteGroup = !readOnly && groupCount > NEXT_INDEX_OFFSET;
+  const imageStats = projectImageStats(group.images);
 
   return (
     <section
@@ -319,7 +318,7 @@ export function ProjectAssessGroup({
     >
       <div
         className="group flex items-center gap-3 rounded-t-lg border-b border-slate-200 bg-white px-4 py-3"
-        draggable={!readOnly}
+        draggable={!readOnly && !editing}
         onDragEnd={onGroupDragEnd}
         onDragStart={(event: DragEvent<HTMLDivElement>) => {
           onGroupDragStart(event, group);
@@ -343,8 +342,9 @@ export function ProjectAssessGroup({
         {editing ? (
           <Input
             autoFocus
-            className="h-7 max-w-72 text-sm"
+            className="h-7 max-w-116 text-sm"
             disabled={savingGroup}
+            draggable={false}
             maxLength={32}
             onBlur={() => {
               onSaveEditGroup();
@@ -352,9 +352,13 @@ export function ProjectAssessGroup({
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               onEditingGroupNameChange(event.target.value);
             }}
+            onDragStart={(event) => {
+              event.stopPropagation();
+            }}
             onKeyDown={(event) => {
               if (event.key === 'Escape') {
-                onCancelEditGroup();
+                event.preventDefault();
+                onSaveEditGroup();
               }
             }}
             onPressEnter={() => {
@@ -375,7 +379,15 @@ export function ProjectAssessGroup({
             {group.name}
           </button>
         )}
-        <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{group.images.length} 张图像</span>
+        <span className="rounded bg-blue-50 px-2 py-0.5 text-xs text-[#1677FF]">{group.images.length} 张图像</span>
+        {imageStats.failed > EMPTY_ITEMS_COUNT ? (
+          <span className="rounded bg-red-50 px-2 py-0.5 text-xs text-red-500">{imageStats.failed} 张失败</span>
+        ) : null}
+        {imageStats.pending > EMPTY_ITEMS_COUNT ? (
+          <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-600">
+            {imageStats.pending} 张上传中
+          </span>
+        ) : null}
         {canDeleteGroup ? (
           <Button
             aria-label="删除图像组"

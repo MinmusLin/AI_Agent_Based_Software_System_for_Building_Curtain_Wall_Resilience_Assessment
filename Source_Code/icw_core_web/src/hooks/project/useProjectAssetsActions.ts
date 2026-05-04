@@ -25,6 +25,7 @@ import type { PreparedImageUpload } from '@/utils/assetsStage';
 import {
   appendImagesToGroup,
   EMPTY_ITEMS_COUNT,
+  formatProjectGroupName,
   normalizeGroups,
   prepareUploadImage,
   putPresignedObject,
@@ -59,7 +60,6 @@ interface UseProjectAssetsActionsResult {
   editingGroupId: string;
   editingGroupName: string;
   groups: ProjectGroup[];
-  handleCancelEditGroup: () => void;
   handleComplete: () => Promise<void>;
   handleCreateGroup: () => Promise<void>;
   handleDeleteGroup: (groupId: string) => Promise<void>;
@@ -104,10 +104,6 @@ export function useProjectAssetsActions({
     !loading &&
     project.progress === PROJECT_PROGRESS_PROFILE_FINISHED &&
     selectedProgress === PROJECT_PROGRESS_PROFILE_FINISHED;
-
-  const handleCancelEditGroup = useCallback((): void => {
-    setEditingGroupId('');
-  }, []);
 
   const loadAssets = useCallback(async (): Promise<void> => {
     if (projectId === '') {
@@ -175,17 +171,14 @@ export function useProjectAssetsActions({
       return;
     }
 
-    const nextName = editingGroupName.trim();
-    if (nextName === '') {
-      setEditingGroupName(currentGroup.name);
-      setEditingGroupId('');
-      return;
-    }
-    if (nextName === currentGroup.name) {
-      setEditingGroupId('');
-      return;
-    }
-
+    const nextName = formatProjectGroupName(editingGroupName);
+    setEditingGroupName(nextName);
+    setGroups((currentGroups) =>
+      replaceGroup(currentGroups, {
+        ...currentGroup,
+        name: nextName,
+      }),
+    );
     setSavingGroupId(editingGroupId);
     try {
       const data = await updateProjectGroup({
@@ -194,10 +187,12 @@ export function useProjectAssetsActions({
         project_id: projectId,
       });
       setGroups((currentGroups) => replaceGroup(currentGroups, data.group));
-      setEditingGroupId('');
     } catch (error: unknown) {
+      setEditingGroupName(currentGroup.name);
+      setGroups((currentGroups) => replaceGroup(currentGroups, currentGroup));
       onError(getErrorMessage(error));
     } finally {
+      setEditingGroupId('');
       setSavingGroupId('');
     }
   }, [editingGroupId, editingGroupName, groups, onError, projectId, savingGroupId]);
@@ -303,7 +298,6 @@ export function useProjectAssetsActions({
     editingGroupId,
     editingGroupName,
     groups,
-    handleCancelEditGroup,
     handleComplete,
     handleCreateGroup,
     handleDeleteGroup,

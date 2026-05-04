@@ -1,6 +1,6 @@
 import { message } from 'antd';
 import type { ReactElement } from 'react';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ProjectAssessContent } from '@/components/project/assess/ProjectAssessContent';
 import { ProjectAssessToolbar } from '@/components/project/assess/ProjectAssessToolbar';
@@ -12,7 +12,7 @@ import { useProjectAssetsSocket } from '@/hooks/project/useProjectAssetsSocket';
 import { useProjectAssetsViewer } from '@/hooks/project/useProjectAssetsViewer';
 import type { ProjectProgress } from '@/types/common';
 import type { Project } from '@/types/project/core';
-import { EMPTY_ITEMS_COUNT, flattenUploadedImages, UPLOAD_ACCEPT } from '@/utils/assetsStage';
+import { flattenUploadedImages, projectGroupImageStats, UPLOAD_ACCEPT } from '@/utils/assetsStage';
 
 interface ProjectAssetsStageProps {
   loading?: boolean;
@@ -32,6 +32,7 @@ export function ProjectAssetsStage({
   selectedProgress,
 }: ProjectAssetsStageProps): ReactElement {
   const [messageApi, contextHolder] = message.useMessage();
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const showError = useCallback(
     (text: string): void => {
       void messageApi.error(text);
@@ -49,7 +50,6 @@ export function ProjectAssetsStage({
     editingGroupId,
     editingGroupName,
     groups,
-    handleCancelEditGroup,
     handleComplete,
     handleCreateGroup,
     handleDeleteGroup,
@@ -95,6 +95,8 @@ export function ProjectAssetsStage({
   const {
     collapsedGroupIds,
     draggingGroupId,
+    handleCollapseAllGroups,
+    handleExpandAllGroups,
     handleGroupDragEnd,
     handleGroupDragOverEvent,
     handleGroupDragStart,
@@ -109,6 +111,7 @@ export function ProjectAssetsStage({
     onError: showError,
     projectId,
     readOnly,
+    scrollContainerRef,
     setGroups,
   });
   const { openImageViewer, setViewer, viewer, viewerImage, viewerIndex } = useProjectAssetsViewer({
@@ -126,10 +129,7 @@ export function ProjectAssetsStage({
     pruneSelectedImages(groups);
   }, [groups, pruneSelectedImages]);
 
-  const totalImageCount = useMemo(
-    () => groups.reduce((count, group) => count + group.images.length, EMPTY_ITEMS_COUNT),
-    [groups],
-  );
+  const imageStats = useMemo(() => projectGroupImageStats(groups), [groups]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">
@@ -144,6 +144,7 @@ export function ProjectAssetsStage({
         batchMoving={batchMoving}
         canComplete={canComplete}
         creatingGroup={creatingGroup}
+        failedImageCount={imageStats.failed}
         groupCount={groups.length}
         hasSelectedImages={hasSelectedImages}
         onBatchDeleteImages={() => {
@@ -153,19 +154,22 @@ export function ProjectAssetsStage({
         onBatchMoveImages={(targetGroupId) => {
           void handleBatchMoveImages(targetGroupId);
         }}
+        onCollapseAllGroups={handleCollapseAllGroups}
         onComplete={() => {
           void handleComplete();
         }}
         onCreateGroup={() => {
           void handleCreateGroup();
         }}
+        onExpandAllGroups={handleExpandAllGroups}
         onRefresh={() => {
           void loadAssets();
         }}
+        pendingImageCount={imageStats.pending}
         readOnly={readOnly}
-        totalImageCount={totalImageCount}
+        totalImageCount={imageStats.total}
       />
-      <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+      <div className="min-h-0 flex-1 overflow-y-auto pr-1" ref={scrollContainerRef}>
         <ProjectAssessContent
           accept={UPLOAD_ACCEPT}
           assetsLoading={assetsLoading}
@@ -177,7 +181,6 @@ export function ProjectAssetsStage({
           editingGroupId={editingGroupId}
           editingGroupName={editingGroupName}
           groups={groups}
-          onCancelEditGroup={handleCancelEditGroup}
           onDeleteGroup={(groupId) => {
             void handleDeleteGroup(groupId);
           }}
