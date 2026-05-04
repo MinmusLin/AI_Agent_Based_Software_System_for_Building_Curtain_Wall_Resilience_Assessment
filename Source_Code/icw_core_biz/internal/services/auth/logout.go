@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"log"
 	"time"
 
 	authUtils "icw_core_biz/internal/services/auth/utils"
@@ -24,7 +23,7 @@ func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
 			ttl := time.Until(claims.ExpiresAt.Time)
 			if ttl > 0 {
 				if err := s.Redis().BlacklistAccessToken(s.Ctx(), claims.ID, ttl); err != nil {
-					log.Printf("%s Blacklist access token failed, claims: %s, err: %v", common.RpcWarnPrefix(), utils.JSONF(claims), err)
+					common.RpcWarn("Blacklist access token failed, claims: %s, err: %v", utils.JSONF(claims), err)
 				}
 			}
 		}
@@ -33,7 +32,7 @@ func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
 	// 吊销 Refresh Token
 	if tokenId := authUtils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
 		if err := s.MySQL().RevokeRefreshTokensByTokenId(s.Ctx(), tokenId); err != nil {
-			log.Printf("%s Revoke refresh tokens by token id failed, token_id: %s, err: %v", common.RpcWarnPrefix(), tokenId, err)
+			common.RpcWarn("Revoke refresh tokens by token id failed, token_id: %s, err: %v", tokenId, err)
 		}
 	}
 

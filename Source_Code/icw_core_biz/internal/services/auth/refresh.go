@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -36,7 +35,7 @@ func (s *Service) refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) er
 	}
 	defer func() {
 		if err := s.Redis().ClearRefreshReuseLock(s.Ctx(), tokenId); err != nil {
-			log.Printf("%s Clear refresh reuse lock failed, token_id: %s, err: %v", common.RpcWarnPrefix(), tokenId, err)
+			common.RpcWarn("Clear refresh reuse lock failed, token_id: %s, err: %v", tokenId, err)
 		}
 	}()
 
