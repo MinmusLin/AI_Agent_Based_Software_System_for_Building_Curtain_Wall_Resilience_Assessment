@@ -7,11 +7,11 @@ import (
 	"icw_core_biz/internal/cronjobs/jobs"
 )
 
-// job 定时任务配置
-type job struct {
+// CronJob 定时任务配置
+type CronJob struct {
 	name  string
 	cron  string
-	start func(context.Context, *common.Deps, string) error
+	start common.CronJobFunc
 }
 
 // Start 启动定时任务
@@ -20,16 +20,15 @@ func Start(ctx context.Context, deps *common.Deps) {
 		deps = &common.Deps{}
 	}
 	for _, item := range register(deps) {
-		common.CronInfo("Start cronjob: %s, cron: %s", item.name, item.cron)
-		if err := item.start(ctx, deps, item.cron); err != nil {
-			common.CronFault("Failed to start cronjob %s: %v", item.name, err)
+		if err := common.Start(ctx, deps, item.name, item.cron, item.start); err != nil {
+			common.CronFault("Failed to register cron job %s: %v", item.name, err)
 		}
 	}
 }
 
 // register 注册定时任务
-func register(deps *common.Deps) []job {
-	return []job{
+func register(deps *common.Deps) []CronJob {
+	return []CronJob{
 		{
 			name:  "icw.cron.pending_image_timeout",
 			cron:  deps.Config.PendingImageTimeoutJobCron,
