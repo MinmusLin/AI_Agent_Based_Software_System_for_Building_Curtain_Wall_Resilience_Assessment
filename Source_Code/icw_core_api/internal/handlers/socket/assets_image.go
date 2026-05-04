@@ -32,7 +32,7 @@ func (h *Handler) SetupAssetsWebSocket(c *gin.Context) {
 
 	rpcReq := &bizDto.ValidateSocketTicketRequest{
 		ProjectCode: projectCode,
-		SocketScope: dto.SocketScopeProjectAssetsImage,
+		SocketScope: dto.SocketScopeProjectAssets,
 		Ticket:      ticket,
 	}
 	rpcResp := &bizDto.ValidateSocketTicketResponse{}

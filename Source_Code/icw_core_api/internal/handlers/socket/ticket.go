@@ -36,7 +36,7 @@ func (h *Handler) CreateSocketTicket(c *gin.Context) {
 		UserId:      user.Id,
 		ProjectId:   projectId,
 		ProjectCode: req.ProjectId,
-		SocketScope: dto.SocketScopeProjectAssetsImage,
+		SocketScope: dto.SocketScopeProjectAssets,
 		RequestId:   utils.GetRequestId(c.Request.Context()),
 	}
 	rpcResp := &bizDto.CreateSocketTicketResponse{}
