@@ -1,6 +1,11 @@
 package consts
 
 const (
+	// CoreBizPSM icw.core.biz 服务标识
+	CoreBizPSM = "icw.core.biz"
+)
+
+const (
 	// LogColorReset ANSI 终端颜色重置码
 	LogColorReset = "\033[0m"
 	// LogColorBoldGreen ANSI 终端颜色码：绿色

@@ -14,11 +14,6 @@ import (
 	bizUtils "icw_core_biz/utils"
 )
 
-const (
-	// CoreBizPSM icw.core.biz 服务标识
-	CoreBizPSM = "icw.core.biz"
-)
-
 // RPCClient 带服务标识的 RPC Client
 type RPCClient struct {
 	psm    string
