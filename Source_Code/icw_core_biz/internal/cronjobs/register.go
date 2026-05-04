@@ -59,22 +59,16 @@ func formatRegistryTable(cronJobs []CronJob) string {
 		nameWidth = max(nameWidth, len(item.name))
 		expressionWidth = max(expressionWidth, len(item.cron))
 	}
-	lineIndent := strings.Repeat(" ", 20)
 	border := fmt.Sprintf("+-%s-+-%s-+", strings.Repeat("-", nameWidth), strings.Repeat("-", expressionWidth))
 	var builder strings.Builder
-	builder.WriteString(lineIndent)
 	builder.WriteString(border)
 	builder.WriteString("\n")
-	builder.WriteString(lineIndent)
 	builder.WriteString(fmt.Sprintf("| %-*s | %-*s |\n", nameWidth, nameHeader, expressionWidth, expressionHeader))
-	builder.WriteString(lineIndent)
 	builder.WriteString(border)
 	builder.WriteString("\n")
 	for _, item := range cronJobs {
-		builder.WriteString(lineIndent)
 		builder.WriteString(fmt.Sprintf("| %-*s | %-*s |\n", nameWidth, item.name, expressionWidth, item.cron))
 	}
-	builder.WriteString(lineIndent)
 	builder.WriteString(border)
 	return builder.String()
 }
