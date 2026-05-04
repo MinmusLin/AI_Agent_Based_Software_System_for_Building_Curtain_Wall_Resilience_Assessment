@@ -6,7 +6,7 @@ import {
   StepForwardOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
-import { Button, Input, message, Select } from 'antd';
+import { Button, Input, message, Select, Tooltip } from 'antd';
 import type { ChangeEvent, ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -231,7 +231,7 @@ function ProjectThumbnailControl({
         ref={inputRef}
         type="file"
       />
-      <div className="group relative aspect-square overflow-hidden rounded-lg border border-dashed border-slate-300 bg-slate-50">
+      <div className="group relative aspect-square overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
         {hasThumbnail ? (
           <div className="size-full overflow-hidden rounded-lg">
             <img
@@ -246,22 +246,26 @@ function ProjectThumbnailControl({
               src={project.thumbnail_url}
             />
             {!readOnly && !busy ? (
-              <div className="absolute inset-0 flex items-center justify-center gap-3 bg-slate-950/0 opacity-0 transition duration-200 group-hover:bg-slate-950/35 group-hover:opacity-100">
-                <Button
-                  aria-label="更换缩略图"
-                  disabled={actionDisabled}
-                  icon={<ReloadOutlined />}
-                  onClick={openFileSelector}
-                  shape="circle"
-                />
-                <Button
-                  aria-label="删除缩略图"
-                  danger
-                  disabled={actionDisabled}
-                  icon={<DeleteOutlined />}
-                  onClick={() => void handleDelete()}
-                  shape="circle"
-                />
+              <div className="absolute inset-0 flex items-center justify-center gap-2 bg-slate-950/0 opacity-0 transition duration-200 group-hover:bg-slate-950/35 group-hover:opacity-100">
+                <Tooltip title="更新缩略图">
+                  <Button
+                    aria-label="更新缩略图"
+                    disabled={actionDisabled}
+                    icon={<ReloadOutlined />}
+                    onClick={openFileSelector}
+                    shape="circle"
+                  />
+                </Tooltip>
+                <Tooltip title="删除缩略图">
+                  <Button
+                    aria-label="删除缩略图"
+                    danger
+                    disabled={actionDisabled}
+                    icon={<DeleteOutlined />}
+                    onClick={() => void handleDelete()}
+                    shape="circle"
+                  />
+                </Tooltip>
               </div>
             ) : null}
             {busy ? (
@@ -273,7 +277,7 @@ function ProjectThumbnailControl({
         ) : (
           <button
             aria-label="上传缩略图"
-            className="flex size-full items-center justify-center text-slate-400 transition duration-200 hover:border-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:hover:text-slate-400"
+            className="flex size-full flex-col items-center justify-center gap-2 text-sm text-slate-500 transition duration-200 hover:border-[#1677FF] hover:text-[#1677FF] disabled:cursor-not-allowed disabled:hover:text-slate-400"
             disabled={actionDisabled}
             onClick={openFileSelector}
             type="button"
