@@ -27,6 +27,10 @@ export type ProjectImageStatus =
   | typeof PROJECT_IMAGE_STATUS_UPLOADED
   | typeof PROJECT_IMAGE_STATUS_FAILED;
 
+export const PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED = 'project_image_status_changed';
+
+export type ProjectEventType = typeof PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED;
+
 export const AUTH_STATUS_INITIALIZING = 'initializing';
 export const AUTH_STATUS_AUTHENTICATED = 'authenticated';
 export const AUTH_STATUS_ANONYMOUS = 'anonymous';

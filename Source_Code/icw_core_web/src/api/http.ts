@@ -5,7 +5,7 @@ import type { ApiEnvelope } from '@/types/common';
 import { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_UNAUTHORIZED } from '@/types/common';
 import { getRequiredEnv } from '@/utils/env';
 
-const API_BASE_URL = getRequiredEnv('VITE_API_BASE_URL');
+export const API_BASE_URL = getRequiredEnv('VITE_API_BASE_URL');
 const REFRESH_MAX_ATTEMPTS = 3;
 const FIRST_REFRESH_ATTEMPT = 1;
 const REFRESH_ATTEMPT_STEP = 1;
