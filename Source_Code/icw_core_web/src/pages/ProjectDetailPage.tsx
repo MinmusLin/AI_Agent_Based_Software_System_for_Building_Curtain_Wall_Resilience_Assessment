@@ -7,10 +7,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getErrorMessage } from '@/api/http';
 import { getProjectProfile } from '@/api/project/profile';
 import { ProjectAssetsStage } from '@/components/project/ProjectAssetsStage';
+import { ProjectDetectionStage } from '@/components/project/ProjectDetectionStage';
 import { ProjectProfileStage } from '@/components/project/ProjectProfileStage';
 import { LAST_VISIBLE_PROGRESS, progressFromStageKey, PROJECT_STAGES, stageKeyFromProgress } from '@/constants/project';
 import type { ProjectProgress } from '@/types/common';
 import {
+  PROJECT_PROGRESS_ASSETS_FINISHED,
   PROJECT_PROGRESS_INITIALIZATION_FINISHED,
   PROJECT_PROGRESS_PROFILE_FINISHED,
   PROJECT_STAGE_KEY_ASSETS,
@@ -103,6 +105,10 @@ function ProjectStageContent({
         selectedProgress={selectedProgress}
       />
     );
+  }
+
+  if (selectedProgress === PROJECT_PROGRESS_ASSETS_FINISHED) {
+    return <ProjectDetectionStage loading={loading} projectId={projectId} />;
   }
 
   return (
