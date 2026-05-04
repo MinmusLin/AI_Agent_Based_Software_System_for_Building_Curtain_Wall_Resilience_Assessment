@@ -141,9 +141,7 @@ type ReportProjectImageRequest struct {
 	Status    string
 }
 
-type ReportProjectImageResponse struct {
-	Image *ProjectImage
-}
+type ReportProjectImageResponse struct{}
 
 type UploadProjectImageRequest struct {
 	Meta      *dto.Meta

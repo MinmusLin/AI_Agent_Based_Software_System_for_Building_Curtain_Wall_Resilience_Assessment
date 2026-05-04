@@ -10,25 +10,28 @@ import (
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
 	"icw_core_biz/repositories/redis"
+	"icw_core_biz/repositories/rocketmq"
 	"icw_core_biz/repositories/smtp"
 )
 
 // Deps RPC Service 的公共依赖集合
 type Deps struct {
-	Config configs.Config
-	MySQL  *mysql.Repository
-	Redis  *redis.Repository
-	SMTP   *smtp.Repository
-	MinIO  *minio.Repository
+	Config   configs.Config
+	MySQL    *mysql.Repository
+	Redis    *redis.Repository
+	RocketMQ *rocketmq.Repository
+	MinIO    *minio.Repository
+	SMTP     *smtp.Repository
 }
 
-func NewDeps(Config configs.Config, MySQL *mysql.Repository, Redis *redis.Repository, SMTP *smtp.Repository, MinIO *minio.Repository) *Deps {
+func NewDeps(Config configs.Config, MySQL *mysql.Repository, Redis *redis.Repository, RocketMQ *rocketmq.Repository, MinIO *minio.Repository, SMTP *smtp.Repository) *Deps {
 	return &Deps{
-		Config: Config,
-		MySQL:  MySQL,
-		Redis:  Redis,
-		SMTP:   SMTP,
-		MinIO:  MinIO,
+		Config:   Config,
+		MySQL:    MySQL,
+		Redis:    Redis,
+		RocketMQ: RocketMQ,
+		MinIO:    MinIO,
+		SMTP:     SMTP,
 	}
 }
 
@@ -100,12 +103,17 @@ func (s *BaseService) Redis() *redis.Repository {
 	return s.deps.Redis
 }
 
-// SMTP 获取 SMTP 服务
-func (s *BaseService) SMTP() *smtp.Repository {
-	return s.deps.SMTP
+// RocketMQ 获取 RocketMQ 服务
+func (s *BaseService) RocketMQ() *rocketmq.Repository {
+	return s.deps.RocketMQ
 }
 
 // MinIO 获取 MinIO 服务
 func (s *BaseService) MinIO() *minio.Repository {
 	return s.deps.MinIO
+}
+
+// SMTP 获取 SMTP 服务
+func (s *BaseService) SMTP() *smtp.Repository {
+	return s.deps.SMTP
 }
