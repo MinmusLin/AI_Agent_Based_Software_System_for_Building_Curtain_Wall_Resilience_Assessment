@@ -5,6 +5,7 @@ import (
 
 	"github.com/sqids/sqids-go"
 
+	"icw_core_biz/consts"
 	"icw_core_biz/pkg/rpc_err"
 )
 
@@ -21,7 +22,7 @@ func mustNewProjectIdCodec() *sqids.Sqids {
 		MinLength: MinProjectIdLength,
 	})
 	if err != nil {
-		LogFatal("Failed to initialize sqids codec: %v", err)
+		LogFatal(consts.LogScopeInit, "Failed to initialize sqids codec: %v", err)
 	}
 	return codec
 }
