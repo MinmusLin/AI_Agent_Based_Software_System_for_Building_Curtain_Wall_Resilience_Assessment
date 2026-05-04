@@ -75,7 +75,6 @@ func Start(ctx context.Context, deps *Deps, name, expression string, factory Job
 	}
 	if deps == nil || deps.MySQL == nil || deps.Redis == nil || deps.MinIO == nil || deps.RocketMQ == nil {
 		CronFault("Failed to start cron job: %v", errors.New("dependencies are required"))
-		return nil
 	}
 
 	// 按 Cron 表达式执行定时任务
