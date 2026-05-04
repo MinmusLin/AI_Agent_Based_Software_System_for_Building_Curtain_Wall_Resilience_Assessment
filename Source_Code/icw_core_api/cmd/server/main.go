@@ -54,7 +54,7 @@ func main() {
 	router := handlers.RegisterRoutes(cfg, coreBizClient, webSocketHub)
 
 	// 运行 icw.core.api 服务
-	utils.LogInfo(bizConsts.LogScopeHTTP, "", "icw.core.api service starts running on %s", cfg.CoreApiAddr)
+	utils.LogInfo(bizConsts.LogScopeHTTP, bizConsts.LogColorBoldGreen, "icw.core.api service starts running on %s", cfg.CoreApiAddr)
 	if err := router.Run(cfg.CoreApiAddr); err != nil {
 		utils.LogFatal(bizConsts.LogScopeInit, "Failed to run icw.core.api service: %v", err)
 	}
