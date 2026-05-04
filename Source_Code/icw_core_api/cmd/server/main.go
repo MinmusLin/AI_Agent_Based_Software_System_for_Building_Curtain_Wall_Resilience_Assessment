@@ -48,13 +48,13 @@ func main() {
 	defer func() {
 		_ = coreBizClient.Close()
 	}()
-	utils.LogInfo(bizConsts.LogScopeInit, "", "Connected to RPC service icw.core.biz successfully")
+	utils.LogInfo(bizConsts.LogScopeRPC, bizConsts.LogColorBoldGreen, "Connected to RPC service icw.core.biz successfully")
 
 	// 初始化路由
 	router := handlers.RegisterRoutes(cfg, coreBizClient, webSocketHub)
 
 	// 运行 icw.core.api 服务
-	utils.LogInfo(bizConsts.LogScopeInit, "", "icw.core.api service starts running on %s", cfg.CoreApiAddr)
+	utils.LogInfo(bizConsts.LogScopeHTTP, "", "icw.core.api service starts running on %s", cfg.CoreApiAddr)
 	if err := router.Run(cfg.CoreApiAddr); err != nil {
 		utils.LogFatal(bizConsts.LogScopeInit, "Failed to run icw.core.api service: %v", err)
 	}
