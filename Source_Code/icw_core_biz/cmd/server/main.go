@@ -9,6 +9,7 @@ import (
 	goredis "github.com/redis/go-redis/v9"
 
 	"icw_core_biz/configs"
+	"icw_core_biz/consts"
 	"icw_core_biz/internal/cronjobs"
 	cronjobCommon "icw_core_biz/internal/cronjobs/common"
 	"icw_core_biz/internal/services"
@@ -23,23 +24,22 @@ import (
 
 // main icw.core.biz 服务入口
 func main() {
-	scope := "INIT"
 	ctx := context.Background()
 
 	// 加载服务配置
 	configs.LoadDotEnv(".env")
 	cfg, err := configs.Load()
 	if err != nil {
-		utils.LogFault(scope, "Failed to load config: %v", err)
+		utils.LogFault(consts.LogScopeInit, "Failed to load config: %v", err)
 	}
 
 	// 初始化 MySQL
 	dataMySQL, err := sql.Open("mysql", cfg.MySQLDSN)
 	if err != nil {
-		utils.LogFault(scope, "Failed to connect to MySQL: %v", err)
+		utils.LogFault(consts.LogScopeInit, "Failed to connect to MySQL: %v", err)
 	}
 	if err := dataMySQL.PingContext(ctx); err != nil {
-		utils.LogFault(scope, "Failed to connect to MySQL: %v", err)
+		utils.LogFault(consts.LogScopeInit, "Failed to connect to MySQL: %v", err)
 	}
 
 	// 初始化 Redis
@@ -49,26 +49,26 @@ func main() {
 		DB:       cfg.RedisDB,
 	})
 	if err := dataRedis.Ping(ctx).Err(); err != nil {
-		utils.LogFault(scope, "Failed to connect to Redis: %v", err)
+		utils.LogFault(consts.LogScopeInit, "Failed to connect to Redis: %v", err)
 	}
 
 	// 初始化 MinIO
 	dataMinIO, err := minio.NewClient(cfg)
 	if err != nil {
-		utils.LogFault(scope, "Failed to connect to MinIO: %v", err)
+		utils.LogFault(consts.LogScopeInit, "Failed to connect to MinIO: %v", err)
 	}
 	bucketExists, err := dataMinIO.BucketExists(ctx, cfg.MinIOBucket)
 	if err != nil {
-		utils.LogFault(scope, "Failed to connect to MinIO: %v", err)
+		utils.LogFault(consts.LogScopeInit, "Failed to connect to MinIO: %v", err)
 	}
 	if !bucketExists {
-		utils.LogFault(scope, "Failed to find MinIO bucket: %s", cfg.MinIOBucket)
+		utils.LogFault(consts.LogScopeInit, "Failed to find MinIO bucket: %s", cfg.MinIOBucket)
 	}
 
 	// 初始化 RocketMQ 生产者
 	dataRocketMQ, err := rocketmq.NewProducer(cfg)
 	if err != nil {
-		utils.LogFault(scope, "Failed to connect to RocketMQ: %v", err)
+		utils.LogFault(consts.LogScopeInit, "Failed to connect to RocketMQ: %v", err)
 	}
 	defer func() {
 		_ = dataRocketMQ.Shutdown()
@@ -97,7 +97,7 @@ func main() {
 	serviceCommon.RpcInfo("icw.core.biz service starts running on %s", cfg.CoreBizAddr)
 	listener, err := net.Listen("tcp", cfg.CoreBizAddr)
 	if err != nil {
-		utils.LogFault(scope, "Failed to run icw.core.biz service: %v", err)
+		utils.LogFault(consts.LogScopeInit, "Failed to run icw.core.biz service: %v", err)
 	}
 	rpc.Accept(listener)
 }

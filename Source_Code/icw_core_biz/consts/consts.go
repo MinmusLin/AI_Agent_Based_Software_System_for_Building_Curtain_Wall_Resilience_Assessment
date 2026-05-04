@@ -18,3 +18,14 @@ const (
 	// LogColorBoldWhiteOnRed ANSI 终端颜色码：白色（红色背景）
 	LogColorBoldWhiteOnRed = "\033[1;37;41m"
 )
+
+const (
+	// LogScopeInit 服务初始化日志域
+	LogScopeInit = "INIT"
+	// LogScopeRPC RPC 服务日志域
+	LogScopeRPC = "RPC"
+	// LogScopeMQ 消息队列日志域
+	LogScopeMQ = "MQ"
+	// LogScopeCron 定时任务日志域
+	LogScopeCron = "CRON"
+)
