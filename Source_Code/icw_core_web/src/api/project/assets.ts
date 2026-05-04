@@ -11,7 +11,6 @@ import type {
   MoveProjectImageRequest,
   MoveProjectImageResponse,
   ReportProjectImageRequest,
-  ReportProjectImageResponse,
   UpdateProjectGroupRequest,
   UpdateProjectGroupResponse,
   UploadProjectImageRequest,
@@ -90,9 +89,8 @@ export async function moveProjectImage(payload: MoveProjectImageRequest): Promis
 
 // 上报图像
 // @router /project/assets/image/report [POST]
-export async function reportProjectImage(payload: ReportProjectImageRequest): Promise<ReportProjectImageResponse> {
-  const { data } = await http.post<ApiEnvelope<ReportProjectImageResponse>>('/project/assets/image/report', payload);
-  return data.data;
+export async function reportProjectImage(payload: ReportProjectImageRequest): Promise<void> {
+  await http.post<ApiEnvelope<Record<string, never>>>('/project/assets/image/report', payload);
 }
 
 // 上传图像

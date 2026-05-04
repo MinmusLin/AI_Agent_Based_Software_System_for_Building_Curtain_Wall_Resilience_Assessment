@@ -97,10 +97,6 @@ export interface ReportProjectImageRequest {
   status: ProjectImageStatus;
 }
 
-export interface ReportProjectImageResponse {
-  image: ProjectImage;
-}
-
 export interface UploadProjectImageRequest {
   project_id: string;
   group_id: string;
