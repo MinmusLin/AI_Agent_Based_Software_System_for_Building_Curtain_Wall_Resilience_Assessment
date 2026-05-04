@@ -93,14 +93,14 @@ func Start(ctx context.Context, deps *Deps, name, expression string, factory Job
 }
 
 // schedule 按 Cron 表达式执行定时任务
-func (c *BaseCronJob) schedule(name, expression string, fn func() error) error {
+func (j *BaseCronJob) schedule(name, expression string, fn func() error) error {
 	scheduler := cron.New(
 		cron.WithSeconds(),
 		cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)),
 	)
 
 	if _, err := scheduler.AddFunc(expression, func() {
-		_ = c.run(name, fn)
+		_ = j.run(name, fn)
 	}); err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (c *BaseCronJob) schedule(name, expression string, fn func() error) error {
 	scheduler.Start()
 
 	go func() {
-		<-c.Ctx().Done()
+		<-j.Ctx().Done()
 		stopCtx := scheduler.Stop()
 		<-stopCtx.Done()
 	}()
@@ -117,7 +117,7 @@ func (c *BaseCronJob) schedule(name, expression string, fn func() error) error {
 }
 
 // run 执行定时任务
-func (c *BaseCronJob) run(name string, fn func() error) (err error) {
+func (j *BaseCronJob) run(name string, fn func() error) (err error) {
 	start := time.Now()
 	defer func() {
 		cronLog(name, start, err)
@@ -130,49 +130,49 @@ func (c *BaseCronJob) run(name string, fn func() error) (err error) {
 }
 
 // Ctx 获取上下文
-func (c *BaseCronJob) Ctx() context.Context {
-	if c == nil || c.ctx == nil {
+func (j *BaseCronJob) Ctx() context.Context {
+	if j == nil || j.ctx == nil {
 		return context.Background()
 	}
-	return c.ctx
+	return j.ctx
 }
 
 // Config 获取服务配置
-func (c *BaseCronJob) Config() configs.Config {
-	if c == nil || c.deps == nil {
+func (j *BaseCronJob) Config() configs.Config {
+	if j == nil || j.deps == nil {
 		return configs.Config{}
 	}
-	return c.deps.Config
+	return j.deps.Config
 }
 
 // MySQL 获取 MySQL 服务
-func (c *BaseCronJob) MySQL() *mysql.Repository {
-	if c == nil || c.deps == nil {
+func (j *BaseCronJob) MySQL() *mysql.Repository {
+	if j == nil || j.deps == nil {
 		return nil
 	}
-	return c.deps.MySQL
+	return j.deps.MySQL
 }
 
 // Redis 获取 Redis 服务
-func (c *BaseCronJob) Redis() *redis.Repository {
-	if c == nil || c.deps == nil {
+func (j *BaseCronJob) Redis() *redis.Repository {
+	if j == nil || j.deps == nil {
 		return nil
 	}
-	return c.deps.Redis
+	return j.deps.Redis
 }
 
 // RocketMQ 获取 RocketMQ 服务
-func (c *BaseCronJob) RocketMQ() *rocketmq.Repository {
-	if c == nil || c.deps == nil {
+func (j *BaseCronJob) RocketMQ() *rocketmq.Repository {
+	if j == nil || j.deps == nil {
 		return nil
 	}
-	return c.deps.RocketMQ
+	return j.deps.RocketMQ
 }
 
 // MinIO 获取 MinIO 服务
-func (c *BaseCronJob) MinIO() *minio.Repository {
-	if c == nil || c.deps == nil {
+func (j *BaseCronJob) MinIO() *minio.Repository {
+	if j == nil || j.deps == nil {
 		return nil
 	}
-	return c.deps.MinIO
+	return j.deps.MinIO
 }
