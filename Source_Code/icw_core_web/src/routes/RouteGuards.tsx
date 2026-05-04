@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { AUTH_STATUS_AUTHENTICATED, AUTH_STATUS_INITIALIZING } from '@/types/common';
 import { clearPostLogoutRedirect, getPostLogoutRedirect } from '@/utils/redirect';
 
 // 登录态初始化期间的全屏加载态
@@ -23,18 +24,18 @@ export function ProtectedRoute(): ReactElement {
   const postLogoutRedirect = getPostLogoutRedirect();
 
   useEffect(() => {
-    if (status !== 'authenticated' && postLogoutRedirect) {
+    if (status !== AUTH_STATUS_AUTHENTICATED && postLogoutRedirect) {
       clearPostLogoutRedirect();
     }
   }, [postLogoutRedirect, status]);
 
   // 登录态恢复中，展示全屏加载页
-  if (status === 'initializing') {
+  if (status === AUTH_STATUS_INITIALIZING) {
     return <FullPageSpin />;
   }
 
   // 未登录用户跳转到登录页
-  if (status !== 'authenticated') {
+  if (status !== AUTH_STATUS_AUTHENTICATED) {
     return <Navigate replace state={{ from: location.pathname }} to={postLogoutRedirect || '/login'} />;
   }
 
@@ -47,12 +48,12 @@ export function GuestRoute(): ReactElement {
   const { status } = useAuth();
 
   // 登录态恢复中，展示全屏加载页
-  if (status === 'initializing') {
+  if (status === AUTH_STATUS_INITIALIZING) {
     return <FullPageSpin />;
   }
 
   // 已登录用户跳转到系统首页
-  if (status === 'authenticated') {
+  if (status === AUTH_STATUS_AUTHENTICATED) {
     return <Navigate replace to="/dashboard" />;
   }
 
