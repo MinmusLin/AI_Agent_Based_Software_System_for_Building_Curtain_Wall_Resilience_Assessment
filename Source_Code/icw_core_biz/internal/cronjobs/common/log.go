@@ -8,12 +8,21 @@ import (
 )
 
 // cronLog 输出定时任务执行日志
-func cronLog(name string, start time.Time, err error) {
+func cronLog(name string, start time.Time, result interface{}, err error) {
+	resultStr := utils.JSONF(result)
 	if utils.IsEmptyError(err) {
-		CronInfo("[%s] cost=%s", name, time.Since(start))
+		if resultStr == "" {
+			CronInfo("[%s] cost=%s", name, time.Since(start))
+			return
+		}
+		CronInfo("[%s] cost=%s result=%s", name, time.Since(start), resultStr)
 		return
 	}
-	CronError("[%s] cost=%s err=%s", name, time.Since(start), utils.FormatErrorLog(err))
+	if resultStr == "" {
+		CronError("[%s] cost=%s", name, time.Since(start))
+		return
+	}
+	CronError("[%s] cost=%s result=%s", name, time.Since(start), resultStr)
 }
 
 // CronInfo 输出标准定时任务日志

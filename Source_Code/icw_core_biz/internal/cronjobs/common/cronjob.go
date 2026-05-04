@@ -54,7 +54,7 @@ func NewBaseCronJob(ctx context.Context, deps *Deps) *BaseCronJob {
 
 // CronJob 定时任务执行接口
 type CronJob interface {
-	Start() error
+	Start() (interface{}, error)
 }
 
 // JobFactory 定时任务构造函数
@@ -83,23 +83,23 @@ func Start(ctx context.Context, deps *Deps, name, expression string, factory Job
 	if factory != nil {
 		job = factory(baseJob)
 	}
-	return baseJob.schedule(name, expression, func() error {
+	return baseJob.schedule(name, expression, func() (interface{}, error) {
 		if job == nil {
-			return nil
+			return nil, nil
 		}
 		return job.Start()
 	})
 }
 
 // schedule 按 Cron 表达式执行定时任务
-func (j *BaseCronJob) schedule(name, expression string, fn func() error) error {
+func (j *BaseCronJob) schedule(name, expression string, fn func() (interface{}, error)) error {
 	scheduler := cron.New(
 		cron.WithSeconds(),
 		cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)),
 	)
 
 	if _, err := scheduler.AddFunc(expression, func() {
-		_ = j.run(name, fn)
+		_, _ = j.run(name, fn)
 	}); err != nil {
 		return err
 	}
@@ -116,14 +116,14 @@ func (j *BaseCronJob) schedule(name, expression string, fn func() error) error {
 }
 
 // run 执行定时任务
-func (j *BaseCronJob) run(name string, fn func() error) (err error) {
+func (j *BaseCronJob) run(name string, fn func() (interface{}, error)) (result interface{}, err error) {
 	start := time.Now()
 	defer func() {
-		cronLog(name, start, err)
+		cronLog(name, start, result, err)
 	}()
 
 	if fn == nil {
-		return nil
+		return nil, nil
 	}
 	return fn()
 }

@@ -18,12 +18,21 @@ func NewPendingImageTimeoutJob(baseJob *common.BaseCronJob) common.CronJob {
 	}
 }
 
+// PendingImageTimeoutJobResult 上传中图像超时失败任务执行结果
+type PendingImageTimeoutJobResult struct {
+	PublishImageUuids []string `json:"publish_image_uuids"`
+}
+
 // Start 执行上传中图像超时失败任务
-func (j *PendingImageTimeoutJob) Start() error {
+func (j *PendingImageTimeoutJob) Start() (interface{}, error) {
 	// 将超时的上传中项目图像状态更新为上传失败
 	imageRecords, err := j.MySQL().FailTimeoutPendingProjectImages(j.Ctx(), j.Config().ProjectImagePendingTimeout)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	result := &PendingImageTimeoutJobResult{
+		PublishImageUuids: make([]string, 0),
 	}
 
 	for _, imageRecord := range imageRecords {
@@ -35,7 +44,8 @@ func (j *PendingImageTimeoutJob) Start() error {
 
 		// 发布项目图像状态变化事件
 		events.PublishProjectImageStatusChangedEvent(j.Ctx(), j.RocketMQ(), imageRecord.UserId, imageRecord.ProjectId, image)
+		result.PublishImageUuids = append(result.PublishImageUuids, image.Uuid)
 	}
 
-	return nil
+	return result, nil
 }
