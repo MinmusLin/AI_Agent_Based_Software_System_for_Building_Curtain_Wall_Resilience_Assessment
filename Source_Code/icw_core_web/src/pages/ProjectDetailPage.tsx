@@ -6,11 +6,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { getErrorMessage } from '@/api/http';
 import { getProjectProfile } from '@/api/project/profile';
+import { ProjectAssetsStage } from '@/components/project/ProjectAssetsStage';
 import { ProjectProfileStage } from '@/components/project/ProjectProfileStage';
 import { LAST_VISIBLE_PROGRESS, progressFromStageKey, PROJECT_STAGES, stageKeyFromProgress } from '@/constants/project';
 import type { Project } from '@/types/project/core';
 
 const PROFILE_PROGRESS = 0;
+const ASSETS_PROGRESS = 1;
 const PROJECT_STAGE_ICONS: ReactElement[] = [
   <ProfileOutlined key="profile" />,
   <PictureOutlined key="assets" />,
@@ -72,6 +74,19 @@ function ProjectStageContent({
   if (selectedProgress === PROFILE_PROGRESS) {
     return (
       <ProjectProfileStage
+        loading={loading}
+        onProgressChange={onProgressChange}
+        onProjectChange={onProjectChange}
+        project={project}
+        projectId={projectId}
+        selectedProgress={selectedProgress}
+      />
+    );
+  }
+
+  if (selectedProgress === ASSETS_PROGRESS) {
+    return (
+      <ProjectAssetsStage
         loading={loading}
         onProgressChange={onProgressChange}
         onProjectChange={onProjectChange}
