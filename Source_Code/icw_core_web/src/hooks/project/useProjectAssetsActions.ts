@@ -1,0 +1,333 @@
+import type { Dispatch, SetStateAction } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
+import { getErrorMessage } from '@/api/http';
+import {
+  createProjectGroup,
+  deleteProjectGroup,
+  deleteProjectImage,
+  getProjectAssets,
+  reportProjectImage,
+  updateProjectGroup,
+  uploadProjectImage,
+} from '@/api/project/assets';
+import { advanceProject } from '@/api/project/core';
+import type { ProjectImageStatus, ProjectProgress } from '@/types/common';
+import {
+  PROJECT_IMAGE_STATUS_FAILED,
+  PROJECT_IMAGE_STATUS_UPLOADED,
+  PROJECT_PROGRESS_ASSETS_FINISHED,
+  PROJECT_PROGRESS_PROFILE_FINISHED,
+} from '@/types/common';
+import type { ProjectGroup, UploadProjectImageResult } from '@/types/project/assets';
+import type { Project } from '@/types/project/core';
+import type { PreparedImageUpload } from '@/utils/assetsStage';
+import {
+  appendImagesToGroup,
+  EMPTY_ITEMS_COUNT,
+  normalizeGroups,
+  prepareUploadImage,
+  putPresignedObject,
+  removeGroup,
+  removeImages,
+  replaceGroup,
+  uploadItemFromPreparedImage,
+} from '@/utils/assetsStage';
+import {
+  isAllowedProjectAssetImageFile,
+  PROJECT_ASSET_IMAGE_OUTPUT_CONTENT_TYPE,
+  PROJECT_ASSET_THUMBNAIL_OUTPUT_CONTENT_TYPE,
+} from '@/utils/images';
+
+interface UseProjectAssetsActionsParams {
+  loading: boolean;
+  onError: (message: string) => void;
+  onProgressChange: (progress: ProjectProgress) => void;
+  onProjectChange: (project: Project) => void;
+  project: Project;
+  projectId: string;
+  selectedProgress: ProjectProgress;
+}
+
+interface UseProjectAssetsActionsResult {
+  advancing: boolean;
+  assetsLoading: boolean;
+  canComplete: boolean;
+  creatingGroup: boolean;
+  deletingGroupIds: Set<string>;
+  deletingImageUuids: Set<string>;
+  editingGroupId: string;
+  editingGroupName: string;
+  groups: ProjectGroup[];
+  handleCancelEditGroup: () => void;
+  handleComplete: () => Promise<void>;
+  handleCreateGroup: () => Promise<void>;
+  handleDeleteGroup: (groupId: string) => Promise<void>;
+  handleDeleteImage: (imageUuid: string) => Promise<void>;
+  handleUploadFiles: (groupId: string, files: File[]) => Promise<void>;
+  loadAssets: () => Promise<void>;
+  readOnly: boolean;
+  saveEditingGroup: () => Promise<void>;
+  savingGroupId: string;
+  setEditingGroupName: Dispatch<SetStateAction<string>>;
+  setGroups: Dispatch<SetStateAction<ProjectGroup[]>>;
+  startEditGroup: (group: ProjectGroup) => void;
+}
+
+export function useProjectAssetsActions({
+  loading,
+  onError,
+  onProgressChange,
+  onProjectChange,
+  project,
+  projectId,
+  selectedProgress,
+}: UseProjectAssetsActionsParams): UseProjectAssetsActionsResult {
+  const [groups, setGroups] = useState<ProjectGroup[]>([]);
+  const [assetsLoading, setAssetsLoading] = useState(true);
+  const [creatingGroup, setCreatingGroup] = useState(false);
+  const [advancing, setAdvancing] = useState(false);
+  const [editingGroupId, setEditingGroupId] = useState('');
+  const [editingGroupName, setEditingGroupName] = useState('');
+  const [savingGroupId, setSavingGroupId] = useState('');
+  const [deletingGroupIds, setDeletingGroupIds] = useState<Set<string>>(() => new Set());
+  const [deletingImageUuids, setDeletingImageUuids] = useState<Set<string>>(() => new Set());
+
+  const readOnly =
+    loading ||
+    project.progress > PROJECT_PROGRESS_PROFILE_FINISHED ||
+    selectedProgress !== PROJECT_PROGRESS_PROFILE_FINISHED;
+  const canComplete =
+    !loading &&
+    project.progress === PROJECT_PROGRESS_PROFILE_FINISHED &&
+    selectedProgress === PROJECT_PROGRESS_PROFILE_FINISHED;
+
+  const handleCancelEditGroup = useCallback((): void => {
+    setEditingGroupId('');
+  }, []);
+
+  const loadAssets = useCallback(async (): Promise<void> => {
+    if (projectId === '') {
+      return;
+    }
+
+    setAssetsLoading(true);
+    try {
+      const data = await getProjectAssets(projectId);
+      setGroups(normalizeGroups(data.groups));
+    } catch (error: unknown) {
+      onError(getErrorMessage(error));
+    } finally {
+      setAssetsLoading(false);
+    }
+  }, [onError, projectId]);
+
+  const handleCreateGroup = useCallback(async (): Promise<void> => {
+    setCreatingGroup(true);
+    try {
+      const data = await createProjectGroup(projectId);
+      setGroups((currentGroups) => [...currentGroups, data.group]);
+    } catch (error: unknown) {
+      onError(getErrorMessage(error));
+    } finally {
+      setCreatingGroup(false);
+    }
+  }, [onError, projectId]);
+
+  const handleDeleteGroup = useCallback(
+    async (groupId: string): Promise<void> => {
+      setDeletingGroupIds((currentIds) => new Set(currentIds).add(groupId));
+      try {
+        await deleteProjectGroup({
+          group_id: groupId,
+          project_id: projectId,
+        });
+        setGroups((currentGroups) => removeGroup(currentGroups, groupId));
+      } catch (error: unknown) {
+        onError(getErrorMessage(error));
+      } finally {
+        setDeletingGroupIds((currentIds) => {
+          const nextIds = new Set(currentIds);
+          nextIds.delete(groupId);
+          return nextIds;
+        });
+      }
+    },
+    [onError, projectId],
+  );
+
+  const startEditGroup = useCallback((group: ProjectGroup): void => {
+    setEditingGroupId(group.id);
+    setEditingGroupName(group.name);
+  }, []);
+
+  const saveEditingGroup = useCallback(async (): Promise<void> => {
+    if (editingGroupId === '' || savingGroupId !== '') {
+      return;
+    }
+
+    const currentGroup = groups.find((group) => group.id === editingGroupId);
+    if (!currentGroup) {
+      setEditingGroupId('');
+      return;
+    }
+
+    const nextName = editingGroupName.trim();
+    if (nextName === '') {
+      setEditingGroupName(currentGroup.name);
+      setEditingGroupId('');
+      return;
+    }
+    if (nextName === currentGroup.name) {
+      setEditingGroupId('');
+      return;
+    }
+
+    setSavingGroupId(editingGroupId);
+    try {
+      const data = await updateProjectGroup({
+        group_id: editingGroupId,
+        name: nextName,
+        project_id: projectId,
+      });
+      setGroups((currentGroups) => replaceGroup(currentGroups, data.group));
+      setEditingGroupId('');
+    } catch (error: unknown) {
+      onError(getErrorMessage(error));
+    } finally {
+      setSavingGroupId('');
+    }
+  }, [editingGroupId, editingGroupName, groups, onError, projectId, savingGroupId]);
+
+  const handleUploadFiles = useCallback(
+    async (groupId: string, files: File[]): Promise<void> => {
+      const validFiles = files.filter((file) => isAllowedProjectAssetImageFile(file));
+      if (validFiles.length !== files.length) {
+        onError('请上传 JPG、PNG 或 WebP 格式的图片');
+      }
+      if (validFiles.length === EMPTY_ITEMS_COUNT) {
+        return;
+      }
+
+      try {
+        const preparedImages = await Promise.all(validFiles.map((file) => prepareUploadImage(file)));
+        const uploadItems = preparedImages.map((image) => uploadItemFromPreparedImage(image));
+        const data = await uploadProjectImage({
+          group_id: groupId,
+          images: uploadItems,
+          project_id: projectId,
+        });
+        const pendingImages = data.images.map((item) => item.image);
+        setGroups((currentGroups) => appendImagesToGroup(currentGroups, groupId, pendingImages));
+
+        await Promise.all(
+          data.images.map(async (result, index): Promise<void> => {
+            await uploadOneImage(projectId, result, preparedImages[index]);
+          }),
+        );
+      } catch (error: unknown) {
+        onError(getErrorMessage(error));
+      }
+    },
+    [onError, projectId],
+  );
+
+  const handleDeleteImage = useCallback(
+    async (imageUuid: string): Promise<void> => {
+      setDeletingImageUuids((currentIds) => new Set(currentIds).add(imageUuid));
+      try {
+        await deleteProjectImage({
+          image_uuids: [imageUuid],
+          project_id: projectId,
+        });
+        setGroups((currentGroups) => removeImages(currentGroups, [imageUuid]));
+      } catch (error: unknown) {
+        onError(getErrorMessage(error));
+      } finally {
+        setDeletingImageUuids((currentIds) => {
+          const nextIds = new Set(currentIds);
+          nextIds.delete(imageUuid);
+          return nextIds;
+        });
+      }
+    },
+    [onError, projectId],
+  );
+
+  const handleComplete = useCallback(async (): Promise<void> => {
+    setAdvancing(true);
+    try {
+      await advanceProject({
+        from_progress: project.progress,
+        project_id: projectId,
+        to_progress: PROJECT_PROGRESS_ASSETS_FINISHED,
+      });
+      onProjectChange({
+        ...project,
+        progress: PROJECT_PROGRESS_ASSETS_FINISHED,
+      });
+      onProgressChange(PROJECT_PROGRESS_ASSETS_FINISHED);
+    } catch (error: unknown) {
+      onError(getErrorMessage(error));
+    } finally {
+      setAdvancing(false);
+    }
+  }, [onError, onProgressChange, onProjectChange, project, projectId]);
+
+  useEffect(() => {
+    void loadAssets();
+  }, [loadAssets]);
+
+  return {
+    advancing,
+    assetsLoading,
+    canComplete,
+    creatingGroup,
+    deletingGroupIds,
+    deletingImageUuids,
+    editingGroupId,
+    editingGroupName,
+    groups,
+    handleCancelEditGroup,
+    handleComplete,
+    handleCreateGroup,
+    handleDeleteGroup,
+    handleDeleteImage,
+    handleUploadFiles,
+    loadAssets,
+    readOnly,
+    saveEditingGroup,
+    savingGroupId,
+    setEditingGroupName,
+    setGroups,
+    startEditGroup,
+  };
+}
+
+async function uploadOneImage(
+  projectId: string,
+  result: UploadProjectImageResult,
+  preparedImage: PreparedImageUpload,
+): Promise<void> {
+  let reportStatus: ProjectImageStatus = PROJECT_IMAGE_STATUS_UPLOADED;
+  try {
+    await putPresignedObject(
+      result.original_upload_url,
+      preparedImage.originalBlob,
+      PROJECT_ASSET_IMAGE_OUTPUT_CONTENT_TYPE,
+    );
+    await putPresignedObject(
+      result.thumbnail_upload_url,
+      preparedImage.thumbnailBlob,
+      PROJECT_ASSET_THUMBNAIL_OUTPUT_CONTENT_TYPE,
+    );
+  } catch {
+    reportStatus = PROJECT_IMAGE_STATUS_FAILED;
+  }
+
+  await reportProjectImage({
+    image_uuid: result.image.uuid,
+    project_id: projectId,
+    status: reportStatus,
+  });
+}
