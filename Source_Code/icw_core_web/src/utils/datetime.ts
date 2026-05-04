@@ -1,7 +1,7 @@
 const DATE_TIME_PAD_LENGTH = 2;
 const MONTH_INDEX_OFFSET = 1;
 
-export function formatDateTime(value: string): string {
+export function formatDateTime(value: string, includeSeconds: boolean = false): string {
   if (!value) {
     return '';
   }
@@ -17,5 +17,11 @@ export function formatDateTime(value: string): string {
   const hour = String(date.getHours()).padStart(DATE_TIME_PAD_LENGTH, '0');
   const minute = String(date.getMinutes()).padStart(DATE_TIME_PAD_LENGTH, '0');
 
-  return `${String(year)}/${String(month)}/${String(day)} ${hour}:${minute}`;
+  let result = `${String(year)}/${String(month)}/${String(day)} ${hour}:${minute}`;
+  if (includeSeconds) {
+    const second = String(date.getSeconds()).padStart(DATE_TIME_PAD_LENGTH, '0');
+    result += `:${second}`;
+  }
+
+  return result;
 }

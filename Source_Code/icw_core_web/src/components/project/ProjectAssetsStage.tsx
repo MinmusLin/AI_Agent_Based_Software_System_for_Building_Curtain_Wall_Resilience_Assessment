@@ -1049,7 +1049,7 @@ export function ProjectAssetsStage({
         width={1040}
       >
         {viewer ? (
-          <div className="grid min-h-[520px] grid-cols-[minmax(0,1fr)_150px] gap-5">
+          <div className="grid min-h-[520px] grid-cols-[minmax(0,1fr)_320px] gap-5">
             <div className="relative flex min-h-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
               {viewer.loading ? (
                 <Spin />
@@ -1064,7 +1064,7 @@ export function ProjectAssetsStage({
             <div className="flex min-h-0 flex-col text-sm text-slate-600">
               <div className="space-y-4">
                 <div>
-                  <div className="mb-1 font-medium text-slate-900">图像 UUID</div>
+                  <div className="mb-1 font-medium text-slate-900">图像 ID</div>
                   <div className="break-all">{viewerImage?.image.uuid ?? '-'}</div>
                 </div>
                 <div>
@@ -1089,12 +1089,12 @@ export function ProjectAssetsStage({
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="mb-1 font-medium text-slate-900">开始上传时间</div>
-                    <div>{viewerImage ? formatDateTime(viewerImage.image.created_at) : '-'}</div>
+                    <div className="mb-1 font-medium text-slate-900">上传开始时间</div>
+                    <div>{viewerImage ? formatDateTime(viewerImage.image.created_at, true) : '-'}</div>
                   </div>
                   <div>
                     <div className="mb-1 font-medium text-slate-900">上传完成时间</div>
-                    <div>{viewerImage ? formatDateTime(viewerImage.image.uploaded_at) : '-'}</div>
+                    <div>{viewerImage ? formatDateTime(viewerImage.image.uploaded_at, true) : '-'}</div>
                   </div>
                 </div>
               </div>
