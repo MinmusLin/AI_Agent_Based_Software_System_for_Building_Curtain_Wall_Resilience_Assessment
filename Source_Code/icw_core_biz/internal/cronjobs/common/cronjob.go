@@ -33,30 +33,35 @@ func NewDeps(config configs.Config, MySQL *mysql.Repository, Redis *redis.Reposi
 	}
 }
 
-// CronJob 提供所有定时任务共享的基础依赖
-type CronJob struct {
+// BaseCronJob 提供所有定时任务共享的基础依赖
+type BaseCronJob struct {
 	ctx  context.Context
 	deps *Deps
 }
 
-func NewCronJob(ctx context.Context, deps *Deps) *CronJob {
+func NewBaseCronJob(ctx context.Context, deps *Deps) *BaseCronJob {
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	if deps == nil {
 		deps = &Deps{}
 	}
-	return &CronJob{
+	return &BaseCronJob{
 		ctx:  ctx,
 		deps: deps,
 	}
 }
 
-// CronJobFunc 定时任务执行函数
-type CronJobFunc func(*CronJob) error
+// CronJob 定时任务执行接口
+type CronJob interface {
+	Start() error
+}
+
+// JobFactory 定时任务构造函数
+type JobFactory func(*BaseCronJob) CronJob
 
 // Start 启动定时任务
-func Start(ctx context.Context, deps *Deps, name, expression string, start CronJobFunc) error {
+func Start(ctx context.Context, deps *Deps, name, expression string, factory JobFactory) error {
 	if name == "" {
 		CronFault("Failed to start cron job: %v", errors.New("name is required"))
 	}
@@ -74,17 +79,21 @@ func Start(ctx context.Context, deps *Deps, name, expression string, start CronJ
 	}
 
 	// 按 Cron 表达式执行定时任务
-	job := NewCronJob(ctx, deps)
-	return job.schedule(name, expression, func() error {
-		if start == nil {
+	baseJob := NewBaseCronJob(ctx, deps)
+	job := CronJob(nil)
+	if factory != nil {
+		job = factory(baseJob)
+	}
+	return baseJob.schedule(name, expression, func() error {
+		if job == nil {
 			return nil
 		}
-		return start(job)
+		return job.Start()
 	})
 }
 
 // schedule 按 Cron 表达式执行定时任务
-func (c *CronJob) schedule(name, expression string, fn func() error) error {
+func (c *BaseCronJob) schedule(name, expression string, fn func() error) error {
 	scheduler := cron.New(
 		cron.WithSeconds(),
 		cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)),
@@ -108,7 +117,7 @@ func (c *CronJob) schedule(name, expression string, fn func() error) error {
 }
 
 // run 执行定时任务
-func (c *CronJob) run(name string, fn func() error) (err error) {
+func (c *BaseCronJob) run(name string, fn func() error) (err error) {
 	start := time.Now()
 	defer func() {
 		cronLog(name, start, err)
@@ -121,7 +130,7 @@ func (c *CronJob) run(name string, fn func() error) (err error) {
 }
 
 // Ctx 获取上下文
-func (c *CronJob) Ctx() context.Context {
+func (c *BaseCronJob) Ctx() context.Context {
 	if c == nil || c.ctx == nil {
 		return context.Background()
 	}
@@ -129,26 +138,41 @@ func (c *CronJob) Ctx() context.Context {
 }
 
 // Config 获取服务配置
-func (c *CronJob) Config() configs.Config {
+func (c *BaseCronJob) Config() configs.Config {
+	if c == nil || c.deps == nil {
+		return configs.Config{}
+	}
 	return c.deps.Config
 }
 
 // MySQL 获取 MySQL 服务
-func (c *CronJob) MySQL() *mysql.Repository {
+func (c *BaseCronJob) MySQL() *mysql.Repository {
+	if c == nil || c.deps == nil {
+		return nil
+	}
 	return c.deps.MySQL
 }
 
 // Redis 获取 Redis 服务
-func (c *CronJob) Redis() *redis.Repository {
+func (c *BaseCronJob) Redis() *redis.Repository {
+	if c == nil || c.deps == nil {
+		return nil
+	}
 	return c.deps.Redis
 }
 
 // RocketMQ 获取 RocketMQ 服务
-func (c *CronJob) RocketMQ() *rocketmq.Repository {
+func (c *BaseCronJob) RocketMQ() *rocketmq.Repository {
+	if c == nil || c.deps == nil {
+		return nil
+	}
 	return c.deps.RocketMQ
 }
 
 // MinIO 获取 MinIO 服务
-func (c *CronJob) MinIO() *minio.Repository {
+func (c *BaseCronJob) MinIO() *minio.Repository {
+	if c == nil || c.deps == nil {
+		return nil
+	}
 	return c.deps.MinIO
 }

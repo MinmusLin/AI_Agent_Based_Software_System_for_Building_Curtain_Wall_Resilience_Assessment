@@ -90,30 +90,48 @@ func (s *BaseService) Ctx() context.Context {
 
 // Config 获取服务配置
 func (s *BaseService) Config() configs.Config {
+	if s == nil || s.deps == nil {
+		return configs.Config{}
+	}
 	return s.deps.Config
 }
 
 // MySQL 获取 MySQL 服务
 func (s *BaseService) MySQL() *mysql.Repository {
+	if s == nil || s.deps == nil {
+		return nil
+	}
 	return s.deps.MySQL
 }
 
 // Redis 获取 Redis 服务
 func (s *BaseService) Redis() *redis.Repository {
+	if s == nil || s.deps == nil {
+		return nil
+	}
 	return s.deps.Redis
 }
 
 // RocketMQ 获取 RocketMQ 服务
 func (s *BaseService) RocketMQ() *rocketmq.Repository {
+	if s == nil || s.deps == nil {
+		return nil
+	}
 	return s.deps.RocketMQ
 }
 
 // MinIO 获取 MinIO 服务
 func (s *BaseService) MinIO() *minio.Repository {
+	if s == nil || s.deps == nil {
+		return nil
+	}
 	return s.deps.MinIO
 }
 
 // SMTP 获取 SMTP 服务
 func (s *BaseService) SMTP() *smtp.Repository {
+	if s == nil || s.deps == nil {
+		return nil
+	}
 	return s.deps.SMTP
 }

@@ -6,6 +6,7 @@ type SocketTicketContext struct {
 	ProjectCode string
 	SocketScope string
 	RequestId   string
+	CreateAt    string
 }
 
 type CreateSocketTicketRequest struct {
