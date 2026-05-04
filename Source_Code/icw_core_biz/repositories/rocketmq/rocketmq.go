@@ -55,10 +55,10 @@ func (r *Repository) ProducerSendSync(ctx context.Context, message *primitive.Me
 	start := time.Now()
 	defer func() {
 		if utils.IsEmptyError(err) {
-			MQInfo("[%s] cost=%s message=%s result=%s", r.topic, time.Since(start), utils.JSONF(message), utils.JSONF(result))
+			MQInfo("[PRODUCE|%s] cost=%s message=%s result=%s", r.topic, time.Since(start), utils.JSONF(message), utils.JSONF(result))
 			return
 		}
-		MQError("[%s] cost=%s message=%s result=%s err=%s", r.topic, time.Since(start), utils.JSONF(message), utils.JSONF(result), utils.FormatErrorLog(err))
+		MQError("[PRODUCE|%s] cost=%s message=%s result=%s err=%s", r.topic, time.Since(start), utils.JSONF(message), utils.JSONF(result), utils.FormatErrorLog(err))
 	}()
 
 	return r.producer.SendSync(ctx, message)
