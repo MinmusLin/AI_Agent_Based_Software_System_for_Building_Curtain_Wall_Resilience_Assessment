@@ -1,3 +1,4 @@
+-- users 用户表
 CREATE TABLE `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '用户 ID',
   `email` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱地址（统一存储小写字母）',
@@ -10,6 +11,7 @@ CREATE TABLE `users` (
   UNIQUE KEY `uk_users_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
 
+-- refresh_tokens Refresh Token 表
 CREATE TABLE `refresh_tokens` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '记录 ID',
   `token_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Refresh Token ID',
@@ -28,6 +30,7 @@ CREATE TABLE `refresh_tokens` (
   CONSTRAINT `fk_refresh_tokens_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Refresh Token 表';
 
+-- email_send_logs 邮件发送记录表
 CREATE TABLE `email_send_logs` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '记录 ID',
   `receiver_email` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '收件邮箱地址',
@@ -42,6 +45,7 @@ CREATE TABLE `email_send_logs` (
   KEY `idx_email_send_logs_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='邮件发送记录表';
 
+-- projects 项目表
 CREATE TABLE `projects` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '项目 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
@@ -61,6 +65,7 @@ CREATE TABLE `projects` (
   CONSTRAINT `fk_projects_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目表';
 
+-- project_groups 项目图像组表
 CREATE TABLE `project_groups` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '图像组 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
@@ -78,6 +83,7 @@ CREATE TABLE `project_groups` (
   CONSTRAINT `fk_project_groups_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像组表';
 
+-- project_group_images 项目图像表
 CREATE TABLE `project_group_images` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '图像 ID',
   `group_id` bigint unsigned NOT NULL COMMENT '图像组 ID',
