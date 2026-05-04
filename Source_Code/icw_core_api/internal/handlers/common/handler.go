@@ -2,30 +2,21 @@ package common
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"net/rpc"
 	"reflect"
 	"strings"
 
 	"icw_core_api/configs"
 	"icw_core_api/utils"
+	"icw_core_biz/consts"
 	"icw_core_biz/pkg/dto"
 	"icw_core_biz/pkg/rpc_err"
+	bizUtils "icw_core_biz/utils"
 )
 
 const (
 	// CoreBizPSM icw.core.biz 服务标识
 	CoreBizPSM = "icw.core.biz"
-)
-
-const (
-	// LogColorReset ANSI 终端颜色重置码
-	LogColorReset = "\033[0m"
-	// LogColorBoldRed ANSI 终端颜色码：红色
-	LogColorBoldRed = "\033[1;31m"
-	// LogColorBoldPurple ANSI 终端颜色码：紫色
-	LogColorBoldPurple = "\033[1;35m"
 )
 
 // RPCClient 带服务标识的 RPC Client
@@ -125,7 +116,7 @@ func CallRPC(ctx context.Context, client *RPCClient, method string, req, resp in
 	psm := client.PSM()
 	if client.Raw() == nil {
 		err := rpc_err.InternalErrorDefault("rpc client is nil")
-		log.Print(errorMessage(requestId, psm, method, req, resp, err))
+		rpcErrorLog(requestId, psm, method, req, resp, err)
 		return err
 	}
 
@@ -137,18 +128,18 @@ func CallRPC(ctx context.Context, client *RPCClient, method string, req, resp in
 			ctxErr = context.Canceled
 		}
 		err := rpc_err.InternalErrorDefault(ctxErr.Error())
-		log.Print(errorMessage(requestId, psm, method, req, resp, err))
+		rpcErrorLog(requestId, psm, method, req, resp, err)
 		return err
 	case done := <-call.Done:
 		if done.Error != nil {
-			log.Print(errorMessage(requestId, psm, method, req, resp, done.Error))
+			rpcErrorLog(requestId, psm, method, req, resp, done.Error)
 			return done.Error
 		}
 	}
 
 	if resp == nil {
 		err := rpc_err.InternalErrorDefault("rpc response is nil")
-		log.Print(errorMessage(requestId, psm, method, req, resp, err))
+		rpcErrorLog(requestId, psm, method, req, resp, err)
 		return err
 	}
 
@@ -185,31 +176,14 @@ func setRPCMeta(req interface{}, requestId string) {
 	}
 }
 
-// errorMessage 生成失败日志
-func errorMessage(requestId, psm, method string, req, resp, err interface{}) string {
-	return fmt.Sprintf("%s[ERROR]%s [%s] Call %s %s failed, req: %s, resp: %s, err: %s",
-		LogColorBoldRed,
-		LogColorReset,
+// rpcErrorLog 输出 RPC 调用失败日志
+func rpcErrorLog(requestId, psm, method string, req, resp, err interface{}) {
+	bizUtils.LogError(consts.LogScopeHTTP, "[%s] Call %s %s failed, req: %s, resp: %s, err: %s",
 		requestId,
 		psm,
 		method,
-		utils.JSONF(req),
-		utils.JSONF(resp),
-		formatError(err),
+		bizUtils.JSONF(req),
+		bizUtils.JSONF(resp),
+		bizUtils.FormatErrorLog(err),
 	)
-}
-
-// formatError 格式化错误日志
-func formatError(err interface{}) string {
-	msg := strings.TrimSpace(fmt.Sprint(err))
-	if isEmptyError(err) {
-		return msg
-	}
-	return LogColorBoldPurple + msg + LogColorReset
-}
-
-// isEmptyError 判断错误是否为空错误
-func isEmptyError(err interface{}) bool {
-	msg := strings.TrimSpace(fmt.Sprint(err))
-	return msg == "" || msg == "nil" || msg == "<nil>"
 }
