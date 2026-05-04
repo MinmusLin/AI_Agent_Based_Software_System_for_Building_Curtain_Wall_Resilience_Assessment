@@ -28,4 +28,6 @@ const (
 	LogScopeMQ = "MQ"
 	// LogScopeCron 定时任务日志域
 	LogScopeCron = "CRON"
+	// LogScopeWS WebSocket 日志域
+	LogScopeWS = "WS"
 )
