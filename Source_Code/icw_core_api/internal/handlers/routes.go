@@ -200,7 +200,7 @@ func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketH
 		}
 	}
 
-	utils.LogInfo(consts.LogScopeInit, "", "HTTP routes registered, waiting for requests:\n%s", formatRoutesTable(router.Routes()))
+	utils.LogInfo(consts.LogScopeInit, consts.LogColorBoldGreen, "HTTP routes registered, waiting for requests:\n%s", formatRoutesTable(router.Routes()))
 	return router
 }
 
