@@ -12,30 +12,35 @@ import (
 
 // Config 服务配置
 type Config struct {
-	CoreBizAddr           string
-	MySQLDSN              string
-	RedisAddr             string
-	RedisPassword         string
-	RedisDB               int
-	SMTPHost              string
-	SMTPPort              int
-	SMTPPassword          string
-	SMTPFromName          string
-	SMTPFromEmail         string
-	MinIOEndpoint         string
-	MinIOAccessKey        string
-	MinIOAccessSecret     string
-	MinIOBucket           string
-	JWTSecret             string
-	EmailCodeSecret       string
-	EmailCodeTTL          time.Duration
-	LoginFailTTL          time.Duration
-	AccessTokenTTL        time.Duration
-	RefreshTokenTTL       time.Duration
-	AvatarGetTTL          time.Duration
-	AvatarUploadTTL       time.Duration
-	ProjectImageGetTTL    time.Duration
-	ProjectImageUploadTTL time.Duration
+	CoreBizAddr                string
+	MySQLDSN                   string
+	RedisAddr                  string
+	RedisPassword              string
+	RedisDB                    int
+	SMTPHost                   string
+	SMTPPort                   int
+	SMTPPassword               string
+	SMTPFromName               string
+	SMTPFromEmail              string
+	MinIOEndpoint              string
+	MinIOAccessKey             string
+	MinIOAccessSecret          string
+	MinIOBucket                string
+	RocketMQNamesrvAddr        string
+	RocketMQProjectEventTopic  string
+	JWTSecret                  string
+	EmailCodeSecret            string
+	EmailCodeTTL               time.Duration
+	LoginFailTTL               time.Duration
+	AccessTokenTTL             time.Duration
+	RefreshTokenTTL            time.Duration
+	AvatarGetTTL               time.Duration
+	AvatarUploadTTL            time.Duration
+	ProjectImageGetTTL         time.Duration
+	ProjectImageUploadTTL      time.Duration
+	SocketTicketTTL            time.Duration
+	ProjectImagePendingTimeout time.Duration
+	ProjectImagePendingSweep   time.Duration
 }
 
 // Validate 校验服务配置
@@ -57,6 +62,8 @@ func (cfg *Config) Validate() error {
 		{key: "MINIO_ACCESS_KEY", value: cfg.MinIOAccessKey},
 		{key: "MINIO_ACCESS_SECRET", value: cfg.MinIOAccessSecret},
 		{key: "MINIO_BUCKET", value: cfg.MinIOBucket},
+		{key: "ROCKETMQ_NAMESRV_ADDR", value: cfg.RocketMQNamesrvAddr},
+		{key: "ROCKETMQ_PROJECT_EVENT_TOPIC", value: cfg.RocketMQProjectEventTopic},
 		{key: "JWT_SECRET", value: cfg.JWTSecret},
 		{key: "EMAIL_CODE_SECRET", value: cfg.EmailCodeSecret},
 	}
@@ -95,6 +102,15 @@ func (cfg *Config) Validate() error {
 	if cfg.ProjectImageUploadTTL <= 0 {
 		problems = append(problems, "PROJECT_IMAGE_UPLOAD_TTL_MINUTES must be greater than 0")
 	}
+	if cfg.SocketTicketTTL <= 0 {
+		problems = append(problems, "SOCKET_TICKET_TTL_MINUTES must be greater than 0")
+	}
+	if cfg.ProjectImagePendingTimeout <= 0 {
+		problems = append(problems, "PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES must be greater than 0")
+	}
+	if cfg.ProjectImagePendingSweep <= 0 {
+		problems = append(problems, "PROJECT_IMAGE_PENDING_SWEEP_MINUTES must be greater than 0")
+	}
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "; "))
 	}
@@ -104,30 +120,35 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		CoreBizAddr:           env("ICW_CORE_BIZ_ADDR"),
-		MySQLDSN:              env("MYSQL_DSN"),
-		RedisAddr:             env("REDIS_ADDR"),
-		RedisPassword:         env("REDIS_PASSWORD"),
-		RedisDB:               envInt("REDIS_DB"),
-		SMTPHost:              env("SMTP_HOST"),
-		SMTPPort:              envInt("SMTP_PORT"),
-		SMTPPassword:          env("SMTP_PASSWORD"),
-		SMTPFromName:          env("SMTP_FROM_NAME"),
-		SMTPFromEmail:         env("SMTP_FROM_EMAIL"),
-		MinIOEndpoint:         env("MINIO_ENDPOINT"),
-		MinIOAccessKey:        env("MINIO_ACCESS_KEY"),
-		MinIOAccessSecret:     env("MINIO_ACCESS_SECRET"),
-		MinIOBucket:           env("MINIO_BUCKET"),
-		JWTSecret:             env("JWT_SECRET"),
-		EmailCodeSecret:       env("EMAIL_CODE_SECRET"),
-		EmailCodeTTL:          time.Duration(envInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
-		LoginFailTTL:          time.Duration(envInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
-		AccessTokenTTL:        time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
-		RefreshTokenTTL:       time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
-		AvatarGetTTL:          time.Duration(envInt("AVATAR_GET_TTL_MINUTES")) * time.Minute,
-		AvatarUploadTTL:       time.Duration(envInt("AVATAR_UPLOAD_TTL_MINUTES")) * time.Minute,
-		ProjectImageGetTTL:    time.Duration(envInt("PROJECT_IMAGE_GET_TTL_MINUTES")) * time.Minute,
-		ProjectImageUploadTTL: time.Duration(envInt("PROJECT_IMAGE_UPLOAD_TTL_MINUTES")) * time.Minute,
+		CoreBizAddr:                env("ICW_CORE_BIZ_ADDR"),
+		MySQLDSN:                   env("MYSQL_DSN"),
+		RedisAddr:                  env("REDIS_ADDR"),
+		RedisPassword:              env("REDIS_PASSWORD"),
+		RedisDB:                    envInt("REDIS_DB"),
+		SMTPHost:                   env("SMTP_HOST"),
+		SMTPPort:                   envInt("SMTP_PORT"),
+		SMTPPassword:               env("SMTP_PASSWORD"),
+		SMTPFromName:               env("SMTP_FROM_NAME"),
+		SMTPFromEmail:              env("SMTP_FROM_EMAIL"),
+		MinIOEndpoint:              env("MINIO_ENDPOINT"),
+		MinIOAccessKey:             env("MINIO_ACCESS_KEY"),
+		MinIOAccessSecret:          env("MINIO_ACCESS_SECRET"),
+		MinIOBucket:                env("MINIO_BUCKET"),
+		RocketMQNamesrvAddr:        env("ROCKETMQ_NAMESRV_ADDR"),
+		RocketMQProjectEventTopic:  env("ROCKETMQ_PROJECT_EVENT_TOPIC"),
+		JWTSecret:                  env("JWT_SECRET"),
+		EmailCodeSecret:            env("EMAIL_CODE_SECRET"),
+		EmailCodeTTL:               time.Duration(envInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
+		LoginFailTTL:               time.Duration(envInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
+		AccessTokenTTL:             time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
+		RefreshTokenTTL:            time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
+		AvatarGetTTL:               time.Duration(envInt("AVATAR_GET_TTL_MINUTES")) * time.Minute,
+		AvatarUploadTTL:            time.Duration(envInt("AVATAR_UPLOAD_TTL_MINUTES")) * time.Minute,
+		ProjectImageGetTTL:         time.Duration(envInt("PROJECT_IMAGE_GET_TTL_MINUTES")) * time.Minute,
+		ProjectImageUploadTTL:      time.Duration(envInt("PROJECT_IMAGE_UPLOAD_TTL_MINUTES")) * time.Minute,
+		SocketTicketTTL:            time.Duration(envInt("SOCKET_TICKET_TTL_MINUTES")) * time.Minute,
+		ProjectImagePendingTimeout: time.Duration(envInt("PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES")) * time.Minute,
+		ProjectImagePendingSweep:   time.Duration(envInt("PROJECT_IMAGE_PENDING_SWEEP_MINUTES")) * time.Minute,
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err

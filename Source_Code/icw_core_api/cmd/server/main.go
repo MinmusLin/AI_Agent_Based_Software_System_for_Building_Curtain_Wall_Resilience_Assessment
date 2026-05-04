@@ -9,6 +9,8 @@ import (
 	"icw_core_api/internal/handlers"
 	"icw_core_api/internal/handlers/common"
 	"icw_core_api/internal/middlewares"
+	"icw_core_api/internal/rocketmq"
+	"icw_core_api/internal/socket"
 )
 
 // main icw.core.api 服务入口
@@ -29,11 +31,24 @@ func main() {
 		_ = coreBizRPCClient.Close()
 	}(coreBizClient)
 
+	// 初始化 WebSocket Hub 和 RocketMQ 事件消费者
+	webSocketHub := socket.NewHub()
+	eventConsumer, err := rocketmq.NewConsumer(cfg, webSocketHub)
+	if err != nil {
+		log.Fatalf("Failed to create RocketMQ event consumer: %v", err)
+	}
+	if err := eventConsumer.Start(); err != nil {
+		log.Fatalf("Failed to start RocketMQ event consumer: %v", err)
+	}
+	defer func(eventConsumer *rocketmq.Consumer) {
+		_ = eventConsumer.Close()
+	}(eventConsumer)
+
 	// 初始化路由
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(middlewares.RequestId(), middlewares.Logger(), gin.Recovery(), middlewares.CORS())
-	handlers.RegisterRoutes(router, cfg, coreBizClient)
+	handlers.RegisterRoutes(router, cfg, coreBizClient, webSocketHub)
 
 	// 运行 icw.core.api 服务
 	log.Printf("icw.core.api service starts running on %s", cfg.CoreApiAddr)
