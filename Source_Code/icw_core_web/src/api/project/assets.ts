@@ -3,7 +3,6 @@ import type { ApiEnvelope } from '@/types/common';
 import type {
   CreateProjectGroupResponse,
   DeleteProjectGroupRequest,
-  DeleteProjectGroupResponse,
   DeleteProjectImageRequest,
   GetProjectAssetsResponse,
   GetProjectImageOriginalResponse,
@@ -41,8 +40,8 @@ export async function createProjectGroup(projectId: string): Promise<CreateProje
 
 // 删除图像组
 // @router /project/assets/group/delete [POST]
-export async function deleteProjectGroup(payload: DeleteProjectGroupRequest): Promise<DeleteProjectGroupResponse> {
-  const { data } = await http.post<ApiEnvelope<DeleteProjectGroupResponse>>('/project/assets/group/delete', payload);
+export async function deleteProjectGroup(payload: DeleteProjectGroupRequest): Promise<Record<string, never>> {
+  const { data } = await http.post<ApiEnvelope<Record<string, never>>>('/project/assets/group/delete', payload);
   return data.data;
 }
 

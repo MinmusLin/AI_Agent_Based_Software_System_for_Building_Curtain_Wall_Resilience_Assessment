@@ -49,8 +49,6 @@ export interface DeleteProjectGroupRequest {
   group_id: string;
 }
 
-export type DeleteProjectGroupResponse = Record<string, never>;
-
 export interface MoveProjectGroupRequest {
   project_id: string;
   group_id: string;
@@ -78,8 +76,6 @@ export interface DeleteProjectImageRequest {
   project_id: string;
   image_uuids: string[];
 }
-
-export type DeleteProjectImageResponse = Record<string, never>;
 
 export interface GetProjectImageOriginalResponse {
   original_url: string;
