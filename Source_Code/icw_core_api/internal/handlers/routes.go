@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
+	"unicode"
 
 	"github.com/gin-gonic/gin"
 
@@ -23,11 +25,52 @@ import (
 	"icw_core_biz/utils"
 )
 
+// routeGroup 封装 Gin 路由注册器
+type routeGroup struct {
+	router       *gin.RouterGroup
+	descriptions map[string]string
+}
+
+// newRouteGroup 创建路由注册器
+func newRouteGroup(router *gin.RouterGroup, descriptions map[string]string) routeGroup {
+	return routeGroup{
+		router:       router,
+		descriptions: descriptions,
+	}
+}
+
+// handle 注册 Gin 路由
+func (r routeGroup) handle(method, path, description string, handlers ...gin.HandlerFunc) {
+	if r.router == nil {
+		return
+	}
+	r.router.Handle(method, path, handlers...)
+	if r.descriptions != nil {
+		r.descriptions[routeKey(method, joinPath(r.router.BasePath(), path))] = description
+	}
+}
+
+// GET 注册 GET 路由
+func (r routeGroup) GET(path, description string, handlers ...gin.HandlerFunc) {
+	r.handle(http.MethodGet, path, description, handlers...)
+}
+
+// POST 注册 POST 路由
+func (r routeGroup) POST(path, description string, handlers ...gin.HandlerFunc) {
+	r.handle(http.MethodPost, path, description, handlers...)
+}
+
+// DELETE 注册 DELETE 路由
+func (r routeGroup) DELETE(path, description string, handlers ...gin.HandlerFunc) {
+	r.handle(http.MethodDelete, path, description, handlers...)
+}
+
 // RegisterRoutes 注册路由
 func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketHub *ws.Hub) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(middlewares.RequestId(), middlewares.Logger(), gin.Recovery(), middlewares.CORS())
+	routeDescriptions := make(map[string]string)
 
 	// 创建 API Handler 的公共依赖集合
 	handlerDeps := common.NewDeps(cfg, coreBizClient)
@@ -35,38 +78,30 @@ func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketH
 	// 登录鉴权 Handler
 	authHandler := auth.NewHandler(handlerDeps)
 	authRouter := router.Group("/auth")
+	authRoutes := newRouteGroup(authRouter, routeDescriptions)
 	{
 		protectedAuth := authRouter.Group("")
-		// 登录
-		authRouter.POST("/login", authHandler.Login)
-		// 登出
-		authRouter.POST("/logout", authHandler.Logout)
+		authRoutes.POST("/login", "登录", authHandler.Login)
+		authRoutes.POST("/logout", "登出", authHandler.Logout)
 		protectedAuth.Use(middlewares.AuthRequired(coreBizClient))
 		{
-			// 获取用户信息（登录态接口，不允许匿名访问）
-			protectedAuth.GET("/me", authHandler.Me)
+			newRouteGroup(protectedAuth, routeDescriptions).GET("/me", "获取用户信息", authHandler.Me)
 		}
-		// 刷新 Token
-		authRouter.POST("/refresh", authHandler.Refresh)
-		// 注册
-		authRouter.POST("/register", authHandler.Register)
-		// 重置密码
-		authRouter.POST("/reset-password", authHandler.ResetPassword)
-		// 发送邮箱验证码
-		authRouter.POST("/send-email-code", authHandler.SendEmailCode)
+		authRoutes.POST("/refresh", "刷新 Token", authHandler.Refresh)
+		authRoutes.POST("/register", "注册", authHandler.Register)
+		authRoutes.POST("/reset-password", "重置密码", authHandler.ResetPassword)
+		authRoutes.POST("/send-email-code", "发送邮箱验证码", authHandler.SendEmailCode)
 	}
 
 	// 用户业务 Handler
 	userHandler := user.NewHandler(handlerDeps)
 	userRouter := router.Group("/user")
+	userRoutes := newRouteGroup(userRouter, routeDescriptions)
 	userRouter.Use(middlewares.AuthRequired(coreBizClient))
 	{
-		// 获取用户头像
-		userRouter.GET("/avatar", userHandler.GetAvatar)
-		// 上传用户自定义头像
-		userRouter.POST("/avatar", userHandler.UploadAvatar)
-		// 删除用户自定义头像
-		userRouter.DELETE("/avatar", userHandler.DeleteAvatar)
+		userRoutes.GET("/avatar", "获取用户头像", userHandler.GetAvatar)
+		userRoutes.POST("/avatar", "上传用户自定义头像", userHandler.UploadAvatar)
+		userRoutes.DELETE("/avatar", "删除用户自定义头像", userHandler.DeleteAvatar)
 	}
 
 	// WebSocket Handler
@@ -76,16 +111,14 @@ func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketH
 		// Socket 建连 Router
 		socketSetupRouter := socketRouter.Group("/setup")
 		{
-			// 建立图像资产 WebSocket 连接
-			socketSetupRouter.GET("/assets", socketHandler.SetupAssetsWebSocket)
+			newRouteGroup(socketSetupRouter, routeDescriptions).GET("/assets", "建立图像资产 WebSocket 连接", socketHandler.SetupAssetsWebSocket)
 		}
 
 		// Socket 票据 Router
 		socketTicketRouter := socketRouter.Group("")
 		socketTicketRouter.Use(middlewares.AuthRequired(coreBizClient))
 		{
-			// 创建 WebSocket 连接票据
-			socketTicketRouter.POST("/ticket", middlewares.ProjectAccessible(coreBizClient), socketHandler.CreateSocketTicket)
+			newRouteGroup(socketTicketRouter, routeDescriptions).POST("/ticket", "创建 WebSocket 连接票据", middlewares.ProjectAccessible(coreBizClient), socketHandler.CreateSocketTicket)
 		}
 	}
 
@@ -109,66 +142,52 @@ func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketH
 		// 项目核心 Handler
 		projectCoreHandler := core.NewHandler(handlerDeps)
 		projectCoreRouter := projectRouter.Group("/core")
+		projectCoreRoutes := newRouteGroup(projectCoreRouter, routeDescriptions)
 		{
-			// 项目进度流转
-			projectCoreRouter.POST("/advance", projectAccessible, projectCoreHandler.AdvanceProject)
-			// 创建项目
-			projectCoreRouter.POST("/create", projectCoreHandler.CreateProject)
-			// 删除项目
-			projectCoreRouter.POST("/delete", projectAccessible, projectCoreHandler.DeleteProject)
-			// 获取项目列表
-			projectCoreRouter.GET("/list", projectCoreHandler.ListProjects)
+			projectCoreRoutes.POST("/advance", "项目进度流转", projectAccessible, projectCoreHandler.AdvanceProject)
+			projectCoreRoutes.POST("/create", "创建项目", projectCoreHandler.CreateProject)
+			projectCoreRoutes.POST("/delete", "删除项目", projectAccessible, projectCoreHandler.DeleteProject)
+			projectCoreRoutes.GET("/list", "获取项目列表", projectCoreHandler.ListProjects)
 		}
 
 		// 基础信息 Handler
 		projectProfileHandler := profile.NewHandler(handlerDeps)
 		projectProfileRouter := projectRouter.Group("/profile")
+		projectProfileRoutes := newRouteGroup(projectProfileRouter, routeDescriptions)
 		{
-			// 获取项目基础信息
-			projectProfileRouter.GET("/detail", projectAccessible, projectProfileHandler.GetProjectProfile)
-			// 获取项目缩略图
-			projectProfileRouter.GET("/thumbnail", projectAccessible, projectProfileHandler.GetProjectThumbnail)
-			// 上传项目缩略图
-			projectProfileRouter.POST("/thumbnail", projectProfileEditable, projectProfileHandler.UploadProjectThumbnail)
-			// 删除项目缩略图
-			projectProfileRouter.DELETE("/thumbnail", projectProfileEditable, projectProfileHandler.DeleteProjectThumbnail)
-			// 更新项目基础信息
-			projectProfileRouter.POST("/update", projectProfileEditable, projectProfileHandler.UpdateProjectProfile)
+			projectProfileRoutes.GET("/detail", "获取项目基础信息", projectAccessible, projectProfileHandler.GetProjectProfile)
+			projectProfileRoutes.GET("/thumbnail", "获取项目缩略图", projectAccessible, projectProfileHandler.GetProjectThumbnail)
+			projectProfileRoutes.POST("/thumbnail", "上传项目缩略图", projectProfileEditable, projectProfileHandler.UploadProjectThumbnail)
+			projectProfileRoutes.DELETE("/thumbnail", "删除项目缩略图", projectProfileEditable, projectProfileHandler.DeleteProjectThumbnail)
+			projectProfileRoutes.POST("/update", "更新项目基础信息", projectProfileEditable, projectProfileHandler.UpdateProjectProfile)
 		}
 
 		// 图像资产 Handler
 		projectAssetsHandler := assets.NewHandler(handlerDeps)
 		projectAssetsRouter := projectRouter.Group("/assets")
+		projectAssetsRoutes := newRouteGroup(projectAssetsRouter, routeDescriptions)
 		{
-			// 获取项目图像列表
-			projectAssetsRouter.GET("/list", projectAccessible, projectAssetsHandler.GetProjectAssets)
+			projectAssetsRoutes.GET("/list", "获取项目图像列表", projectAccessible, projectAssetsHandler.GetProjectAssets)
 
 			// 图像组 Router
 			projectAssetsGroupRouter := projectAssetsRouter.Group("/group")
+			projectAssetsGroupRoutes := newRouteGroup(projectAssetsGroupRouter, routeDescriptions)
 			{
-				// 创建图像组
-				projectAssetsGroupRouter.POST("/create", projectAssetsEditable, projectAssetsHandler.CreateProjectGroup)
-				// 删除图像组
-				projectAssetsGroupRouter.POST("/delete", projectAssetsEditable, projectAssetsHandler.DeleteProjectGroup)
-				// 移动图像组
-				projectAssetsGroupRouter.POST("/move", projectAssetsEditable, projectAssetsHandler.MoveProjectGroup)
-				// 更新图像组
-				projectAssetsGroupRouter.POST("/update", projectAssetsEditable, projectAssetsHandler.UpdateProjectGroup)
+				projectAssetsGroupRoutes.POST("/create", "创建图像组", projectAssetsEditable, projectAssetsHandler.CreateProjectGroup)
+				projectAssetsGroupRoutes.POST("/delete", "删除图像组", projectAssetsEditable, projectAssetsHandler.DeleteProjectGroup)
+				projectAssetsGroupRoutes.POST("/move", "移动图像组", projectAssetsEditable, projectAssetsHandler.MoveProjectGroup)
+				projectAssetsGroupRoutes.POST("/update", "更新图像组", projectAssetsEditable, projectAssetsHandler.UpdateProjectGroup)
 			}
 
 			// 图像 Router
 			projectAssetsImageRouter := projectAssetsRouter.Group("/image")
+			projectAssetsImageRoutes := newRouteGroup(projectAssetsImageRouter, routeDescriptions)
 			{
-				// 删除图像
-				projectAssetsImageRouter.POST("/delete", projectAssetsEditable, projectAssetsHandler.DeleteProjectImage)
-				// 获取原图
-				projectAssetsImageRouter.GET("/original", projectAccessible, projectAssetsHandler.GetProjectImageOriginal)
-				// 移动图像
-				projectAssetsImageRouter.POST("/move", projectAssetsEditable, projectAssetsHandler.MoveProjectImage)
-				// 上报图像
-				projectAssetsImageRouter.POST("/report", projectAssetsEditable, projectAssetsHandler.ReportProjectImage)
-				// 上传图像
-				projectAssetsImageRouter.POST("/upload", projectAssetsEditable, projectAssetsHandler.UploadProjectImage)
+				projectAssetsImageRoutes.POST("/delete", "删除图像", projectAssetsEditable, projectAssetsHandler.DeleteProjectImage)
+				projectAssetsImageRoutes.GET("/original", "获取原图", projectAccessible, projectAssetsHandler.GetProjectImageOriginal)
+				projectAssetsImageRoutes.POST("/move", "移动图像", projectAssetsEditable, projectAssetsHandler.MoveProjectImage)
+				projectAssetsImageRoutes.POST("/report", "上报图像", projectAssetsEditable, projectAssetsHandler.ReportProjectImage)
+				projectAssetsImageRoutes.POST("/upload", "上传图像", projectAssetsEditable, projectAssetsHandler.UploadProjectImage)
 			}
 		}
 
@@ -200,40 +219,89 @@ func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketH
 		}
 	}
 
-	utils.LogInfo(consts.LogScopeHTTP, consts.LogColorBoldGreen, "HTTP routes registered, waiting for requests:\n%s", formatRoutesTable(router.Routes()))
+	utils.LogInfo(consts.LogScopeHTTP, consts.LogColorBoldGreen, "HTTP routes registered, waiting for requests:\n%s", formatRoutesTable(router.Routes(), routeDescriptions))
 	return router
 }
 
+// routeKey 生成路由描述 Key
+func routeKey(method, path string) string {
+	return fmt.Sprintf("%s:%s", method, path)
+}
+
+// joinPath 拼接路由路径
+func joinPath(basePath, path string) string {
+	if basePath == "/" {
+		basePath = ""
+	}
+	fullPath := strings.TrimRight(basePath, "/") + "/" + strings.TrimLeft(path, "/")
+	if fullPath == "" {
+		return "/"
+	}
+	return fullPath
+}
+
 // formatRoutesTable 将 Gin 路由表格式化为表格
-func formatRoutesTable(routes gin.RoutesInfo) string {
+func formatRoutesTable(routes gin.RoutesInfo, descriptions map[string]string) string {
 	const (
-		methodHeader  = "method"
-		pathHeader    = "path"
-		handlerHeader = "handler"
+		methodHeader      = "method"
+		pathHeader        = "path"
+		descriptionHeader = "description"
+		handlerHeader     = "handler"
 	)
 	methodWidth := len(methodHeader)
 	pathWidth := len(pathHeader)
+	descriptionWidth := len(descriptionHeader)
 	handlerWidth := len(handlerHeader)
 	for _, route := range routes {
-		methodWidth = max(methodWidth, len(route.Method))
-		pathWidth = max(pathWidth, len(route.Path))
-		handlerWidth = max(handlerWidth, len(strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")))
+		description := descriptions[routeKey(route.Method, route.Path)]
+		handler := strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")
+		methodWidth = max(methodWidth, displayWidth(route.Method))
+		pathWidth = max(pathWidth, displayWidth(route.Path))
+		descriptionWidth = max(descriptionWidth, displayWidth(description))
+		handlerWidth = max(handlerWidth, displayWidth(handler))
 	}
 	border := fmt.Sprintf(
-		"+-%s-+-%s-+-%s-+",
+		"+-%s-+-%s-+-%s-+-%s-+",
 		strings.Repeat("-", methodWidth),
 		strings.Repeat("-", pathWidth),
+		strings.Repeat("-", descriptionWidth),
 		strings.Repeat("-", handlerWidth),
 	)
 	var builder strings.Builder
 	builder.WriteString(border)
 	builder.WriteString("\n")
-	builder.WriteString(fmt.Sprintf("| %-*s | %-*s | %-*s |\n", methodWidth, methodHeader, pathWidth, pathHeader, handlerWidth, handlerHeader))
+	builder.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", padRight(methodHeader, methodWidth), padRight(pathHeader, pathWidth), padRight(descriptionHeader, descriptionWidth), padRight(handlerHeader, handlerWidth)))
 	builder.WriteString(border)
 	builder.WriteString("\n")
 	for _, route := range routes {
-		builder.WriteString(fmt.Sprintf("| %-*s | %-*s | %-*s |\n", methodWidth, route.Method, pathWidth, route.Path, handlerWidth, strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")))
+		description := descriptions[routeKey(route.Method, route.Path)]
+		handler := strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")
+		builder.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", padRight(route.Method, methodWidth), padRight(route.Path, pathWidth), padRight(description, descriptionWidth), padRight(handler, handlerWidth)))
 	}
 	builder.WriteString(border)
 	return builder.String()
+}
+
+// padRight 补齐右侧空格
+func padRight(value string, width int) string {
+	padding := width - displayWidth(value)
+	if padding <= 0 {
+		return value
+	}
+	return value + strings.Repeat(" ", padding)
+}
+
+// displayWidth 计算输出宽度
+func displayWidth(value string) int {
+	width := 0
+	for _, r := range value {
+		if unicode.Is(unicode.Han, r) || unicode.Is(unicode.Hiragana, r) ||
+			unicode.Is(unicode.Katakana, r) || unicode.Is(unicode.Hangul, r) ||
+			(r >= 0xFF01 && r <= 0xFF60) || (r >= 0xFFE0 && r <= 0xFFE6) {
+			width += 2
+			continue
+		}
+		width++
+	}
+	return width
 }

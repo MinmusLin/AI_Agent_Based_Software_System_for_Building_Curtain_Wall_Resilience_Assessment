@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"icw_core_biz/consts"
@@ -30,4 +31,71 @@ func FormatErrorLog(err interface{}) string {
 		return msg
 	}
 	return consts.LogColorBoldPurple + msg + consts.LogColorReset
+}
+
+// FormatEnvConfig 将已加载的环境变量配置格式化为标准输出
+func FormatEnvConfig(config interface{}) string {
+	value := reflect.ValueOf(config)
+	if !value.IsValid() {
+		return ""
+	}
+	if value.Kind() == reflect.Ptr {
+		if value.IsNil() {
+			return ""
+		}
+		value = value.Elem()
+	}
+	if value.Kind() != reflect.Struct {
+		return ""
+	}
+	type envConfigItem struct {
+		Name  string
+		Value string
+	}
+	valueType := value.Type()
+	items := make([]envConfigItem, 0, value.NumField())
+	maxNameWidth := 0
+	for i := 0; i < value.NumField(); i++ {
+		field := valueType.Field(i)
+		if field.PkgPath != "" {
+			continue
+		}
+		name := envConfigName(field)
+		if name == "" {
+			continue
+		}
+		items = append(items, envConfigItem{
+			Name:  name,
+			Value: envConfigValue(value.Field(i)),
+		})
+		maxNameWidth = max(maxNameWidth, len(name))
+	}
+	var builder strings.Builder
+	for index, item := range items {
+		if index > 0 {
+			builder.WriteString("\n")
+		}
+		builder.WriteString(fmt.Sprintf("%-*s = %s", maxNameWidth, item.Name, item.Value))
+	}
+	return builder.String()
+}
+
+func envConfigName(field reflect.StructField) string {
+	tag := strings.TrimSpace(field.Tag.Get("env"))
+	if tag == "-" {
+		return ""
+	}
+	name, _, _ := strings.Cut(tag, ",")
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return field.Name
+	}
+	return name
+}
+
+func envConfigValue(value reflect.Value) string {
+	if !value.IsValid() || !value.CanInterface() {
+		return ""
+	}
+	return fmt.Sprint(value.Interface())
 }
