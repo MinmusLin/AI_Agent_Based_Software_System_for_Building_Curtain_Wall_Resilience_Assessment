@@ -14,7 +14,7 @@ import (
 
 // Register 注册
 func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse) error {
-	return s.CallRPC("AuthService.Register", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.register(req, resp)
 	})
 }

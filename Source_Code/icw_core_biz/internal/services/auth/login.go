@@ -14,7 +14,7 @@ import (
 
 // Login 登录
 func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
-	return s.CallRPC("AuthService.Login", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.login(req, resp)
 	})
 }

@@ -14,7 +14,7 @@ import (
 
 // SendEmailCode 发送邮箱验证码
 func (s *Service) SendEmailCode(req *dto.SendEmailCodeRequest, resp *dto.SendEmailCodeResponse) error {
-	return s.CallRPC("AuthService.SendEmailCode", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.sendEmailCode(req, resp)
 	})
 }

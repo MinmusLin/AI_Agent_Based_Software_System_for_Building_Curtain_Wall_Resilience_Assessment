@@ -8,7 +8,7 @@ import (
 
 // DeleteProject 删除项目
 func (s *Service) DeleteProject(req *project.DeleteProjectRequest, resp *project.DeleteProjectResponse) error {
-	return s.CallRPC("ProjectCoreService.DeleteProject", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.deleteProject(req, resp)
 	})
 }

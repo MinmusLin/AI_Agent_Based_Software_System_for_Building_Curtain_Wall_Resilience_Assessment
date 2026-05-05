@@ -11,7 +11,7 @@ import (
 
 // Logout 登出
 func (s *Service) Logout(req *dto.LogoutRequest, resp *dto.LogoutResponse) error {
-	return s.CallRPC("AuthService.Logout", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.logout(req, resp)
 	})
 }

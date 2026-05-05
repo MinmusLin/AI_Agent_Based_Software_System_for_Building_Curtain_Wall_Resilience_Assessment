@@ -14,7 +14,7 @@ import (
 
 // ResetPassword 重置密码
 func (s *Service) ResetPassword(req *dto.ResetPasswordRequest, resp *dto.ResetPasswordResponse) error {
-	return s.CallRPC("AuthService.ResetPassword", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.resetPassword(req, resp)
 	})
 }

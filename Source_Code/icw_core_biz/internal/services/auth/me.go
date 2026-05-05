@@ -8,7 +8,7 @@ import (
 
 // Me 获取用户信息
 func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
-	return s.CallRPC("AuthService.Me", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.me(req, resp)
 	})
 }

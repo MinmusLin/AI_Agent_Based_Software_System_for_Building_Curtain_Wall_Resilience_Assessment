@@ -7,7 +7,7 @@ import (
 
 // ListProjects 获取项目列表
 func (s *Service) ListProjects(req *project.ListProjectsRequest, resp *project.ListProjectsResponse) error {
-	return s.CallRPC("ProjectCoreService.ListProjects", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.listProjects(req, resp)
 	})
 }

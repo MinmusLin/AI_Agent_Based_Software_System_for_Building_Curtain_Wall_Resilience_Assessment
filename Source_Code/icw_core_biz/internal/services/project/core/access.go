@@ -8,7 +8,7 @@ import (
 
 // CheckProjectAccess 校验项目访问权限
 func (s *Service) CheckProjectAccess(req *project.CheckProjectAccessRequest, resp *project.CheckProjectAccessResponse) error {
-	return s.CallRPC("ProjectCoreService.CheckProjectAccess", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.checkProjectAccess(req, resp)
 	})
 }

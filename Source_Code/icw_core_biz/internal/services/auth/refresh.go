@@ -12,7 +12,7 @@ import (
 
 // Refresh 刷新 Token
 func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) error {
-	return s.CallRPC("AuthService.Refresh", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.refresh(req, resp)
 	})
 }

@@ -8,7 +8,7 @@ import (
 
 // CreateProject 创建项目
 func (s *Service) CreateProject(req *project.CreateProjectRequest, resp *project.CreateProjectResponse) error {
-	return s.CallRPC("ProjectCoreService.CreateProject", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.createProject(req, resp)
 	})
 }

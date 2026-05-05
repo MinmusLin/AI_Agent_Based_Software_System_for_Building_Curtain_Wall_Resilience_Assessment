@@ -9,7 +9,7 @@ import (
 
 // AdvanceProject 项目进度流转
 func (s *Service) AdvanceProject(req *project.AdvanceProjectRequest, resp *project.AdvanceProjectResponse) error {
-	return s.CallRPC("ProjectCoreService.AdvanceProject", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.advanceProject(req, resp)
 	})
 }
