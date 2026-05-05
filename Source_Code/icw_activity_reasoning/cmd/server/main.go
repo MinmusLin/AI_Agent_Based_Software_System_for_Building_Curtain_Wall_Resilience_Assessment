@@ -29,13 +29,13 @@ func main() {
 	}
 	utils.LogInfo(consts.LogScopeInit, "", "Config initialized successfully:\n%s", utils.FormatEnvConfig(cfg))
 
+	// 初始化 icw.core.biz 服务
+	coreBizClient := icw_core_biz.NewClient(cfg.CoreBizAddr)
+	utils.LogInfo(consts.LogScopeInit, "", "icw.core.biz RPC client initialized successfully")
+
 	// 初始化 Python 原子检测能力注册表
 	registry := detectors.NewPythonRegistry(cfg.PythonBin, cfg.ReasoningWorkDir, cfg.ReasoningTaskCodes)
 	utils.LogInfo(consts.LogScopeInit, "", "Python detector registry initialized successfully:\n%s", detectors.FormatRegistryTable(registry))
-
-	// 初始化 BIZ RPC 回调仓库
-	coreBizClient := icw_core_biz.NewClient(cfg.CoreBizAddr)
-	utils.LogInfo(consts.LogScopeInit, "", "icw.core.biz RPC client initialized successfully")
 
 	// 注册 RPC 服务
 	services.RegisterRPCServices(ctx, common.NewDeps(cfg, registry, coreBizClient))
