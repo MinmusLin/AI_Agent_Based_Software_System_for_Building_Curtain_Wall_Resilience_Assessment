@@ -120,35 +120,35 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		CoreBizAddr:                env("ICW_CORE_BIZ_ADDR"),
-		MySQLDSN:                   env("MYSQL_DSN"),
-		RedisAddr:                  env("REDIS_ADDR"),
-		RedisPassword:              env("REDIS_PASSWORD"),
-		RedisDB:                    envInt("REDIS_DB"),
-		SMTPHost:                   env("SMTP_HOST"),
-		SMTPPort:                   envInt("SMTP_PORT"),
-		SMTPPassword:               env("SMTP_PASSWORD"),
-		SMTPFromName:               env("SMTP_FROM_NAME"),
-		SMTPFromEmail:              env("SMTP_FROM_EMAIL"),
-		MinIOEndpoint:              env("MINIO_ENDPOINT"),
-		MinIOAccessKey:             env("MINIO_ACCESS_KEY"),
-		MinIOAccessSecret:          env("MINIO_ACCESS_SECRET"),
-		MinIOBucket:                env("MINIO_BUCKET"),
-		RocketMQNamesrvAddr:        env("ROCKETMQ_NAMESRV_ADDR"),
-		RocketMQProjectEventTopic:  env("ROCKETMQ_PROJECT_EVENT_TOPIC"),
-		JWTSecret:                  env("JWT_SECRET"),
-		EmailCodeSecret:            env("EMAIL_CODE_SECRET"),
-		EmailCodeTTL:               time.Duration(envInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
-		LoginFailTTL:               time.Duration(envInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
-		AccessTokenTTL:             time.Duration(envInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
-		RefreshTokenTTL:            time.Duration(envInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
-		AvatarGetTTL:               time.Duration(envInt("AVATAR_GET_TTL_MINUTES")) * time.Minute,
-		AvatarUploadTTL:            time.Duration(envInt("AVATAR_UPLOAD_TTL_MINUTES")) * time.Minute,
-		ProjectImageGetTTL:         time.Duration(envInt("PROJECT_IMAGE_GET_TTL_MINUTES")) * time.Minute,
-		ProjectImageUploadTTL:      time.Duration(envInt("PROJECT_IMAGE_UPLOAD_TTL_MINUTES")) * time.Minute,
-		SocketTicketTTL:            time.Duration(envInt("SOCKET_TICKET_TTL_MINUTES")) * time.Minute,
-		ProjectImagePendingTimeout: time.Duration(envInt("PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES")) * time.Minute,
-		PendingImageTimeoutJobCron: env("PENDING_IMAGE_TIMEOUT_JOB_CRON"),
+		CoreBizAddr:                EnvString("ICW_CORE_BIZ_ADDR"),
+		MySQLDSN:                   EnvString("MYSQL_DSN"),
+		RedisAddr:                  EnvString("REDIS_ADDR"),
+		RedisPassword:              EnvString("REDIS_PASSWORD"),
+		RedisDB:                    EnvInt("REDIS_DB"),
+		SMTPHost:                   EnvString("SMTP_HOST"),
+		SMTPPort:                   EnvInt("SMTP_PORT"),
+		SMTPPassword:               EnvString("SMTP_PASSWORD"),
+		SMTPFromName:               EnvString("SMTP_FROM_NAME"),
+		SMTPFromEmail:              EnvString("SMTP_FROM_EMAIL"),
+		MinIOEndpoint:              EnvString("MINIO_ENDPOINT"),
+		MinIOAccessKey:             EnvString("MINIO_ACCESS_KEY"),
+		MinIOAccessSecret:          EnvString("MINIO_ACCESS_SECRET"),
+		MinIOBucket:                EnvString("MINIO_BUCKET"),
+		RocketMQNamesrvAddr:        EnvString("ROCKETMQ_NAMESRV_ADDR"),
+		RocketMQProjectEventTopic:  EnvString("ROCKETMQ_PROJECT_EVENT_TOPIC"),
+		JWTSecret:                  EnvString("JWT_SECRET"),
+		EmailCodeSecret:            EnvString("EMAIL_CODE_SECRET"),
+		EmailCodeTTL:               time.Duration(EnvInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
+		LoginFailTTL:               time.Duration(EnvInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
+		AccessTokenTTL:             time.Duration(EnvInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
+		RefreshTokenTTL:            time.Duration(EnvInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
+		AvatarGetTTL:               time.Duration(EnvInt("AVATAR_GET_TTL_MINUTES")) * time.Minute,
+		AvatarUploadTTL:            time.Duration(EnvInt("AVATAR_UPLOAD_TTL_MINUTES")) * time.Minute,
+		ProjectImageGetTTL:         time.Duration(EnvInt("PROJECT_IMAGE_GET_TTL_MINUTES")) * time.Minute,
+		ProjectImageUploadTTL:      time.Duration(EnvInt("PROJECT_IMAGE_UPLOAD_TTL_MINUTES")) * time.Minute,
+		SocketTicketTTL:            time.Duration(EnvInt("SOCKET_TICKET_TTL_MINUTES")) * time.Minute,
+		ProjectImagePendingTimeout: time.Duration(EnvInt("PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES")) * time.Minute,
+		PendingImageTimeoutJobCron: EnvString("PENDING_IMAGE_TIMEOUT_JOB_CRON"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
@@ -193,16 +193,16 @@ func LoadDotEnv(path string) {
 	}
 }
 
-// env 获取环境变量（String 类型）
-func env(key string) string {
+// EnvString 获取环境变量（String 类型）
+func EnvString(key string) string {
 	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
 		return value
 	}
 	return ""
 }
 
-// envInt 获取环境变量（Int 类型）
-func envInt(key string) int {
+// EnvInt 获取环境变量（Int 类型）
+func EnvInt(key string) int {
 	value := strings.TrimSpace(os.Getenv(key))
 	if value == "" {
 		return 0

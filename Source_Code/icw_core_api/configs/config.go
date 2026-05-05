@@ -1,13 +1,10 @@
 package configs
 
 import (
-	"bufio"
 	"errors"
-	"os"
 	"strings"
 
-	"icw_core_biz/consts"
-	"icw_core_biz/utils"
+	"icw_core_biz/configs"
 )
 
 // Config 服务配置
@@ -48,60 +45,15 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		GinMode:                   env("GIN_MODE"),
-		CoreApiAddr:               env("ICW_CORE_API_ADDR"),
-		CoreBizAddr:               env("ICW_CORE_BIZ_ADDR"),
-		RocketMQNamesrvAddr:       env("ROCKETMQ_NAMESRV_ADDR"),
-		RocketMQProjectEventTopic: env("ROCKETMQ_PROJECT_EVENT_TOPIC"),
-		RocketMQConsumerGroup:     env("ROCKETMQ_CONSUMER_GROUP"),
+		GinMode:                   configs.EnvString("GIN_MODE"),
+		CoreApiAddr:               configs.EnvString("ICW_CORE_API_ADDR"),
+		CoreBizAddr:               configs.EnvString("ICW_CORE_BIZ_ADDR"),
+		RocketMQNamesrvAddr:       configs.EnvString("ROCKETMQ_NAMESRV_ADDR"),
+		RocketMQProjectEventTopic: configs.EnvString("ROCKETMQ_PROJECT_EVENT_TOPIC"),
+		RocketMQConsumerGroup:     configs.EnvString("ROCKETMQ_CONSUMER_GROUP"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
 	}
 	return cfg, nil
-}
-
-// LoadDotEnv 从 .env 文件加载环境变量
-func LoadDotEnv(path string) {
-	file, err := os.Open(path)
-	if err != nil {
-		utils.LogFatal(consts.LogScopeInit, "Failed to open .env file: %v", err)
-	}
-	defer func() {
-		_ = file.Close()
-	}()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		key, value, ok := strings.Cut(line, "=")
-		if !ok {
-			continue
-		}
-		key = strings.TrimSpace(key)
-		value = strings.Trim(strings.TrimSpace(value), `"'`)
-		if key == "" || value == "" {
-			continue
-		}
-		if _, exists := os.LookupEnv(key); !exists {
-			if err := os.Setenv(key, value); err != nil {
-				utils.LogFatal(consts.LogScopeInit, "Failed to set environment variable %s=%s: %v", key, value, err)
-			}
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		utils.LogFatal(consts.LogScopeInit, "Failed to read .env file: %v", err)
-	}
-}
-
-// env 获取环境变量（String 类型）
-func env(key string) string {
-	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
-		return value
-	}
-	return ""
 }

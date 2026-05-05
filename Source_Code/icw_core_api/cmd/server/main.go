@@ -7,6 +7,7 @@ import (
 	"icw_core_api/internal/handlers/common"
 	"icw_core_api/internal/rocketmq"
 	"icw_core_api/internal/socket"
+	bizConfigs "icw_core_biz/configs"
 	bizConsts "icw_core_biz/consts"
 	"icw_core_biz/utils"
 )
@@ -16,7 +17,7 @@ func main() {
 	utils.LogInfo(bizConsts.LogScopeInit, "", "Initializing service %s...", consts.CoreApiPSM)
 
 	// 加载服务配置
-	configs.LoadDotEnv(".env")
+	bizConfigs.LoadDotEnv(".env")
 	cfg, err := configs.Load()
 	if err != nil {
 		utils.LogFatal(bizConsts.LogScopeInit, "Failed to load config: %v", err)
