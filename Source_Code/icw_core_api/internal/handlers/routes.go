@@ -241,42 +241,32 @@ func joinPath(basePath, path string) string {
 
 // formatRoutesTable 将 Gin 路由表格式化为表格
 func formatRoutesTable(routes gin.RoutesInfo, descriptions map[string]string) string {
-	const (
-		methodHeader      = "method"
-		pathHeader        = "path"
-		descriptionHeader = "description"
-		handlerHeader     = "handler"
-	)
-	methodWidth := len(methodHeader)
-	pathWidth := len(pathHeader)
-	descriptionWidth := len(descriptionHeader)
-	handlerWidth := len(handlerHeader)
+	methodValues := make([]string, 0, len(routes))
+	pathValues := make([]string, 0, len(routes))
+	descriptionValues := make([]string, 0, len(routes))
+	handlerValues := make([]string, 0, len(routes))
 	for _, route := range routes {
-		description := descriptions[routeKey(route.Method, route.Path)]
-		handler := strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")
-		methodWidth = max(methodWidth, utils.DisplayWidth(route.Method))
-		pathWidth = max(pathWidth, utils.DisplayWidth(route.Path))
-		descriptionWidth = max(descriptionWidth, utils.DisplayWidth(description))
-		handlerWidth = max(handlerWidth, utils.DisplayWidth(handler))
+		methodValues = append(methodValues, route.Method)
+		pathValues = append(pathValues, route.Path)
+		descriptionValues = append(descriptionValues, descriptions[routeKey(route.Method, route.Path)])
+		handlerValues = append(handlerValues, strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm"))
 	}
-	border := fmt.Sprintf(
-		"+-%s-+-%s-+-%s-+-%s-+",
-		strings.Repeat("-", methodWidth),
-		strings.Repeat("-", pathWidth),
-		strings.Repeat("-", descriptionWidth),
-		strings.Repeat("-", handlerWidth),
-	)
-	var builder strings.Builder
-	builder.WriteString(border)
-	builder.WriteString("\n")
-	builder.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", utils.PadRight(methodHeader, methodWidth), utils.PadRight(pathHeader, pathWidth), utils.PadRight(descriptionHeader, descriptionWidth), utils.PadRight(handlerHeader, handlerWidth)))
-	builder.WriteString(border)
-	builder.WriteString("\n")
-	for _, route := range routes {
-		description := descriptions[routeKey(route.Method, route.Path)]
-		handler := strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")
-		builder.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", utils.PadRight(route.Method, methodWidth), utils.PadRight(route.Path, pathWidth), utils.PadRight(description, descriptionWidth), utils.PadRight(handler, handlerWidth)))
-	}
-	builder.WriteString(border)
-	return builder.String()
+	return utils.FormatTable([]utils.TableColumn{
+		{
+			Header: "method",
+			Values: methodValues,
+		},
+		{
+			Header: "path",
+			Values: pathValues,
+		},
+		{
+			Header: "description",
+			Values: descriptionValues,
+		},
+		{
+			Header: "handler",
+			Values: handlerValues,
+		},
+	})
 }
