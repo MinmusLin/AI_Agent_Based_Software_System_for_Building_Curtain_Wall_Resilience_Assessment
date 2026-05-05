@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"unicode"
 
 	"icw_core_biz/consts"
 )
@@ -49,13 +48,9 @@ func FormatEnvConfig(config interface{}) string {
 	if value.Kind() != reflect.Struct {
 		return ""
 	}
-	type envConfigItem struct {
-		Name  string
-		Value string
-	}
 	valueType := value.Type()
-	items := make([]envConfigItem, 0, value.NumField())
-	maxNameWidth := 0
+	nameValues := make([]string, 0, value.NumField())
+	configValues := make([]string, 0, value.NumField())
 	for i := 0; i < value.NumField(); i++ {
 		field := valueType.Field(i)
 		if field.PkgPath != "" {
@@ -65,20 +60,19 @@ func FormatEnvConfig(config interface{}) string {
 		if name == "" {
 			continue
 		}
-		items = append(items, envConfigItem{
-			Name:  name,
-			Value: envConfigValue(value.Field(i)),
-		})
-		maxNameWidth = max(maxNameWidth, len(name))
+		nameValues = append(nameValues, name)
+		configValues = append(configValues, envConfigValue(value.Field(i)))
 	}
-	var builder strings.Builder
-	for index, item := range items {
-		if index > 0 {
-			builder.WriteString("\n")
-		}
-		builder.WriteString(fmt.Sprintf("%-*s = %s", maxNameWidth, item.Name, item.Value))
-	}
-	return builder.String()
+	return FormatTable([]TableColumn{
+		{
+			Header: "env",
+			Values: nameValues,
+		},
+		{
+			Header: "value",
+			Values: configValues,
+		},
+	})
 }
 
 // envConfigName 标准化环境变量名
@@ -101,28 +95,4 @@ func envConfigValue(value reflect.Value) string {
 		return ""
 	}
 	return fmt.Sprint(value.Interface())
-}
-
-// PadRight 按终端显示宽度补齐右侧空格
-func PadRight(value string, width int) string {
-	padding := width - DisplayWidth(value)
-	if padding <= 0 {
-		return value
-	}
-	return value + strings.Repeat(" ", padding)
-}
-
-// DisplayWidth 计算终端显示宽度
-func DisplayWidth(value string) int {
-	width := 0
-	for _, r := range value {
-		if unicode.Is(unicode.Han, r) || unicode.Is(unicode.Hiragana, r) ||
-			unicode.Is(unicode.Katakana, r) || unicode.Is(unicode.Hangul, r) ||
-			(r >= 0xFF01 && r <= 0xFF60) || (r >= 0xFFE0 && r <= 0xFFE6) {
-			width += 2
-			continue
-		}
-		width++
-	}
-	return width
 }

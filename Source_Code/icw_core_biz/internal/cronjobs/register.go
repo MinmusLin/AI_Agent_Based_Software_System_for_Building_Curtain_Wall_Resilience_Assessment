@@ -2,8 +2,6 @@ package cronjobs
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"icw_core_biz/internal/cronjobs/common"
 	"icw_core_biz/internal/cronjobs/jobs"
@@ -12,7 +10,7 @@ import (
 
 // cronJob 定时任务配置
 type cronJob struct {
-	name        string
+	psm         string
 	description string
 	cron        string
 	start       common.JobFactory
@@ -25,8 +23,8 @@ func Start(ctx context.Context, deps *common.Deps) {
 	}
 
 	for _, item := range register(deps) {
-		if err := common.Start(ctx, deps, item.name, item.cron, item.start); err != nil {
-			common.CronFatal("Failed to start cron job %s: %v", item.name, err)
+		if err := common.Start(ctx, deps, item.psm, item.cron, item.start); err != nil {
+			common.CronFatal("Failed to start cron job %s: %v", item.psm, err)
 		}
 	}
 }
@@ -42,7 +40,7 @@ func register(deps *common.Deps) []cronJob {
 func registry(deps *common.Deps) []cronJob {
 	return []cronJob{
 		{
-			name:        "icw.cron.pending_image_timeout",
+			psm:         "icw.cron.pending_image_timeout",
 			description: "上传中图像超时失败任务",
 			cron:        deps.Config.PendingImageTimeoutJobCron,
 			start:       jobs.NewPendingImageTimeoutJob,
@@ -52,34 +50,26 @@ func registry(deps *common.Deps) []cronJob {
 
 // formatRegistryTable 将定时任务注册表格式化为表格
 func formatRegistryTable(cronJobs []cronJob) string {
-	const (
-		psmHeader            = "PSM"
-		descriptionHeader    = "description"
-		cronExpressionHeader = "cronExpression"
-	)
-	psmWidth := len(psmHeader)
-	descriptionWidth := len(descriptionHeader)
-	cronExpressionWidth := len(cronExpressionHeader)
+	psmValues := make([]string, 0, len(cronJobs))
+	descriptionValues := make([]string, 0, len(cronJobs))
+	cronExpressionValues := make([]string, 0, len(cronJobs))
 	for _, item := range cronJobs {
-		psmWidth = max(psmWidth, utils.DisplayWidth(item.name))
-		descriptionWidth = max(descriptionWidth, utils.DisplayWidth(item.description))
-		cronExpressionWidth = max(cronExpressionWidth, utils.DisplayWidth(item.cron))
+		psmValues = append(psmValues, item.psm)
+		descriptionValues = append(descriptionValues, item.description)
+		cronExpressionValues = append(cronExpressionValues, item.cron)
 	}
-	border := fmt.Sprintf(
-		"+-%s-+-%s-+-%s-+",
-		strings.Repeat("-", psmWidth),
-		strings.Repeat("-", descriptionWidth),
-		strings.Repeat("-", cronExpressionWidth),
-	)
-	var builder strings.Builder
-	builder.WriteString(border)
-	builder.WriteString("\n")
-	builder.WriteString(fmt.Sprintf("| %s | %s | %s |\n", utils.PadRight(psmHeader, psmWidth), utils.PadRight(descriptionHeader, descriptionWidth), utils.PadRight(cronExpressionHeader, cronExpressionWidth)))
-	builder.WriteString(border)
-	builder.WriteString("\n")
-	for _, item := range cronJobs {
-		builder.WriteString(fmt.Sprintf("| %s | %s | %s |\n", utils.PadRight(item.name, psmWidth), utils.PadRight(item.description, descriptionWidth), utils.PadRight(item.cron, cronExpressionWidth)))
-	}
-	builder.WriteString(border)
-	return builder.String()
+	return utils.FormatTable([]utils.TableColumn{
+		{
+			Header: "psm",
+			Values: psmValues,
+		},
+		{
+			Header: "description",
+			Values: descriptionValues,
+		},
+		{
+			Header: "cron expression",
+			Values: cronExpressionValues,
+		},
+	})
 }
