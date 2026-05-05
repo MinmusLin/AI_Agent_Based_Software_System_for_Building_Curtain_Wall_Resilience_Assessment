@@ -53,3 +53,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	stathat.com/c/consistent v1.0.0 // indirect
 )
+
+require icw_activity_reasoning v0.0.0
+
+replace icw_activity_reasoning => ../icw_activity_reasoning
