@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"reflect"
+	"runtime"
 	"time"
 
 	"icw_core_biz/configs"
@@ -55,7 +56,12 @@ func NewBaseService(ctx context.Context, deps *Deps) *BaseService {
 }
 
 // CallRPC RPC 服务通用调用
-func (s *BaseService) CallRPC(method string, req, resp interface{}, fn func() error) (err error) {
+func (s *BaseService) CallRPC(req, resp interface{}, fn func() error) (err error) {
+	pc, _, _, ok := runtime.Caller(1)
+	method := "unknown"
+	if ok {
+		method = rpcMethodFromPC(pc)
+	}
 	start := time.Now()
 	defer func() {
 		rpcLog(method, req, resp, start, err)
