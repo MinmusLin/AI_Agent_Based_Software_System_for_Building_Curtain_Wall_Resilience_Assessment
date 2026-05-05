@@ -2,6 +2,10 @@ module icw_core_biz
 
 go 1.26.0
 
+require icw_activity_reasoning v0.0.0
+
+replace icw_activity_reasoning => ../icw_activity_reasoning
+
 require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
 	github.com/go-sql-driver/mysql v1.8.1
@@ -53,7 +57,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	stathat.com/c/consistent v1.0.0 // indirect
 )
-
-require icw_activity_reasoning v0.0.0
-
-replace icw_activity_reasoning => ../icw_activity_reasoning
