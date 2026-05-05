@@ -13,7 +13,7 @@ import (
 type Detector interface {
 	Code() string
 	Description() string
-	Detect(ctx context.Context, input DetectorInput) error
+	Detect(ctx context.Context, imageUuid string) error
 }
 
 // DetectorMeta 原子检测能力元数据
