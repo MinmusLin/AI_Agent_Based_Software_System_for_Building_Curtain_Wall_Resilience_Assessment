@@ -260,13 +260,13 @@ CREATE TABLE `project_detection_spalling_tasks` (
 
 -- project_detection_summary_tasks 项目图像检测总结任务表
 CREATE TABLE `project_detection_summary_tasks` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '总结任务 ID',
-  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '总结任务 UUID',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '任务 ID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务 UUID',
   `main_task_id` bigint unsigned NOT NULL COMMENT '主任务 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
-  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '总结任务状态：pending|running|succeeded|failed',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '任务状态：pending|running|succeeded|failed',
   `started_at` datetime(3) DEFAULT NULL COMMENT '开始时间',
   `finished_at` datetime(3) DEFAULT NULL COMMENT '完成时间',
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
