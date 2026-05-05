@@ -1,7 +1,7 @@
 package dto
 
 type ArtifactUploadPlan struct {
-	Type             string `json:"type"`
+	Name             string `json:"artifact_name"`
 	PresignUploadURL string `json:"presign_upload_url"`
 	ContentType      string `json:"content_type"`
 }
