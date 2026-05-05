@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"runtime"
 	"sort"
+	"strings"
 	"sync"
 
 	"icw_core_biz/utils"
@@ -146,7 +147,8 @@ func handlerName(method reflect.Method) string {
 	if fn == nil {
 		return method.Name
 	}
-	return fn.Name()
+
+	return strings.TrimPrefix(fn.Name(), "icw_core_biz/internal/services/")
 }
 
 // FormatRegistryTable 格式化 RPC 注册表
