@@ -14,7 +14,6 @@ type Config struct {
 	CoreBizAddr                 string        `env:"ICW_CORE_BIZ_ADDR"`
 	PythonBin                   string        `env:"PYTHON_BIN"`
 	ReasoningWorkDir            string        `env:"REASONING_WORK_DIR"`
-	ReasoningTaskCodes          []string      `env:"REASONING_TASK_CODES"`
 	ReasoningTaskMaxConcurrency int           `env:"REASONING_TASK_MAX_CONCURRENCY"`
 	ReasoningTaskTimeout        time.Duration `env:"REASONING_TASK_TIMEOUT_MINUTES"`
 	ArtifactDownloadTimeout     time.Duration `env:"ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES"`
@@ -37,9 +36,6 @@ func (cfg *Config) Validate() error {
 		if strings.TrimSpace(item.value) == "" {
 			problems = append(problems, item.key+" is required")
 		}
-	}
-	if len(cfg.ReasoningTaskCodes) == 0 {
-		problems = append(problems, "REASONING_TASK_CODES is required")
 	}
 	if cfg.ReasoningTaskMaxConcurrency <= 0 {
 		problems = append(problems, "REASONING_TASK_MAX_CONCURRENCY must be greater than 0")
@@ -66,7 +62,6 @@ func Load() (Config, error) {
 		CoreBizAddr:                 configs.EnvString("ICW_CORE_BIZ_ADDR"),
 		PythonBin:                   configs.EnvString("PYTHON_BIN"),
 		ReasoningWorkDir:            configs.EnvString("REASONING_WORK_DIR"),
-		ReasoningTaskCodes:          configs.EnvStringSlice("REASONING_TASK_CODES"),
 		ReasoningTaskMaxConcurrency: configs.EnvInt("REASONING_TASK_MAX_CONCURRENCY"),
 		ReasoningTaskTimeout:        time.Duration(configs.EnvInt("REASONING_TASK_TIMEOUT_MINUTES")) * time.Minute,
 		ArtifactDownloadTimeout:     time.Duration(configs.EnvInt("ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES")) * time.Minute,

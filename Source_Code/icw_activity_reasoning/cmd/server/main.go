@@ -35,7 +35,7 @@ func main() {
 	utils.LogInfo(bizConsts.LogScopeRPC, bizConsts.LogColorBoldGreen, "RPC service icw.core.biz initialized successfully")
 
 	// 注册 Python 检测能力
-	detectorsRegistry := detectors.RegisterDetectors(cfg.PythonBin, cfg.ReasoningWorkDir, cfg.ReasoningTaskCodes)
+	detectorsRegistry := detectors.RegisterDetectors(cfg.PythonBin, cfg.ReasoningWorkDir)
 	utils.LogInfo(consts.LogScopeInit, "", "Python detectors registered, waiting for calls:\n%s", detectors.FormatRegistryTable(detectorsRegistry))
 
 	// 注册 RPC 服务
