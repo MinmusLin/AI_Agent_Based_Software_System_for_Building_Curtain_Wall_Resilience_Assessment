@@ -23,7 +23,7 @@ const (
 	// LogColorBoldWhiteOnRed ANSI 终端颜色码：白色（红色背景）
 	LogColorBoldWhiteOnRed = "\033[1;37;41m"
 	// LogColorBoldBlackOnWhite ANSI 终端颜色码：黑色（白色背景）
-	LogColorBoldBlackOnWhite = "\033[90;47m"
+	LogColorBoldBlackOnWhite = "\033[30;47m"
 )
 
 const (
