@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+// CreateSocketTicket 请求结构体
+message CreateSocketTicketRequest {
+  string project_id = 1;
+}
+
+// CreateSocketTicket 响应结构体
+message CreateSocketTicketResponse {
+  string ticket = 1;
+  int64 expires_in = 2;
+}

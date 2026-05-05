@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+import "core/api/common.proto";
+
+// DeleteProjectThumbnail 响应结构体
+message DeleteProjectThumbnailResponse {}
+
+// GetProjectProfile 响应结构体
+message GetProjectProfileResponse {
+  Project project = 1;
+}
+
+// GetProjectThumbnail 响应结构体
+message GetProjectThumbnailResponse {
+  string thumbnail_url = 1;
+}
+
+// UpdateProjectProfile 请求结构体
+message UpdateProjectProfileRequest {
+  string project_id = 1;
+  string name = 2;
+  string building_name = 3;
+  string building_location = 4;
+  uint32 built_year = 5;
+  string building_description = 6;
+  string known_issues = 7;
+  string assessment_goal = 8;
+}
+
+// UpdateProjectProfile 响应结构体
+message UpdateProjectProfileResponse {
+  Project project = 1;
+}
+
+// UploadProjectThumbnail 请求结构体
+message UploadProjectThumbnailRequest {
+  string project_id = 1;
+}
+
+// UploadProjectThumbnail 响应结构体
+message UploadProjectThumbnailResponse {
+  string upload_url = 1;
+}

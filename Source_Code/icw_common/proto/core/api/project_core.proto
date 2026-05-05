@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+import "core/api/common.proto";
+
+// AdvanceProject 请求结构体
+message AdvanceProjectRequest {
+  string project_id = 1;
+  uint32 from_progress = 2;
+  uint32 to_progress = 3;
+}
+
+// AdvanceProject 响应结构体
+message AdvanceProjectResponse {}
+
+// CreateProject 响应结构体
+message CreateProjectResponse {
+  Project project = 1;
+}
+
+// DeleteProject 请求结构体
+message DeleteProjectRequest {
+  string project_id = 1;
+}
+
+// DeleteProject 响应结构体
+message DeleteProjectResponse {
+  repeated ProjectListItem active_projects = 1;
+  repeated ProjectListItem completed_projects = 2;
+}
+
+// ListProjects 响应结构体
+message ListProjectsResponse {
+  repeated ProjectListItem active_projects = 1;
+  repeated ProjectListItem completed_projects = 2;
+}

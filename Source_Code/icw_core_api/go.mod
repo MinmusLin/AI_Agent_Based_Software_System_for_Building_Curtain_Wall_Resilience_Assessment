@@ -4,6 +4,7 @@ go 1.26.0
 
 require icw_common v0.0.0
 
+// Local dependency
 replace icw_common => ../icw_common
 
 require (

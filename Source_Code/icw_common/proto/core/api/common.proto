@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+// 用户信息结构体
+message User {
+  uint64 id = 1;
+  string email = 2;
+  string name = 3;
+}
+
+// 项目信息结构体
+message Project {
+  string id = 1;
+  string name = 2;
+  string building_name = 3;
+  string building_location = 4;
+  uint32 built_year = 5;
+  string building_description = 6;
+  string known_issues = 7;
+  string assessment_goal = 8;
+  string thumbnail_url = 9;
+  uint32 progress = 10;
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+// 项目列表项结构体
+message ProjectListItem {
+  string id = 1;
+  string name = 2;
+  string building_name = 3;
+  string building_location = 4;
+  string thumbnail_url = 5;
+  uint32 progress = 6;
+  string created_at = 7;
+}
+
+// 项目图像组结构体
+message ProjectGroup {
+  string id = 1;
+  string name = 2;
+  string sort_order = 3;
+  repeated ProjectImage images = 4;
+}
+
+// 项目图像结构体
+message ProjectImage {
+  string uuid = 1;
+  string file_name = 2;
+  string content_type = 3;
+  uint64 size_bytes = 4;
+  uint32 width = 5;
+  uint32 height = 6;
+  string metadata = 7;
+  string status = 8;
+  string thumbnail_url = 9;
+  string uploaded_at = 10;
+  string created_at = 11;
+}
+
+// 项目图像上传项结构体
+message UploadProjectImageItem {
+  string file_name = 1;
+  string content_type = 2;
+  uint64 size_bytes = 3;
+  uint32 width = 4;
+  uint32 height = 5;
+  string metadata = 6;
+}
+
+// 项目图像上传结果结构体
+message UploadProjectImageResult {
+  ProjectImage image = 1;
+  string original_upload_url = 2;
+  string thumbnail_upload_url = 3;
+}
+
+// 项目图像状态变化 WebSocket 消息结构体
+message ProjectImageStatusChangedMessage {
+  string type = 1;
+  string project_id = 2;
+  ProjectImage image = 3;
+}

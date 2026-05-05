@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+import "core/api/common.proto";
+
+// Login 请求结构体
+message LoginRequest {
+  string email = 1;
+  string scene = 2;
+  string code = 3;
+}
+
+// Login 响应结构体
+message LoginResponse {
+  string access_token = 1;
+  int32 expires_in = 2;
+  User user = 3;
+}
+
+// Logout 响应结构体
+message LogoutResponse {}
+
+// Me 响应结构体
+message MeResponse {
+  User user = 1;
+}
+
+// Refresh 响应结构体
+message RefreshResponse {
+  string access_token = 1;
+  int32 expires_in = 2;
+  User user = 3;
+}
+
+// Register 请求结构体
+message RegisterRequest {
+  string email = 1;
+  string email_code = 2;
+  string password = 3;
+  string name = 4;
+}
+
+// Register 响应结构体
+message RegisterResponse {}
+
+// ResetPassword 请求结构体
+message ResetPasswordRequest {
+  string email = 1;
+  string email_code = 2;
+  string new_password = 3;
+}
+
+// ResetPassword 响应结构体
+message ResetPasswordResponse {}
+
+// SendEmailCode 请求结构体
+message SendEmailCodeRequest {
+  string email = 1;
+  string scene = 2;
+}
+
+// SendEmailCode 响应结构体
+message SendEmailCodeResponse {
+  int32 expires_in = 1;
+}

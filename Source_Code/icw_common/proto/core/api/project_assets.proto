@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+import "core/api/common.proto";
+
+// CreateProjectGroup 请求结构体
+message CreateProjectGroupRequest {
+  string project_id = 1;
+}
+
+// CreateProjectGroup 响应结构体
+message CreateProjectGroupResponse {
+  ProjectGroup group = 1;
+}
+
+// DeleteProjectGroup 请求结构体
+message DeleteProjectGroupRequest {
+  string project_id = 1;
+  string group_id = 2;
+}
+
+// DeleteProjectGroup 响应结构体
+message DeleteProjectGroupResponse {}
+
+// DeleteProjectImage 请求结构体
+message DeleteProjectImageRequest {
+  string project_id = 1;
+  repeated string image_uuids = 2;
+}
+
+// DeleteProjectImage 响应结构体
+message DeleteProjectImageResponse {}
+
+// GetProjectAssets 响应结构体
+message GetProjectAssetsResponse {
+  repeated ProjectGroup groups = 1;
+}
+
+// GetProjectImageOriginal 响应结构体
+message GetProjectImageOriginalResponse {
+  string original_url = 1;
+}
+
+// MoveProjectGroup 请求结构体
+message MoveProjectGroupRequest {
+  string project_id = 1;
+  string group_id = 2;
+  string previous_group_id = 3;
+  string next_group_id = 4;
+  bool move_to_first = 5;
+  bool move_to_last = 6;
+}
+
+// MoveProjectGroup 响应结构体
+message MoveProjectGroupResponse {
+  ProjectGroup group = 1;
+}
+
+// MoveProjectImage 请求结构体
+message MoveProjectImageRequest {
+  string project_id = 1;
+  repeated string image_uuids = 2;
+  string target_group_id = 3;
+}
+
+// MoveProjectImage 响应结构体
+message MoveProjectImageResponse {
+  repeated ProjectImage images = 1;
+}
+
+// ReportProjectImage 请求结构体
+message ReportProjectImageRequest {
+  string project_id = 1;
+  string image_uuid = 2;
+  string status = 3;
+}
+
+// ReportProjectImage 响应结构体
+message ReportProjectImageResponse {}
+
+// UpdateProjectGroup 请求结构体
+message UpdateProjectGroupRequest {
+  string project_id = 1;
+  string group_id = 2;
+  string name = 3;
+}
+
+// UpdateProjectGroup 响应结构体
+message UpdateProjectGroupResponse {
+  ProjectGroup group = 1;
+}
+
+// UploadProjectImage 请求结构体
+message UploadProjectImageRequest {
+  string project_id = 1;
+  string group_id = 2;
+  repeated UploadProjectImageItem images = 3;
+}
+
+// UploadProjectImage 响应结构体
+message UploadProjectImageResponse {
+  repeated UploadProjectImageResult images = 1;
+}
