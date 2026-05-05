@@ -11,8 +11,8 @@ func RegisterDetectors(pythonBin, runtimeRoot string) *common.Registry {
 }
 
 // registry Python 原子检测能力注册表
-func registry() []common.DetectorMeta {
-	return []common.DetectorMeta{
+func registry() []*common.DetectorMeta {
+	return []*common.DetectorMeta{
 		common.NewDetectorMeta(consts.CorrosionDetectionTaskCode, "金属锈蚀检测能力"),
 		common.NewDetectorMeta(consts.CrackDetectionTaskCode, "石材裂缝检测能力"),
 		common.NewDetectorMeta(consts.StainDetectionTaskCode, "石材污渍检测能力"),

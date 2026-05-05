@@ -23,8 +23,8 @@ type DetectorMeta struct {
 	Path        string
 }
 
-func NewDetectorMeta(code, description string) DetectorMeta {
-	return DetectorMeta{
+func NewDetectorMeta(code, description string) *DetectorMeta {
+	return &DetectorMeta{
 		Code:        code,
 		Description: description,
 		Path:        filepath.Join("python/detectors", code),
@@ -36,9 +36,12 @@ type Registry struct {
 	detectors map[string]Detector
 }
 
-func NewRegistry(pythonBin, runtimeRoot string, metas []DetectorMeta) *Registry {
+func NewRegistry(pythonBin, runtimeRoot string, metas []*DetectorMeta) *Registry {
 	items := make([]Detector, 0, len(metas))
 	for _, item := range metas {
+		if item == nil {
+			continue
+		}
 		items = append(items, NewPythonDetector(item.Code, item.Description, pythonBin, item.Path, runtimeRoot))
 	}
 	registry := &Registry{

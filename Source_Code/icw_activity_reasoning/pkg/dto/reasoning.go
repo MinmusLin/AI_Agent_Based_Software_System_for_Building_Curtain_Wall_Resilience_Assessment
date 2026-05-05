@@ -13,6 +13,4 @@ type StartRequest struct {
 	Artifacts     []*ArtifactUploadPlan `json:"artifacts"`
 }
 
-type StartResponse struct {
-	Accepted bool `json:"accepted"`
-}
+type StartResponse struct{}
