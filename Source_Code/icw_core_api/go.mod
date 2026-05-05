@@ -2,6 +2,10 @@ module icw_core_api
 
 go 1.26.0
 
+require icw_common v0.0.0
+
+replace icw_common => ../icw_common
+
 require icw_core_biz v0.0.0
 
 replace icw_core_biz => ../icw_core_biz
@@ -61,8 +65,5 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
-	icw_common v0.0.0
 	stathat.com/c/consistent v1.0.0 // indirect
 )
-
-replace icw_common => ../icw_common
