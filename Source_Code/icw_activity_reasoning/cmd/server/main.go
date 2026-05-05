@@ -35,7 +35,7 @@ func main() {
 	coreBizClient := icw_core_biz.NewClient(cfg.CoreBizAddr)
 	utils.LogInfo(bizConsts.LogScopeRPC, bizConsts.LogColorBoldGreen, "RPC service icw.core.biz initialized successfully")
 
-	// 注册 Python 检测能力
+	// 注册 Python 原子检测能力
 	detectorsRegistry := detectors.RegisterDetectors(cfg.PythonBin, cfg.ReasoningWorkDir)
 	utils.LogInfo(bizConsts.LogScopeInit, "", "Python detectors registered, waiting for calls:\n%s", detectorCommon.FormatRegistryTable(detectorsRegistry))
 
