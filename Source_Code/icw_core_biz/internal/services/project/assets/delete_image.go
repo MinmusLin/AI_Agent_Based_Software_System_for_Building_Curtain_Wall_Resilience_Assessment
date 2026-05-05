@@ -11,7 +11,7 @@ import (
 
 // DeleteProjectImage 删除图像
 func (s *Service) DeleteProjectImage(req *project.DeleteProjectImageRequest, resp *project.DeleteProjectImageResponse) error {
-	return s.CallRPC("ProjectAssetsService.DeleteProjectImage", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.deleteProjectImage(req, resp)
 	})
 }

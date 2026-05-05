@@ -7,7 +7,7 @@ import (
 
 // GetProjectThumbnail 获取项目缩略图
 func (s *Service) GetProjectThumbnail(req *project.GetProjectThumbnailRequest, resp *project.GetProjectThumbnailResponse) error {
-	return s.CallRPC("ProjectProfileService.GetProjectThumbnail", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.getProjectThumbnail(req, resp)
 	})
 }

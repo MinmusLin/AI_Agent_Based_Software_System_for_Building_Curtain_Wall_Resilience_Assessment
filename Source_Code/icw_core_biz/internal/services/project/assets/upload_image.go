@@ -16,7 +16,7 @@ import (
 
 // UploadProjectImage 上传图像
 func (s *Service) UploadProjectImage(req *project.UploadProjectImageRequest, resp *project.UploadProjectImageResponse) error {
-	return s.CallRPC("ProjectAssetsService.UploadProjectImage", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.uploadProjectImage(req, resp)
 	})
 }

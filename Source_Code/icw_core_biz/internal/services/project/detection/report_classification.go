@@ -6,7 +6,7 @@ import (
 
 // ReportClassificationResult 上报图像检测分类结果
 func (s *Service) ReportClassificationResult(req *project.ReportClassificationResultRequest, resp *project.ReportClassificationResultResponse) error {
-	return s.CallRPC("ProjectDetectionService.ReportClassificationResult", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.reportClassificationResult(req, resp)
 	})
 }

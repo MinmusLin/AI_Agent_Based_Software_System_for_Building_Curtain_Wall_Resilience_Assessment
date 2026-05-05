@@ -13,7 +13,7 @@ import (
 
 // ReportProjectImage 上报图像
 func (s *Service) ReportProjectImage(req *project.ReportProjectImageRequest, resp *project.ReportProjectImageResponse) error {
-	return s.CallRPC("ProjectAssetsService.ReportProjectImage", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.reportProjectImage(req, resp)
 	})
 }

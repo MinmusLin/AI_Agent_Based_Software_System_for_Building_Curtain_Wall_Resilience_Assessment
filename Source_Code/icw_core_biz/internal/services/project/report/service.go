@@ -23,7 +23,7 @@ func NewService(ctx context.Context, deps *common.Deps) *Service {
 
 // Ping .
 func (s *Service) Ping(req *PingRequest, resp *PingResponse) error {
-	return s.CallRPC("ProjectReportService.Ping", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.ping(req, resp)
 	})
 }

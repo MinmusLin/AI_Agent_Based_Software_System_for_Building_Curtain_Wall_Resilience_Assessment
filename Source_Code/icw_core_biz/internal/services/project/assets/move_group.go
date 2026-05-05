@@ -8,7 +8,7 @@ import (
 
 // MoveProjectGroup 移动图像组
 func (s *Service) MoveProjectGroup(req *project.MoveProjectGroupRequest, resp *project.MoveProjectGroupResponse) error {
-	return s.CallRPC("ProjectAssetsService.MoveProjectGroup", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.moveProjectGroup(req, resp)
 	})
 }

@@ -6,7 +6,7 @@ import (
 
 // ReportSummaryResult 上报图像检测总结结果
 func (s *Service) ReportSummaryResult(req *project.ReportSummaryResultRequest, resp *project.ReportSummaryResultResponse) error {
-	return s.CallRPC("ProjectDetectionService.ReportSummaryResult", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.reportSummaryResult(req, resp)
 	})
 }

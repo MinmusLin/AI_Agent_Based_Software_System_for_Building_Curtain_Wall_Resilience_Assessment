@@ -17,7 +17,7 @@ const (
 
 // CreateProjectGroup 创建图像组
 func (s *Service) CreateProjectGroup(req *project.CreateProjectGroupRequest, resp *project.CreateProjectGroupResponse) error {
-	return s.CallRPC("ProjectAssetsService.CreateProjectGroup", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.createProjectGroup(req, resp)
 	})
 }

@@ -10,7 +10,7 @@ import (
 
 // MoveProjectImage 移动图像
 func (s *Service) MoveProjectImage(req *project.MoveProjectImageRequest, resp *project.MoveProjectImageResponse) error {
-	return s.CallRPC("ProjectAssetsService.MoveProjectImage", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.moveProjectImage(req, resp)
 	})
 }

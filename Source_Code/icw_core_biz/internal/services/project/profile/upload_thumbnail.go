@@ -9,7 +9,7 @@ import (
 
 // UploadProjectThumbnail 上传项目缩略图
 func (s *Service) UploadProjectThumbnail(req *project.UploadProjectThumbnailRequest, resp *project.UploadProjectThumbnailResponse) error {
-	return s.CallRPC("ProjectProfileService.UploadProjectThumbnail", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.uploadProjectThumbnail(req, resp)
 	})
 }

@@ -7,7 +7,7 @@ import (
 
 // GetProjectAssets 获取项目图像列表
 func (s *Service) GetProjectAssets(req *project.GetProjectAssetsRequest, resp *project.GetProjectAssetsResponse) error {
-	return s.CallRPC("ProjectAssetsService.GetProjectAssets", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.getProjectAssets(req, resp)
 	})
 }

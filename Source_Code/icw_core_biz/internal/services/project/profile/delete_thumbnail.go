@@ -9,7 +9,7 @@ import (
 
 // DeleteProjectThumbnail 删除项目缩略图
 func (s *Service) DeleteProjectThumbnail(req *project.DeleteProjectThumbnailRequest, resp *project.DeleteProjectThumbnailResponse) error {
-	return s.CallRPC("ProjectProfileService.DeleteProjectThumbnail", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.deleteProjectThumbnail(req, resp)
 	})
 }

@@ -9,7 +9,7 @@ import (
 
 // UpdateProjectProfile 更新项目基础信息
 func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) error {
-	return s.CallRPC("ProjectProfileService.UpdateProjectProfile", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.updateProjectProfile(req, resp)
 	})
 }

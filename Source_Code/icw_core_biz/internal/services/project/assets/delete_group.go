@@ -12,7 +12,7 @@ import (
 
 // DeleteProjectGroup 删除图像组
 func (s *Service) DeleteProjectGroup(req *project.DeleteProjectGroupRequest, resp *project.DeleteProjectGroupResponse) error {
-	return s.CallRPC("ProjectAssetsService.DeleteProjectGroup", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.deleteProjectGroup(req, resp)
 	})
 }

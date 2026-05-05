@@ -11,7 +11,7 @@ import (
 
 // GetProjectImageOriginal 获取原图
 func (s *Service) GetProjectImageOriginal(req *project.GetProjectImageOriginalRequest, resp *project.GetProjectImageOriginalResponse) error {
-	return s.CallRPC("ProjectAssetsService.GetProjectImageOriginal", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.getProjectImageOriginal(req, resp)
 	})
 }

@@ -9,7 +9,7 @@ import (
 
 // UpdateProjectGroup 更新图像组
 func (s *Service) UpdateProjectGroup(req *project.UpdateProjectGroupRequest, resp *project.UpdateProjectGroupResponse) error {
-	return s.CallRPC("ProjectAssetsService.UpdateProjectGroup", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.updateProjectGroup(req, resp)
 	})
 }

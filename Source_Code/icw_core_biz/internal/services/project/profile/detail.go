@@ -8,7 +8,7 @@ import (
 
 // GetProjectProfile 获取项目基础信息
 func (s *Service) GetProjectProfile(req *project.GetProjectProfileRequest, resp *project.GetProjectProfileResponse) error {
-	return s.CallRPC("ProjectProfileService.GetProjectProfile", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.getProjectProfile(req, resp)
 	})
 }
