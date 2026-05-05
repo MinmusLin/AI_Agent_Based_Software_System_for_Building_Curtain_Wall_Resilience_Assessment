@@ -9,7 +9,7 @@ import (
 
 // DeleteAvatar 删除用户自定义头像
 func (s *Service) DeleteAvatar(req *dto.DeleteAvatarRequest, resp *dto.DeleteAvatarResponse) error {
-	return s.CallRPC("UserService.DeleteAvatar", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.deleteAvatar(req, resp)
 	})
 }

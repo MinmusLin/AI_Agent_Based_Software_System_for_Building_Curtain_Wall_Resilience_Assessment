@@ -9,7 +9,7 @@ import (
 
 // GetAvatar 获取用户头像
 func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarResponse) error {
-	return s.CallRPC("UserService.GetAvatar", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.getAvatar(req, resp)
 	})
 }

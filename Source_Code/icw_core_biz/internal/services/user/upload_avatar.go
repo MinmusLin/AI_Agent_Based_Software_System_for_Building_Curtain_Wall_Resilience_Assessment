@@ -10,7 +10,7 @@ import (
 
 // UploadAvatar 上传用户自定义头像
 func (s *Service) UploadAvatar(req *dto.UploadAvatarRequest, resp *dto.UploadAvatarResponse) error {
-	return s.CallRPC("UserService.UploadAvatar", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.uploadAvatar(req, resp)
 	})
 }
