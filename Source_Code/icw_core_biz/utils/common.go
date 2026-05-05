@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"unicode"
 
 	"icw_core_biz/consts"
 )
@@ -100,4 +101,28 @@ func envConfigValue(value reflect.Value) string {
 		return ""
 	}
 	return fmt.Sprint(value.Interface())
+}
+
+// PadRight 按终端显示宽度补齐右侧空格
+func PadRight(value string, width int) string {
+	padding := width - DisplayWidth(value)
+	if padding <= 0 {
+		return value
+	}
+	return value + strings.Repeat(" ", padding)
+}
+
+// DisplayWidth 计算终端显示宽度
+func DisplayWidth(value string) int {
+	width := 0
+	for _, r := range value {
+		if unicode.Is(unicode.Han, r) || unicode.Is(unicode.Hiragana, r) ||
+			unicode.Is(unicode.Katakana, r) || unicode.Is(unicode.Hangul, r) ||
+			(r >= 0xFF01 && r <= 0xFF60) || (r >= 0xFFE0 && r <= 0xFFE6) {
+			width += 2
+			continue
+		}
+		width++
+	}
+	return width
 }

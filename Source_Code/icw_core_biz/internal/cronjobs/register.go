@@ -7,13 +7,15 @@ import (
 
 	"icw_core_biz/internal/cronjobs/common"
 	"icw_core_biz/internal/cronjobs/jobs"
+	"icw_core_biz/utils"
 )
 
-// CronJob 定时任务配置
-type CronJob struct {
-	name  string
-	cron  string
-	start common.JobFactory
+// cronJob 定时任务配置
+type cronJob struct {
+	name        string
+	description string
+	cron        string
+	start       common.JobFactory
 }
 
 // Start 启动定时任务
@@ -30,44 +32,53 @@ func Start(ctx context.Context, deps *common.Deps) {
 }
 
 // register 注册定时任务
-func register(deps *common.Deps) []CronJob {
+func register(deps *common.Deps) []cronJob {
 	cronJobs := registry(deps)
 	common.CronInfo("Cron job registered, waiting for schedule:\n%s", formatRegistryTable(cronJobs))
 	return cronJobs
 }
 
 // registry 定时任务注册表
-func registry(deps *common.Deps) []CronJob {
-	return []CronJob{
+func registry(deps *common.Deps) []cronJob {
+	return []cronJob{
 		{
-			name:  "icw.cron.pending_image_timeout",
-			cron:  deps.Config.PendingImageTimeoutJobCron,
-			start: jobs.NewPendingImageTimeoutJob,
+			name:        "icw.cron.pending_image_timeout",
+			description: "上传中图像超时失败任务",
+			cron:        deps.Config.PendingImageTimeoutJobCron,
+			start:       jobs.NewPendingImageTimeoutJob,
 		},
 	}
 }
 
 // formatRegistryTable 将定时任务注册表格式化为表格
-func formatRegistryTable(cronJobs []CronJob) string {
+func formatRegistryTable(cronJobs []cronJob) string {
 	const (
-		nameHeader       = "job name"
-		expressionHeader = "cron expression"
+		psmHeader            = "PSM"
+		descriptionHeader    = "description"
+		cronExpressionHeader = "cronExpression"
 	)
-	nameWidth := len(nameHeader)
-	expressionWidth := len(expressionHeader)
+	psmWidth := len(psmHeader)
+	descriptionWidth := len(descriptionHeader)
+	cronExpressionWidth := len(cronExpressionHeader)
 	for _, item := range cronJobs {
-		nameWidth = max(nameWidth, len(item.name))
-		expressionWidth = max(expressionWidth, len(item.cron))
+		psmWidth = max(psmWidth, utils.DisplayWidth(item.name))
+		descriptionWidth = max(descriptionWidth, utils.DisplayWidth(item.description))
+		cronExpressionWidth = max(cronExpressionWidth, utils.DisplayWidth(item.cron))
 	}
-	border := fmt.Sprintf("+-%s-+-%s-+", strings.Repeat("-", nameWidth), strings.Repeat("-", expressionWidth))
+	border := fmt.Sprintf(
+		"+-%s-+-%s-+-%s-+",
+		strings.Repeat("-", psmWidth),
+		strings.Repeat("-", descriptionWidth),
+		strings.Repeat("-", cronExpressionWidth),
+	)
 	var builder strings.Builder
 	builder.WriteString(border)
 	builder.WriteString("\n")
-	builder.WriteString(fmt.Sprintf("| %-*s | %-*s |\n", nameWidth, nameHeader, expressionWidth, expressionHeader))
+	builder.WriteString(fmt.Sprintf("| %s | %s | %s |\n", utils.PadRight(psmHeader, psmWidth), utils.PadRight(descriptionHeader, descriptionWidth), utils.PadRight(cronExpressionHeader, cronExpressionWidth)))
 	builder.WriteString(border)
 	builder.WriteString("\n")
 	for _, item := range cronJobs {
-		builder.WriteString(fmt.Sprintf("| %-*s | %-*s |\n", nameWidth, item.name, expressionWidth, item.cron))
+		builder.WriteString(fmt.Sprintf("| %s | %s | %s |\n", utils.PadRight(item.name, psmWidth), utils.PadRight(item.description, descriptionWidth), utils.PadRight(item.cron, cronExpressionWidth)))
 	}
 	builder.WriteString(border)
 	return builder.String()

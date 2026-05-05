@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"unicode"
 
 	"github.com/gin-gonic/gin"
 
@@ -255,10 +254,10 @@ func formatRoutesTable(routes gin.RoutesInfo, descriptions map[string]string) st
 	for _, route := range routes {
 		description := descriptions[routeKey(route.Method, route.Path)]
 		handler := strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")
-		methodWidth = max(methodWidth, displayWidth(route.Method))
-		pathWidth = max(pathWidth, displayWidth(route.Path))
-		descriptionWidth = max(descriptionWidth, displayWidth(description))
-		handlerWidth = max(handlerWidth, displayWidth(handler))
+		methodWidth = max(methodWidth, utils.DisplayWidth(route.Method))
+		pathWidth = max(pathWidth, utils.DisplayWidth(route.Path))
+		descriptionWidth = max(descriptionWidth, utils.DisplayWidth(description))
+		handlerWidth = max(handlerWidth, utils.DisplayWidth(handler))
 	}
 	border := fmt.Sprintf(
 		"+-%s-+-%s-+-%s-+-%s-+",
@@ -270,38 +269,14 @@ func formatRoutesTable(routes gin.RoutesInfo, descriptions map[string]string) st
 	var builder strings.Builder
 	builder.WriteString(border)
 	builder.WriteString("\n")
-	builder.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", padRight(methodHeader, methodWidth), padRight(pathHeader, pathWidth), padRight(descriptionHeader, descriptionWidth), padRight(handlerHeader, handlerWidth)))
+	builder.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", utils.PadRight(methodHeader, methodWidth), utils.PadRight(pathHeader, pathWidth), utils.PadRight(descriptionHeader, descriptionWidth), utils.PadRight(handlerHeader, handlerWidth)))
 	builder.WriteString(border)
 	builder.WriteString("\n")
 	for _, route := range routes {
 		description := descriptions[routeKey(route.Method, route.Path)]
 		handler := strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm")
-		builder.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", padRight(route.Method, methodWidth), padRight(route.Path, pathWidth), padRight(description, descriptionWidth), padRight(handler, handlerWidth)))
+		builder.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", utils.PadRight(route.Method, methodWidth), utils.PadRight(route.Path, pathWidth), utils.PadRight(description, descriptionWidth), utils.PadRight(handler, handlerWidth)))
 	}
 	builder.WriteString(border)
 	return builder.String()
-}
-
-// padRight 补齐右侧空格
-func padRight(value string, width int) string {
-	padding := width - displayWidth(value)
-	if padding <= 0 {
-		return value
-	}
-	return value + strings.Repeat(" ", padding)
-}
-
-// displayWidth 计算输出宽度
-func displayWidth(value string) int {
-	width := 0
-	for _, r := range value {
-		if unicode.Is(unicode.Han, r) || unicode.Is(unicode.Hiragana, r) ||
-			unicode.Is(unicode.Katakana, r) || unicode.Is(unicode.Hangul, r) ||
-			(r >= 0xFF01 && r <= 0xFF60) || (r >= 0xFFE0 && r <= 0xFFE6) {
-			width += 2
-			continue
-		}
-		width++
-	}
-	return width
 }
