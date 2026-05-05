@@ -34,7 +34,7 @@ func main() {
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to load config: %v", err)
 	}
-	utils.LogInfo(consts.LogScopeInit, "", "Config initialized successfully")
+	utils.LogInfo(consts.LogScopeInit, "", "Config initialized successfully:\n%s", utils.FormatEnvConfig(cfg))
 
 	// 初始化 MySQL
 	dataMySQL, err := sql.Open("mysql", cfg.MySQLDSN)
