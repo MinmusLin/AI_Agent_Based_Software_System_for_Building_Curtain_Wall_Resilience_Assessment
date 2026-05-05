@@ -6,10 +6,6 @@ require icw_common v0.0.0
 
 replace icw_common => ../icw_common
 
-require icw_core_biz v0.0.0
-
-replace icw_core_biz => ../icw_core_biz
-
 require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
 	github.com/gin-gonic/gin v1.11.0

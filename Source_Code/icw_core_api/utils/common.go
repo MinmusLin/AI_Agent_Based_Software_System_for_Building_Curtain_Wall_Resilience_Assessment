@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"icw_common/dto"
 	"icw_core_api/consts"
-	"icw_core_biz/pkg/dto"
 )
 
 // BearerToken 从 HTTP Header 中解析 Bearer Token

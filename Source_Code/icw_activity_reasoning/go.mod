@@ -9,6 +9,7 @@ replace icw_common => ../icw_common
 require google.golang.org/grpc v1.76.0
 
 require (
+	github.com/sqids/sqids-go v0.4.1 // indirect
 	golang.org/x/net v0.42.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect

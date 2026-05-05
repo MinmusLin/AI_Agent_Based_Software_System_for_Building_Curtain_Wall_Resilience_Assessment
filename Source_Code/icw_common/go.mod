@@ -3,6 +3,7 @@ module icw_common
 go 1.26.0
 
 require (
+	github.com/sqids/sqids-go v0.4.1
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.6
 )
