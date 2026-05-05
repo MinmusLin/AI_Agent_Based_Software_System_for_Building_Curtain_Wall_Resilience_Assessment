@@ -5,7 +5,7 @@ import (
 )
 
 type ReasoningArtifact struct {
-	Type     string
+	Name     string
 	Uploaded bool
 	Sha256   string
 }
