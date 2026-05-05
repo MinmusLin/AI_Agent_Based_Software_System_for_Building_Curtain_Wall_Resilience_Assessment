@@ -81,6 +81,15 @@ func main() {
 	}()
 	rocketmq.MQInfo("RocketMQ producer starts running")
 
+	// 启动定时任务
+	cronjobs.Start(ctx, cronjobCommon.NewDeps(
+		cfg,
+		mysql.NewRepository(dataMySQL),
+		redis.NewRepository(dataRedis),
+		rocketmq.NewRepository(dataRocketMQ, cfg.RocketMQProjectEventTopic),
+		minio.NewRepository(dataMinIO, cfg.MinIOBucket),
+	))
+
 	// 注册 RPC 服务
 	services.RegisterRPCServices(ctx, serviceCommon.NewDeps(
 		cfg,
@@ -89,15 +98,6 @@ func main() {
 		rocketmq.NewRepository(dataRocketMQ, cfg.RocketMQProjectEventTopic),
 		minio.NewRepository(dataMinIO, cfg.MinIOBucket),
 		smtp.NewRepository(cfg),
-	))
-
-	// 启动定时任务
-	cronjobs.Start(ctx, cronjobCommon.NewDeps(
-		cfg,
-		mysql.NewRepository(dataMySQL),
-		redis.NewRepository(dataRedis),
-		rocketmq.NewRepository(dataRocketMQ, cfg.RocketMQProjectEventTopic),
-		minio.NewRepository(dataMinIO, cfg.MinIOBucket),
 	))
 
 	// 运行 icw.core.biz 服务
