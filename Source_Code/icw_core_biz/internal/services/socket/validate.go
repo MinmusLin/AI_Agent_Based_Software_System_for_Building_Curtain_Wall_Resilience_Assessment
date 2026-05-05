@@ -11,7 +11,7 @@ import (
 
 // ValidateSocketTicket 校验 WebSocket 连接票据
 func (s *Service) ValidateSocketTicket(req *dto.ValidateSocketTicketRequest, resp *dto.ValidateSocketTicketResponse) error {
-	return s.CallRPC("SocketService.ValidateSocketTicket", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.validateSocketTicket(req, resp)
 	})
 }

@@ -12,7 +12,7 @@ import (
 
 // CreateSocketTicket 创建 WebSocket 连接票据
 func (s *Service) CreateSocketTicket(req *dto.CreateSocketTicketRequest, resp *dto.CreateSocketTicketResponse) error {
-	return s.CallRPC("SocketService.CreateSocketTicket", req, resp, func() error {
+	return s.CallRPC(req, resp, func() error {
 		return s.createSocketTicket(req, resp)
 	})
 }
