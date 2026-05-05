@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		utils.LogFatal(bizConsts.LogScopeInit, "Failed to load config: %v", err)
 	}
-	utils.LogInfo(bizConsts.LogScopeInit, "", "Config initialized successfully")
+	utils.LogInfo(bizConsts.LogScopeInit, "", "Config initialized successfully:\n%s", utils.FormatEnvConfig(cfg))
 
 	// 初始化 WebSocket Hub
 	webSocketHub := socket.NewHub()
