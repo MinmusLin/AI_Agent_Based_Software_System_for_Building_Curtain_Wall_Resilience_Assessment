@@ -2,14 +2,16 @@ module icw_core_api
 
 go 1.26.0
 
+require icw_core_biz v0.0.0
+
+replace icw_core_biz => ../icw_core_biz
+
 require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 )
-
-require icw_core_biz v0.0.0
 
 require (
 	github.com/bytedance/sonic v1.14.0 // indirect
@@ -59,5 +61,3 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	stathat.com/c/consistent v1.0.0 // indirect
 )
-
-replace icw_core_biz => ../icw_core_biz
