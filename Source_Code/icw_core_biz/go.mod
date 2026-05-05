@@ -12,6 +12,12 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sqids/sqids-go v0.4.1
 	golang.org/x/crypto v0.46.0
+	google.golang.org/grpc v1.76.0
+)
+
+require (
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 )
 
 require (
@@ -22,7 +28,6 @@ require (
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/golang/mock v1.3.1 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
@@ -52,5 +57,8 @@ require (
 	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
+	icw_common v0.0.0
 	stathat.com/c/consistent v1.0.0 // indirect
 )
+
+replace icw_common => ../icw_common
