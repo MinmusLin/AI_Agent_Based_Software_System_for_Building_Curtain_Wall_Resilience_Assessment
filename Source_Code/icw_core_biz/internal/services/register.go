@@ -15,8 +15,8 @@ import (
 	"icw_core_biz/internal/services/user"
 )
 
-// RegisterServices 注册 RPC 服务
-func RegisterServices(ctx context.Context, serviceDeps *common.Deps) {
+// RegisterRPCServices 注册 RPC 服务
+func RegisterRPCServices(ctx context.Context, serviceDeps *common.Deps) {
 	registeredMethods := make([]common.RegisteredRPCMethod, 0)
 	for _, meta := range registry(ctx, serviceDeps) {
 		methods, err := common.RegisterRPCService(meta)
