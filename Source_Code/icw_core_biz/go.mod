@@ -2,6 +2,10 @@ module icw_core_biz
 
 go 1.26.0
 
+require icw_common v0.0.0
+
+replace icw_common => ../icw_common
+
 require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
 	github.com/go-sql-driver/mysql v1.8.1
@@ -13,11 +17,6 @@ require (
 	github.com/sqids/sqids-go v0.4.1
 	golang.org/x/crypto v0.46.0
 	google.golang.org/grpc v1.76.0
-)
-
-require (
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
 )
 
 require (
@@ -56,9 +55,8 @@ require (
 	golang.org/x/term v0.38.0 // indirect
 	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
-	icw_common v0.0.0
 	stathat.com/c/consistent v1.0.0 // indirect
 )
-
-replace icw_common => ../icw_common
