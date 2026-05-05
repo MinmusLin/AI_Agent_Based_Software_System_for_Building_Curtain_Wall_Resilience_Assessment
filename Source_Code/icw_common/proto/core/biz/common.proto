@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+// User 用户信息结构体
+message User {
+  uint64 id = 1;
+  string email = 2;
+  string name = 3;
+}
+
+// Project 项目信息结构体
+message Project {
+  uint64 id = 1;
+  string name = 2;
+  string building_name = 3;
+  string building_location = 4;
+  uint32 built_year = 5;
+  string building_description = 6;
+  string known_issues = 7;
+  string assessment_goal = 8;
+  string thumbnail_url = 9;
+  uint32 progress = 10;
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+// ProjectListItem 项目列表项结构体
+message ProjectListItem {
+  uint64 id = 1;
+  string name = 2;
+  string building_name = 3;
+  string building_location = 4;
+  string thumbnail_url = 5;
+  uint32 progress = 6;
+  string created_at = 7;
+}
+
+// ProjectImage 项目图像结构体
+message ProjectImage {
+  string uuid = 1;
+  string file_name = 2;
+  string content_type = 3;
+  uint64 size_bytes = 4;
+  uint32 width = 5;
+  uint32 height = 6;
+  string metadata = 7;
+  string status = 8;
+  string thumbnail_url = 9;
+  string uploaded_at = 10;
+  string created_at = 11;
+}
+
+// ProjectImageStatusChangedEvent 项目图像状态变化事件结构体
+message ProjectImageStatusChangedEvent {
+  string event_id = 1;
+  string event_type = 2;
+  uint64 project_id = 3;
+  string project_code = 4;
+  uint64 user_id = 5;
+  ProjectImage image = 6;
+  string occurred_at = 7;
+}
+
+// ProjectGroup 项目图像组结构体
+message ProjectGroup {
+  uint64 id = 1;
+  string name = 2;
+  string sort_order = 3;
+  repeated ProjectImage images = 4;
+}
+
+// ReasoningArtifact 图像检测推理产物结构体
+message ReasoningArtifact {
+  string name = 1;
+  bool uploaded = 2;
+  string sha256 = 3;
+}
+
+// UploadProjectImageItem 上传图像项结构体
+message UploadProjectImageItem {
+  string file_name = 1;
+  string content_type = 2;
+  uint64 size_bytes = 3;
+  uint32 width = 4;
+  uint32 height = 5;
+  string metadata = 6;
+  string image_uuid = 7;
+  string original_key = 8;
+  string thumbnail_key = 9;
+  string original_upload_url = 10;
+  string thumbnail_upload_url = 11;
+}
+
+// UploadProjectImageResult 上传图像结果结构体
+message UploadProjectImageResult {
+  ProjectImage image = 1;
+  string original_upload_url = 2;
+  string thumbnail_upload_url = 3;
+}
+
+// Ping 请求结构体
+message PingRequest {}
+
+// Ping 响应结构体
+message PingResponse {}

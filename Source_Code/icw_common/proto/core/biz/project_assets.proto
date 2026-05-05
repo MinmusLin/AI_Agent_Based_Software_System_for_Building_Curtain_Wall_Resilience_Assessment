@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+import "core/biz/common.proto";
+
+// CreateProjectGroup 请求结构体
+message CreateProjectGroupRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+}
+
+// CreateProjectGroup 响应结构体
+message CreateProjectGroupResponse {
+  ProjectGroup group = 1;
+}
+
+// DeleteProjectGroup 请求结构体
+message DeleteProjectGroupRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  uint64 group_id = 4;
+}
+
+// DeleteProjectGroup 响应结构体
+message DeleteProjectGroupResponse {}
+
+// DeleteProjectImage 请求结构体
+message DeleteProjectImageRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  repeated string image_uuids = 4;
+}
+
+// DeleteProjectImage 响应结构体
+message DeleteProjectImageResponse {}
+
+// GetProjectAssets 请求结构体
+message GetProjectAssetsRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+}
+
+// GetProjectAssets 响应结构体
+message GetProjectAssetsResponse {
+  repeated ProjectGroup groups = 1;
+}
+
+// GetProjectImageOriginal 请求结构体
+message GetProjectImageOriginalRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  string image_uuid = 4;
+}
+
+// GetProjectImageOriginal 响应结构体
+message GetProjectImageOriginalResponse {
+  string original_url = 1;
+}
+
+// MoveProjectGroup 请求结构体
+message MoveProjectGroupRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  uint64 group_id = 4;
+  uint64 previous_group_id = 5;
+  uint64 next_group_id = 6;
+  bool move_to_first = 7;
+  bool move_to_last = 8;
+}
+
+// MoveProjectGroup 响应结构体
+message MoveProjectGroupResponse {
+  ProjectGroup group = 1;
+}
+
+// MoveProjectImage 请求结构体
+message MoveProjectImageRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  repeated string image_uuids = 4;
+  uint64 target_group_id = 5;
+}
+
+// MoveProjectImage 响应结构体
+message MoveProjectImageResponse {
+  repeated ProjectImage images = 1;
+}
+
+// ReportProjectImage 请求结构体
+message ReportProjectImageRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  string image_uuid = 4;
+  string status = 5;
+}
+
+// ReportProjectImage 响应结构体
+message ReportProjectImageResponse {}
+
+// UpdateProjectGroup 请求结构体
+message UpdateProjectGroupRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  uint64 group_id = 4;
+  string name = 5;
+}
+
+// UpdateProjectGroup 响应结构体
+message UpdateProjectGroupResponse {
+  ProjectGroup group = 1;
+}
+
+// UploadProjectImage 请求结构体
+message UploadProjectImageRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  uint64 group_id = 4;
+  repeated UploadProjectImageItem images = 5;
+}
+
+// UploadProjectImage 响应结构体
+message UploadProjectImageResponse {
+  repeated UploadProjectImageResult images = 1;
+}
+
+// 图像资产服务
+service ProjectAssetsService {
+  // 创建图像组
+  rpc CreateProjectGroup(CreateProjectGroupRequest) returns (CreateProjectGroupResponse);
+  // 删除图像组
+  rpc DeleteProjectGroup(DeleteProjectGroupRequest) returns (DeleteProjectGroupResponse);
+  // 删除图像
+  rpc DeleteProjectImage(DeleteProjectImageRequest) returns (DeleteProjectImageResponse);
+  // 获取项目图像列表
+  rpc GetProjectAssets(GetProjectAssetsRequest) returns (GetProjectAssetsResponse);
+  // 获取原图
+  rpc GetProjectImageOriginal(GetProjectImageOriginalRequest) returns (GetProjectImageOriginalResponse);
+  // 移动图像组
+  rpc MoveProjectGroup(MoveProjectGroupRequest) returns (MoveProjectGroupResponse);
+  // 移动图像
+  rpc MoveProjectImage(MoveProjectImageRequest) returns (MoveProjectImageResponse);
+  // 上报图像
+  rpc ReportProjectImage(ReportProjectImageRequest) returns (ReportProjectImageResponse);
+  // 更新图像组
+  rpc UpdateProjectGroup(UpdateProjectGroupRequest) returns (UpdateProjectGroupResponse);
+  // 上传图像
+  rpc UploadProjectImage(UploadProjectImageRequest) returns (UploadProjectImageResponse);
+}

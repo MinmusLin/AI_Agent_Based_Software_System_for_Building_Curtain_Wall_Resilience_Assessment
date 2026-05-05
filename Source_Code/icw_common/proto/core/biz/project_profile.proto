@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+import "core/biz/common.proto";
+
+// DeleteProjectThumbnail 请求结构体
+message DeleteProjectThumbnailRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+}
+
+// DeleteProjectThumbnail 响应结构体
+message DeleteProjectThumbnailResponse {}
+
+// GetProjectProfile 请求结构体
+message GetProjectProfileRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+}
+
+// GetProjectProfile 响应结构体
+message GetProjectProfileResponse {
+  Project project = 1;
+}
+
+// GetProjectThumbnail 请求结构体
+message GetProjectThumbnailRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+}
+
+// GetProjectThumbnail 响应结构体
+message GetProjectThumbnailResponse {
+  string thumbnail_url = 1;
+}
+
+// UpdateProjectProfile 请求结构体
+message UpdateProjectProfileRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  string name = 4;
+  string building_name = 5;
+  string building_location = 6;
+  uint32 built_year = 7;
+  string building_description = 8;
+  string known_issues = 9;
+  string assessment_goal = 10;
+}
+
+// UpdateProjectProfile 响应结构体
+message UpdateProjectProfileResponse {
+  Project project = 1;
+}
+
+// UploadProjectThumbnail 请求结构体
+message UploadProjectThumbnailRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  string content_type = 4;
+}
+
+// UploadProjectThumbnail 响应结构体
+message UploadProjectThumbnailResponse {
+  string upload_url = 1;
+}
+
+service ProjectProfileService {
+  rpc DeleteProjectThumbnail(DeleteProjectThumbnailRequest) returns (DeleteProjectThumbnailResponse);
+  rpc GetProjectProfile(GetProjectProfileRequest) returns (GetProjectProfileResponse);
+  rpc GetProjectThumbnail(GetProjectThumbnailRequest) returns (GetProjectThumbnailResponse);
+  rpc UpdateProjectProfile(UpdateProjectProfileRequest) returns (UpdateProjectProfileResponse);
+  rpc UploadProjectThumbnail(UploadProjectThumbnailRequest) returns (UploadProjectThumbnailResponse);
+}

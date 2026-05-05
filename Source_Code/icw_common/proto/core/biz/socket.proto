@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+// CreateSocketTicket 请求结构体
+message CreateSocketTicketRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  string project_code = 4;
+  string socket_scope = 5;
+}
+
+// CreateSocketTicket 响应结构体
+message CreateSocketTicketResponse {
+  string ticket = 1;
+  int64 expires_in = 2;
+}
+
+// ValidateSocketTicket 请求结构体
+message ValidateSocketTicketRequest {
+  string project_code = 2;
+  string socket_scope = 3;
+  string ticket = 4;
+}
+
+// ValidateSocketTicket 响应结构体
+message ValidateSocketTicketResponse {}
+
+service SocketService {
+  rpc CreateSocketTicket(CreateSocketTicketRequest) returns (CreateSocketTicketResponse);
+  rpc ValidateSocketTicket(ValidateSocketTicketRequest) returns (ValidateSocketTicketResponse);
+}

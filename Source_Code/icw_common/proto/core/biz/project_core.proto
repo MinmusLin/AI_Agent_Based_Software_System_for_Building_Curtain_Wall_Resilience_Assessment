@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+import "core/biz/common.proto";
+
+// AdvanceProject 请求结构体
+message AdvanceProjectRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+  uint32 from_progress = 4;
+  uint32 to_progress = 5;
+}
+
+// AdvanceProject 响应结构体
+message AdvanceProjectResponse {}
+
+// CheckProjectAccess 请求结构体
+message CheckProjectAccessRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+}
+
+// CheckProjectAccess 响应结构体
+message CheckProjectAccessResponse {
+  uint64 project_id = 1;
+  uint32 progress = 2;
+  string status = 3;
+}
+
+// CreateProject 请求结构体
+message CreateProjectRequest {
+  uint64 user_id = 2;
+}
+
+// CreateProject 响应结构体
+message CreateProjectResponse {
+  Project project = 1;
+}
+
+// DeleteProject 请求结构体
+message DeleteProjectRequest {
+  uint64 user_id = 2;
+  uint64 project_id = 3;
+}
+
+// DeleteProject 响应结构体
+message DeleteProjectResponse {
+  repeated ProjectListItem active_projects = 1;
+  repeated ProjectListItem completed_projects = 2;
+}
+
+// ListProjects 请求结构体
+message ListProjectsRequest {
+  uint64 user_id = 2;
+}
+
+// ListProjects 响应结构体
+message ListProjectsResponse {
+  repeated ProjectListItem active_projects = 1;
+  repeated ProjectListItem completed_projects = 2;
+}
+
+service ProjectCoreService {
+  rpc AdvanceProject(AdvanceProjectRequest) returns (AdvanceProjectResponse);
+  rpc CheckProjectAccess(CheckProjectAccessRequest) returns (CheckProjectAccessResponse);
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
+  rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse);
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
+}

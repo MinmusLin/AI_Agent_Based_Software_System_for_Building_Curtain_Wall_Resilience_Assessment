@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+import "core/biz/common.proto";
+
+service ProjectReviewService {
+  // Ping 人工复核服务探活
+  rpc Ping(PingRequest) returns (PingResponse);
+}

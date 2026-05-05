@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+import "core/biz/common.proto";
+
+// ReportClassificationResult 请求结构体
+message ReportClassificationResultRequest {
+  string task_uuid = 2;
+  string image_uuid = 3;
+  string status = 4;
+  repeated string task_codes = 5;
+  string error_message = 6;
+}
+
+// ReportClassificationResult 响应结构体
+message ReportClassificationResultResponse {}
+
+// ReportReasoningResult 请求结构体
+message ReportReasoningResultRequest {
+  string task_code = 2;
+  string task_uuid = 3;
+  string image_uuid = 4;
+  string status = 5;
+  string result_json = 6;
+  repeated ReasoningArtifact artifacts = 7;
+  string error_message = 8;
+}
+
+// ReportReasoningResult 响应结构体
+message ReportReasoningResultResponse {}
+
+// ReportSummaryResult 请求结构体
+message ReportSummaryResultRequest {
+  string task_uuid = 2;
+  string image_uuid = 3;
+  string status = 4;
+  string result_json = 5;
+  string error_message = 6;
+}
+
+// ReportSummaryResult 响应结构体
+message ReportSummaryResultResponse {}
+
+service ProjectDetectionService {
+  // Ping 智能检测服务探活
+  rpc Ping(PingRequest) returns (PingResponse);
+  // ReportClassificationResult 上报图像检测分类结果
+  rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);
+  // ReportReasoningResult 上报图像检测推理结果
+  rpc ReportReasoningResult(ReportReasoningResultRequest) returns (ReportReasoningResultResponse);
+  // ReportSummaryResult 上报图像检测总结结果
+  rpc ReportSummaryResult(ReportSummaryResultRequest) returns (ReportSummaryResultResponse);
+}

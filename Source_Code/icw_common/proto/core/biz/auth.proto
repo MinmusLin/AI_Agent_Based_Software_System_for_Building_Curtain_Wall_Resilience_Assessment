@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+import "core/biz/common.proto";
+
+// Login 请求结构体
+message LoginRequest {
+  string email = 2;
+  string scene = 3;
+  string code = 4;
+}
+
+// Login 响应结构体
+message LoginResponse {
+  string access_token = 1;
+  int32 access_token_expires_in = 2;
+  string refresh_token = 3;
+  int32 refresh_token_expires_in = 4;
+  User user = 5;
+}
+
+// Logout 请求结构体
+message LogoutRequest {
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+// Logout 响应结构体
+message LogoutResponse {}
+
+// Me 请求结构体
+message MeRequest {
+  string access_token = 2;
+}
+
+// Me 响应结构体
+message MeResponse {
+  User user = 1;
+}
+
+// Refresh 请求结构体
+message RefreshRequest {
+  string refresh_token = 2;
+}
+
+// Refresh 响应结构体
+message RefreshResponse {
+  string access_token = 1;
+  int32 access_token_expires_in = 2;
+  string refresh_token = 3;
+  int32 refresh_token_expires_in = 4;
+  User user = 5;
+}
+
+// Register 请求结构体
+message RegisterRequest {
+  string email = 2;
+  string email_code = 3;
+  string password = 4;
+  string name = 5;
+}
+
+// Register 响应结构体
+message RegisterResponse {}
+
+// ResetPassword 请求结构体
+message ResetPasswordRequest {
+  string email = 2;
+  string email_code = 3;
+  string new_password = 4;
+}
+
+// ResetPassword 响应结构体
+message ResetPasswordResponse {}
+
+// SendEmailCode 请求结构体
+message SendEmailCodeRequest {
+  string email = 2;
+  string scene = 3;
+}
+
+// SendEmailCode 响应结构体
+message SendEmailCodeResponse {
+  int32 expires_in_seconds = 1;
+}
+
+// 登录鉴权服务
+service AuthService {
+  // 登录
+  rpc Login(LoginRequest) returns (LoginResponse);
+  // 登出
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  // 获取用户信息
+  rpc Me(MeRequest) returns (MeResponse);
+  // 刷新 Token
+  rpc Refresh(RefreshRequest) returns (RefreshResponse);
+  // 注册
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  // 重置密码
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+  // 发送邮箱验证码
+  rpc SendEmailCode(SendEmailCodeRequest) returns (SendEmailCodeResponse);
+}
