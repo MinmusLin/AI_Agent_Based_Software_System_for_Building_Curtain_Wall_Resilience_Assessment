@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+import public "core/biz/auth.proto";
+import public "core/biz/project_assets.proto";
+import public "core/biz/project_core.proto";
+import public "core/biz/project_detection.proto";
+import public "core/biz/project_profile.proto";
+import public "core/biz/project_report.proto";
+import public "core/biz/project_review.proto";
+import public "core/biz/socket.proto";
+import public "core/biz/user.proto";

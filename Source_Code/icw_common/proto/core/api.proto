@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+import public "core/api/auth.proto";
+import public "core/api/common.proto";
+import public "core/api/project_assets.proto";
+import public "core/api/project_core.proto";
+import public "core/api/project_profile.proto";
+import public "core/api/socket.proto";
+import public "core/api/user.proto";
