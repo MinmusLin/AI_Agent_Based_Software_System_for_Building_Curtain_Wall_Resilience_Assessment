@@ -9,12 +9,12 @@ import (
 
 // Config 服务配置
 type Config struct {
-	GinMode                   string
-	CoreApiAddr               string
-	CoreBizAddr               string
-	RocketMQNamesrvAddr       string
-	RocketMQProjectEventTopic string
-	RocketMQConsumerGroup     string
+	GinMode                   string `env:"GIN_MODE"`
+	CoreApiAddr               string `env:"ICW_CORE_API_ADDR"`
+	CoreBizAddr               string `env:"ICW_CORE_BIZ_ADDR"`
+	RocketMQNamesrvAddr       string `env:"ROCKETMQ_NAMESRV_ADDR"`
+	RocketMQProjectEventTopic string `env:"ROCKETMQ_PROJECT_EVENT_TOPIC"`
+	RocketMQConsumerGroup     string `env:"ROCKETMQ_CONSUMER_GROUP"`
 }
 
 // Validate 校验服务配置
