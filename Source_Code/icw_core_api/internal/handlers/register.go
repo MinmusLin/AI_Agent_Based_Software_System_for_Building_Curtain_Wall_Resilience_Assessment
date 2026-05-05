@@ -20,7 +20,7 @@ import (
 	"icw_core_biz/utils"
 )
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册 HTTP 路由
 func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketHub *ws.Hub) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
