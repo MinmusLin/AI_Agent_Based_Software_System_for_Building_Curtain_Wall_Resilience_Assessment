@@ -6,7 +6,7 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 import public "common.proto";
 
-// Project 项目信息结构体
+// 项目信息结构体
 message Project {
   uint64 id = 1;
   string name = 2;
@@ -22,7 +22,7 @@ message Project {
   string updated_at = 12;
 }
 
-// ProjectListItem 项目列表项结构体
+// 项目列表项结构体
 message ProjectListItem {
   uint64 id = 1;
   string name = 2;
@@ -33,7 +33,7 @@ message ProjectListItem {
   string created_at = 7;
 }
 
-// ProjectImage 项目图像结构体
+// 项目图像结构体
 message ProjectImage {
   string uuid = 1;
   string file_name = 2;
@@ -48,7 +48,7 @@ message ProjectImage {
   string created_at = 11;
 }
 
-// ProjectImageStatusChangedEvent 项目图像状态变化事件结构体
+// 项目图像状态变化事件结构体
 message ProjectImageStatusChangedEvent {
   string event_id = 1;
   string event_type = 2;
@@ -59,7 +59,7 @@ message ProjectImageStatusChangedEvent {
   string occurred_at = 7;
 }
 
-// ProjectGroup 项目图像组结构体
+// 项目图像组结构体
 message ProjectGroup {
   uint64 id = 1;
   string name = 2;
@@ -67,14 +67,14 @@ message ProjectGroup {
   repeated .icw.common.ProjectImage images = 4;
 }
 
-// ReasoningArtifact 图像检测推理产物结构体
+// 图像检测推理产物结构体
 message ReasoningArtifact {
   string name = 1;
   bool uploaded = 2;
   string sha256 = 3;
 }
 
-// UploadProjectImageItem 上传图像项结构体
+// 上传图像项结构体
 message UploadProjectImageItem {
   string file_name = 1;
   string content_type = 2;
@@ -88,9 +88,3 @@ message UploadProjectImageItem {
   string original_upload_url = 10;
   string thumbnail_upload_url = 11;
 }
-
-// Ping 请求结构体
-message PingRequest {}
-
-// Ping 响应结构体
-message PingResponse {}

@@ -4,10 +4,11 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
-import "core/biz/common.proto";
-
 // 评估报告服务
 service ProjectReportService {
-  // 评估报告服务探活
   rpc Ping(PingRequest) returns (PingResponse);
 }
+
+message PingRequest {}
+
+message PingResponse {}

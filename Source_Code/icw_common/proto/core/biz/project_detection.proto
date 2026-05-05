@@ -32,26 +32,10 @@ message ReportReasoningResultRequest {
 // ReportReasoningResult 响应结构体
 message ReportReasoningResultResponse {}
 
-// ReportSummaryResult 请求结构体
-message ReportSummaryResultRequest {
-  string task_uuid = 1;
-  string image_uuid = 2;
-  string status = 3;
-  string result_json = 4;
-  string error_message = 5;
-}
-
-// ReportSummaryResult 响应结构体
-message ReportSummaryResultResponse {}
-
 // 智能检测服务
 service ProjectDetectionService {
-  // 智能检测服务探活
-  rpc Ping(PingRequest) returns (PingResponse);
   // 上报图像检测分类结果
   rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);
   // 上报图像检测推理结果
   rpc ReportReasoningResult(ReportReasoningResultRequest) returns (ReportReasoningResultResponse);
-  // 上报图像检测总结结果
-  rpc ReportSummaryResult(ReportSummaryResultRequest) returns (ReportSummaryResultResponse);
 }

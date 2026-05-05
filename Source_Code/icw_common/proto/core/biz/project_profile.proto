@@ -67,7 +67,7 @@ message UploadProjectThumbnailResponse {
   string upload_url = 1;
 }
 
-// 项目基础信息服务
+// 基础信息服务
 service ProjectProfileService {
   // 删除项目缩略图
   rpc DeleteProjectThumbnail(DeleteProjectThumbnailRequest) returns (DeleteProjectThumbnailResponse);

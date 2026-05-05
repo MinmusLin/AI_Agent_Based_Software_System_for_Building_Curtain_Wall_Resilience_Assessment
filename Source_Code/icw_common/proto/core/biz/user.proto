@@ -37,7 +37,7 @@ message UploadAvatarResponse {
   string upload_url = 1;
 }
 
-// 用户服务
+// 用户业务服务
 service UserService {
   // 删除用户自定义头像
   rpc DeleteAvatar(DeleteAvatarRequest) returns (DeleteAvatarResponse);
