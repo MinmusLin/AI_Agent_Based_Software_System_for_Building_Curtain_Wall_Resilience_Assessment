@@ -109,3 +109,59 @@ CREATE TABLE `project_group_images` (
   CONSTRAINT `fk_project_group_images_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_group_images_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像表';
+
+-- project_detection_tasks 项目图像检测主任务表
+CREATE TABLE `project_detection_tasks` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主任务 ID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主任务 UUID',
+  `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
+  `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
+  `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
+  `image_uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '图像 UUID',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '主任务状态：pending|classifying|detecting|summarizing|succeeded|failed',
+  `sub_should_execute` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否执行',
+  `sub_task_id` bigint unsigned DEFAULT NULL COMMENT '子任务 ID',
+  `crack_should_execute` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否执行石材裂缝检测',
+  `crack_task_id` bigint unsigned DEFAULT NULL COMMENT '石材裂缝检测子任务 ID',
+  `stain_should_execute` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否执行石材污渍检测',
+  `stain_task_id` bigint unsigned DEFAULT NULL COMMENT '石材污渍检测子任务 ID',
+  `flatness_should_execute` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否执行玻璃平整度检测',
+  `flatness_task_id` bigint unsigned DEFAULT NULL COMMENT '玻璃平整度检测子任务 ID',
+  `spalling_should_execute` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否执行玻璃爆裂检测',
+  `spalling_task_id` bigint unsigned DEFAULT NULL COMMENT '玻璃爆裂检测子任务 ID',
+  `started_at` datetime(3) DEFAULT NULL COMMENT '开始时间',
+  `finished_at` datetime(3) DEFAULT NULL COMMENT '完成时间',
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+  `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_project_detection_tasks_uuid` (`uuid`),
+  UNIQUE KEY `uk_project_detection_tasks_image_uuid` (`image_uuid`),
+  CONSTRAINT `fk_project_detection_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像检测主任务表';
+
+-- project_detection_sub_tasks 项目图像检测子任务表
+CREATE TABLE `project_detection_sub_tasks` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '子任务 ID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
+  `main_task_id` bigint unsigned NOT NULL COMMENT '主任务 ID',
+  `main_task_uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主任务 UUID',
+  `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
+  `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
+  `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
+  `image_uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '图像 UUID',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|running|succeeded|failed',
+  `started_at` datetime(3) DEFAULT NULL COMMENT '开始时间',
+  `finished_at` datetime(3) DEFAULT NULL COMMENT '完成时间',
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+  `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_project_detection_sub_tasks_uuid` (`uuid`),
+  UNIQUE KEY `uk_project_detection_sub_tasks_main_task_uuid` (`main_task_uuid`),
+  UNIQUE KEY `uk_project_detection_sub_tasks_image_uuid` (`image_uuid`),
+  CONSTRAINT `fk_project_detection_sub_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_sub_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_sub_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_sub_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像检测子任务表';
