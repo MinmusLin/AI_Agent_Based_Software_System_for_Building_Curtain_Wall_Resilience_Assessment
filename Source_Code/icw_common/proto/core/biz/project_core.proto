@@ -8,10 +8,10 @@ import "core/biz/common.proto";
 
 // AdvanceProject 请求结构体
 message AdvanceProjectRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
-  uint32 from_progress = 4;
-  uint32 to_progress = 5;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+  uint32 from_progress = 3;
+  uint32 to_progress = 4;
 }
 
 // AdvanceProject 响应结构体
@@ -19,8 +19,8 @@ message AdvanceProjectResponse {}
 
 // CheckProjectAccess 请求结构体
 message CheckProjectAccessRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
 }
 
 // CheckProjectAccess 响应结构体
@@ -32,7 +32,7 @@ message CheckProjectAccessResponse {
 
 // CreateProject 请求结构体
 message CreateProjectRequest {
-  uint64 user_id = 2;
+  uint64 user_id = 1;
 }
 
 // CreateProject 响应结构体
@@ -42,8 +42,8 @@ message CreateProjectResponse {
 
 // DeleteProject 请求结构体
 message DeleteProjectRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
 }
 
 // DeleteProject 响应结构体
@@ -54,7 +54,7 @@ message DeleteProjectResponse {
 
 // ListProjects 请求结构体
 message ListProjectsRequest {
-  uint64 user_id = 2;
+  uint64 user_id = 1;
 }
 
 // ListProjects 响应结构体
@@ -63,10 +63,16 @@ message ListProjectsResponse {
   repeated ProjectListItem completed_projects = 2;
 }
 
+// ProjectCoreService 项目核心服务
 service ProjectCoreService {
+  // AdvanceProject 项目进度流转
   rpc AdvanceProject(AdvanceProjectRequest) returns (AdvanceProjectResponse);
+  // CheckProjectAccess 校验项目访问权限
   rpc CheckProjectAccess(CheckProjectAccessRequest) returns (CheckProjectAccessResponse);
+  // CreateProject 创建项目
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
+  // DeleteProject 删除项目
   rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse);
+  // ListProjects 获取项目列表
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
 }

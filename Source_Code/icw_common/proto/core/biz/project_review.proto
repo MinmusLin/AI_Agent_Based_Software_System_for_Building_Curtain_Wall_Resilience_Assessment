@@ -6,6 +6,7 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 import "core/biz/common.proto";
 
+// ProjectReviewService 人工复核服务
 service ProjectReviewService {
   // Ping 人工复核服务探活
   rpc Ping(PingRequest) returns (PingResponse);

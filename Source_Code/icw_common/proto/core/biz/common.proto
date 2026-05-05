@@ -4,12 +4,7 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
-// User 用户信息结构体
-message User {
-  uint64 id = 1;
-  string email = 2;
-  string name = 3;
-}
+import public "common.proto";
 
 // Project 项目信息结构体
 message Project {
@@ -60,7 +55,7 @@ message ProjectImageStatusChangedEvent {
   uint64 project_id = 3;
   string project_code = 4;
   uint64 user_id = 5;
-  ProjectImage image = 6;
+  .icw.common.ProjectImage image = 6;
   string occurred_at = 7;
 }
 
@@ -69,7 +64,7 @@ message ProjectGroup {
   uint64 id = 1;
   string name = 2;
   string sort_order = 3;
-  repeated ProjectImage images = 4;
+  repeated .icw.common.ProjectImage images = 4;
 }
 
 // ReasoningArtifact 图像检测推理产物结构体
@@ -92,13 +87,6 @@ message UploadProjectImageItem {
   string thumbnail_key = 9;
   string original_upload_url = 10;
   string thumbnail_upload_url = 11;
-}
-
-// UploadProjectImageResult 上传图像结果结构体
-message UploadProjectImageResult {
-  ProjectImage image = 1;
-  string original_upload_url = 2;
-  string thumbnail_upload_url = 3;
 }
 
 // Ping 请求结构体

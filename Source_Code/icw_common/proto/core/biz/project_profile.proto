@@ -8,8 +8,8 @@ import "core/biz/common.proto";
 
 // DeleteProjectThumbnail 请求结构体
 message DeleteProjectThumbnailRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
 }
 
 // DeleteProjectThumbnail 响应结构体
@@ -17,8 +17,8 @@ message DeleteProjectThumbnailResponse {}
 
 // GetProjectProfile 请求结构体
 message GetProjectProfileRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
 }
 
 // GetProjectProfile 响应结构体
@@ -28,8 +28,8 @@ message GetProjectProfileResponse {
 
 // GetProjectThumbnail 请求结构体
 message GetProjectThumbnailRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
 }
 
 // GetProjectThumbnail 响应结构体
@@ -39,15 +39,15 @@ message GetProjectThumbnailResponse {
 
 // UpdateProjectProfile 请求结构体
 message UpdateProjectProfileRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
-  string name = 4;
-  string building_name = 5;
-  string building_location = 6;
-  uint32 built_year = 7;
-  string building_description = 8;
-  string known_issues = 9;
-  string assessment_goal = 10;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+  string name = 3;
+  string building_name = 4;
+  string building_location = 5;
+  uint32 built_year = 6;
+  string building_description = 7;
+  string known_issues = 8;
+  string assessment_goal = 9;
 }
 
 // UpdateProjectProfile 响应结构体
@@ -57,9 +57,9 @@ message UpdateProjectProfileResponse {
 
 // UploadProjectThumbnail 请求结构体
 message UploadProjectThumbnailRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
-  string content_type = 4;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+  string content_type = 3;
 }
 
 // UploadProjectThumbnail 响应结构体
@@ -67,10 +67,16 @@ message UploadProjectThumbnailResponse {
   string upload_url = 1;
 }
 
+// ProjectProfileService 项目基础信息服务
 service ProjectProfileService {
+  // DeleteProjectThumbnail 删除项目缩略图
   rpc DeleteProjectThumbnail(DeleteProjectThumbnailRequest) returns (DeleteProjectThumbnailResponse);
+  // GetProjectProfile 获取项目基础信息
   rpc GetProjectProfile(GetProjectProfileRequest) returns (GetProjectProfileResponse);
+  // GetProjectThumbnail 获取项目缩略图
   rpc GetProjectThumbnail(GetProjectThumbnailRequest) returns (GetProjectThumbnailResponse);
+  // UpdateProjectProfile 更新项目基础信息
   rpc UpdateProjectProfile(UpdateProjectProfileRequest) returns (UpdateProjectProfileResponse);
+  // UploadProjectThumbnail 上传项目缩略图
   rpc UploadProjectThumbnail(UploadProjectThumbnailRequest) returns (UploadProjectThumbnailResponse);
 }

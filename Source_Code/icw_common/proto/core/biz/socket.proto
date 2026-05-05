@@ -6,10 +6,10 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 // CreateSocketTicket 请求结构体
 message CreateSocketTicketRequest {
-  uint64 user_id = 2;
-  uint64 project_id = 3;
-  string project_code = 4;
-  string socket_scope = 5;
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+  string project_code = 3;
+  string socket_scope = 4;
 }
 
 // CreateSocketTicket 响应结构体
@@ -20,15 +20,18 @@ message CreateSocketTicketResponse {
 
 // ValidateSocketTicket 请求结构体
 message ValidateSocketTicketRequest {
-  string project_code = 2;
-  string socket_scope = 3;
-  string ticket = 4;
+  string project_code = 1;
+  string socket_scope = 2;
+  string ticket = 3;
 }
 
 // ValidateSocketTicket 响应结构体
 message ValidateSocketTicketResponse {}
 
+// SocketService WebSocket 服务
 service SocketService {
+  // CreateSocketTicket 创建 WebSocket 连接票据
   rpc CreateSocketTicket(CreateSocketTicketRequest) returns (CreateSocketTicketResponse);
+  // ValidateSocketTicket 校验 WebSocket 连接票据
   rpc ValidateSocketTicket(ValidateSocketTicketRequest) returns (ValidateSocketTicketResponse);
 }

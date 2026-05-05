@@ -8,11 +8,11 @@ import "core/biz/common.proto";
 
 // ReportClassificationResult 请求结构体
 message ReportClassificationResultRequest {
-  string task_uuid = 2;
-  string image_uuid = 3;
-  string status = 4;
-  repeated string task_codes = 5;
-  string error_message = 6;
+  string task_uuid = 1;
+  string image_uuid = 2;
+  string status = 3;
+  repeated string task_codes = 4;
+  string error_message = 5;
 }
 
 // ReportClassificationResult 响应结构体
@@ -20,13 +20,13 @@ message ReportClassificationResultResponse {}
 
 // ReportReasoningResult 请求结构体
 message ReportReasoningResultRequest {
-  string task_code = 2;
-  string task_uuid = 3;
-  string image_uuid = 4;
-  string status = 5;
-  string result_json = 6;
-  repeated ReasoningArtifact artifacts = 7;
-  string error_message = 8;
+  string task_code = 1;
+  string task_uuid = 2;
+  string image_uuid = 3;
+  string status = 4;
+  string result_json = 5;
+  repeated ReasoningArtifact artifacts = 6;
+  string error_message = 7;
 }
 
 // ReportReasoningResult 响应结构体
@@ -34,16 +34,17 @@ message ReportReasoningResultResponse {}
 
 // ReportSummaryResult 请求结构体
 message ReportSummaryResultRequest {
-  string task_uuid = 2;
-  string image_uuid = 3;
-  string status = 4;
-  string result_json = 5;
-  string error_message = 6;
+  string task_uuid = 1;
+  string image_uuid = 2;
+  string status = 3;
+  string result_json = 4;
+  string error_message = 5;
 }
 
 // ReportSummaryResult 响应结构体
 message ReportSummaryResultResponse {}
 
+// ProjectDetectionService 智能检测服务
 service ProjectDetectionService {
   // Ping 智能检测服务探活
   rpc Ping(PingRequest) returns (PingResponse);

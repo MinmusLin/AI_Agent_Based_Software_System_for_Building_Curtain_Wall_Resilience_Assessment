@@ -6,8 +6,8 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 // DeleteAvatar 请求结构体
 message DeleteAvatarRequest {
-  uint64 user_id = 2;
-  string email = 3;
+  uint64 user_id = 1;
+  string email = 2;
 }
 
 // DeleteAvatar 响应结构体
@@ -15,8 +15,8 @@ message DeleteAvatarResponse {}
 
 // GetAvatar 请求结构体
 message GetAvatarRequest {
-  uint64 user_id = 2;
-  string email = 3;
+  uint64 user_id = 1;
+  string email = 2;
 }
 
 // GetAvatar 响应结构体
@@ -27,9 +27,9 @@ message GetAvatarResponse {
 
 // UploadAvatar 请求结构体
 message UploadAvatarRequest {
-  uint64 user_id = 2;
-  string email = 3;
-  string content_type = 4;
+  uint64 user_id = 1;
+  string email = 2;
+  string content_type = 3;
 }
 
 // UploadAvatar 响应结构体
@@ -37,8 +37,12 @@ message UploadAvatarResponse {
   string upload_url = 1;
 }
 
+// UserService 用户服务
 service UserService {
+  // DeleteAvatar 删除用户自定义头像
   rpc DeleteAvatar(DeleteAvatarRequest) returns (DeleteAvatarResponse);
+  // GetAvatar 获取用户头像
   rpc GetAvatar(GetAvatarRequest) returns (GetAvatarResponse);
+  // UploadAvatar 上传用户自定义头像
   rpc UploadAvatar(UploadAvatarRequest) returns (UploadAvatarResponse);
 }

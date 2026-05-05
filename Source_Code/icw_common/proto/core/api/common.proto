@@ -4,12 +4,7 @@ package icw.core.api;
 
 option go_package = "icw_common/gen/core/api;apipb";
 
-// 用户信息结构体
-message User {
-  uint64 id = 1;
-  string email = 2;
-  string name = 3;
-}
+import public "common.proto";
 
 // 项目信息结构体
 message Project {
@@ -43,22 +38,7 @@ message ProjectGroup {
   string id = 1;
   string name = 2;
   string sort_order = 3;
-  repeated ProjectImage images = 4;
-}
-
-// 项目图像结构体
-message ProjectImage {
-  string uuid = 1;
-  string file_name = 2;
-  string content_type = 3;
-  uint64 size_bytes = 4;
-  uint32 width = 5;
-  uint32 height = 6;
-  string metadata = 7;
-  string status = 8;
-  string thumbnail_url = 9;
-  string uploaded_at = 10;
-  string created_at = 11;
+  repeated .icw.common.ProjectImage images = 4;
 }
 
 // 项目图像上传项结构体
@@ -71,16 +51,9 @@ message UploadProjectImageItem {
   string metadata = 6;
 }
 
-// 项目图像上传结果结构体
-message UploadProjectImageResult {
-  ProjectImage image = 1;
-  string original_upload_url = 2;
-  string thumbnail_upload_url = 3;
-}
-
 // 项目图像状态变化 WebSocket 消息结构体
 message ProjectImageStatusChangedMessage {
   string type = 1;
   string project_id = 2;
-  ProjectImage image = 3;
+  .icw.common.ProjectImage image = 3;
 }
