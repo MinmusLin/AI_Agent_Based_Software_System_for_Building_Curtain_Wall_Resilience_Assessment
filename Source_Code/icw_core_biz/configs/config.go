@@ -14,38 +14,38 @@ import (
 
 // Config 服务配置
 type Config struct {
-	CoreBizAddr                string
-	ActivityClassificationAddr string
-	ActivityReasoningAddr      string
-	ActivitySummaryAddr        string
-	MySQLDSN                   string
-	RedisAddr                  string
-	RedisPassword              string
-	RedisDB                    int
-	SMTPHost                   string
-	SMTPPort                   int
-	SMTPPassword               string
-	SMTPFromName               string
-	SMTPFromEmail              string
-	MinIOEndpoint              string
-	MinIOAccessKey             string
-	MinIOAccessSecret          string
-	MinIOBucket                string
-	RocketMQNamesrvAddr        string
-	RocketMQProjectEventTopic  string
-	JWTSecret                  string
-	EmailCodeSecret            string
-	EmailCodeTTL               time.Duration
-	LoginFailTTL               time.Duration
-	AccessTokenTTL             time.Duration
-	RefreshTokenTTL            time.Duration
-	AvatarGetTTL               time.Duration
-	AvatarUploadTTL            time.Duration
-	ProjectImageGetTTL         time.Duration
-	ProjectImageUploadTTL      time.Duration
-	SocketTicketTTL            time.Duration
-	ProjectImagePendingTimeout time.Duration
-	PendingImageTimeoutJobCron string
+	CoreBizAddr                string        `env:"ICW_CORE_BIZ_ADDR"`
+	ActivityClassificationAddr string        `env:"ICW_ACTIVITY_CLASSIFICATION_ADDR"`
+	ActivityReasoningAddr      string        `env:"ICW_ACTIVITY_REASONING_ADDR"`
+	ActivitySummaryAddr        string        `env:"ICW_ACTIVITY_SUMMARY_ADDR"`
+	MySQLDSN                   string        `env:"MYSQL_DSN"`
+	RedisAddr                  string        `env:"REDIS_ADDR"`
+	RedisPassword              string        `env:"REDIS_PASSWORD"`
+	RedisDB                    int           `env:"REDIS_DB"`
+	SMTPHost                   string        `env:"SMTP_HOST"`
+	SMTPPort                   int           `env:"SMTP_PORT"`
+	SMTPPassword               string        `env:"SMTP_PASSWORD"`
+	SMTPFromName               string        `env:"SMTP_FROM_NAME"`
+	SMTPFromEmail              string        `env:"SMTP_FROM_EMAIL"`
+	MinIOEndpoint              string        `env:"MINIO_ENDPOINT"`
+	MinIOAccessKey             string        `env:"MINIO_ACCESS_KEY"`
+	MinIOAccessSecret          string        `env:"MINIO_ACCESS_SECRET"`
+	MinIOBucket                string        `env:"MINIO_BUCKET"`
+	RocketMQNamesrvAddr        string        `env:"ROCKETMQ_NAMESRV_ADDR"`
+	RocketMQProjectEventTopic  string        `env:"ROCKETMQ_PROJECT_EVENT_TOPIC"`
+	JWTSecret                  string        `env:"JWT_SECRET"`
+	EmailCodeSecret            string        `env:"EMAIL_CODE_SECRET"`
+	EmailCodeTTL               time.Duration `env:"EMAIL_CODE_TTL_MINUTES"`
+	LoginFailTTL               time.Duration `env:"LOGIN_FAIL_TTL_MINUTES"`
+	AccessTokenTTL             time.Duration `env:"ACCESS_TOKEN_TTL_MINUTES"`
+	RefreshTokenTTL            time.Duration `env:"REFRESH_TOKEN_TTL_MINUTES"`
+	AvatarGetTTL               time.Duration `env:"AVATAR_GET_TTL_MINUTES"`
+	AvatarUploadTTL            time.Duration `env:"AVATAR_UPLOAD_TTL_MINUTES"`
+	ProjectImageGetTTL         time.Duration `env:"PROJECT_IMAGE_GET_TTL_MINUTES"`
+	ProjectImageUploadTTL      time.Duration `env:"PROJECT_IMAGE_UPLOAD_TTL_MINUTES"`
+	SocketTicketTTL            time.Duration `env:"SOCKET_TICKET_TTL_MINUTES"`
+	ProjectImagePendingTimeout time.Duration `env:"PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES"`
+	PendingImageTimeoutJobCron string        `env:"PENDING_IMAGE_TIMEOUT_JOB_CRON"`
 }
 
 // Validate 校验服务配置

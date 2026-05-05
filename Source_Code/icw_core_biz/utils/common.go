@@ -80,6 +80,7 @@ func FormatEnvConfig(config interface{}) string {
 	return builder.String()
 }
 
+// envConfigName 标准化环境变量名
 func envConfigName(field reflect.StructField) string {
 	tag := strings.TrimSpace(field.Tag.Get("env"))
 	if tag == "-" {
@@ -93,6 +94,7 @@ func envConfigName(field reflect.StructField) string {
 	return name
 }
 
+// envConfigValue 标准化环境变量值
 func envConfigValue(value reflect.Value) string {
 	if !value.IsValid() || !value.CanInterface() {
 		return ""
