@@ -67,16 +67,16 @@ message UploadProjectThumbnailResponse {
   string upload_url = 1;
 }
 
-// ProjectProfileService 项目基础信息服务
+// 项目基础信息服务
 service ProjectProfileService {
-  // DeleteProjectThumbnail 删除项目缩略图
+  // 删除项目缩略图
   rpc DeleteProjectThumbnail(DeleteProjectThumbnailRequest) returns (DeleteProjectThumbnailResponse);
-  // GetProjectProfile 获取项目基础信息
+  // 获取项目基础信息
   rpc GetProjectProfile(GetProjectProfileRequest) returns (GetProjectProfileResponse);
-  // GetProjectThumbnail 获取项目缩略图
+  // 获取项目缩略图
   rpc GetProjectThumbnail(GetProjectThumbnailRequest) returns (GetProjectThumbnailResponse);
-  // UpdateProjectProfile 更新项目基础信息
+  // 更新项目基础信息
   rpc UpdateProjectProfile(UpdateProjectProfileRequest) returns (UpdateProjectProfileResponse);
-  // UploadProjectThumbnail 上传项目缩略图
+  // 上传项目缩略图
   rpc UploadProjectThumbnail(UploadProjectThumbnailRequest) returns (UploadProjectThumbnailResponse);
 }

@@ -63,16 +63,16 @@ message ListProjectsResponse {
   repeated ProjectListItem completed_projects = 2;
 }
 
-// ProjectCoreService 项目核心服务
+// 项目核心服务
 service ProjectCoreService {
-  // AdvanceProject 项目进度流转
+  // 项目进度流转
   rpc AdvanceProject(AdvanceProjectRequest) returns (AdvanceProjectResponse);
-  // CheckProjectAccess 校验项目访问权限
+  // 校验项目访问权限
   rpc CheckProjectAccess(CheckProjectAccessRequest) returns (CheckProjectAccessResponse);
-  // CreateProject 创建项目
+  // 创建项目
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
-  // DeleteProject 删除项目
+  // 删除项目
   rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse);
-  // ListProjects 获取项目列表
+  // 获取项目列表
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
 }

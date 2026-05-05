@@ -44,14 +44,14 @@ message ReportSummaryResultRequest {
 // ReportSummaryResult 响应结构体
 message ReportSummaryResultResponse {}
 
-// ProjectDetectionService 智能检测服务
+// 智能检测服务
 service ProjectDetectionService {
-  // Ping 智能检测服务探活
+  // 智能检测服务探活
   rpc Ping(PingRequest) returns (PingResponse);
-  // ReportClassificationResult 上报图像检测分类结果
+  // 上报图像检测分类结果
   rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);
-  // ReportReasoningResult 上报图像检测推理结果
+  // 上报图像检测推理结果
   rpc ReportReasoningResult(ReportReasoningResultRequest) returns (ReportReasoningResultResponse);
-  // ReportSummaryResult 上报图像检测总结结果
+  // 上报图像检测总结结果
   rpc ReportSummaryResult(ReportSummaryResultRequest) returns (ReportSummaryResultResponse);
 }

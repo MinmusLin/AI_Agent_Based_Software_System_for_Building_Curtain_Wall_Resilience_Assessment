@@ -87,20 +87,20 @@ message SendEmailCodeResponse {
   int32 expires_in_seconds = 1;
 }
 
-// AuthService 登录鉴权服务
+// 登录鉴权服务
 service AuthService {
-  // Login 登录
+  // 登录
   rpc Login(LoginRequest) returns (LoginResponse);
-  // Logout 登出
+  // 登出
   rpc Logout(LogoutRequest) returns (LogoutResponse);
-  // Me 获取用户信息
+  // 获取用户信息
   rpc Me(MeRequest) returns (MeResponse);
-  // Refresh 刷新 Token
+  // 刷新 Token
   rpc Refresh(RefreshRequest) returns (RefreshResponse);
-  // Register 注册
+  // 注册
   rpc Register(RegisterRequest) returns (RegisterResponse);
-  // ResetPassword 重置密码
+  // 重置密码
   rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
-  // SendEmailCode 发送邮箱验证码
+  // 发送邮箱验证码
   rpc SendEmailCode(SendEmailCodeRequest) returns (SendEmailCodeResponse);
 }

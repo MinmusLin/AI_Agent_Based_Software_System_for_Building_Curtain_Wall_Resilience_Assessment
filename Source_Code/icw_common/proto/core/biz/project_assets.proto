@@ -126,26 +126,26 @@ message UploadProjectImageResponse {
   repeated .icw.common.UploadProjectImageResult images = 1;
 }
 
-// ProjectAssetsService 图像资产服务
+// 图像资产服务
 service ProjectAssetsService {
-  // CreateProjectGroup 创建图像组
+  // 创建图像组
   rpc CreateProjectGroup(CreateProjectGroupRequest) returns (CreateProjectGroupResponse);
-  // DeleteProjectGroup 删除图像组
+  // 删除图像组
   rpc DeleteProjectGroup(DeleteProjectGroupRequest) returns (DeleteProjectGroupResponse);
-  // DeleteProjectImage 删除图像
+  // 删除图像
   rpc DeleteProjectImage(DeleteProjectImageRequest) returns (DeleteProjectImageResponse);
-  // GetProjectAssets 获取项目图像列表
+  // 获取项目图像列表
   rpc GetProjectAssets(GetProjectAssetsRequest) returns (GetProjectAssetsResponse);
-  // GetProjectImageOriginal 获取原图
+  // 获取原图
   rpc GetProjectImageOriginal(GetProjectImageOriginalRequest) returns (GetProjectImageOriginalResponse);
-  // MoveProjectGroup 移动图像组
+  // 移动图像组
   rpc MoveProjectGroup(MoveProjectGroupRequest) returns (MoveProjectGroupResponse);
-  // MoveProjectImage 移动图像
+  // 移动图像
   rpc MoveProjectImage(MoveProjectImageRequest) returns (MoveProjectImageResponse);
-  // ReportProjectImage 上报图像
+  // 上报图像
   rpc ReportProjectImage(ReportProjectImageRequest) returns (ReportProjectImageResponse);
-  // UpdateProjectGroup 更新图像组
+  // 更新图像组
   rpc UpdateProjectGroup(UpdateProjectGroupRequest) returns (UpdateProjectGroupResponse);
-  // UploadProjectImage 上传图像
+  // 上传图像
   rpc UploadProjectImage(UploadProjectImageRequest) returns (UploadProjectImageResponse);
 }

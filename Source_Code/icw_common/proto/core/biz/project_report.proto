@@ -6,8 +6,8 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 import "core/biz/common.proto";
 
-// ProjectReportService 评估报告服务
+// 评估报告服务
 service ProjectReportService {
-  // Ping 评估报告服务探活
+  // 评估报告服务探活
   rpc Ping(PingRequest) returns (PingResponse);
 }

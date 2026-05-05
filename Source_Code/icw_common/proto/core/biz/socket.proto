@@ -28,10 +28,10 @@ message ValidateSocketTicketRequest {
 // ValidateSocketTicket 响应结构体
 message ValidateSocketTicketResponse {}
 
-// SocketService WebSocket 服务
+// WebSocket 服务
 service SocketService {
-  // CreateSocketTicket 创建 WebSocket 连接票据
+  // 创建 WebSocket 连接票据
   rpc CreateSocketTicket(CreateSocketTicketRequest) returns (CreateSocketTicketResponse);
-  // ValidateSocketTicket 校验 WebSocket 连接票据
+  // 校验 WebSocket 连接票据
   rpc ValidateSocketTicket(ValidateSocketTicketRequest) returns (ValidateSocketTicketResponse);
 }

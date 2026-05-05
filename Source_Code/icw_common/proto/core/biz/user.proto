@@ -37,12 +37,12 @@ message UploadAvatarResponse {
   string upload_url = 1;
 }
 
-// UserService 用户服务
+// 用户服务
 service UserService {
-  // DeleteAvatar 删除用户自定义头像
+  // 删除用户自定义头像
   rpc DeleteAvatar(DeleteAvatarRequest) returns (DeleteAvatarResponse);
-  // GetAvatar 获取用户头像
+  // 获取用户头像
   rpc GetAvatar(GetAvatarRequest) returns (GetAvatarResponse);
-  // UploadAvatar 上传用户自定义头像
+  // 上传用户自定义头像
   rpc UploadAvatar(UploadAvatarRequest) returns (UploadAvatarResponse);
 }
