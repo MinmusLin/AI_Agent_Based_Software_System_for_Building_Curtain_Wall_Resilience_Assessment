@@ -7,6 +7,7 @@ type ArtifactUploadPlan struct {
 }
 
 type StartRequest struct {
+	TaskUuid      string                `json:"task_uuid"`
 	TaskCode      string                `json:"task_code"`
 	ImageUuid     string                `json:"image_uuid"`
 	PresignGetURL string                `json:"presign_get_url"`
