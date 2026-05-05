@@ -6,7 +6,7 @@ import (
 	"icw_core_biz/internal/services/common"
 )
 
-// Service 评估报告 Service
+// Service 评估报告服务
 type Service struct {
 	*common.BaseService
 }

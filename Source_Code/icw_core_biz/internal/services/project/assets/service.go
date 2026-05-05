@@ -6,7 +6,7 @@ import (
 	"icw_core_biz/internal/services/common"
 )
 
-// Service 图像资产 Service
+// Service 图像资产服务
 type Service struct {
 	*common.BaseService
 }

@@ -7,7 +7,7 @@ import (
 	"icw_core_biz/internal/services/common"
 )
 
-// Service 登录鉴权 Service
+// Service 登录鉴权服务
 type Service struct {
 	*common.BaseService
 	tokens *utils.TokenManager

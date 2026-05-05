@@ -6,7 +6,7 @@ import (
 	"icw_core_biz/internal/services/common"
 )
 
-// Service WebSocket 连接票据 Service
+// Service WebSocket 连接票据服务
 type Service struct {
 	*common.BaseService
 }
