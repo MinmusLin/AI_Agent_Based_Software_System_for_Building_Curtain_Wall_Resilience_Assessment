@@ -17,7 +17,7 @@ import (
 
 // RegisterRPCServices 注册 RPC 服务
 func RegisterRPCServices(ctx context.Context, serviceDeps *common.Deps) {
-	registeredMethods := make([]common.RegisteredRPCMethod, 0)
+	registeredMethods := make([]common.RegisteredRPCMethodMeta, 0)
 	for _, meta := range registry(ctx, serviceDeps) {
 		methods, err := common.RegisterRPCService(meta)
 		if err != nil {
