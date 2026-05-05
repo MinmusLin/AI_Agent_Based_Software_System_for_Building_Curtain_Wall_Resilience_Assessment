@@ -210,6 +210,25 @@ func EnvString(key string) string {
 	return ""
 }
 
+// EnvStringSlice 获取环境变量（[]String 类型）
+func EnvStringSlice(value string) []string {
+	parts := strings.Split(value, ",")
+	slices := make([]string, 0, len(parts))
+	seen := make(map[string]struct{}, len(parts))
+	for _, part := range parts {
+		code := strings.TrimSpace(part)
+		if code == "" {
+			continue
+		}
+		if _, ok := seen[code]; ok {
+			continue
+		}
+		seen[code] = struct{}{}
+		slices = append(slices, code)
+	}
+	return slices
+}
+
 // EnvInt 获取环境变量（Int 类型）
 func EnvInt(key string) int {
 	value := strings.TrimSpace(os.Getenv(key))
