@@ -15,6 +15,9 @@ import (
 // Config 服务配置
 type Config struct {
 	CoreBizAddr                string
+	ActivityClassificationAddr string
+	ActivityReasoningAddr      string
+	ActivitySummaryAddr        string
 	MySQLDSN                   string
 	RedisAddr                  string
 	RedisPassword              string
@@ -53,6 +56,9 @@ func (cfg *Config) Validate() error {
 		value string
 	}{
 		{key: "ICW_CORE_BIZ_ADDR", value: cfg.CoreBizAddr},
+		{key: "ICW_ACTIVITY_CLASSIFICATION_ADDR", value: cfg.ActivityClassificationAddr},
+		{key: "ICW_ACTIVITY_REASONING_ADDR", value: cfg.ActivityReasoningAddr},
+		{key: "ICW_ACTIVITY_SUMMARY_ADDR", value: cfg.ActivitySummaryAddr},
 		{key: "MYSQL_DSN", value: cfg.MySQLDSN},
 		{key: "REDIS_ADDR", value: cfg.RedisAddr},
 		{key: "REDIS_PASSWORD", value: cfg.RedisPassword},
@@ -121,6 +127,9 @@ func (cfg *Config) Validate() error {
 func Load() (Config, error) {
 	cfg := Config{
 		CoreBizAddr:                EnvString("ICW_CORE_BIZ_ADDR"),
+		ActivityClassificationAddr: EnvString("ICW_ACTIVITY_CLASSIFICATION_ADDR"),
+		ActivityReasoningAddr:      EnvString("ICW_ACTIVITY_REASONING_ADDR"),
+		ActivitySummaryAddr:        EnvString("ICW_ACTIVITY_SUMMARY_ADDR"),
 		MySQLDSN:                   EnvString("MYSQL_DSN"),
 		RedisAddr:                  EnvString("REDIS_ADDR"),
 		RedisPassword:              EnvString("REDIS_PASSWORD"),
