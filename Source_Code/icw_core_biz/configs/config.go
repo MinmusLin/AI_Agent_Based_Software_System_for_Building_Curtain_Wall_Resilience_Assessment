@@ -18,7 +18,10 @@ type Config struct {
 	ActivityClassificationAddr string        `env:"ICW_ACTIVITY_CLASSIFICATION_ADDR"`
 	ActivityReasoningAddr      string        `env:"ICW_ACTIVITY_REASONING_ADDR"`
 	ActivitySummaryAddr        string        `env:"ICW_ACTIVITY_SUMMARY_ADDR"`
-	MySQLDSN                   string        `env:"MYSQL_DSN"`
+	MySQLUsername              string        `env:"MYSQL_USERNAME"`
+	MySQLPassword              string        `env:"MYSQL_PASSWORD"`
+	MySQLAddr                  string        `env:"MYSQL_ADDR"`
+	MySQLDatabase              string        `env:"MYSQL_DATABASE"`
 	RedisAddr                  string        `env:"REDIS_ADDR"`
 	RedisPassword              string        `env:"REDIS_PASSWORD"`
 	RedisDB                    int           `env:"REDIS_DB"`
@@ -59,7 +62,10 @@ func (cfg *Config) Validate() error {
 		{key: "ICW_ACTIVITY_CLASSIFICATION_ADDR", value: cfg.ActivityClassificationAddr},
 		{key: "ICW_ACTIVITY_REASONING_ADDR", value: cfg.ActivityReasoningAddr},
 		{key: "ICW_ACTIVITY_SUMMARY_ADDR", value: cfg.ActivitySummaryAddr},
-		{key: "MYSQL_DSN", value: cfg.MySQLDSN},
+		{key: "MYSQL_USERNAME", value: cfg.MySQLUsername},
+		{key: "MYSQL_PASSWORD", value: cfg.MySQLPassword},
+		{key: "MYSQL_ADDR", value: cfg.MySQLAddr},
+		{key: "MYSQL_DATABASE", value: cfg.MySQLDatabase},
 		{key: "REDIS_ADDR", value: cfg.RedisAddr},
 		{key: "REDIS_PASSWORD", value: cfg.RedisPassword},
 		{key: "SMTP_HOST", value: cfg.SMTPHost},
@@ -130,7 +136,10 @@ func Load() (Config, error) {
 		ActivityClassificationAddr: EnvString("ICW_ACTIVITY_CLASSIFICATION_ADDR"),
 		ActivityReasoningAddr:      EnvString("ICW_ACTIVITY_REASONING_ADDR"),
 		ActivitySummaryAddr:        EnvString("ICW_ACTIVITY_SUMMARY_ADDR"),
-		MySQLDSN:                   EnvString("MYSQL_DSN"),
+		MySQLUsername:              EnvString("MYSQL_USERNAME"),
+		MySQLPassword:              EnvString("MYSQL_PASSWORD"),
+		MySQLAddr:                  EnvString("MYSQL_ADDR"),
+		MySQLDatabase:              EnvString("MYSQL_DATABASE"),
 		RedisAddr:                  EnvString("REDIS_ADDR"),
 		RedisPassword:              EnvString("REDIS_PASSWORD"),
 		RedisDB:                    EnvInt("REDIS_DB"),

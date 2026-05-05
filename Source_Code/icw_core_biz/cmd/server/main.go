@@ -37,7 +37,7 @@ func main() {
 	utils.LogInfo(consts.LogScopeInit, "", "Config initialized successfully:\n%s", utils.FormatEnvConfig(cfg))
 
 	// 初始化 MySQL
-	dataMySQL, err := sql.Open("mysql", cfg.MySQLDSN)
+	dataMySQL, err := sql.Open("mysql", mysql.MySQLDSN(cfg))
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to connect to MySQL: %v", err)
 	}
