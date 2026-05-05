@@ -3,14 +3,13 @@ package common
 import (
 	"errors"
 	"fmt"
+	"icw_core_biz/utils"
 	"net/rpc"
 	"reflect"
 	"runtime"
 	"sort"
 	"strings"
 	"sync"
-
-	"icw_core_biz/utils"
 )
 
 var (
@@ -36,11 +35,10 @@ type RPCMethodMeta struct {
 
 // RegisteredRPCMethodMeta 已注册 RPC 方法元数据
 type RegisteredRPCMethodMeta struct {
-	serviceName        string
-	serviceDescription string
-	methodName         string
-	methodDescription  string
-	handler            string
+	serviceName       string
+	methodName        string
+	methodDescription string
+	handler           string
 }
 
 // RegisterRPCService 注册单个 RPC 服务并返回 RPC 方法元数据
@@ -92,11 +90,10 @@ func resolveRPCMethods(meta RPCServiceMeta) ([]RegisteredRPCMethodMeta, error) {
 		handler := handlerName(reflectedMethod)
 		registerRPCHandler(handler, meta.Name+"."+method.Name)
 		rows = append(rows, RegisteredRPCMethodMeta{
-			serviceName:        meta.Name,
-			serviceDescription: meta.Description,
-			methodName:         method.Name,
-			methodDescription:  method.Description,
-			handler:            handler,
+			serviceName:       meta.Name,
+			methodName:        method.Name,
+			methodDescription: method.Description,
+			handler:           handler,
 		})
 	}
 	return rows, nil
@@ -153,30 +150,18 @@ func handlerName(method reflect.Method) string {
 
 // FormatRegistryTable 格式化 RPC 注册表
 func FormatRegistryTable(methods []RegisteredRPCMethodMeta) string {
-	serviceNames := make([]string, 0, len(methods))
-	serviceDescriptions := make([]string, 0, len(methods))
-	methodNames := make([]string, 0, len(methods))
+	serviceMethods := make([]string, 0, len(methods))
 	methodDescriptions := make([]string, 0, len(methods))
 	handlers := make([]string, 0, len(methods))
 	for _, method := range methods {
-		serviceNames = append(serviceNames, method.serviceName)
-		serviceDescriptions = append(serviceDescriptions, method.serviceDescription)
-		methodNames = append(methodNames, method.methodName)
+		serviceMethods = append(serviceMethods, method.serviceName+"."+method.methodName)
 		methodDescriptions = append(methodDescriptions, method.methodDescription)
 		handlers = append(handlers, method.handler)
 	}
 	return utils.FormatTable([]utils.TableColumn{
 		{
-			Header: "service",
-			Values: serviceNames,
-		},
-		{
-			Header: "description",
-			Values: serviceDescriptions,
-		},
-		{
-			Header: "method",
-			Values: methodNames,
+			Header: "service.method",
+			Values: serviceMethods,
 		},
 		{
 			Header: "description",
