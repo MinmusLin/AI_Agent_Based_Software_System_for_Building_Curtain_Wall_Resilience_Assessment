@@ -41,4 +41,8 @@ const (
 	LogScopeCron = "CRON"
 	// LogScopeWS WebSocket 日志域
 	LogScopeWS = "WS"
+	// LogScopeReasoning 推理能力日志域
+	LogScopeReasoning = "REASONING"
+	// LogScopeCallback 回调日志域
+	LogScopeCallback = "CALLBACK"
 )
