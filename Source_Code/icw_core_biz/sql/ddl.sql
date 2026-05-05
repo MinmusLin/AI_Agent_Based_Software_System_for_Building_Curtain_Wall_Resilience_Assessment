@@ -155,13 +155,13 @@ CREATE TABLE `project_detection_corrosion_tasks` (
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_uuid` (`uuid`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_main_task_id` (`main_task_id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_image_id` (`image_id`),
-  CONSTRAINT `fk_project_detection_sub_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `uk_project_detection_corrosion_tasks_uuid` (`uuid`),
+  UNIQUE KEY `uk_project_detection_corrosion_tasks_main_task_id` (`main_task_id`),
+  UNIQUE KEY `uk_project_detection_corrosion_tasks_image_id` (`image_id`),
+  CONSTRAINT `fk_project_detection_corrosion_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_corrosion_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_corrosion_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_corrosion_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像金属锈蚀检测子任务表';
 
 -- project_detection_crack_tasks 项目图像石材裂缝检测子任务表
@@ -178,13 +178,13 @@ CREATE TABLE `project_detection_crack_tasks` (
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_uuid` (`uuid`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_main_task_id` (`main_task_id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_image_id` (`image_id`),
-  CONSTRAINT `fk_project_detection_sub_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `uk_project_detection_crack_tasks_uuid` (`uuid`),
+  UNIQUE KEY `uk_project_detection_crack_tasks_main_task_id` (`main_task_id`),
+  UNIQUE KEY `uk_project_detection_crack_tasks_image_id` (`image_id`),
+  CONSTRAINT `fk_project_detection_crack_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_crack_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_crack_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_crack_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像石材裂缝检测子任务表';
 
 -- project_detection_stain_tasks 项目图像石材污渍检测子任务表
@@ -201,13 +201,13 @@ CREATE TABLE `project_detection_stain_tasks` (
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_uuid` (`uuid`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_main_task_id` (`main_task_id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_image_id` (`image_id`),
-  CONSTRAINT `fk_project_detection_sub_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `uk_project_detection_stain_tasks_uuid` (`uuid`),
+  UNIQUE KEY `uk_project_detection_stain_tasks_main_task_id` (`main_task_id`),
+  UNIQUE KEY `uk_project_detection_stain_tasks_image_id` (`image_id`),
+  CONSTRAINT `fk_project_detection_stain_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_stain_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_stain_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_stain_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像石材污渍检测子任务表';
 
 -- project_detection_flatness_tasks 项目图像玻璃平整度检测子任务表
@@ -224,13 +224,13 @@ CREATE TABLE `project_detection_flatness_tasks` (
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_uuid` (`uuid`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_main_task_id` (`main_task_id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_image_id` (`image_id`),
-  CONSTRAINT `fk_project_detection_sub_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `uk_project_detection_flatness_tasks_uuid` (`uuid`),
+  UNIQUE KEY `uk_project_detection_flatness_tasks_main_task_id` (`main_task_id`),
+  UNIQUE KEY `uk_project_detection_flatness_tasks_image_id` (`image_id`),
+  CONSTRAINT `fk_project_detection_flatness_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_flatness_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_flatness_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_flatness_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像玻璃平整度检测子任务表';
 
 -- project_detection_spalling_tasks 项目图像玻璃爆裂检测子任务表
@@ -247,11 +247,11 @@ CREATE TABLE `project_detection_spalling_tasks` (
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_uuid` (`uuid`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_main_task_id` (`main_task_id`),
-  UNIQUE KEY `uk_project_detection_sub_tasks_image_id` (`image_id`),
-  CONSTRAINT `fk_project_detection_sub_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_project_detection_sub_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `uk_project_detection_spalling_tasks_uuid` (`uuid`),
+  UNIQUE KEY `uk_project_detection_spalling_tasks_main_task_id` (`main_task_id`),
+  UNIQUE KEY `uk_project_detection_spalling_tasks_image_id` (`image_id`),
+  CONSTRAINT `fk_project_detection_spalling_tasks_main_task_id` FOREIGN KEY (`main_task_id`) REFERENCES `project_detection_tasks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_spalling_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_spalling_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_detection_spalling_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像玻璃爆裂检测子任务表';
