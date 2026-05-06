@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"icw_common/gen/core/biz"
+	"icw_common/rpc"
 	"icw_common/rpc_err"
-	"icw_common/utils"
-	bizUtils "icw_core_biz/internal/services/socket/utils"
+	"icw_core_biz/internal/services/socket/utils"
 )
 
 // CreateSocketTicket 创建 WebSocket 连接票据
@@ -32,19 +32,19 @@ func (s *Service) createSocketTicket(ctx context.Context, req *bizpb.CreateSocke
 	}
 
 	// 生成 WebSocket 连接票据
-	ticket, err := bizUtils.NewTicket()
+	ticket, err := utils.NewTicket()
 	if err != nil {
 		return err
 	}
 
 	// 生成 WebSocket 连接票据上下文
 	expiresIn := int64(s.Config().SocketTicketTTL.Seconds())
-	ticketContext := &bizUtils.SocketTicketContext{
+	ticketContext := &utils.SocketTicketContext{
 		UserId:      req.UserId,
 		ProjectId:   req.ProjectId,
 		ProjectCode: projectCode,
 		SocketScope: socketScope,
-		RequestId:   utils.RequestIdFromIncomingContext(ctx),
+		RequestId:   rpc.RequestIdFromIncomingContext(ctx),
 		CreateAt:    time.Now().Format("2006-01-02 15:04:05"),
 	}
 	contextBytes, err := json.Marshal(ticketContext)
@@ -53,7 +53,7 @@ func (s *Service) createSocketTicket(ctx context.Context, req *bizpb.CreateSocke
 	}
 
 	// 保存 WebSocket 连接票据上下文
-	if err := s.Redis().SaveSocketTicket(s.Ctx(), bizUtils.TicketHash(ticket), string(contextBytes), time.Duration(expiresIn)*time.Second); err != nil {
+	if err := s.Redis().SaveSocketTicket(s.Ctx(), utils.TicketHash(ticket), string(contextBytes), time.Duration(expiresIn)*time.Second); err != nil {
 		return err
 	}
 
