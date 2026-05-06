@@ -1,8 +1,5 @@
-from __future__ import annotations
-
 import argparse
 import json
-import math
 import os
 import time
 from pathlib import Path
@@ -29,16 +26,6 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
     return parser.parse_args()
-
-
-def validate_model_file(model_path: Path) -> None:
-    if not model_path.exists():
-        raise FileNotFoundError(f'model file not found: {model_path}')
-    if model_path.stat().st_size < 1024 * 1024:
-        head = model_path.read_bytes()[:128]
-        if b'git-lfs.github.com/spec' in head:
-            raise RuntimeError(f'model file is a Git LFS pointer, not real weights: {model_path}')
-        raise RuntimeError(f'model file size is invalid: {model_path}')
 
 
 def read_image(input_path: Path) -> np.ndarray:
@@ -112,11 +99,8 @@ def calculate_stain(block_image: np.ndarray, output_path: Path) -> dict[str, Any
     if variance <= 40:
         return {
             'has_stain': False,
+            'stain_pixels': 0,
             'stain_ratio': 0.0,
-            'stain_percentage': 0.0,
-            'variance': round(variance, 6),
-            'result_image': None,
-            'status': 'low_variance_skipped',
         }
 
     gray_image = cv2.cvtColor(block_image, cv2.COLOR_BGR2GRAY)
@@ -128,18 +112,21 @@ def calculate_stain(block_image: np.ndarray, output_path: Path) -> dict[str, Any
     result_image = cv2.addWeighted(binary_bgr, 0.5, block_image, 0.5, 0)
     white_pixels = int(cv2.countNonZero(binary_image))
     total_pixels = int(binary_image.size)
-    stain_ratio = 1 - white_pixels / total_pixels if total_pixels else 0.0
+    stain_pixels = max(total_pixels - white_pixels, 0)
+    stain_ratio = stain_pixels / total_pixels if total_pixels else 0.0
+    if stain_ratio <= 0:
+        return {
+            'has_stain': False,
+            'stain_pixels': 0,
+            'stain_ratio': 0.0,
+        }
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     cv2.imwrite(str(output_path), result_image)
     return {
-        'has_stain': bool(stain_ratio > 0),
+        'has_stain': True,
+        'stain_pixels': stain_pixels,
         'stain_ratio': round(float(stain_ratio), 6),
-        'stain_percentage': round(float(stain_ratio * 100), 4),
-        'variance': round(variance, 6),
-        'threshold': round(threshold_value, 4),
-        'result_image': str(output_path),
-        'status': 'processed',
     }
 
 
@@ -162,34 +149,31 @@ def predict(model: YOLO, image_path: Path) -> Any:
     )
 
 
-def build_outputs(input_path: Path, image: np.ndarray, results: Any, output_dir: Path) -> dict[str, Any]:
+def empty_report() -> dict[str, Any]:
+    return {
+        'has_stain': False,
+        'stain_count': 0,
+        'average_stain_ratio': 0.0,
+        'max_stain_ratio': 0.0,
+        'regions': [],
+    }
+
+
+def build_outputs(image: np.ndarray, results: Any, output_dir: Path) -> dict[str, Any]:
+    annotated_path = output_dir / 'annotated.png'
     if not results or len(results) == 0:
-        return {
-            'status': 'failed',
-            'input': str(input_path),
-            'error_code': 'NO_RESULTS',
-            'message': 'model returned no result.',
-        }
+        cv2.imwrite(str(annotated_path), image)
+        return empty_report()
 
     result = results[0]
     masks = result.masks
     if masks is None or masks.xy is None or len(masks.xy) == 0:
-        return {
-            'status': 'failed',
-            'input': str(input_path),
-            'error_code': 'NO_MASKS_DETECTED',
-            'message': 'no curtain wall block detected in image.',
-        }
-
-    block_dir = output_dir / 'blocks'
-    result_dir = output_dir / 'results'
-    block_dir.mkdir(parents=True, exist_ok=True)
-    result_dir.mkdir(parents=True, exist_ok=True)
+        cv2.imwrite(str(annotated_path), image)
+        return empty_report()
 
     annotated_image = image.copy()
-    detections = []
+    regions = []
     boxes = result.boxes
-    names = result.names if isinstance(result.names, dict) else {}
 
     for index, polygon in enumerate(masks.xy, start=1):
         corners = polygon_to_corners(np.asarray(polygon, dtype=np.float32))
@@ -201,15 +185,22 @@ def build_outputs(input_path: Path, image: np.ndarray, results: Any, output_dir:
         except ValueError:
             continue
 
-        block_path = block_dir / f'block-{index}.jpg'
-        stain_result_path = result_dir / f'stain-{index}.jpg'
+        region_id = len(regions) + 1
+        block_path = output_dir / f'block_{region_id}.png'
+        stain_result_path = output_dir / f'overlay_{region_id}.png'
         cv2.imwrite(str(block_path), warped_image)
         stain_metrics = calculate_stain(warped_image, stain_result_path)
+        if not stain_metrics.get('has_stain') or not stain_result_path.exists():
+            if block_path.exists():
+                block_path.unlink()
+            if stain_result_path.exists():
+                stain_result_path.unlink()
+            continue
 
         cv2.polylines(annotated_image, [corners.astype(np.int32)], isClosed=True, color=(0, 255, 0), thickness=2)
         cv2.putText(
             annotated_image,
-            str(index),
+            str(region_id),
             tuple(corners[0].astype(int)),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.6,
@@ -217,50 +208,38 @@ def build_outputs(input_path: Path, image: np.ndarray, results: Any, output_dir:
             2,
         )
 
-        box_data: dict[str, Any] = {}
+        confidence = 0.0
+        bbox_xyxy = [0.0, 0.0, 0.0, 0.0]
         if boxes is not None and len(boxes) >= index:
             box = boxes[index - 1]
-            cls_id = int(box.cls.item()) if box.cls is not None else None
-            box_data = {
-                'confidence': round(float(box.conf.item()), 6) if box.conf is not None else None,
-                'class_id': cls_id,
-                'class_name': names.get(cls_id, str(cls_id)) if cls_id is not None else None,
-                'bbox_xyxy': [round(float(value), 2) for value in box.xyxy[0].tolist()],
-            }
+            confidence = round(float(box.conf.item()), 6) if box.conf is not None else None
+            bbox_xyxy = [round(float(value), 2) for value in box.xyxy[0].tolist()]
 
-        detections.append(
+        regions.append(
             {
-                'block_number': index,
-                **box_data,
-                'corners': [{'x': round(float(x), 2), 'y': round(float(y), 2)} for x, y in corners],
-                'block_size': {'width': output_width, 'height': output_height},
-                'block_area_px': int(output_width * output_height),
-                'block_image': str(block_path),
-                **stain_metrics,
+                'id': region_id,
+                'confidence': confidence,
+                'bbox_xyxy': bbox_xyxy,
+                'region_width': output_width,
+                'region_height': output_height,
+                'stain_pixels': stain_metrics['stain_pixels'],
+                'stain_ratio': stain_metrics['stain_ratio'],
             }
         )
 
-    if not detections:
-        return {
-            'status': 'failed',
-            'input': str(input_path),
-            'error_code': 'PROCESSING_FAILED',
-            'message': 'model detected masks but no block was processed.',
-        }
+    if not regions:
+        cv2.imwrite(str(annotated_path), annotated_image)
+        return empty_report()
 
-    annotated_path = output_dir / 'annotated.png'
     cv2.imwrite(str(annotated_path), annotated_image)
-    stain_percentages = [item['stain_percentage'] for item in detections]
+    stain_ratios = [item['stain_ratio'] for item in regions]
 
     return {
-        'status': 'success',
-        'input': str(input_path),
-        'image_size': {'width': int(image.shape[1]), 'height': int(image.shape[0])},
-        'total_blocks': len(detections),
-        'average_stain_percentage': round(float(np.mean(stain_percentages)), 4),
-        'max_stain_percentage': round(float(np.max(stain_percentages)), 4),
-        'annotated_image': str(annotated_path),
-        'detections': detections,
+        'has_stain': True,
+        'stain_count': len(regions),
+        'average_stain_ratio': round(float(np.mean(stain_ratios) * 100), 4),
+        'max_stain_ratio': round(float(np.max(stain_ratios) * 100), 4),
+        'regions': regions,
     }
 
 
@@ -268,25 +247,18 @@ def main() -> int:
     args = parse_args()
     start_time = time.time()
     input_path = Path(args.input).expanduser().resolve()
-    validate_model_file(MODEL_PATH)
 
     image = read_image(input_path)
     model = YOLO(str(MODEL_PATH))
     raw_results = predict(model, input_path)
 
     output_dir = input_path.parent
-    report = build_outputs(input_path, image, raw_results, output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    report = build_outputs(image, raw_results, output_dir)
     report_path = output_dir / 'report.json'
-    report['model'] = str(MODEL_PATH)
-    report['image_size_for_model'] = IMAGE_SIZE
-    report['confidence_threshold'] = CONFIDENCE_THRESHOLD
-    report['iou_threshold'] = IOU_THRESHOLD
     report['runtime_seconds'] = round(time.time() - start_time, 3)
-    report['outputs'] = {'report_json': str(report_path)}
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     return 0
 
 
-if __name__ == '__main__':
-    raise SystemExit(main())
+raise SystemExit(main())

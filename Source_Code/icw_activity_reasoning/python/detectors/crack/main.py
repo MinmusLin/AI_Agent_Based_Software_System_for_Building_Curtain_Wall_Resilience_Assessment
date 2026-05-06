@@ -1,9 +1,5 @@
-
-from __future__ import annotations
-
 import argparse
 import json
-import math
 import time
 from functools import partial
 from pathlib import Path
@@ -327,22 +323,11 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def validate_model_file(model_path: Path) -> None:
-    if not model_path.exists():
-        raise FileNotFoundError(f'model file not found: {model_path}')
-    if model_path.stat().st_size < 1024 * 1024:
-        head = model_path.read_bytes()[:128]
-        if b'git-lfs.github.com/spec' in head:
-            raise RuntimeError(f'model file is a Git LFS pointer, not real weights: {model_path}')
-        raise RuntimeError(f'model file size is invalid: {model_path}')
-
-
 def get_device() -> torch.device:
     return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def load_model(model_path: Path, device: torch.device) -> SegFormer:
-    validate_model_file(model_path)
     model = SegFormer()
     state_dict = torch.load(model_path, map_location=device)
     if any(key.startswith('module.') for key in state_dict):
@@ -403,74 +388,54 @@ def predict_mask(model: SegFormer, image: Image.Image, device: torch.device) -> 
 
 def extract_regions(mask: np.ndarray) -> tuple[np.ndarray, list[dict[str, Any]]]:
     binary_mask = (mask == 1).astype(np.uint8)
-    region_count, labels, stats, centroids = cv2.connectedComponentsWithStats(binary_mask, connectivity=8)
+    image_height, image_width = binary_mask.shape[:2]
+    image_area = int(image_height * image_width)
+    region_count, labels, stats, _ = cv2.connectedComponentsWithStats(binary_mask, connectivity=8)
     cleaned_mask = np.zeros_like(binary_mask)
     regions = []
 
     for label in range(1, region_count):
         x, y, width, height, area = stats[label]
-        if int(area) < MIN_REGION_AREA:
+        mask_pixels = int(area)
+        if mask_pixels < MIN_REGION_AREA:
             continue
         cleaned_mask[labels == label] = 1
         regions.append(
             {
-                'id': len(regions) + 1,
-                'area_px': int(area),
-                'bbox': {
-                    'x': int(x),
-                    'y': int(y),
-                    'width': int(width),
-                    'height': int(height),
-                },
-                'bbox_diagonal_px': round(math.sqrt(float(width * width + height * height)), 2),
-                'centroid': {
-                    'x': round(float(centroids[label][0]), 2),
-                    'y': round(float(centroids[label][1]), 2),
-                },
+                'bbox_xyxy': [int(x), int(y), int(x + width), int(y + height)],
+                'mask_pixels': mask_pixels,
+                'mask_ratio': round(mask_pixels / image_area, 6) if image_area else 0.0,
             }
         )
 
-    regions.sort(key=lambda item: item['area_px'], reverse=True)
-    for rank, region in enumerate(regions, start=1):
-        region['rank'] = rank
-    return cleaned_mask, regions
+    regions.sort(key=lambda item: item['mask_pixels'], reverse=True)
+    return cleaned_mask, [
+        {
+            'id': index,
+            'bbox_xyxy': region['bbox_xyxy'],
+            'mask_pixels': region['mask_pixels'],
+            'mask_ratio': region['mask_ratio'],
+        }
+        for index, region in enumerate(regions, start=1)
+    ]
 
 
-def build_report(input_path: Path, cleaned_mask: np.ndarray, regions: list[dict[str, Any]]) -> dict[str, Any]:
+def build_report(cleaned_mask: np.ndarray, regions: list[dict[str, Any]]) -> dict[str, Any]:
     image_height, image_width = cleaned_mask.shape[:2]
     total_pixels = int(image_height * image_width)
     crack_pixels = int(cleaned_mask.sum())
     crack_ratio = crack_pixels / total_pixels if total_pixels else 0.0
 
-    if crack_pixels == 0:
-        severity = 'none'
-        suggestion = 'no crack pixels detected; manual review is recommended if image quality is uncertain.'
-    elif crack_ratio < 0.0005:
-        severity = 'low'
-        suggestion = 'minor crack pixels detected; manual review and routine inspection are recommended.'
-    elif crack_ratio < 0.005:
-        severity = 'medium'
-        suggestion = 'visible crack regions detected; close-range review with site scale calibration is recommended.'
-    else:
-        severity = 'high'
-        suggestion = 'high crack pixel ratio detected; priority site review and repair assessment are recommended.'
-
     return {
-        'input': str(input_path),
-        'image_size': {'width': image_width, 'height': image_height},
         'has_crack': bool(crack_pixels > 0),
+        'crack_count': len(regions),
         'crack_pixels': crack_pixels,
         'crack_ratio': round(crack_ratio, 6),
-        'crack_ratio_percent': round(crack_ratio * 100, 4),
-        'region_count': len(regions),
-        'largest_region': regions[0] if regions else None,
-        'severity': severity,
-        'suggestion': suggestion,
         'regions': regions,
     }
 
 
-def save_outputs(image: Image.Image, cleaned_mask: np.ndarray, output_dir: Path, input_path: Path) -> dict[str, str]:
+def save_outputs(image: Image.Image, cleaned_mask: np.ndarray, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     rgb_image = np.array(image).astype(np.uint8)
     mask_image = (cleaned_mask * 255).astype(np.uint8)
@@ -484,15 +449,9 @@ def save_outputs(image: Image.Image, cleaned_mask: np.ndarray, output_dir: Path,
     )
     mask_path = output_dir / 'mask.png'
     overlay_path = output_dir / 'overlay.png'
-    report_path = output_dir / 'report.json'
 
     cv2.imwrite(str(mask_path), mask_image)
     cv2.imwrite(str(overlay_path), cv2.cvtColor(overlay_image, cv2.COLOR_RGB2BGR))
-    return {
-        'mask': str(mask_path),
-        'overlay': str(overlay_path),
-        'report_json': str(report_path),
-    }
 
 
 def main() -> int:
@@ -504,18 +463,14 @@ def main() -> int:
     model = load_model(MODEL_PATH, device)
     raw_mask = predict_mask(model, image, device)
     cleaned_mask, regions = extract_regions(raw_mask)
-    report = build_report(input_path, cleaned_mask, regions)
-    report['model'] = str(MODEL_PATH)
-    report['device'] = str(device)
-    report['input_size'] = INPUT_SIZE
+    report = build_report(cleaned_mask, regions)
     report['runtime_seconds'] = round(time.time() - start_time, 3)
 
     run_dir = input_path.parent
-    outputs = save_outputs(image, cleaned_mask, run_dir, input_path)
-    report['outputs'] = outputs
-    Path(outputs['report_json']).write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    save_outputs(image, cleaned_mask, run_dir)
+    report_path = run_dir / 'report.json'
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     return 0
 
 
-if __name__ == '__main__':
-    raise SystemExit(main())
+raise SystemExit(main())

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import argparse
 import json
 import time
@@ -15,46 +13,50 @@ import torch.nn.functional as F
 from PIL import Image, ImageDraw
 from torchvision import transforms
 
-
+APP_ROOT = Path(__file__).resolve().parent
+MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
+INPUT_SIZE = 416
+MASK_THRESHOLD = 200
+MIN_SEGMENT_AREA = 200
 
 
 class LambdaBase(nn.Sequential):
-    def __init__(self, fn, *args):
+    def __init__(self, lambda_func, *args):
         super(LambdaBase, self).__init__(*args)
-        self.lambda_func = fn
+        self.lambda_func = lambda_func
 
-    def forward_prepare(self, input):
+    def forward_prepare(self, input_tensor):
         output = []
         for module in self._modules.values():
-            output.append(module(input))
-        return output if output else input
+            output.append(module(input_tensor))
+        return output if output else input_tensor
 
 
 class Lambda(LambdaBase):
-    def forward(self, input):
-        return self.lambda_func(self.forward_prepare(input))
+    def forward(self, input_tensor):
+        return self.lambda_func(self.forward_prepare(input_tensor))
 
 
 class LambdaMap(LambdaBase):
-    def forward(self, input):
-        return list(map(self.lambda_func, self.forward_prepare(input)))
+    def forward(self, input_tensor):
+        return list(map(self.lambda_func, self.forward_prepare(input_tensor)))
 
 
 class LambdaReduce(LambdaBase):
-    def forward(self, input):
-        return reduce(self.lambda_func, self.forward_prepare(input))
+    def forward(self, input_tensor):
+        return reduce(self.lambda_func, self.forward_prepare(input_tensor))
 
 
-resnext_101_32x4d = nn.Sequential(  # Sequential,
+RESNEXT_101_32X4D = nn.Sequential(
     nn.Conv2d(3, 64, (7, 7), (2, 2), (3, 3), 1, 1, bias=False),
     nn.BatchNorm2d(64),
     nn.ReLU(),
     nn.MaxPool2d((3, 3), (2, 2), (1, 1)),
-    nn.Sequential(  # Sequential,
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+    nn.Sequential(
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(64, 128, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(128),
                               nn.ReLU(),
@@ -65,18 +67,18 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(128, 256, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(256),
                       ),
-                      nn.Sequential(  # Sequential,
+                      nn.Sequential(
                           nn.Conv2d(64, 256, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(256),
                       ),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(256, 128, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(128),
                               nn.ReLU(),
@@ -87,15 +89,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(128, 256, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(256),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(256, 128, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(128),
                               nn.ReLU(),
@@ -106,17 +108,17 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(128, 256, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(256),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
     ),
-    nn.Sequential(  # Sequential,
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+    nn.Sequential(
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(256, 256, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(256),
                               nn.ReLU(),
@@ -127,18 +129,18 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(256, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(512),
                       ),
-                      nn.Sequential(  # Sequential,
+                      nn.Sequential(
                           nn.Conv2d(256, 512, (1, 1), (2, 2), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(512),
                       ),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(512, 256, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(256),
                               nn.ReLU(),
@@ -149,15 +151,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(256, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(512),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(512, 256, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(256),
                               nn.ReLU(),
@@ -168,15 +170,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(256, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(512),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(512, 256, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(256),
                               nn.ReLU(),
@@ -187,17 +189,17 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(256, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(512),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
     ),
-    nn.Sequential(  # Sequential,
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+    nn.Sequential(
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(512, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -208,18 +210,18 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      nn.Sequential(  # Sequential,
+                      nn.Sequential(
                           nn.Conv2d(512, 1024, (1, 1), (2, 2), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -230,15 +232,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -249,15 +251,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -268,15 +270,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -287,15 +289,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -306,15 +308,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -325,15 +327,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -344,15 +346,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -363,15 +365,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -382,15 +384,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -401,15 +403,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -420,15 +422,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -439,15 +441,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -458,15 +460,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -477,15 +479,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -496,15 +498,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -515,15 +517,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -534,15 +536,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -553,15 +555,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -572,15 +574,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -591,15 +593,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -610,15 +612,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 512, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(512),
                               nn.ReLU(),
@@ -629,17 +631,17 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(512, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(1024),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
     ),
-    nn.Sequential(  # Sequential,
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+    nn.Sequential(
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(1024, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(1024),
                               nn.ReLU(),
@@ -650,18 +652,18 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(1024, 2048, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(2048),
                       ),
-                      nn.Sequential(  # Sequential,
+                      nn.Sequential(
                           nn.Conv2d(1024, 2048, (1, 1), (2, 2), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(2048),
                       ),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(2048, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(1024),
                               nn.ReLU(),
@@ -672,15 +674,15 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(1024, 2048, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(2048),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
-        nn.Sequential(  # Sequential,
-            LambdaMap(lambda x: x,  # ConcatTable,
-                      nn.Sequential(  # Sequential,
-                          nn.Sequential(  # Sequential,
+        nn.Sequential(
+            LambdaMap(lambda x: x,
+                      nn.Sequential(
+                          nn.Sequential(
                               nn.Conv2d(2048, 1024, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                               nn.BatchNorm2d(1024),
                               nn.ReLU(),
@@ -691,32 +693,29 @@ resnext_101_32x4d = nn.Sequential(  # Sequential,
                           nn.Conv2d(1024, 2048, (1, 1), (1, 1), (0, 0), 1, 1, bias=False),
                           nn.BatchNorm2d(2048),
                       ),
-                      Lambda(lambda x: x),  # Identity,
+                      Lambda(lambda x: x),
                       ),
-            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+            LambdaReduce(lambda x, y: x + y),
             nn.ReLU(),
         ),
     ),
     nn.AvgPool2d((7, 7), (1, 1)),
-    Lambda(lambda x: x.view(x.size(0), -1)),  # View,
-    nn.Sequential(Lambda(lambda x: x.view(1, -1) if 1 == len(x.size()) else x), nn.Linear(2048, 1000)),  # Linear,
+    Lambda(lambda x: x.view(x.size(0), -1)),
+    nn.Sequential(Lambda(lambda x: x.view(1, -1) if 1 == len(x.size()) else x), nn.Linear(2048, 1000)),
 )
-
-
 
 
 class ResNeXt101(nn.Module):
     def __init__(self, backbone_path):
         super(ResNeXt101, self).__init__()
-        net = resnext_101_32x4d
+        net = RESNEXT_101_32X4D
         if backbone_path is not None:
             weights = torch.load(backbone_path)
             net.load_state_dict(weights, strict=True)
-            print("Load ResNeXt Weights Succeed!")
 
         net = list(net.children())
         self.layer0 = nn.Sequential(*net[:3])
-        self.layer1 = nn.Sequential(*net[3: 5])
+        self.layer1 = nn.Sequential(*net[3:5])
         self.layer2 = net[5]
         self.layer3 = net[6]
         self.layer4 = net[7]
@@ -812,7 +811,7 @@ class SpatialGate(nn.Module):
     def forward(self, x):
         x_compress = self.compress(x)
         x_out = self.spatial(x_compress)
-        scale = F.sigmoid(x_out)  # broadcasting
+        scale = F.sigmoid(x_out)
         return x * scale
 
 
@@ -981,11 +980,11 @@ class GDNet(nn.Module):
                 m.inplace = True
 
     def forward(self, x):
-        layer0 = self.layer0(x)  # [-1, 64, h/2, w/2]
-        layer1 = self.layer1(layer0)  # [-1, 256, h/4, w/4]
-        layer2 = self.layer2(layer1)  # [-1, 512, h/8, w/8]
-        layer3 = self.layer3(layer2)  # [-1, 1024, h/16, w/16]
-        layer4 = self.layer4(layer3)  # [-1, 2048, h/32, w/32]
+        layer0 = self.layer0(x)
+        layer1 = self.layer1(layer0)
+        layer2 = self.layer2(layer1)
+        layer3 = self.layer3(layer2)
+        layer4 = self.layer4(layer3)
 
         h5_conv = self.h5_conv(layer4)
         h4_conv = self.h4_conv(layer3)
@@ -1018,27 +1017,10 @@ class GDNet(nn.Module):
         return torch.sigmoid(h_predict), torch.sigmoid(l_predict), torch.sigmoid(final_predict)
 
 
-APP_ROOT = Path(__file__).resolve().parent
-MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
-INPUT_SIZE = 416
-MASK_THRESHOLD = 200
-MIN_SEGMENT_AREA = 200
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
     return parser.parse_args()
-
-
-def validate_model_file(model_path: Path) -> None:
-    if not model_path.exists():
-        raise FileNotFoundError(f'model file not found: {model_path}')
-    if model_path.stat().st_size < 1024 * 1024:
-        head = model_path.read_bytes()[:128]
-        if b'git-lfs.github.com/spec' in head:
-            raise RuntimeError(f'model file is a Git LFS pointer, not real weights: {model_path}')
-        raise RuntimeError(f'model file size is invalid: {model_path}')
 
 
 def get_device() -> torch.device:
@@ -1046,7 +1028,6 @@ def get_device() -> torch.device:
 
 
 def load_model(model_path: Path, device: torch.device) -> nn.Module:
-    validate_model_file(model_path)
     model = GDNet()
     checkpoint = torch.load(model_path, map_location=device)
     if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
@@ -1076,28 +1057,15 @@ def preprocess_image(image: Image.Image) -> torch.Tensor:
     return transform(image).unsqueeze(0)
 
 
-def predict_mask(model: nn.Module, image: Image.Image, device: torch.device) -> tuple[np.ndarray, dict[str, Any]]:
+def predict_mask(model: nn.Module, image: Image.Image, device: torch.device) -> np.ndarray:
     width, height = image.size
     tensor = preprocess_image(image).to(device)
     with torch.no_grad():
-        high_prediction, low_prediction, final_prediction = model(tensor)
+        _, _, final_prediction = model(tensor)
 
     final_tensor = final_prediction.data.squeeze(0).cpu()
     mask = np.array(transforms.Resize((height, width))(transforms.ToPILImage()(final_tensor)))
-    binary_mask = np.where(mask > MASK_THRESHOLD, 255, 0).astype(np.uint8)
-    mask_pixels = int(np.count_nonzero(binary_mask))
-    total_pixels = int(binary_mask.size)
-    return binary_mask, {
-        'mask_threshold': MASK_THRESHOLD,
-        'mask_pixels': mask_pixels,
-        'mask_ratio': round(mask_pixels / total_pixels, 6) if total_pixels else 0.0,
-        'mask_ratio_percent': round(mask_pixels / total_pixels * 100, 4) if total_pixels else 0.0,
-        'raw_mask_min': round(float(np.min(mask)), 6),
-        'raw_mask_max': round(float(np.max(mask)), 6),
-        'raw_mask_mean': round(float(np.mean(mask)), 6),
-        'output_heads': ['high_prediction', 'low_prediction', 'final_prediction'],
-        'final_prediction_shape': list(final_prediction.shape),
-    }
+    return np.where(mask > MASK_THRESHOLD, 255, 0).astype(np.uint8)
 
 
 def extract_white_regions(binary_mask: np.ndarray) -> list[np.ndarray]:
@@ -1145,7 +1113,7 @@ def save_frequency_image(path: Path, magnitude_spectrum: np.ndarray) -> None:
     cv2.imwrite(str(path), normalized.astype(np.uint8))
 
 
-def detect_glass_flatness(segment_image: np.ndarray, glass_id: str, output_dir: Path) -> dict[str, Any]:
+def detect_glass_flatness(segment_image: np.ndarray, region_id: int, output_dir: Path) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     cropped_image = crop_glass_region(segment_image, border_ratio=0.1)
     if cropped_image.size == 0:
@@ -1153,20 +1121,9 @@ def detect_glass_flatness(segment_image: np.ndarray, glass_id: str, output_dir: 
 
     gray = cv2.cvtColor(cropped_image, cv2.COLOR_RGB2GRAY)
     edges = cv2.Canny(gray, 50, 150)
-    edge_path = output_dir / f'{glass_id}-edges.jpg'
-    cv2.imwrite(str(edge_path), edges)
-
     edge_count = int(np.sum(edges > 0))
     laplacian_variance = float(cv2.Laplacian(gray, cv2.CV_64F).var())
-    if laplacian_variance < 10:
-        edge_result = 0
-        edge_analysis = f'glass surface may be uneven (blurred edges, laplacian variance: {laplacian_variance:.2f})'
-    elif edge_count < 500:
-        edge_result = 1
-        edge_analysis = f'glass surface may be flat (normal edges, simple background, edge count: {edge_count})'
-    else:
-        edge_result = 1
-        edge_analysis = f'glass surface may be flat (clear edges, laplacian variance: {laplacian_variance:.2f}, edge count: {edge_count})'
+    edge_is_flat = laplacian_variance >= 10
 
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength=50, maxLineGap=10)
     line_image = cropped_image.copy()
@@ -1176,46 +1133,41 @@ def detect_glass_flatness(segment_image: np.ndarray, glass_id: str, output_dir: 
             x1, y1, x2, y2 = line[0]
             cv2.line(line_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
             angles.append(float(np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi))
-    line_path = output_dir / f'{glass_id}-lines.jpg'
-    cv2.imwrite(str(line_path), cv2.cvtColor(line_image, cv2.COLOR_RGB2BGR))
     angle_std = float(np.std(angles)) if angles else 0.0
-    line_result = 1 if angle_std < 50 else 0
-    line_analysis = f'glass surface may be uneven (large angle std: {angle_std:.2f})' if line_result == 0 else 'glass surface may be flat (normal line angles)'
+    line_is_flat = angle_std < 50
 
     grad_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
     grad_y = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
     grad_magnitude = cv2.magnitude(grad_x, grad_y)
-    gradient_path = output_dir / f'{glass_id}-gradient.jpg'
-    cv2.imwrite(str(gradient_path), np.uint8(np.clip(grad_magnitude, 0, 255)))
     gradient_mean = float(np.mean(grad_magnitude))
     gradient_std = float(np.std(grad_magnitude))
-    gradient_result = 1 if gradient_std < 100 else 0
-    gradient_analysis = f'glass surface may be uneven (large gradient std: {gradient_std:.2f})' if gradient_result == 0 else 'glass surface may be flat (normal gradient)'
+    gradient_is_flat = gradient_std < 100
 
     dft = cv2.dft(np.float32(gray), flags=cv2.DFT_COMPLEX_OUTPUT)
     dft_shift = np.fft.fftshift(dft)
     magnitude = cv2.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1])
     magnitude_spectrum = 20 * np.log(magnitude + 1)
-    frequency_path = output_dir / f'{glass_id}-frequency.jpg'
-    save_frequency_image(frequency_path, magnitude_spectrum)
     freq_max = float(np.max(magnitude_spectrum))
     freq_min = float(np.min(magnitude_spectrum))
     freq_diff = freq_max - freq_min
-    frequency_result = 1 if freq_diff < 400 else 0
-    frequency_analysis = (
-        f'glass surface may be uneven (large spectrum range: {freq_diff:.2f})'
-        if frequency_result == 0
-        else f'glass surface may be flat (small spectrum range: {freq_diff:.2f})'
-    )
+    frequency_is_flat = freq_diff < 400
 
-    flatness_result = 1 if sum([line_result, gradient_result, frequency_result]) >= 2 else 0
+    is_flat = sum([line_is_flat, gradient_is_flat, frequency_is_flat]) >= 2
+    if not is_flat:
+        block_path = output_dir / f'block_{region_id}.png'
+        lines_path = output_dir / f'lines_{region_id}.png'
+        gradient_path = output_dir / f'gradient_{region_id}.png'
+        frequency_path = output_dir / f'frequency_{region_id}.png'
+        cv2.imwrite(str(block_path), cv2.cvtColor(segment_image, cv2.COLOR_RGB2BGR))
+        cv2.imwrite(str(lines_path), cv2.cvtColor(line_image, cv2.COLOR_RGB2BGR))
+        cv2.imwrite(str(gradient_path), np.uint8(np.clip(grad_magnitude, 0, 255)))
+        save_frequency_image(frequency_path, magnitude_spectrum)
     return {
-        'flatness_result': int(flatness_result),
-        'is_flat': bool(flatness_result),
-        'edge_result': int(edge_result),
-        'line_result': int(line_result),
-        'gradient_result': int(gradient_result),
-        'frequency_result': int(frequency_result),
+        'is_flat': bool(is_flat),
+        'edge_uneven_detected': not edge_is_flat,
+        'line_uneven_detected': not line_is_flat,
+        'gradient_uneven_detected': not gradient_is_flat,
+        'frequency_uneven_detected': not frequency_is_flat,
         'edge_count': edge_count,
         'laplacian_variance': round(laplacian_variance, 6),
         'line_count': int(len(lines)) if lines is not None else 0,
@@ -1224,33 +1176,15 @@ def detect_glass_flatness(segment_image: np.ndarray, glass_id: str, output_dir: 
         'gradient_std': round(gradient_std, 6),
         'frequency_min': round(freq_min, 6),
         'frequency_max': round(freq_max, 6),
-        'frequency_diff': round(freq_diff, 6),
-        'edge_analysis': edge_analysis,
-        'line_analysis': line_analysis,
-        'gradient_analysis': gradient_analysis,
-        'frequency_analysis': frequency_analysis,
-        'outputs': {
-            'edge_image': str(edge_path),
-            'line_image': str(line_path),
-            'gradient_image': str(gradient_path),
-            'frequency_image': str(frequency_path),
-        },
     }
 
 
-def save_mask(binary_mask: np.ndarray, output_dir: Path, input_path: Path) -> str:
+def save_mask(binary_mask: np.ndarray, output_dir: Path) -> None:
     mask_path = output_dir / 'mask.png'
     cv2.imwrite(str(mask_path), binary_mask)
-    return str(mask_path)
 
 
-def save_segment(segment_image: np.ndarray, output_dir: Path, segment_id: int) -> str:
-    segment_path = output_dir / f'glass-{segment_id}.png'
-    cv2.imwrite(str(segment_path), cv2.cvtColor(segment_image, cv2.COLOR_RGB2BGR))
-    return str(segment_path)
-
-
-def save_overlay(image: Image.Image, glass_reports: list[dict[str, Any]], output_dir: Path, input_path: Path) -> str:
+def save_overlay(image: Image.Image, glass_reports: list[dict[str, Any]], output_dir: Path) -> None:
     pil_image = image.convert('RGBA')
     overlay = Image.new('RGBA', pil_image.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
@@ -1262,28 +1196,39 @@ def save_overlay(image: Image.Image, glass_reports: list[dict[str, Any]], output
     result = Image.alpha_composite(pil_image, overlay).convert('RGB')
     overlay_path = output_dir / 'overlay.png'
     result.save(overlay_path)
-    return str(overlay_path)
 
 
-def build_report(input_path: Path, image: Image.Image, model_output: dict[str, Any], glass_reports: list[dict[str, Any]]) -> dict[str, Any]:
-    width, height = image.size
-    flat_count = sum(1 for item in glass_reports if item['is_flat'])
-    uneven_count = len(glass_reports) - flat_count
-    is_flat = bool(glass_reports and uneven_count == 0)
+def build_report(glass_reports: list[dict[str, Any]]) -> dict[str, Any]:
+    uneven_reports = [item for item in glass_reports if not item['is_flat']]
     if not glass_reports:
-        result = 'no_glass_region_detected'
+        result = '非玻璃'
+    elif not uneven_reports:
+        result = '平整'
     else:
-        result = 'flat' if is_flat else 'uneven'
+        result = '不平整'
     return {
-        'input': str(input_path),
-        'image_size': {'width': width, 'height': height},
         'result': result,
-        'is_flat': is_flat,
-        'glass_count': len(glass_reports),
-        'flat_glass_count': flat_count,
-        'uneven_glass_count': uneven_count,
-        'model_output': model_output,
-        'glass_regions': glass_reports,
+        'is_flat': bool(result == '平整'),
+        'uneven_count': len(uneven_reports),
+        'regions': [
+            {
+                'id': index,
+                'bbox_xyxy': item['bbox_xyxy'],
+                'edge_uneven_detected': item['edge_uneven_detected'],
+                'line_uneven_detected': item['line_uneven_detected'],
+                'gradient_uneven_detected': item['gradient_uneven_detected'],
+                'frequency_uneven_detected': item['frequency_uneven_detected'],
+                'edge_count': item['edge_count'],
+                'laplacian_variance': item['laplacian_variance'],
+                'line_count': item['line_count'],
+                'angle_std': item['angle_std'],
+                'gradient_mean': item['gradient_mean'],
+                'gradient_std': item['gradient_std'],
+                'frequency_min': item['frequency_min'],
+                'frequency_max': item['frequency_max'],
+            }
+            for index, item in enumerate(uneven_reports, start=1)
+        ],
     }
 
 
@@ -1292,50 +1237,36 @@ def main() -> int:
     start_time = time.time()
     input_path = Path(args.input).expanduser().resolve()
     output_dir = input_path.parent
-    segments_dir = output_dir / 'segments'
-    analysis_dir = output_dir / 'analysis'
     output_dir.mkdir(parents=True, exist_ok=True)
-    segments_dir.mkdir(parents=True, exist_ok=True)
-    analysis_dir.mkdir(parents=True, exist_ok=True)
 
     device = get_device()
     image = read_image(input_path)
     model = load_model(MODEL_PATH, device)
-    binary_mask, model_output = predict_mask(model, image, device)
+    binary_mask = predict_mask(model, image, device)
     original_image = np.array(image)
     contours = extract_white_regions(binary_mask)
     segments = segment_from_original_image(original_image, contours)
 
     glass_reports = []
-    for index, segment in enumerate(segments, start=1):
-        segment_path = save_segment(segment['image'], segments_dir, index)
-        analysis = detect_glass_flatness(segment['image'], f'glass-{index}', analysis_dir)
+    for segment in segments:
+        region_id = sum(1 for item in glass_reports if not item['is_flat']) + 1
+        analysis = detect_glass_flatness(segment['image'], region_id, output_dir)
+        bbox = segment['bbox']
         glass_reports.append(
             {
-                'id': index,
-                'bbox': segment['bbox'],
-                'area_px': segment['area_px'],
-                'segment_image': segment_path,
+                'bbox': bbox,
+                'bbox_xyxy': [bbox['x'], bbox['y'], bbox['x'] + bbox['width'], bbox['y'] + bbox['height']],
                 **analysis,
             }
         )
 
-    report = build_report(input_path, image, model_output, glass_reports)
-    mask_path = save_mask(binary_mask, output_dir, input_path)
-    overlay_path = save_overlay(image, glass_reports, output_dir, input_path)
+    report = build_report(glass_reports)
+    save_mask(binary_mask, output_dir)
+    save_overlay(image, glass_reports, output_dir)
     report_path = output_dir / 'report.json'
-    report['model'] = str(MODEL_PATH)
-    report['device'] = str(device)
-    report['input_size'] = INPUT_SIZE
     report['runtime_seconds'] = round(time.time() - start_time, 3)
-    report['outputs'] = {
-        'mask': mask_path,
-        'overlay': overlay_path,
-        'report_json': str(report_path),
-    }
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     return 0
 
 
-if __name__ == '__main__':
-    raise SystemExit(main())
+raise SystemExit(main())

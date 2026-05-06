@@ -1,9 +1,10 @@
-from __future__ import annotations
-
 import argparse
 import subprocess
 import sys
 from pathlib import Path
+
+
+ERROR_FILE_NAME = 'runner_error.txt'
 
 
 def parse_args() -> argparse.Namespace:
@@ -15,22 +16,16 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def detector_dir(detector_path: str) -> Path:
-    path = Path(detector_path).expanduser().resolve()
-    if not path.exists():
-        raise FileNotFoundError(f'detector directory not found: {path}')
-    return path
-
-
 def run_detector(task_code: str, detector_path: Path, image_path: Path, task_runtime_dir: Path) -> Path:
-    target_dir = detector_dir(str(detector_path))
-    script = target_dir / 'main.py'
+    if not detector_path.exists():
+        raise FileNotFoundError(f'detector directory not found: {detector_path}')
+    script = detector_path / 'main.py'
     if not script.exists():
         raise FileNotFoundError(f'detector script not found: {script}')
 
     completed = subprocess.run(
         [sys.executable, str(script), '--input', str(image_path)],
-        cwd=str(target_dir),
+        cwd=str(detector_path),
         check=False,
         capture_output=True,
         text=True,
@@ -48,6 +43,12 @@ def run_detector(task_code: str, detector_path: Path, image_path: Path, task_run
     return report_path
 
 
+def write_error(task_runtime_dir: Path, err: Exception) -> None:
+    task_runtime_dir.mkdir(parents=True, exist_ok=True)
+    message = str(err).strip() or err.__class__.__name__
+    (task_runtime_dir / ERROR_FILE_NAME).write_text(message, encoding='utf-8')
+
+
 def safe_path_part(value: str, name: str) -> str:
     value = value.strip()
     if not value or value in {'.', '..'} or '/' in value or '\\' in value:
@@ -63,13 +64,26 @@ def main() -> int:
     runtime_root = Path(args.runtime_root).expanduser().resolve()
     task_runtime_dir = runtime_root / task_code / image_uuid
     task_runtime_dir.mkdir(parents=True, exist_ok=True)
+    error_path = task_runtime_dir / ERROR_FILE_NAME
+    if error_path.exists():
+        error_path.unlink()
     image_path = task_runtime_dir / 'original.png'
     if not image_path.is_file():
         raise FileNotFoundError(f'original image not found: {image_path}')
 
-    run_detector(task_code, detector_path, image_path, task_runtime_dir)
+    try:
+        run_detector(task_code, detector_path, image_path, task_runtime_dir)
+    except Exception as err:
+        write_error(task_runtime_dir, err)
+        return 1
     return 0
 
 
-if __name__ == '__main__':
-    raise SystemExit(main())
+def run() -> int:
+    try:
+        return main()
+    except Exception:
+        return 1
+
+
+raise SystemExit(run())
