@@ -18,58 +18,6 @@ const (
 	MaxNameLength int = 8
 )
 
-// EmailSendStatus 邮件发送状态枚举
-type EmailSendStatus string
-
-const (
-	// EmailSendStatusSuccess 邮件发送成功
-	EmailSendStatusSuccess EmailSendStatus = "success"
-	// EmailSendStatusFailed 邮件发送失败
-	EmailSendStatusFailed EmailSendStatus = "failed"
-)
-
-// String 将邮件发送状态枚举转换为字符串
-func (s EmailSendStatus) String() string {
-	return string(s)
-}
-
-// ParseEmailSendStatus 将外部输入转换为邮件发送状态枚举
-func ParseEmailSendStatus(value string) EmailSendStatus {
-	switch status := EmailSendStatus(strings.TrimSpace(value)); status {
-	case EmailSendStatusSuccess, EmailSendStatusFailed:
-		return status
-	default:
-		return ""
-	}
-}
-
-// EmailCodeScene 邮箱验证码业务场景枚举
-type EmailCodeScene string
-
-const (
-	// SceneRegister 账号注册
-	SceneRegister EmailCodeScene = "register"
-	// SceneLogin 账号登录
-	SceneLogin EmailCodeScene = "login"
-	// SceneReset 重置密码
-	SceneReset EmailCodeScene = "reset"
-)
-
-// String 将邮箱验证码业务场景枚举转换为字符串
-func (s EmailCodeScene) String() string {
-	return string(s)
-}
-
-// ParseEmailCodeScene 将外部输入转换为邮箱验证码业务场景枚举
-func ParseEmailCodeScene(value string) EmailCodeScene {
-	switch scene := EmailCodeScene(strings.TrimSpace(value)); scene {
-	case SceneRegister, SceneLogin, SceneReset:
-		return scene
-	default:
-		return ""
-	}
-}
-
 // LoginScene 登录方式枚举
 type LoginScene string
 

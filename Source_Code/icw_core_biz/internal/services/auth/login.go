@@ -1,25 +1,29 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/auth/consts"
 	"icw_core_biz/internal/services/auth/utils"
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
 )
 
 // Login 登录
-func (s *Service) Login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) Login(ctx context.Context, req *bizpb.LoginRequest) (*bizpb.LoginResponse, error) {
+	resp := &bizpb.LoginResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.login(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
+func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) error {
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {
@@ -66,7 +70,7 @@ func (s *Service) login(req *dto.LoginRequest, resp *dto.LoginResponse) error {
 		}
 	case consts.LoginEmail:
 		// 邮箱验证码登录
-		if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, consts.SceneLogin.String(), emailHash, req.Code); err != nil {
+		if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, enum.EmailCodeSceneString(bizpb.EmailCodeScene_EMAIL_CODE_SCENE_LOGIN), emailHash, req.Code); err != nil {
 			if !utils.IsEmailCodeBusinessError(err) {
 				return err
 			}

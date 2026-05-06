@@ -1,25 +1,28 @@
 package auth
 
 import (
+	"context"
 	"errors"
 
 	"golang.org/x/crypto/bcrypt"
 
-	"icw_core_biz/internal/services/auth/consts"
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/auth/utils"
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // Register 注册
-func (s *Service) Register(req *dto.RegisterRequest, resp *dto.RegisterResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) Register(ctx context.Context, req *bizpb.RegisterRequest) (*bizpb.RegisterResponse, error) {
+	resp := &bizpb.RegisterResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.register(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) error {
+func (s *Service) register(req *bizpb.RegisterRequest, _ *bizpb.RegisterResponse) error {
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {
@@ -50,7 +53,7 @@ func (s *Service) register(req *dto.RegisterRequest, _ *dto.RegisterResponse) er
 	}
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
-	if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, consts.SceneRegister.String(), emailHash, req.EmailCode); err != nil {
+	if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, enum.EmailCodeSceneString(bizpb.EmailCodeScene_EMAIL_CODE_SCENE_REGISTER), emailHash, req.EmailCode); err != nil {
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}

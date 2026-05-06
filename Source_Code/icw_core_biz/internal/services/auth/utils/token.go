@@ -8,9 +8,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/configs"
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
@@ -21,7 +21,7 @@ type TokenMetadata struct {
 	TokenId      string
 	TokenHash    string
 	ExpiresAt    time.Time
-	User         *dto.User
+	User         *bizpb.User
 }
 
 // NewTokenMetadata 创建 Token 元数据
@@ -79,7 +79,7 @@ func NewTokenManager(secret string, ttl time.Duration) *TokenManager {
 }
 
 // Sign 签发 Access Token
-func (m *TokenManager) Sign(user *dto.User) (string, string, error) {
+func (m *TokenManager) Sign(user *bizpb.User) (string, string, error) {
 	now := time.Now()
 	jti := uuid.NewString()
 	claims := AccessClaims{
@@ -130,7 +130,7 @@ func (m *TokenManager) ParseAny(raw string) (*AccessClaims, error) {
 }
 
 // IssueTokens 登录场景下，签发 Access Token 和 Refresh Token，并更新用户最近登录时间
-func IssueTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, user *mysql.UserRecord, resp *dto.LoginResponse) error {
+func IssueTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, user *mysql.UserRecord, resp *bizpb.LoginResponse) error {
 	pair, err := NewTokenMetadata(cfg, tokens, user)
 	if err != nil {
 		return err
@@ -142,16 +142,16 @@ func IssueTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository
 	}
 
 	resp.AccessToken = pair.AccessToken
-	resp.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
+	resp.AccessTokenExpiresIn = int32(cfg.AccessTokenTTL.Seconds())
 	resp.RefreshToken = pair.RefreshToken
-	resp.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
+	resp.RefreshTokenExpiresIn = int32(cfg.RefreshTokenTTL.Seconds())
 	resp.User = pair.User
 
 	return nil
 }
 
 // IssueRotatedTokens 刷新场景下，签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *dto.RefreshResponse) error {
+func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *bizpb.RefreshResponse) error {
 	if resp == nil {
 		return rpc_err.InternalErrorDefault("response is nil")
 	}
@@ -169,9 +169,9 @@ func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Rep
 	}
 
 	resp.AccessToken = pair.AccessToken
-	resp.AccessTokenExpiresIn = int(cfg.AccessTokenTTL.Seconds())
+	resp.AccessTokenExpiresIn = int32(cfg.AccessTokenTTL.Seconds())
 	resp.RefreshToken = pair.RefreshToken
-	resp.RefreshTokenExpiresIn = int(cfg.RefreshTokenTTL.Seconds())
+	resp.RefreshTokenExpiresIn = int32(cfg.RefreshTokenTTL.Seconds())
 	resp.User = pair.User
 
 	return nil

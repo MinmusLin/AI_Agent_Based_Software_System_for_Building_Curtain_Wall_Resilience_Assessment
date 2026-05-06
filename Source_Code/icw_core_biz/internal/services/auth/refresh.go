@@ -1,23 +1,26 @@
 package auth
 
 import (
+	"context"
 	"strings"
 	"time"
 
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/internal/services/common"
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
 )
 
 // Refresh 刷新 Token
-func (s *Service) Refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) Refresh(ctx context.Context, req *bizpb.RefreshRequest) (*bizpb.RefreshResponse, error) {
+	resp := &bizpb.RefreshResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.refresh(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) refresh(req *dto.RefreshRequest, resp *dto.RefreshResponse) error {
+func (s *Service) refresh(req *bizpb.RefreshRequest, resp *bizpb.RefreshResponse) error {
 	// 解析 Refresh Token Id
 	refreshToken := strings.TrimSpace(req.RefreshToken)
 	tokenId := utils.ParseRefreshTokenId(refreshToken)

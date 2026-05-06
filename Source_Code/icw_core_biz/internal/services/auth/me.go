@@ -1,19 +1,23 @@
 package auth
 
 import (
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
+	"context"
+
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // Me 获取用户信息
-func (s *Service) Me(req *dto.MeRequest, resp *dto.MeResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) Me(ctx context.Context, req *bizpb.MeRequest) (*bizpb.MeResponse, error) {
+	resp := &bizpb.MeResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.me(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) me(req *dto.MeRequest, resp *dto.MeResponse) error {
+func (s *Service) me(req *bizpb.MeRequest, resp *bizpb.MeResponse) error {
 	// 校验 Access Token 的签名、过期时间和签名算法
 	claims, err := s.tokens.Verify(req.AccessToken)
 	if err != nil {

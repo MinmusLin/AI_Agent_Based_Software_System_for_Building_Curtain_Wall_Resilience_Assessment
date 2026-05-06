@@ -1,22 +1,25 @@
 package auth
 
 import (
+	"context"
 	"time"
 
-	authUtils "icw_core_biz/internal/services/auth/utils"
+	"icw_common/gen/core/biz"
+	"icw_common/utils"
+	bizUtils "icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/internal/services/common"
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/utils"
 )
 
 // Logout 登出
-func (s *Service) Logout(req *dto.LogoutRequest, resp *dto.LogoutResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) Logout(ctx context.Context, req *bizpb.LogoutRequest) (*bizpb.LogoutResponse, error) {
+	resp := &bizpb.LogoutResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.logout(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
+func (s *Service) logout(req *bizpb.LogoutRequest, _ *bizpb.LogoutResponse) error {
 	// 将未过期的 Access Token 加入 Redis 黑名单
 	if claims, err := s.tokens.ParseAny(req.AccessToken); err == nil && claims.ID != "" {
 		if claims.ExpiresAt != nil {
@@ -30,7 +33,7 @@ func (s *Service) logout(req *dto.LogoutRequest, _ *dto.LogoutResponse) error {
 	}
 
 	// 吊销 Refresh Token
-	if tokenId := authUtils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
+	if tokenId := bizUtils.ParseRefreshTokenId(req.RefreshToken); tokenId != "" {
 		if err := s.MySQL().RevokeRefreshTokensByTokenId(s.Ctx(), tokenId); err != nil {
 			common.RpcWarn("Revoke refresh tokens by token id failed, token_id: %s, err: %v", tokenId, err)
 		}

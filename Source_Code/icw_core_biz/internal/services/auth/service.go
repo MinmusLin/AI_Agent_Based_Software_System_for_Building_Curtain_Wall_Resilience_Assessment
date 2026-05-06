@@ -3,16 +3,19 @@ package auth
 import (
 	"context"
 
+	"icw_common/gen/core/biz"
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/internal/services/common"
 )
 
 // Service 登录鉴权服务
 type Service struct {
+	bizpb.UnimplementedAuthServiceServer
 	*common.BaseService
 	tokens *utils.TokenManager
 }
 
+// NewService 创建登录鉴权服务
 func NewService(ctx context.Context, deps *common.Deps) *Service {
 	if deps == nil {
 		deps = &common.Deps{}
