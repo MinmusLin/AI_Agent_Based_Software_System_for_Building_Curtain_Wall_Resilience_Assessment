@@ -1,0 +1,107 @@
+{
+  "has_corrosion": true,
+  "corrosion_count": 8,
+  "max_confidence": 0.961351,
+  "average_confidence": 0.640132,
+  "corrosion_pixels": 51465,
+  "corrosion_ratio": 0.125647,
+  "regions": [
+    {
+      "id": 1,
+      "confidence": 0.961351,
+      "bbox_xyxy": [
+        179.3,
+        160.69,
+        530.77,
+        291.78
+      ],
+      "mask_pixels": 23086,
+      "mask_ratio": 0.056362
+    },
+    {
+      "id": 2,
+      "confidence": 0.933712,
+      "bbox_xyxy": [
+        0.07,
+        457.88,
+        509.31,
+        539.61
+      ],
+      "mask_pixels": 26734,
+      "mask_ratio": 0.065269
+    },
+    {
+      "id": 3,
+      "confidence": 0.900868,
+      "bbox_xyxy": [
+        536.24,
+        234.9,
+        554.4,
+        259.69
+      ],
+      "mask_pixels": 365,
+      "mask_ratio": 0.000891
+    },
+    {
+      "id": 4,
+      "confidence": 0.641604,
+      "bbox_xyxy": [
+        146.45,
+        461.61,
+        169.51,
+        485.99
+      ],
+      "mask_pixels": 465,
+      "mask_ratio": 0.001135
+    },
+    {
+      "id": 5,
+      "confidence": 0.519202,
+      "bbox_xyxy": [
+        359.77,
+        435.05,
+        378.2,
+        442.1
+      ],
+      "mask_pixels": 131,
+      "mask_ratio": 0.00032
+    },
+    {
+      "id": 6,
+      "confidence": 0.442695,
+      "bbox_xyxy": [
+        86.0,
+        408.12,
+        111.72,
+        434.9
+      ],
+      "mask_pixels": 525,
+      "mask_ratio": 0.001282
+    },
+    {
+      "id": 7,
+      "confidence": 0.408278,
+      "bbox_xyxy": [
+        54.99,
+        437.0,
+        74.43,
+        443.04
+      ],
+      "mask_pixels": 115,
+      "mask_ratio": 0.000281
+    },
+    {
+      "id": 8,
+      "confidence": 0.313349,
+      "bbox_xyxy": [
+        465.77,
+        443.39,
+        473.74,
+        449.59
+      ],
+      "mask_pixels": 44,
+      "mask_ratio": 0.000107
+    }
+  ],
+  "runtime_seconds": 4.944
+}

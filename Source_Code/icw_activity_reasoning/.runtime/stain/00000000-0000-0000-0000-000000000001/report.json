@@ -1,0 +1,37 @@
+{
+  "has_stain": true,
+  "stain_count": 2,
+  "average_stain_ratio": 30.012,
+  "max_stain_ratio": 38.3384,
+  "regions": [
+    {
+      "id": 1,
+      "confidence": 0.953774,
+      "bbox_xyxy": [
+        21.41,
+        1000.95,
+        2362.81,
+        1784.65
+      ],
+      "region_width": 2327,
+      "region_height": 783,
+      "stain_pixels": 698542,
+      "stain_ratio": 0.383384
+    },
+    {
+      "id": 2,
+      "confidence": 0.889348,
+      "bbox_xyxy": [
+        2418.25,
+        1767.35,
+        2579.22,
+        1933.88
+      ],
+      "region_width": 160,
+      "region_height": 165,
+      "stain_pixels": 5725,
+      "stain_ratio": 0.216856
+    }
+  ],
+  "runtime_seconds": 2.347
+}
