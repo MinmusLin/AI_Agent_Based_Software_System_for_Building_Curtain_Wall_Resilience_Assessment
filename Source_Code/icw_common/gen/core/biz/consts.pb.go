@@ -10,6 +10,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
+	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -20,13 +21,751 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type EmailCodeScene_Value int32
+
+const (
+	// 未知
+	EmailCodeScene_Unknown EmailCodeScene_Value = 0
+	// 注册账号
+	EmailCodeScene_Register EmailCodeScene_Value = 1
+	// 登录账号
+	EmailCodeScene_Login EmailCodeScene_Value = 2
+	// 重置密码
+	EmailCodeScene_Reset EmailCodeScene_Value = 3
+)
+
+// Enum value maps for EmailCodeScene_Value.
+var (
+	EmailCodeScene_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Register",
+		2: "Login",
+		3: "Reset",
+	}
+	EmailCodeScene_Value_value = map[string]int32{
+		"Unknown":  0,
+		"Register": 1,
+		"Login":    2,
+		"Reset":    3,
+	}
+)
+
+func (x EmailCodeScene_Value) Enum() *EmailCodeScene_Value {
+	p := new(EmailCodeScene_Value)
+	*p = x
+	return p
+}
+
+func (x EmailCodeScene_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EmailCodeScene_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[0].Descriptor()
+}
+
+func (EmailCodeScene_Value) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[0]
+}
+
+func (x EmailCodeScene_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EmailCodeScene_Value.Descriptor instead.
+func (EmailCodeScene_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{0, 0}
+}
+
+type LoginScene_Value int32
+
+const (
+	// 未知
+	LoginScene_Unknown LoginScene_Value = 0
+	// 密码登录
+	LoginScene_Password LoginScene_Value = 1
+	// 邮箱验证码登录
+	LoginScene_Email LoginScene_Value = 2
+)
+
+// Enum value maps for LoginScene_Value.
+var (
+	LoginScene_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Password",
+		2: "Email",
+	}
+	LoginScene_Value_value = map[string]int32{
+		"Unknown":  0,
+		"Password": 1,
+		"Email":    2,
+	}
+)
+
+func (x LoginScene_Value) Enum() *LoginScene_Value {
+	p := new(LoginScene_Value)
+	*p = x
+	return p
+}
+
+func (x LoginScene_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoginScene_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[1].Descriptor()
+}
+
+func (LoginScene_Value) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[1]
+}
+
+func (x LoginScene_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoginScene_Value.Descriptor instead.
+func (LoginScene_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{1, 0}
+}
+
+type EmailSendStatus_Value int32
+
+const (
+	// 未知
+	EmailSendStatus_Unknown EmailSendStatus_Value = 0
+	// 成功
+	EmailSendStatus_Success EmailSendStatus_Value = 1
+	// 失败
+	EmailSendStatus_Failed EmailSendStatus_Value = 2
+)
+
+// Enum value maps for EmailSendStatus_Value.
+var (
+	EmailSendStatus_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Success",
+		2: "Failed",
+	}
+	EmailSendStatus_Value_value = map[string]int32{
+		"Unknown": 0,
+		"Success": 1,
+		"Failed":  2,
+	}
+)
+
+func (x EmailSendStatus_Value) Enum() *EmailSendStatus_Value {
+	p := new(EmailSendStatus_Value)
+	*p = x
+	return p
+}
+
+func (x EmailSendStatus_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EmailSendStatus_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[2].Descriptor()
+}
+
+func (EmailSendStatus_Value) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[2]
+}
+
+func (x EmailSendStatus_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EmailSendStatus_Value.Descriptor instead.
+func (EmailSendStatus_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{2, 0}
+}
+
+type ProjectStatus_Value int32
+
+const (
+	// 未知
+	ProjectStatus_Unknown ProjectStatus_Value = 0
+	// 进行中
+	ProjectStatus_Active ProjectStatus_Value = 1
+	// 已完成
+	ProjectStatus_Completed ProjectStatus_Value = 2
+	// 已删除
+	ProjectStatus_Deleted ProjectStatus_Value = 3
+)
+
+// Enum value maps for ProjectStatus_Value.
+var (
+	ProjectStatus_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Active",
+		2: "Completed",
+		3: "Deleted",
+	}
+	ProjectStatus_Value_value = map[string]int32{
+		"Unknown":   0,
+		"Active":    1,
+		"Completed": 2,
+		"Deleted":   3,
+	}
+)
+
+func (x ProjectStatus_Value) Enum() *ProjectStatus_Value {
+	p := new(ProjectStatus_Value)
+	*p = x
+	return p
+}
+
+func (x ProjectStatus_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProjectStatus_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[3].Descriptor()
+}
+
+func (ProjectStatus_Value) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[3]
+}
+
+func (x ProjectStatus_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProjectStatus_Value.Descriptor instead.
+func (ProjectStatus_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{3, 0}
+}
+
+type ProjectImageStatus_Value int32
+
+const (
+	// 未知
+	ProjectImageStatus_Unknown ProjectImageStatus_Value = 0
+	// 上传中
+	ProjectImageStatus_Pending ProjectImageStatus_Value = 1
+	// 上传成功
+	ProjectImageStatus_Uploaded ProjectImageStatus_Value = 2
+	// 上传失败
+	ProjectImageStatus_Failed ProjectImageStatus_Value = 3
+)
+
+// Enum value maps for ProjectImageStatus_Value.
+var (
+	ProjectImageStatus_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Pending",
+		2: "Uploaded",
+		3: "Failed",
+	}
+	ProjectImageStatus_Value_value = map[string]int32{
+		"Unknown":  0,
+		"Pending":  1,
+		"Uploaded": 2,
+		"Failed":   3,
+	}
+)
+
+func (x ProjectImageStatus_Value) Enum() *ProjectImageStatus_Value {
+	p := new(ProjectImageStatus_Value)
+	*p = x
+	return p
+}
+
+func (x ProjectImageStatus_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProjectImageStatus_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[4].Descriptor()
+}
+
+func (ProjectImageStatus_Value) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[4]
+}
+
+func (x ProjectImageStatus_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProjectImageStatus_Value.Descriptor instead.
+func (ProjectImageStatus_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{4, 0}
+}
+
+type ProjectDetectionTaskStatus_Value int32
+
+const (
+	// 未知
+	ProjectDetectionTaskStatus_Unknown ProjectDetectionTaskStatus_Value = 0
+	// 等待中
+	ProjectDetectionTaskStatus_Pending ProjectDetectionTaskStatus_Value = 1
+	// 分类中
+	ProjectDetectionTaskStatus_Classifying ProjectDetectionTaskStatus_Value = 2
+	// 检测中
+	ProjectDetectionTaskStatus_Detecting ProjectDetectionTaskStatus_Value = 3
+	// 总结中
+	ProjectDetectionTaskStatus_Summarizing ProjectDetectionTaskStatus_Value = 4
+	// 成功
+	ProjectDetectionTaskStatus_Succeeded ProjectDetectionTaskStatus_Value = 5
+	// 失败
+	ProjectDetectionTaskStatus_Failed ProjectDetectionTaskStatus_Value = 6
+)
+
+// Enum value maps for ProjectDetectionTaskStatus_Value.
+var (
+	ProjectDetectionTaskStatus_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Pending",
+		2: "Classifying",
+		3: "Detecting",
+		4: "Summarizing",
+		5: "Succeeded",
+		6: "Failed",
+	}
+	ProjectDetectionTaskStatus_Value_value = map[string]int32{
+		"Unknown":     0,
+		"Pending":     1,
+		"Classifying": 2,
+		"Detecting":   3,
+		"Summarizing": 4,
+		"Succeeded":   5,
+		"Failed":      6,
+	}
+)
+
+func (x ProjectDetectionTaskStatus_Value) Enum() *ProjectDetectionTaskStatus_Value {
+	p := new(ProjectDetectionTaskStatus_Value)
+	*p = x
+	return p
+}
+
+func (x ProjectDetectionTaskStatus_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProjectDetectionTaskStatus_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[5].Descriptor()
+}
+
+func (ProjectDetectionTaskStatus_Value) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[5]
+}
+
+func (x ProjectDetectionTaskStatus_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProjectDetectionTaskStatus_Value.Descriptor instead.
+func (ProjectDetectionTaskStatus_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{5, 0}
+}
+
+type ProjectDetectionSubTaskStatus_Value int32
+
+const (
+	// 未知
+	ProjectDetectionSubTaskStatus_Unknown ProjectDetectionSubTaskStatus_Value = 0
+	// 等待中
+	ProjectDetectionSubTaskStatus_Pending ProjectDetectionSubTaskStatus_Value = 1
+	// 检测中
+	ProjectDetectionSubTaskStatus_Running ProjectDetectionSubTaskStatus_Value = 2
+	// 成功
+	ProjectDetectionSubTaskStatus_Succeeded ProjectDetectionSubTaskStatus_Value = 3
+	// 失败
+	ProjectDetectionSubTaskStatus_Failed ProjectDetectionSubTaskStatus_Value = 4
+)
+
+// Enum value maps for ProjectDetectionSubTaskStatus_Value.
+var (
+	ProjectDetectionSubTaskStatus_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Pending",
+		2: "Running",
+		3: "Succeeded",
+		4: "Failed",
+	}
+	ProjectDetectionSubTaskStatus_Value_value = map[string]int32{
+		"Unknown":   0,
+		"Pending":   1,
+		"Running":   2,
+		"Succeeded": 3,
+		"Failed":    4,
+	}
+)
+
+func (x ProjectDetectionSubTaskStatus_Value) Enum() *ProjectDetectionSubTaskStatus_Value {
+	p := new(ProjectDetectionSubTaskStatus_Value)
+	*p = x
+	return p
+}
+
+func (x ProjectDetectionSubTaskStatus_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProjectDetectionSubTaskStatus_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[6].Descriptor()
+}
+
+func (ProjectDetectionSubTaskStatus_Value) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[6]
+}
+
+func (x ProjectDetectionSubTaskStatus_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProjectDetectionSubTaskStatus_Value.Descriptor instead.
+func (ProjectDetectionSubTaskStatus_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{6, 0}
+}
+
+// 邮箱验证码业务场景
+type EmailCodeScene struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EmailCodeScene) Reset() {
+	*x = EmailCodeScene{}
+	mi := &file_core_biz_consts_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EmailCodeScene) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EmailCodeScene) ProtoMessage() {}
+
+func (x *EmailCodeScene) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_consts_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EmailCodeScene.ProtoReflect.Descriptor instead.
+func (*EmailCodeScene) Descriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{0}
+}
+
+// 登录方式
+type LoginScene struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginScene) Reset() {
+	*x = LoginScene{}
+	mi := &file_core_biz_consts_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginScene) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginScene) ProtoMessage() {}
+
+func (x *LoginScene) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_consts_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginScene.ProtoReflect.Descriptor instead.
+func (*LoginScene) Descriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{1}
+}
+
+// 邮件发送状态
+type EmailSendStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EmailSendStatus) Reset() {
+	*x = EmailSendStatus{}
+	mi := &file_core_biz_consts_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EmailSendStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EmailSendStatus) ProtoMessage() {}
+
+func (x *EmailSendStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_consts_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EmailSendStatus.ProtoReflect.Descriptor instead.
+func (*EmailSendStatus) Descriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{2}
+}
+
+// 项目状态
+type ProjectStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectStatus) Reset() {
+	*x = ProjectStatus{}
+	mi := &file_core_biz_consts_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectStatus) ProtoMessage() {}
+
+func (x *ProjectStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_consts_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectStatus.ProtoReflect.Descriptor instead.
+func (*ProjectStatus) Descriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{3}
+}
+
+// 项目图像状态
+type ProjectImageStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectImageStatus) Reset() {
+	*x = ProjectImageStatus{}
+	mi := &file_core_biz_consts_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectImageStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectImageStatus) ProtoMessage() {}
+
+func (x *ProjectImageStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_consts_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectImageStatus.ProtoReflect.Descriptor instead.
+func (*ProjectImageStatus) Descriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{4}
+}
+
+// 项目图像检测主任务状态
+type ProjectDetectionTaskStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionTaskStatus) Reset() {
+	*x = ProjectDetectionTaskStatus{}
+	mi := &file_core_biz_consts_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionTaskStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionTaskStatus) ProtoMessage() {}
+
+func (x *ProjectDetectionTaskStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_consts_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionTaskStatus.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionTaskStatus) Descriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{5}
+}
+
+// 项目图像检测子任务状态
+type ProjectDetectionSubTaskStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionSubTaskStatus) Reset() {
+	*x = ProjectDetectionSubTaskStatus{}
+	mi := &file_core_biz_consts_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionSubTaskStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionSubTaskStatus) ProtoMessage() {}
+
+func (x *ProjectDetectionSubTaskStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_consts_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionSubTaskStatus.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionSubTaskStatus) Descriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{6}
+}
+
 var File_core_biz_consts_proto protoreflect.FileDescriptor
 
 const file_core_biz_consts_proto_rawDesc = "" +
 	"\n" +
-	"\x15core/biz/consts.proto\x12\ficw.core.biz\x1a&core/biz/consts/email_code_scene.proto\x1a'core/biz/consts/email_send_status.proto\x1a!core/biz/consts/login_scene.proto\x1a7core/biz/consts/project_detection_sub_task_status.proto\x1a3core/biz/consts/project_detection_task_status.proto\x1a*core/biz/consts/project_image_status.proto\x1a$core/biz/consts/project_status.protoB\x1fZ\x1dicw_common/gen/core/biz;bizpbP\x00P\x01P\x02P\x03P\x04P\x05P\x06b\x06proto3"
+	"\x15core/biz/consts.proto\x12\ficw.core.biz\"J\n" +
+	"\x0eEmailCodeScene\"8\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\f\n" +
+	"\bRegister\x10\x01\x12\t\n" +
+	"\x05Login\x10\x02\x12\t\n" +
+	"\x05Reset\x10\x03\";\n" +
+	"\n" +
+	"LoginScene\"-\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\f\n" +
+	"\bPassword\x10\x01\x12\t\n" +
+	"\x05Email\x10\x02\"@\n" +
+	"\x0fEmailSendStatus\"-\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\v\n" +
+	"\aSuccess\x10\x01\x12\n" +
+	"\n" +
+	"\x06Failed\x10\x02\"M\n" +
+	"\rProjectStatus\"<\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\n" +
+	"\n" +
+	"\x06Active\x10\x01\x12\r\n" +
+	"\tCompleted\x10\x02\x12\v\n" +
+	"\aDeleted\x10\x03\"Q\n" +
+	"\x12ProjectImageStatus\";\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\v\n" +
+	"\aPending\x10\x01\x12\f\n" +
+	"\bUploaded\x10\x02\x12\n" +
+	"\n" +
+	"\x06Failed\x10\x03\"\x8b\x01\n" +
+	"\x1aProjectDetectionTaskStatus\"m\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\v\n" +
+	"\aPending\x10\x01\x12\x0f\n" +
+	"\vClassifying\x10\x02\x12\r\n" +
+	"\tDetecting\x10\x03\x12\x0f\n" +
+	"\vSummarizing\x10\x04\x12\r\n" +
+	"\tSucceeded\x10\x05\x12\n" +
+	"\n" +
+	"\x06Failed\x10\x06\"j\n" +
+	"\x1dProjectDetectionSubTaskStatus\"I\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\v\n" +
+	"\aPending\x10\x01\x12\v\n" +
+	"\aRunning\x10\x02\x12\r\n" +
+	"\tSucceeded\x10\x03\x12\n" +
+	"\n" +
+	"\x06Failed\x10\x04B\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
 
-var file_core_biz_consts_proto_goTypes = []any{}
+var (
+	file_core_biz_consts_proto_rawDescOnce sync.Once
+	file_core_biz_consts_proto_rawDescData []byte
+)
+
+func file_core_biz_consts_proto_rawDescGZIP() []byte {
+	file_core_biz_consts_proto_rawDescOnce.Do(func() {
+		file_core_biz_consts_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_core_biz_consts_proto_rawDesc), len(file_core_biz_consts_proto_rawDesc)))
+	})
+	return file_core_biz_consts_proto_rawDescData
+}
+
+var file_core_biz_consts_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_core_biz_consts_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_core_biz_consts_proto_goTypes = []any{
+	(EmailCodeScene_Value)(0),                // 0: icw.core.biz.EmailCodeScene.Value
+	(LoginScene_Value)(0),                    // 1: icw.core.biz.LoginScene.Value
+	(EmailSendStatus_Value)(0),               // 2: icw.core.biz.EmailSendStatus.Value
+	(ProjectStatus_Value)(0),                 // 3: icw.core.biz.ProjectStatus.Value
+	(ProjectImageStatus_Value)(0),            // 4: icw.core.biz.ProjectImageStatus.Value
+	(ProjectDetectionTaskStatus_Value)(0),    // 5: icw.core.biz.ProjectDetectionTaskStatus.Value
+	(ProjectDetectionSubTaskStatus_Value)(0), // 6: icw.core.biz.ProjectDetectionSubTaskStatus.Value
+	(*EmailCodeScene)(nil),                   // 7: icw.core.biz.EmailCodeScene
+	(*LoginScene)(nil),                       // 8: icw.core.biz.LoginScene
+	(*EmailSendStatus)(nil),                  // 9: icw.core.biz.EmailSendStatus
+	(*ProjectStatus)(nil),                    // 10: icw.core.biz.ProjectStatus
+	(*ProjectImageStatus)(nil),               // 11: icw.core.biz.ProjectImageStatus
+	(*ProjectDetectionTaskStatus)(nil),       // 12: icw.core.biz.ProjectDetectionTaskStatus
+	(*ProjectDetectionSubTaskStatus)(nil),    // 13: icw.core.biz.ProjectDetectionSubTaskStatus
+}
 var file_core_biz_consts_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
@@ -40,25 +779,20 @@ func file_core_biz_consts_proto_init() {
 	if File_core_biz_consts_proto != nil {
 		return
 	}
-	file_core_biz_consts_email_code_scene_proto_init()
-	file_core_biz_consts_email_send_status_proto_init()
-	file_core_biz_consts_login_scene_proto_init()
-	file_core_biz_consts_project_detection_sub_task_status_proto_init()
-	file_core_biz_consts_project_detection_task_status_proto_init()
-	file_core_biz_consts_project_image_status_proto_init()
-	file_core_biz_consts_project_status_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_consts_proto_rawDesc), len(file_core_biz_consts_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   0,
+			NumEnums:      7,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_core_biz_consts_proto_goTypes,
 		DependencyIndexes: file_core_biz_consts_proto_depIdxs,
+		EnumInfos:         file_core_biz_consts_proto_enumTypes,
+		MessageInfos:      file_core_biz_consts_proto_msgTypes,
 	}.Build()
 	File_core_biz_consts_proto = out.File
 	file_core_biz_consts_proto_goTypes = nil

@@ -7,13 +7,13 @@ import (
 )
 
 // EmailCodeSceneString 将邮箱验证码业务场景枚举转换为字符串
-func EmailCodeSceneString(scene bizpb.EmailCodeScene) string {
+func EmailCodeSceneString(scene bizpb.EmailCodeScene_Value) string {
 	switch scene {
-	case bizpb.EmailCodeScene_EMAIL_CODE_SCENE_REGISTER:
+	case bizpb.EmailCodeScene_Register:
 		return "register"
-	case bizpb.EmailCodeScene_EMAIL_CODE_SCENE_LOGIN:
+	case bizpb.EmailCodeScene_Login:
 		return "login"
-	case bizpb.EmailCodeScene_EMAIL_CODE_SCENE_RESET:
+	case bizpb.EmailCodeScene_Reset:
 		return "reset"
 	default:
 		return ""
@@ -21,25 +21,25 @@ func EmailCodeSceneString(scene bizpb.EmailCodeScene) string {
 }
 
 // ParseEmailCodeScene 将存储值转换为邮箱验证码业务场景枚举
-func ParseEmailCodeScene(value string) bizpb.EmailCodeScene {
+func ParseEmailCodeScene(value string) bizpb.EmailCodeScene_Value {
 	switch strings.TrimSpace(value) {
 	case "register":
-		return bizpb.EmailCodeScene_EMAIL_CODE_SCENE_REGISTER
+		return bizpb.EmailCodeScene_Register
 	case "login":
-		return bizpb.EmailCodeScene_EMAIL_CODE_SCENE_LOGIN
+		return bizpb.EmailCodeScene_Login
 	case "reset":
-		return bizpb.EmailCodeScene_EMAIL_CODE_SCENE_RESET
+		return bizpb.EmailCodeScene_Reset
 	default:
-		return bizpb.EmailCodeScene_EMAIL_CODE_SCENE_UNKNOWN
+		return bizpb.EmailCodeScene_Unknown
 	}
 }
 
 // LoginSceneString 将登录方式枚举转换为字符串
-func LoginSceneString(scene bizpb.LoginScene) string {
+func LoginSceneString(scene bizpb.LoginScene_Value) string {
 	switch scene {
-	case bizpb.LoginScene_LOGIN_SCENE_PASSWORD:
+	case bizpb.LoginScene_Password:
 		return "password"
-	case bizpb.LoginScene_LOGIN_SCENE_EMAIL:
+	case bizpb.LoginScene_Email:
 		return "email"
 	default:
 		return ""
@@ -47,23 +47,23 @@ func LoginSceneString(scene bizpb.LoginScene) string {
 }
 
 // ParseLoginScene 将存储值转换为登录方式枚举
-func ParseLoginScene(value string) bizpb.LoginScene {
+func ParseLoginScene(value string) bizpb.LoginScene_Value {
 	switch strings.TrimSpace(value) {
 	case "password":
-		return bizpb.LoginScene_LOGIN_SCENE_PASSWORD
+		return bizpb.LoginScene_Password
 	case "email":
-		return bizpb.LoginScene_LOGIN_SCENE_EMAIL
+		return bizpb.LoginScene_Email
 	default:
-		return bizpb.LoginScene_LOGIN_SCENE_UNKNOWN
+		return bizpb.LoginScene_Unknown
 	}
 }
 
 // EmailSendStatusString 将邮件发送状态枚举转换为字符串
-func EmailSendStatusString(status bizpb.EmailSendStatus) string {
+func EmailSendStatusString(status bizpb.EmailSendStatus_Value) string {
 	switch status {
-	case bizpb.EmailSendStatus_EMAIL_SEND_STATUS_SUCCESS:
+	case bizpb.EmailSendStatus_Success:
 		return "success"
-	case bizpb.EmailSendStatus_EMAIL_SEND_STATUS_FAILED:
+	case bizpb.EmailSendStatus_Failed:
 		return "failed"
 	default:
 		return ""
@@ -71,25 +71,25 @@ func EmailSendStatusString(status bizpb.EmailSendStatus) string {
 }
 
 // ParseEmailSendStatus 将存储值转换为邮件发送状态枚举
-func ParseEmailSendStatus(value string) bizpb.EmailSendStatus {
+func ParseEmailSendStatus(value string) bizpb.EmailSendStatus_Value {
 	switch strings.TrimSpace(value) {
 	case "success":
-		return bizpb.EmailSendStatus_EMAIL_SEND_STATUS_SUCCESS
+		return bizpb.EmailSendStatus_Success
 	case "failed":
-		return bizpb.EmailSendStatus_EMAIL_SEND_STATUS_FAILED
+		return bizpb.EmailSendStatus_Failed
 	default:
-		return bizpb.EmailSendStatus_EMAIL_SEND_STATUS_UNKNOWN
+		return bizpb.EmailSendStatus_Unknown
 	}
 }
 
 // ProjectStatusString 将项目状态枚举转换为字符串
-func ProjectStatusString(status bizpb.ProjectStatus) string {
+func ProjectStatusString(status bizpb.ProjectStatus_Value) string {
 	switch status {
-	case bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE:
+	case bizpb.ProjectStatus_Active:
 		return "active"
-	case bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED:
+	case bizpb.ProjectStatus_Completed:
 		return "completed"
-	case bizpb.ProjectStatus_PROJECT_STATUS_DELETED:
+	case bizpb.ProjectStatus_Deleted:
 		return "deleted"
 	default:
 		return ""
@@ -97,27 +97,27 @@ func ProjectStatusString(status bizpb.ProjectStatus) string {
 }
 
 // ParseProjectStatus 将存储值转换为项目状态枚举
-func ParseProjectStatus(value string) bizpb.ProjectStatus {
+func ParseProjectStatus(value string) bizpb.ProjectStatus_Value {
 	switch strings.TrimSpace(value) {
 	case "active":
-		return bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE
+		return bizpb.ProjectStatus_Active
 	case "completed":
-		return bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED
+		return bizpb.ProjectStatus_Completed
 	case "deleted":
-		return bizpb.ProjectStatus_PROJECT_STATUS_DELETED
+		return bizpb.ProjectStatus_Deleted
 	default:
-		return bizpb.ProjectStatus_PROJECT_STATUS_UNKNOWN
+		return bizpb.ProjectStatus_Unknown
 	}
 }
 
 // ProjectImageStatusString 将项目图像状态枚举转换为字符串
-func ProjectImageStatusString(status bizpb.ProjectImageStatus) string {
+func ProjectImageStatusString(status bizpb.ProjectImageStatus_Value) string {
 	switch status {
-	case bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_PENDING:
+	case bizpb.ProjectImageStatus_Pending:
 		return "pending"
-	case bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED:
+	case bizpb.ProjectImageStatus_Uploaded:
 		return "uploaded"
-	case bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_FAILED:
+	case bizpb.ProjectImageStatus_Failed:
 		return "failed"
 	default:
 		return ""
@@ -125,33 +125,33 @@ func ProjectImageStatusString(status bizpb.ProjectImageStatus) string {
 }
 
 // ParseProjectImageStatus 将存储值转换为项目图像状态枚举
-func ParseProjectImageStatus(value string) bizpb.ProjectImageStatus {
+func ParseProjectImageStatus(value string) bizpb.ProjectImageStatus_Value {
 	switch strings.TrimSpace(value) {
 	case "pending":
-		return bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_PENDING
+		return bizpb.ProjectImageStatus_Pending
 	case "uploaded":
-		return bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED
+		return bizpb.ProjectImageStatus_Uploaded
 	case "failed":
-		return bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_FAILED
+		return bizpb.ProjectImageStatus_Failed
 	default:
-		return bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UNKNOWN
+		return bizpb.ProjectImageStatus_Unknown
 	}
 }
 
 // ProjectDetectionTaskStatusString 将项目图像检测主任务状态枚举转换为字符串
-func ProjectDetectionTaskStatusString(status bizpb.ProjectDetectionTaskStatus) string {
+func ProjectDetectionTaskStatusString(status bizpb.ProjectDetectionTaskStatus_Value) string {
 	switch status {
-	case bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_PENDING:
+	case bizpb.ProjectDetectionTaskStatus_Pending:
 		return "pending"
-	case bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_CLASSIFYING:
+	case bizpb.ProjectDetectionTaskStatus_Classifying:
 		return "classifying"
-	case bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_DETECTING:
+	case bizpb.ProjectDetectionTaskStatus_Detecting:
 		return "detecting"
-	case bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_SUMMARIZING:
+	case bizpb.ProjectDetectionTaskStatus_Summarizing:
 		return "summarizing"
-	case bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_SUCCEEDED:
+	case bizpb.ProjectDetectionTaskStatus_Succeeded:
 		return "succeeded"
-	case bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_FAILED:
+	case bizpb.ProjectDetectionTaskStatus_Failed:
 		return "failed"
 	default:
 		return ""
@@ -159,35 +159,35 @@ func ProjectDetectionTaskStatusString(status bizpb.ProjectDetectionTaskStatus) s
 }
 
 // ParseProjectDetectionTaskStatus 将存储值转换为项目图像检测主任务状态枚举
-func ParseProjectDetectionTaskStatus(value string) bizpb.ProjectDetectionTaskStatus {
+func ParseProjectDetectionTaskStatus(value string) bizpb.ProjectDetectionTaskStatus_Value {
 	switch strings.TrimSpace(value) {
 	case "pending":
-		return bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_PENDING
+		return bizpb.ProjectDetectionTaskStatus_Pending
 	case "classifying":
-		return bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_CLASSIFYING
+		return bizpb.ProjectDetectionTaskStatus_Classifying
 	case "detecting":
-		return bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_DETECTING
+		return bizpb.ProjectDetectionTaskStatus_Detecting
 	case "summarizing":
-		return bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_SUMMARIZING
+		return bizpb.ProjectDetectionTaskStatus_Summarizing
 	case "succeeded":
-		return bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_SUCCEEDED
+		return bizpb.ProjectDetectionTaskStatus_Succeeded
 	case "failed":
-		return bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_FAILED
+		return bizpb.ProjectDetectionTaskStatus_Failed
 	default:
-		return bizpb.ProjectDetectionTaskStatus_PROJECT_DETECTION_TASK_STATUS_UNKNOWN
+		return bizpb.ProjectDetectionTaskStatus_Unknown
 	}
 }
 
 // ProjectDetectionSubTaskStatusString 将项目图像检测子任务状态枚举转换为字符串
-func ProjectDetectionSubTaskStatusString(status bizpb.ProjectDetectionSubTaskStatus) string {
+func ProjectDetectionSubTaskStatusString(status bizpb.ProjectDetectionSubTaskStatus_Value) string {
 	switch status {
-	case bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_PENDING:
+	case bizpb.ProjectDetectionSubTaskStatus_Pending:
 		return "pending"
-	case bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_RUNNING:
+	case bizpb.ProjectDetectionSubTaskStatus_Running:
 		return "running"
-	case bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_SUCCEEDED:
+	case bizpb.ProjectDetectionSubTaskStatus_Succeeded:
 		return "succeeded"
-	case bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_FAILED:
+	case bizpb.ProjectDetectionSubTaskStatus_Failed:
 		return "failed"
 	default:
 		return ""
@@ -195,17 +195,17 @@ func ProjectDetectionSubTaskStatusString(status bizpb.ProjectDetectionSubTaskSta
 }
 
 // ParseProjectDetectionSubTaskStatus 将存储值转换为项目图像检测子任务状态枚举
-func ParseProjectDetectionSubTaskStatus(value string) bizpb.ProjectDetectionSubTaskStatus {
+func ParseProjectDetectionSubTaskStatus(value string) bizpb.ProjectDetectionSubTaskStatus_Value {
 	switch strings.TrimSpace(value) {
 	case "pending":
-		return bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_PENDING
+		return bizpb.ProjectDetectionSubTaskStatus_Pending
 	case "running":
-		return bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_RUNNING
+		return bizpb.ProjectDetectionSubTaskStatus_Running
 	case "succeeded":
-		return bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_SUCCEEDED
+		return bizpb.ProjectDetectionSubTaskStatus_Succeeded
 	case "failed":
-		return bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_FAILED
+		return bizpb.ProjectDetectionSubTaskStatus_Failed
 	default:
-		return bizpb.ProjectDetectionSubTaskStatus_PROJECT_DETECTION_SUB_TASK_STATUS_UNKNOWN
+		return bizpb.ProjectDetectionSubTaskStatus_Unknown
 	}
 }
