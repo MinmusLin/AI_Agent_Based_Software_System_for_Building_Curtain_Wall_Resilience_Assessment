@@ -15,6 +15,7 @@ import (
 	"icw_common/gen/activity"
 	"icw_common/gen/activity/reasoning"
 	"icw_common/gen/core/biz"
+	"icw_common/rpc"
 	"icw_common/utils"
 )
 
@@ -25,7 +26,7 @@ func (s *Service) Start(ctx context.Context, req *reasoningpb.StartRequest) (*re
 		if err := reasoningUtils.ValidateRequest(req, s.Registry()); err != nil {
 			return err
 		}
-		requestId := utils.RequestIdFromIncomingContext(ctx)
+		requestId := rpc.RequestIdFromIncomingContext(ctx)
 		taskReq := proto.Clone(req).(*reasoningpb.StartRequest)
 		go s.asynExecuteDetection(requestId, taskReq)
 		return nil
@@ -60,7 +61,7 @@ func (s *Service) asynExecuteDetection(requestId string, req *reasoningpb.StartR
 	}
 
 	// 上报图像检测推理结果
-	callbackCtx := utils.AppendRequestIdToOutgoingContext(context.Background(), requestId)
+	callbackCtx := rpc.WithRequestIdToOutgoingContext(context.Background(), requestId)
 	callbackResp := &bizpb.ReportReasoningResultResponse{}
 	callbackStart := time.Now()
 	err = icw_core_biz.ReportReasoningResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp)
