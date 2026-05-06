@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"icw_common/consts"
 	"icw_core_api/utils"
-	"icw_core_biz/consts"
 )
 
 // Logger 保持 Gin 默认日志输出格式，添加请求 ID 输出
