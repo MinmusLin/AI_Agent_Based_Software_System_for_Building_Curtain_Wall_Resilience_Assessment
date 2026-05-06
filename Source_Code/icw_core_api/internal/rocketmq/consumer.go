@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/apache/rocketmq-client-go/v2"
@@ -39,8 +40,11 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 	if err := messageConsumer.Subscribe(
 		cfg.RocketMQProjectEventTopic,
 		consumer.MessageSelector{
-			Type:       consumer.TAG,
-			Expression: consts.EventTagProjectImageStatusChanged,
+			Type: consumer.TAG,
+			Expression: strings.Join([]string{
+				consts.EventTagProjectImageStatusChanged,
+				consts.EventTagProjectDetectionTaskStatusChanged,
+			}, "||"),
 		},
 		func(_ context.Context, messages ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 			for _, message := range messages {
@@ -48,7 +52,7 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 					continue
 				}
 				start := time.Now()
-				if err := dispatchProjectImageStatusChangedEvent(hub, message); err != nil {
+				if err := dispatchProjectEvent(hub, message); err != nil {
 					MQError("[CONSUME|%s] %s %13v %s msg_id=%s tag=%s err=%s",
 						message.Topic,
 						consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
@@ -98,11 +102,23 @@ func (c *Consumer) Close() error {
 	return nil
 }
 
-// dispatchProjectImageStatusChangedEvent 分发项目图像状态变化事件
-func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.MessageExt) error {
+// dispatchProjectEvent 分发项目事件
+func dispatchProjectEvent(hub *socket.Hub, message *primitive.MessageExt) error {
 	if hub == nil {
 		return errors.New("websocket hub is nil")
 	}
+	switch message.GetTags() {
+	case consts.EventTagProjectImageStatusChanged:
+		return dispatchProjectImageStatusChangedEvent(hub, message)
+	case consts.EventTagProjectDetectionTaskStatusChanged:
+		return dispatchProjectDetectionTaskStatusChangedEvent(hub, message)
+	default:
+		return fmt.Errorf("dispatch project event failed: invalid tag %v", message.GetTags())
+	}
+}
+
+// dispatchProjectImageStatusChangedEvent 分发项目图像状态变化事件
+func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.MessageExt) error {
 	var event bizpb.ProjectImageStatusChangedEvent
 	if err := json.Unmarshal(message.Body, &event); err != nil {
 		return err
@@ -110,11 +126,33 @@ func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.
 	if event.EventType != consts.EventTypeProjectImageStatusChanged {
 		return fmt.Errorf("unexpected event type: %s", event.EventType)
 	}
+
 	socketMessage := dto.NewProjectImageStatusChangedMessage(&event)
 	messageBytes, err := json.Marshal(socketMessage)
 	if err != nil {
 		return err
 	}
-	hub.BroadcastProject(event.ProjectId, event.ProjectCode, messageBytes)
+
+	hub.BroadcastProject(event.ProjectId, event.ProjectCode, consts.SocketScopeProjectAssets, messageBytes)
+	return nil
+}
+
+// dispatchProjectDetectionTaskStatusChangedEvent 分发项目图像检测任务状态变化事件
+func dispatchProjectDetectionTaskStatusChangedEvent(hub *socket.Hub, message *primitive.MessageExt) error {
+	var event bizpb.ProjectDetectionTaskStatusChangedEvent
+	if err := json.Unmarshal(message.Body, &event); err != nil {
+		return err
+	}
+	if event.EventType != consts.EventTypeProjectDetectionTaskStatusChanged {
+		return fmt.Errorf("unexpected event type: %s", event.EventType)
+	}
+
+	socketMessage := dto.NewProjectDetectionTaskStatusChangedMessage(&event)
+	messageBytes, err := json.Marshal(socketMessage)
+	if err != nil {
+		return err
+	}
+
+	hub.BroadcastProject(event.ProjectId, event.ProjectCode, consts.SocketScopeProjectDetection, messageBytes)
 	return nil
 }
