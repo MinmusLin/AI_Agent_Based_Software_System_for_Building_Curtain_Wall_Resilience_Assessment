@@ -213,8 +213,6 @@ func ProjectDetectionSubTaskStatusString(status bizpb.ProjectDetectionSubTaskSta
 	switch status {
 	case bizpb.ProjectDetectionSubTaskStatus_Pending:
 		return "pending"
-	case bizpb.ProjectDetectionSubTaskStatus_Running:
-		return "running"
 	case bizpb.ProjectDetectionSubTaskStatus_Succeeded:
 		return "succeeded"
 	case bizpb.ProjectDetectionSubTaskStatus_Failed:
@@ -229,8 +227,6 @@ func ParseProjectDetectionSubTaskStatus(value string) bizpb.ProjectDetectionSubT
 	switch strings.TrimSpace(value) {
 	case "pending":
 		return bizpb.ProjectDetectionSubTaskStatus_Pending
-	case "running":
-		return bizpb.ProjectDetectionSubTaskStatus_Running
 	case "succeeded":
 		return bizpb.ProjectDetectionSubTaskStatus_Succeeded
 	case "failed":
