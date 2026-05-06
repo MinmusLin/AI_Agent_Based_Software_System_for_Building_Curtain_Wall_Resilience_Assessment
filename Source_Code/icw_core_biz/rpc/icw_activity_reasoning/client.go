@@ -1,4 +1,4 @@
-package rpc_activity_reasoning
+package icw_activity_reasoning
 
 import (
 	"icw_common/consts"

@@ -21,9 +21,9 @@ import (
 	"icw_core_biz/repositories/redis"
 	"icw_core_biz/repositories/rocketmq"
 	"icw_core_biz/repositories/smtp"
-	"icw_core_biz/rpc/rpc_activity_classification"
-	"icw_core_biz/rpc/rpc_activity_reasoning"
-	"icw_core_biz/rpc/rpc_activity_summary"
+	"icw_core_biz/rpc/icw_activity_classification"
+	"icw_core_biz/rpc/icw_activity_reasoning"
+	"icw_core_biz/rpc/icw_activity_summary"
 )
 
 // main icw.core.biz 服务入口
@@ -88,21 +88,21 @@ func main() {
 	rocketmq.MQInfo("RocketMQ producer starts running")
 
 	// 初始化 icw.activity.classification 服务
-	activityClassificationClient, err := rpc_activity_classification.NewClient(cfg.ActivityClassificationAddr)
+	activityClassificationClient, err := icw_activity_classification.NewClient(cfg.ActivityClassificationAddr)
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to initialize icw.activity.classification service: %v", err)
 	}
 	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC service icw.activity.classification initialized successfully")
 
 	// 初始化 icw.activity.reasoning 服务
-	activityReasoningClient, err := rpc_activity_reasoning.NewClient(cfg.ActivityReasoningAddr)
+	activityReasoningClient, err := icw_activity_reasoning.NewClient(cfg.ActivityReasoningAddr)
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to initialize icw.activity.reasoning service: %v", err)
 	}
 	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC service icw.activity.reasoning initialized successfully")
 
 	// 初始化 icw.activity.summary 服务
-	activitySummaryClient, err := rpc_activity_summary.NewClient(cfg.ActivitySummaryAddr)
+	activitySummaryClient, err := icw_activity_summary.NewClient(cfg.ActivitySummaryAddr)
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to initialize icw.activity.summary service: %v", err)
 	}

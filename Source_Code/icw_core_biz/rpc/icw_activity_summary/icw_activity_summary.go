@@ -1,4 +1,4 @@
-package rpc_activity_summary
+package icw_activity_summary
 
 import (
 	"context"

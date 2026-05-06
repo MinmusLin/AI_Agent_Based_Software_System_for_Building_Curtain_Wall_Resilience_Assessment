@@ -1,4 +1,4 @@
-package rpc_activity_classification
+package icw_activity_classification
 
 import (
 	"icw_common/consts"

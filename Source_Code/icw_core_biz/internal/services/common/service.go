@@ -11,9 +11,9 @@ import (
 	"icw_core_biz/repositories/redis"
 	"icw_core_biz/repositories/rocketmq"
 	"icw_core_biz/repositories/smtp"
-	"icw_core_biz/rpc/rpc_activity_classification"
-	"icw_core_biz/rpc/rpc_activity_reasoning"
-	"icw_core_biz/rpc/rpc_activity_summary"
+	"icw_core_biz/rpc/icw_activity_classification"
+	"icw_core_biz/rpc/icw_activity_reasoning"
+	"icw_core_biz/rpc/icw_activity_summary"
 )
 
 // Deps RPC Service 的公共依赖集合
@@ -24,9 +24,9 @@ type Deps struct {
 	RocketMQ                     *rocketmq.Repository
 	MinIO                        *minio.Repository
 	SMTP                         *smtp.Repository
-	ActivityClassificationClient *rpc_activity_classification.Client
-	ActivityReasoningClient      *rpc_activity_reasoning.Client
-	ActivitySummaryClient        *rpc_activity_summary.Client
+	ActivityClassificationClient *icw_activity_classification.Client
+	ActivityReasoningClient      *icw_activity_reasoning.Client
+	ActivitySummaryClient        *icw_activity_summary.Client
 }
 
 // NewDeps 创建 RPC Service 的公共依赖集合
@@ -37,9 +37,9 @@ func NewDeps(
 	RocketMQ *rocketmq.Repository,
 	MinIO *minio.Repository,
 	SMTP *smtp.Repository,
-	ActivityClassificationClient *rpc_activity_classification.Client,
-	ActivityReasoningClient *rpc_activity_reasoning.Client,
-	ActivitySummaryClient *rpc_activity_summary.Client,
+	ActivityClassificationClient *icw_activity_classification.Client,
+	ActivityReasoningClient *icw_activity_reasoning.Client,
+	ActivitySummaryClient *icw_activity_summary.Client,
 ) *Deps {
 	return &Deps{
 		Config:                       Config,
@@ -156,7 +156,7 @@ func (s *BaseService) SMTP() *smtp.Repository {
 }
 
 // ActivityClassificationClient 获取 icw.activity.classification RPC Client
-func (s *BaseService) ActivityClassificationClient() *rpc_activity_classification.Client {
+func (s *BaseService) ActivityClassificationClient() *icw_activity_classification.Client {
 	if s == nil || s.deps == nil {
 		return nil
 	}
@@ -164,7 +164,7 @@ func (s *BaseService) ActivityClassificationClient() *rpc_activity_classificatio
 }
 
 // ActivityReasoningClient 获取 icw.activity.reasoning RPC Client
-func (s *BaseService) ActivityReasoningClient() *rpc_activity_reasoning.Client {
+func (s *BaseService) ActivityReasoningClient() *icw_activity_reasoning.Client {
 	if s == nil || s.deps == nil {
 		return nil
 	}
@@ -172,7 +172,7 @@ func (s *BaseService) ActivityReasoningClient() *rpc_activity_reasoning.Client {
 }
 
 // ActivitySummaryClient 获取 icw.activity.summary RPC Client
-func (s *BaseService) ActivitySummaryClient() *rpc_activity_summary.Client {
+func (s *BaseService) ActivitySummaryClient() *icw_activity_summary.Client {
 	if s == nil || s.deps == nil {
 		return nil
 	}
