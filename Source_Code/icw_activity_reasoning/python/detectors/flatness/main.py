@@ -1202,11 +1202,11 @@ def detect_glass_flatness(segment_image: np.ndarray, region_id: int, output_dir:
 
     is_flat = sum([line_is_flat, gradient_is_flat, frequency_is_flat]) >= 2
     if not is_flat:
-        block_path = output_dir / f'block_{region_id}.png'
+        region_path = output_dir / f'region_{region_id}.png'
         lines_path = output_dir / f'lines_{region_id}.png'
         gradient_path = output_dir / f'gradient_{region_id}.png'
         frequency_path = output_dir / f'frequency_{region_id}.png'
-        cv2.imwrite(str(block_path), cv2.cvtColor(segment_image, cv2.COLOR_RGB2BGR))
+        cv2.imwrite(str(region_path), cv2.cvtColor(segment_image, cv2.COLOR_RGB2BGR))
         cv2.imwrite(str(lines_path), cv2.cvtColor(line_image, cv2.COLOR_RGB2BGR))
         cv2.imwrite(str(gradient_path), np.uint8(np.clip(grad_magnitude, 0, 255)))
         save_frequency_image(frequency_path, magnitude_spectrum)
@@ -1252,14 +1252,13 @@ def save_overlay(image: Image.Image, glass_reports: list[dict[str, Any]], output
 def build_report(glass_reports: list[dict[str, Any]]) -> dict[str, Any]:
     uneven_reports = [item for item in glass_reports if not item['is_flat']]
     if not glass_reports:
-        result = '非玻璃'
+        result = 'notglass'
     elif not uneven_reports:
-        result = '平整'
+        result = 'flat'
     else:
-        result = '不平整'
+        result = 'uneven'
     return {
         'result': result,
-        'is_flat': bool(result == '平整'),
         'uneven_count': len(uneven_reports),
         'regions': [
             {

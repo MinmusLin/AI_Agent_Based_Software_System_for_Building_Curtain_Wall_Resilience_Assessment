@@ -197,13 +197,13 @@ def build_outputs(image: np.ndarray, results: Any, output_dir: Path) -> dict[str
             continue
 
         region_id = len(regions) + 1
-        block_path = output_dir / f'block_{region_id}.png'
+        region_path = output_dir / f'region_{region_id}.png'
         stain_result_path = output_dir / f'overlay_{region_id}.png'
-        cv2.imwrite(str(block_path), warped_image)
+        cv2.imwrite(str(region_path), warped_image)
         stain_metrics = calculate_stain(warped_image, stain_result_path)
         if not stain_metrics.get('has_stain') or not stain_result_path.exists():
-            if block_path.exists():
-                block_path.unlink()
+            if region_path.exists():
+                region_path.unlink()
             if stain_result_path.exists():
                 stain_result_path.unlink()
             continue
