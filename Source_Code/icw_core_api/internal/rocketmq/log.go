@@ -1,8 +1,8 @@
 package rocketmq
 
 import (
-	"icw_core_biz/consts"
-	"icw_core_biz/utils"
+	"icw_common/consts"
+	"icw_common/utils"
 )
 
 // MQInfo 输出标准 MQ 日志

@@ -12,11 +12,12 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/rlog"
 
+	"icw_common/consts"
+	"icw_common/gen/core/biz"
+	"icw_common/utils"
 	"icw_core_api/configs"
 	"icw_core_api/internal/dto"
 	"icw_core_api/internal/socket"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/utils"
 )
 
 // Consumer RocketMQ 消息队列消费者
@@ -39,7 +40,7 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 		cfg.RocketMQProjectEventTopic,
 		consumer.MessageSelector{
 			Type:       consumer.TAG,
-			Expression: project.EventTagProjectImageStatusChanged,
+			Expression: consts.EventTagProjectImageStatusChanged,
 		},
 		func(_ context.Context, messages ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 			for _, message := range messages {
@@ -91,11 +92,11 @@ func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.
 	if hub == nil {
 		return errors.New("websocket hub is nil")
 	}
-	var event project.ProjectImageStatusChangedEvent
+	var event bizpb.ProjectImageStatusChangedEvent
 	if err := json.Unmarshal(message.Body, &event); err != nil {
 		return err
 	}
-	if event.EventType != project.EventTypeProjectImageStatusChanged {
+	if event.EventType != consts.EventTypeProjectImageStatusChanged {
 		return fmt.Errorf("unexpected event type: %s", event.EventType)
 	}
 	socketMessage := dto.NewProjectImageStatusChangedMessage(&event)
