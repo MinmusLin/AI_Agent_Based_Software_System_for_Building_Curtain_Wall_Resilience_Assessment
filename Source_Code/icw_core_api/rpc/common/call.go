@@ -29,7 +29,7 @@ func CallGRPC[PBReq any, PBResp any](
 		ctx = context.Background()
 	}
 
-	requestId := apiUtils.GetRequestId(ctx)
+	requestId := apiUtils.GetXRequestId(ctx)
 	ctx = utils.AppendRequestIdToOutgoingContext(ctx, requestId)
 
 	if !client.Ready() {
