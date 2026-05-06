@@ -12,7 +12,7 @@ import (
 // DeleteAvatar 删除用户自定义头像
 func (s *Service) DeleteAvatar(ctx context.Context, req *bizpb.DeleteAvatarRequest) (*bizpb.DeleteAvatarResponse, error) {
 	resp := &bizpb.DeleteAvatarResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.deleteAvatar(req, resp)
 	})
 	return resp, err

@@ -12,7 +12,7 @@ import (
 // UpdateProjectGroup 更新图像组
 func (s *Service) UpdateProjectGroup(ctx context.Context, req *bizpb.UpdateProjectGroupRequest) (*bizpb.UpdateProjectGroupResponse, error) {
 	resp := &bizpb.UpdateProjectGroupResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.updateProjectGroup(req, resp)
 	})
 	return resp, err

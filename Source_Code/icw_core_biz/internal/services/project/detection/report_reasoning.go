@@ -9,7 +9,7 @@ import (
 // ReportReasoningResult 上报图像检测推理结果
 func (s *Service) ReportReasoningResult(ctx context.Context, req *bizpb.ReportReasoningResultRequest) (*bizpb.ReportReasoningResultResponse, error) {
 	resp := &bizpb.ReportReasoningResultResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.reportReasoningResult(req, resp)
 	})
 	return resp, err

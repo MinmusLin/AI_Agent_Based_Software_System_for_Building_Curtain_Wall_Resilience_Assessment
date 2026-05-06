@@ -1,11 +1,6 @@
 package consts
 
 const (
-	// ActivityReasoningPSM icw.activity.reasoning 服务标识
-	ActivityReasoningPSM = "icw.activity.reasoning"
-)
-
-const (
 	// CorrosionDetectionTaskCode 金属锈蚀检测能力代码
 	CorrosionDetectionTaskCode = "corrosion"
 	// CrackDetectionTaskCode 石材裂缝检测能力代码

@@ -11,7 +11,7 @@ import (
 // DeleteProject 删除项目
 func (s *Service) DeleteProject(ctx context.Context, req *bizpb.DeleteProjectRequest) (*bizpb.DeleteProjectResponse, error) {
 	resp := &bizpb.DeleteProjectResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.deleteProject(req, resp)
 	})
 	return resp, err

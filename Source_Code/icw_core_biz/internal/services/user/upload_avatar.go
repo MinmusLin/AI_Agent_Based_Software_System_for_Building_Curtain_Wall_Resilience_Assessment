@@ -13,7 +13,7 @@ import (
 // UploadAvatar 上传用户自定义头像
 func (s *Service) UploadAvatar(ctx context.Context, req *bizpb.UploadAvatarRequest) (*bizpb.UploadAvatarResponse, error) {
 	resp := &bizpb.UploadAvatarResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.uploadAvatar(req, resp)
 	})
 	return resp, err

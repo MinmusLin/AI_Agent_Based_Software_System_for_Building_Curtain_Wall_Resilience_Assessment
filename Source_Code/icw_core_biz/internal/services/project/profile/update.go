@@ -12,7 +12,7 @@ import (
 // UpdateProjectProfile 更新项目基础信息
 func (s *Service) UpdateProjectProfile(ctx context.Context, req *bizpb.UpdateProjectProfileRequest) (*bizpb.UpdateProjectProfileResponse, error) {
 	resp := &bizpb.UpdateProjectProfileResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.updateProjectProfile(req, resp)
 	})
 	return resp, err

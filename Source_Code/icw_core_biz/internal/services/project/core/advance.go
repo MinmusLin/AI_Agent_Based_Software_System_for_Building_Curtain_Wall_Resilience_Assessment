@@ -12,7 +12,7 @@ import (
 // AdvanceProject 项目进度流转
 func (s *Service) AdvanceProject(ctx context.Context, req *bizpb.AdvanceProjectRequest) (*bizpb.AdvanceProjectResponse, error) {
 	resp := &bizpb.AdvanceProjectResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.advanceProject(req, resp)
 	})
 	return resp, err

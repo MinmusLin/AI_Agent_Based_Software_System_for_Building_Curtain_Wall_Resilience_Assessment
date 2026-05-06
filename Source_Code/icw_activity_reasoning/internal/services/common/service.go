@@ -48,7 +48,7 @@ func NewBaseService(ctx context.Context, deps *Deps) *BaseService {
 }
 
 // CallRPC RPC 服务通用调用
-func (s *BaseService) CallRPC(ctx context.Context, req, resp interface{}, fn func() error) (err error) {
+func (s *BaseService) CallRPC(ctx context.Context, req interface{}, fn func() error) (err error) {
 	if ctx == nil {
 		ctx = context.Background()
 	}

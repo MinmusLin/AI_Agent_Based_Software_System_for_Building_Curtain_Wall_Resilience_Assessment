@@ -11,7 +11,7 @@ import (
 // CheckProjectAccess 校验项目访问权限
 func (s *Service) CheckProjectAccess(ctx context.Context, req *bizpb.CheckProjectAccessRequest) (*bizpb.CheckProjectAccessResponse, error) {
 	resp := &bizpb.CheckProjectAccessResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.checkProjectAccess(req, resp)
 	})
 	return resp, err

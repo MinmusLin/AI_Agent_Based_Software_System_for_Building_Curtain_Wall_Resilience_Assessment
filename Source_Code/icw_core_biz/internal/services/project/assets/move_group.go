@@ -11,7 +11,7 @@ import (
 // MoveProjectGroup 移动图像组
 func (s *Service) MoveProjectGroup(ctx context.Context, req *bizpb.MoveProjectGroupRequest) (*bizpb.MoveProjectGroupResponse, error) {
 	resp := &bizpb.MoveProjectGroupResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.moveProjectGroup(req, resp)
 	})
 	return resp, err

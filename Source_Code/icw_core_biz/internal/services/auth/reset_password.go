@@ -16,7 +16,7 @@ import (
 // ResetPassword 重置密码
 func (s *Service) ResetPassword(ctx context.Context, req *bizpb.ResetPasswordRequest) (*bizpb.ResetPasswordResponse, error) {
 	resp := &bizpb.ResetPasswordResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.resetPassword(req, resp)
 	})
 	return resp, err

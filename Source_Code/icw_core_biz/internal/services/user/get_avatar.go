@@ -12,7 +12,7 @@ import (
 // GetAvatar 获取用户头像
 func (s *Service) GetAvatar(ctx context.Context, req *bizpb.GetAvatarRequest) (*bizpb.GetAvatarResponse, error) {
 	resp := &bizpb.GetAvatarResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.getAvatar(req, resp)
 	})
 	return resp, err

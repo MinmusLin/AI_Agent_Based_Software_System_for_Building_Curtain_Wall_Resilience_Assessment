@@ -26,7 +26,7 @@ func NewService(ctx context.Context, deps *common.Deps) *Service {
 // Ping .
 func (s *Service) Ping(ctx context.Context, req *bizpb.PingReportRequest) (*bizpb.PingReportResponse, error) {
 	resp := &bizpb.PingReportResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.ping(req, resp)
 	})
 	return resp, err

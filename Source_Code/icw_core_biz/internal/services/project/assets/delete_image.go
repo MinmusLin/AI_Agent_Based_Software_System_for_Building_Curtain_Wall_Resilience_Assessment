@@ -13,7 +13,7 @@ import (
 // DeleteProjectImage 删除图像
 func (s *Service) DeleteProjectImage(ctx context.Context, req *bizpb.DeleteProjectImageRequest) (*bizpb.DeleteProjectImageResponse, error) {
 	resp := &bizpb.DeleteProjectImageResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.deleteProjectImage(req, resp)
 	})
 	return resp, err

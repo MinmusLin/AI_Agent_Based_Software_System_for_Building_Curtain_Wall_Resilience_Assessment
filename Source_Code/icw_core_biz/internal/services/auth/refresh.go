@@ -14,7 +14,7 @@ import (
 // Refresh 刷新 Token
 func (s *Service) Refresh(ctx context.Context, req *bizpb.RefreshRequest) (*bizpb.RefreshResponse, error) {
 	resp := &bizpb.RefreshResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.refresh(req, resp)
 	})
 	return resp, err

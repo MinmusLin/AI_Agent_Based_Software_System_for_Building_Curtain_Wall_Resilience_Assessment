@@ -12,7 +12,7 @@ import (
 // DeleteProjectThumbnail 删除项目缩略图
 func (s *Service) DeleteProjectThumbnail(ctx context.Context, req *bizpb.DeleteProjectThumbnailRequest) (*bizpb.DeleteProjectThumbnailResponse, error) {
 	resp := &bizpb.DeleteProjectThumbnailResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.deleteProjectThumbnail(req, resp)
 	})
 	return resp, err

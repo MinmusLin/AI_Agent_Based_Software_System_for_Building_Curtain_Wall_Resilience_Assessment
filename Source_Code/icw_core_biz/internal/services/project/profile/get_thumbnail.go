@@ -10,7 +10,7 @@ import (
 // GetProjectThumbnail 获取项目缩略图
 func (s *Service) GetProjectThumbnail(ctx context.Context, req *bizpb.GetProjectThumbnailRequest) (*bizpb.GetProjectThumbnailResponse, error) {
 	resp := &bizpb.GetProjectThumbnailResponse{}
-	err := s.CallRPC(ctx, req, resp, func() error {
+	err := s.CallRPC(ctx, req, func() error {
 		return s.getProjectThumbnail(req, resp)
 	})
 	return resp, err
