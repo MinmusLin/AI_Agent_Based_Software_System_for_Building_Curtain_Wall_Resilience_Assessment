@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 
 	"icw_common/gen/core/biz"
+	"icw_common/rpc"
 	"icw_core_biz/internal/services/auth"
 	"icw_core_biz/internal/services/common"
 	"icw_core_biz/internal/services/project/assets"
@@ -20,24 +21,12 @@ import (
 
 // RegisterRPCServices 注册 RPC 服务
 func RegisterRPCServices(ctx context.Context, serviceDeps *common.Deps, grpcServer *grpc.Server) {
-	registeredMethods := make([]common.RegisteredRPCMethodMeta, 0)
-	for _, meta := range registry(ctx, serviceDeps) {
-		methods, err := common.ResolveRPCMethods(meta)
-		if err != nil {
-			common.RpcFatal("Failed to register RPC service %s: %v", meta.Name, err)
-		}
-		if meta.Register == nil {
-			common.RpcFatal("Failed to register RPC service %s: register function is nil", meta.Name)
-		}
-		meta.Register(grpcServer, meta.Service)
-		registeredMethods = append(registeredMethods, methods...)
-	}
-	common.RpcInfo("RPC methods registered, waiting for requests:\n%s", common.FormatRegistryTable(registeredMethods))
+	rpc.RegisterServices(grpcServer, registry(ctx, serviceDeps))
 }
 
 // registry RPC 服务注册表
-func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCServiceMeta {
-	return []common.RPCServiceMeta{
+func registry(ctx context.Context, serviceDeps *common.Deps) []rpc.ServiceMeta {
+	return []rpc.ServiceMeta{
 		{
 			Name:        "AuthService",
 			Description: "登录鉴权服务",
@@ -45,7 +34,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterAuthServiceServer(server, service.(*auth.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "Login", Description: "登录"},
 				{Name: "Logout", Description: "登出"},
 				{Name: "Me", Description: "获取用户信息"},
@@ -62,7 +51,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterProjectCoreServiceServer(server, service.(*core.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "AdvanceProject", Description: "项目进度流转"},
 				{Name: "CheckProjectAccess", Description: "校验项目访问权限"},
 				{Name: "CreateProject", Description: "创建项目"},
@@ -77,7 +66,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterProjectProfileServiceServer(server, service.(*profile.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "DeleteProjectThumbnail", Description: "删除项目缩略图"},
 				{Name: "GetProjectProfile", Description: "获取项目基础信息"},
 				{Name: "GetProjectThumbnail", Description: "获取项目缩略图"},
@@ -92,7 +81,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterProjectAssetsServiceServer(server, service.(*assets.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "CreateProjectGroup", Description: "创建图像组"},
 				{Name: "DeleteProjectGroup", Description: "删除图像组"},
 				{Name: "DeleteProjectImage", Description: "删除图像"},
@@ -112,7 +101,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterProjectDetectionServiceServer(server, service.(*detection.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "ReportClassificationResult", Description: "上报图像检测分类结果"},
 				{Name: "ReportReasoningResult", Description: "上报图像检测推理结果"},
 			},
@@ -124,7 +113,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterProjectReviewServiceServer(server, service.(*review.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "Ping", Description: "人工复核服务探活"},
 			},
 		},
@@ -135,7 +124,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterProjectReportServiceServer(server, service.(*report.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "Ping", Description: "评估报告服务探活"},
 			},
 		},
@@ -146,7 +135,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterSocketServiceServer(server, service.(*socket.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "CreateSocketTicket", Description: "创建 WebSocket 连接票据"},
 				{Name: "ValidateSocketTicket", Description: "校验 WebSocket 连接票据"},
 			},
@@ -158,7 +147,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			Register: func(server grpc.ServiceRegistrar, service interface{}) {
 				bizpb.RegisterUserServiceServer(server, service.(*user.Service))
 			},
-			Methods: []common.RPCMethodMeta{
+			Methods: []rpc.MethodMeta{
 				{Name: "DeleteAvatar", Description: "删除用户自定义头像"},
 				{Name: "GetAvatar", Description: "获取用户头像"},
 				{Name: "UploadAvatar", Description: "上传用户自定义头像"},
