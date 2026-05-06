@@ -2,9 +2,8 @@ package common
 
 import (
 	"context"
-	"reflect"
-
 	"icw_common/rpc_err"
+	"icw_common/utils"
 	"icw_core_biz/configs"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
@@ -79,20 +78,9 @@ func (s *BaseService) CallRPC(ctx context.Context, req, resp interface{}, fn fun
 	if ctx == nil {
 		ctx = context.Background()
 	}
-
-	if req == nil {
+	if utils.IsNil(req) {
 		return rpc_err.BadRequestDefault("request is nil")
 	}
-
-	value := reflect.ValueOf(req)
-	switch value.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
-		if value.IsNil() {
-			return rpc_err.BadRequestDefault("request is nil")
-		}
-	default:
-	}
-
 	if fn == nil {
 		return nil
 	}
