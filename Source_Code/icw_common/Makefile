@@ -1,7 +1,80 @@
-.PHONY: gen
+APP_NAME := icw_common
+GO ?= go
+MAIN := ./cmd/server
+PKGS := ./...
+BIN_DIR := bin
+BIN := $(BIN_DIR)/$(APP_NAME)
+COVER_DIR := coverage
+COVER_PROFILE := $(COVER_DIR)/coverage.out
+COVER_HTML := $(COVER_DIR)/coverage.html
 
-default: gen
+.DEFAULT_GOAL := help
 
-gen:
-	rm -rf gen
-	buf generate
+.PHONY: help all verify fmt fmt-check tidy tidy-check vet test test-race cover build build-linux run clean
+
+help:
+	@echo "Targets:"
+	@echo "  make all          Run fmt, tidy, vet, test, and build"
+	@echo "  make verify       Run fmt-check, tidy-check, vet, and test"
+	@echo "  make fmt          Format Go files"
+	@echo "  make fmt-check    Check Go formatting without modifying files"
+	@echo "  make tidy         Run go mod tidy"
+	@echo "  make tidy-check   Check go.mod/go.sum are tidy"
+	@echo "  make vet          Run go vet"
+	@echo "  make test         Run Go tests"
+	@echo "  make test-race    Run Go tests with race detector"
+	@echo "  make cover        Generate coverage report"
+	@echo "  make build        Build local binary"
+	@echo "  make build-linux  Build linux/amd64 binary"
+	@echo "  make run          Run service locally"
+	@echo "  make clean        Remove generated build and coverage artifacts"
+
+all: fmt tidy vet test build
+
+verify: fmt-check tidy-check vet test
+
+fmt:
+	$(GO) fmt $(PKGS)
+
+fmt-check:
+	@test -z "$$(gofmt -l .)" || (echo "Go files need formatting:" && gofmt -l . && exit 1)
+
+tidy:
+	$(GO) mod tidy
+
+tidy-check:
+	@cp go.mod /tmp/$(APP_NAME).go.mod
+	@cp go.sum /tmp/$(APP_NAME).go.sum
+	@$(GO) mod tidy
+	@cmp -s go.mod /tmp/$(APP_NAME).go.mod || (echo "go.mod is not tidy; run make tidy" && mv /tmp/$(APP_NAME).go.mod go.mod && mv /tmp/$(APP_NAME).go.sum go.sum && exit 1)
+	@cmp -s go.sum /tmp/$(APP_NAME).go.sum || (echo "go.sum is not tidy; run make tidy" && mv /tmp/$(APP_NAME).go.mod go.mod && mv /tmp/$(APP_NAME).go.sum go.sum && exit 1)
+	@rm -f /tmp/$(APP_NAME).go.mod /tmp/$(APP_NAME).go.sum
+
+vet:
+	$(GO) vet $(PKGS)
+
+test:
+	$(GO) test $(PKGS)
+
+test-race:
+	$(GO) test -race $(PKGS)
+
+cover:
+	mkdir -p $(COVER_DIR)
+	$(GO) test -coverprofile=$(COVER_PROFILE) $(PKGS)
+	$(GO) tool cover -html=$(COVER_PROFILE) -o $(COVER_HTML)
+	$(GO) tool cover -func=$(COVER_PROFILE)
+
+build:
+	mkdir -p $(BIN_DIR)
+	$(GO) build -o $(BIN) $(MAIN)
+
+build-linux:
+	mkdir -p $(BIN_DIR)
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o $(BIN)-linux-amd64 $(MAIN)
+
+run:
+	$(GO) run $(MAIN)
+
+clean:
+	rm -rf $(BIN_DIR) $(COVER_DIR)
