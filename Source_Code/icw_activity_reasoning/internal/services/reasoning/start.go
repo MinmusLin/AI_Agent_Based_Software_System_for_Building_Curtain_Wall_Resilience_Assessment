@@ -28,14 +28,14 @@ func (s *Service) Start(ctx context.Context, req *reasoningpb.StartRequest) (*re
 		}
 		requestId := rpc.RequestIdFromIncomingContext(ctx)
 		taskReq := proto.Clone(req).(*reasoningpb.StartRequest)
-		go s.asynExecuteDetection(requestId, taskReq)
+		go s.asyncExecuteDetection(requestId, taskReq)
 		return nil
 	})
 	return resp, err
 }
 
-// asynExecuteDetection 异步执行原子检测任务
-func (s *Service) asynExecuteDetection(requestId string, req *reasoningpb.StartRequest) {
+// asyncExecuteDetection 异步执行原子检测任务并回调 icw.core.biz
+func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.StartRequest) {
 	s.Acquire()
 	defer s.Release()
 
