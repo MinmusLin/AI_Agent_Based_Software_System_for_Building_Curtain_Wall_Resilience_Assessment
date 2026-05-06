@@ -104,7 +104,7 @@ func parseProjectIdFromRequest(c *gin.Context) (uint64, error) {
 	}
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		return 0, rpc_err.InternalErrorDefault(err.Error())
+		return 0, err
 	}
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 	var req struct {

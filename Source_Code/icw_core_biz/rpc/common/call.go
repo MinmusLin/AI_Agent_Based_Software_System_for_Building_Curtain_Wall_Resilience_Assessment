@@ -3,17 +3,19 @@ package common
 import (
 	"context"
 	"errors"
-	"reflect"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
+
+	"icw_common/utils"
 )
 
-// ReadyClient BIZ 层通用 gRPC 调用能力
+// ReadyClient RPC 层通用 gRPC 调用能力
 type ReadyClient interface {
 	Ready() bool
 }
 
-// CallGRPC 执行 BIZ 层通用 gRPC 调用
+// CallGRPC 执行 RPC 层通用 gRPC 调用能力
 func CallGRPC[PBReq any, PBResp any](
 	ctx context.Context,
 	client ReadyClient,
@@ -26,7 +28,7 @@ func CallGRPC[PBReq any, PBResp any](
 	}
 	ctx = Context(ctx)
 
-	if isNil(client) || !client.Ready() {
+	if utils.IsNil(client) || !client.Ready() {
 		return errors.New("grpc client is nil")
 	}
 	if invoke == nil {
@@ -35,7 +37,10 @@ func CallGRPC[PBReq any, PBResp any](
 
 	pbResp, err := invoke(ctx, req)
 	if err != nil {
-		return NormalizeError(err)
+		if grpcStatus, ok := status.FromError(err); ok {
+			return errors.New(grpcStatus.Message())
+		}
+		return err
 	}
 	if resp == nil || pbResp == nil {
 		return errors.New("grpc response is nil")
@@ -43,17 +48,4 @@ func CallGRPC[PBReq any, PBResp any](
 	*resp = *pbResp
 
 	return nil
-}
-
-func isNil(value interface{}) bool {
-	if value == nil {
-		return true
-	}
-	reflectValue := reflect.ValueOf(value)
-	switch reflectValue.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
-		return reflectValue.IsNil()
-	default:
-		return false
-	}
 }

@@ -7,20 +7,19 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
 
 	"icw_common/consts"
 	"icw_common/utils"
 )
 
-// Client 封装 gRPC ClientConn 与服务标识
+// Client 通用 gRPC Client
 type Client struct {
 	psm  string
 	addr string
 	conn *grpc.ClientConn
 }
 
-// NewClient 创建 gRPC Client
+// NewClient 创建通用 gRPC Client
 func NewClient(psm, addr string) (*Client, error) {
 	addr = strings.TrimSpace(addr)
 	if addr == "" {
@@ -45,7 +44,7 @@ func NewClient(psm, addr string) (*Client, error) {
 	}, nil
 }
 
-// PSM 获取服务标识
+// PSM 获取 gRPC 服务标识
 func (c *Client) PSM() string {
 	if c == nil || c.psm == "" {
 		return "unknown"
@@ -53,7 +52,7 @@ func (c *Client) PSM() string {
 	return c.psm
 }
 
-// Addr 获取服务地址
+// Addr 获取 gRPC 服务地址
 func (c *Client) Addr() string {
 	if c == nil {
 		return ""
@@ -61,7 +60,7 @@ func (c *Client) Addr() string {
 	return c.addr
 }
 
-// Conn 获取底层 gRPC ClientConn
+// Conn 获取 gRPC Client 连接
 func (c *Client) Conn() grpc.ClientConnInterface {
 	if c == nil {
 		return nil
@@ -69,7 +68,7 @@ func (c *Client) Conn() grpc.ClientConnInterface {
 	return c.conn
 }
 
-// Close 关闭 gRPC 连接
+// Close 关闭 gRPC Client 连接
 func (c *Client) Close() error {
 	if c == nil || c.conn == nil {
 		return nil
@@ -88,15 +87,4 @@ func Context(ctx context.Context) context.Context {
 		ctx = context.Background()
 	}
 	return utils.AppendRequestIdToOutgoingContext(ctx, utils.RequestIdFromGRPCContext(ctx))
-}
-
-// NormalizeError 将 gRPC status error 还原为业务错误文本
-func NormalizeError(err error) error {
-	if err == nil {
-		return nil
-	}
-	if grpcStatus, ok := status.FromError(err); ok {
-		return errors.New(grpcStatus.Message())
-	}
-	return err
 }

@@ -7,7 +7,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 
-	"icw_common/rpc_err"
 	"icw_common/utils"
 	apiUtils "icw_core_api/utils"
 )
@@ -28,15 +27,13 @@ func CallGRPC[PBReq any, PBResp any](
 	if ctx == nil {
 		ctx = context.Background()
 	}
+	ctx = utils.AppendRequestIdToOutgoingContext(ctx, apiUtils.GetXRequestId(ctx))
 
-	requestId := apiUtils.GetXRequestId(ctx)
-	ctx = utils.AppendRequestIdToOutgoingContext(ctx, requestId)
-
-	if !client.Ready() {
-		return rpc_err.InternalErrorDefault("grpc client is nil")
+	if utils.IsNil(client) || !client.Ready() {
+		return errors.New("grpc client is nil")
 	}
 	if invoke == nil {
-		return rpc_err.InternalErrorDefault("grpc invoke is nil")
+		return errors.New("grpc invoke is nil")
 	}
 
 	pbResp, err := invoke(ctx, req)
@@ -47,7 +44,7 @@ func CallGRPC[PBReq any, PBResp any](
 		return err
 	}
 	if resp == nil || pbResp == nil {
-		return rpc_err.InternalErrorDefault("grpc response is nil")
+		return errors.New("grpc response is nil")
 	}
 	*resp = *pbResp
 
