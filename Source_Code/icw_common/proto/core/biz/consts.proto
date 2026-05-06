@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+// 邮箱验证码业务场景
+enum EmailCodeScene {
+  // 邮箱验证码业务场景-未知
+  EMAIL_CODE_SCENE_UNKNOWN = 0;
+  // 邮箱验证码业务场景-注册账号
+  EMAIL_CODE_SCENE_REGISTER = 1;
+  // 邮箱验证码业务场景-登录账号
+  EMAIL_CODE_SCENE_LOGIN = 2;
+  // 邮箱验证码业务场景-重置密码
+  EMAIL_CODE_SCENE_RESET = 3;
+}
+
+// 邮件发送状态
+enum EmailSendStatus {
+  // 邮件发送状态-未知
+  EMAIL_SEND_STATUS_UNKNOWN = 0;
+  // 邮件发送状态-成功
+  EMAIL_SEND_STATUS_SUCCESS = 1;
+  // 邮件发送状态-失败
+  EMAIL_SEND_STATUS_FAILED = 2;
+}
+
+// 项目状态
+enum ProjectStatus {
+  // 项目状态-未知
+  PROJECT_STATUS_UNKNOWN = 0;
+  // 项目状态-进行中
+  PROJECT_STATUS_ACTIVE = 1;
+  // 项目状态-已完成
+  PROJECT_STATUS_COMPLETED = 2;
+  // 项目状态-已删除
+  PROJECT_STATUS_DELETED = 3;
+}
+
+// 项目图像状态
+enum ProjectImageStatus {
+  // 项目图像状态-未知
+  PROJECT_IMAGE_STATUS_UNKNOWN = 0;
+  // 项目图像状态-上传中
+  PROJECT_IMAGE_STATUS_PENDING = 1;
+  // 项目图像状态-上传成功
+  PROJECT_IMAGE_STATUS_UPLOADED = 2;
+  // 项目图像状态-上传失败
+  PROJECT_IMAGE_STATUS_FAILED = 3;
+}
+
+// 项目图像检测主任务状态
+enum ProjectDetectionTaskStatus {
+  // 项目图像检测主任务状态-未知
+  PROJECT_DETECTION_TASK_STATUS_UNKNOWN = 0;
+  // 项目图像检测主任务状态-等待中
+  PROJECT_DETECTION_TASK_STATUS_PENDING = 1;
+  // 项目图像检测主任务状态-分类中
+  PROJECT_DETECTION_TASK_STATUS_CLASSIFYING = 2;
+  // 项目图像检测主任务状态-检测中
+  PROJECT_DETECTION_TASK_STATUS_DETECTING = 3;
+  // 项目图像检测主任务状态-总结中
+  PROJECT_DETECTION_TASK_STATUS_SUMMARIZING = 4;
+  // 项目图像检测主任务状态-成功
+  PROJECT_DETECTION_TASK_STATUS_SUCCEEDED = 5;
+  // 项目图像检测主任务状态-失败
+  PROJECT_DETECTION_TASK_STATUS_FAILED = 6;
+}
+
+// 项目图像检测子任务状态
+enum ProjectDetectionSubTaskStatus {
+  // 项目图像检测子任务状态-未知
+  PROJECT_DETECTION_SUB_TASK_STATUS_UNKNOWN = 0;
+  // 项目图像检测子任务状态-等待中
+  PROJECT_DETECTION_SUB_TASK_STATUS_PENDING = 1;
+  // 项目图像检测子任务状态-检测中
+  PROJECT_DETECTION_SUB_TASK_STATUS_RUNNING = 2;
+  // 项目图像检测子任务状态-成功
+  PROJECT_DETECTION_SUB_TASK_STATUS_SUCCEEDED = 3;
+  // 项目图像检测子任务状态-失败
+  PROJECT_DETECTION_SUB_TASK_STATUS_FAILED = 4;
+}
