@@ -35,10 +35,10 @@ func ReasoningError(requestId, taskCode, taskUuid, imageUuid string, artifactCou
 }
 
 // CallbackInfo 输出标准回调日志
-func CallbackInfo(requestId, taskCode, taskUuid, imageUuid, status string, cost time.Duration) {
+func CallbackInfo(requestId, taskCode, taskUuid, imageUuid, status string, start time.Time) {
 	utils.LogInfo(consts.LogScopeCallback, consts.LogColorBoldBlue, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s status=%s%s%s",
 		requestId,
-		consts.LogColorBoldBlackOnWhite, cost, consts.LogColorReset,
+		consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
 		imageUuid,
@@ -47,10 +47,10 @@ func CallbackInfo(requestId, taskCode, taskUuid, imageUuid, status string, cost 
 }
 
 // CallbackError 输出失败回调日志
-func CallbackError(requestId, taskCode, taskUuid, imageUuid, status string, cost time.Duration, err error) {
+func CallbackError(requestId, taskCode, taskUuid, imageUuid, status string, start time.Time, err error) {
 	utils.LogError(consts.LogScopeCallback, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s status=%s%s%s err=%s",
 		requestId,
-		consts.LogColorBoldBlackOnWhite, cost, consts.LogColorReset,
+		consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
 		imageUuid,

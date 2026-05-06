@@ -24,81 +24,92 @@ func (s *Service) Start(ctx context.Context, req *reasoningpb.StartRequest) (*re
 		if err := reasoningUtils.ValidateRequest(req, s.Registry()); err != nil {
 			return err
 		}
-		taskReq := proto.Clone(req).(*reasoningpb.StartRequest)
 		requestId := utils.RequestIdFromIncomingContext(ctx)
-		go s.runModuleDetection(requestId, taskReq)
+		taskReq := proto.Clone(req).(*reasoningpb.StartRequest)
+		go s.asynExecuteDetection(requestId, taskReq)
 		return nil
 	})
 	return resp, err
 }
 
-// runModuleDetection 异步执行原子检测任务
-func (s *Service) runModuleDetection(requestId string, req *reasoningpb.StartRequest) {
+// asynExecuteDetection 异步执行原子检测任务
+func (s *Service) asynExecuteDetection(requestId string, req *reasoningpb.StartRequest) {
 	s.Acquire()
 	defer s.Release()
 
 	ctx, cancel := context.WithTimeout(s.Ctx(), s.Config().ReasoningTaskTimeout)
 	defer cancel()
-	start := time.Now()
 
 	callbackReq := &bizpb.ReportReasoningResultRequest{
+		TaskCode:  req.TaskCode,
 		TaskUuid:  req.TaskUuid,
 		ImageUuid: req.ImageUuid,
-		TaskCode:  req.TaskCode,
 	}
 
-	artifactCount, err := s.executeModuleDetection(ctx, req, callbackReq)
-
+	// 执行原子检测任务
+	artifactCount, detectorCost, err := s.executeDetection(ctx, req, callbackReq)
 	if utils.IsEmptyError(err) {
 		callbackReq.Status = consts.DetectionStatusSucceeded
 		callbackReq.ErrorMessage = ""
-		common.ReasoningInfo(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, artifactCount, time.Since(start))
+		common.ReasoningInfo(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost)
 	} else {
 		callbackReq.Status = consts.DetectionStatusFailed
 		callbackReq.ErrorMessage = err.Error()
-		common.ReasoningError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, artifactCount, time.Since(start), err)
+		common.ReasoningError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost, err)
 	}
 
+	// 上报图像检测推理结果
 	callbackCtx := utils.AppendRequestIdToOutgoingContext(context.Background(), requestId)
-	cost := time.Since(start)
 	callbackResp := &bizpb.ReportReasoningResultResponse{}
-	if err := icw_core_biz.ReportReasoningResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); err != nil {
-		common.CallbackError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, cost, err)
+	callbackStart := time.Now()
+	err = icw_core_biz.ReportReasoningResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp)
+	if utils.IsEmptyError(err) {
+		common.CallbackInfo(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart)
 		return
 	}
-	common.CallbackInfo(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, cost)
+	common.CallbackError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart, err)
 }
 
-// executeModuleDetection 执行原子检测任务
-func (s *Service) executeModuleDetection(ctx context.Context, req *reasoningpb.StartRequest, callbackReq *bizpb.ReportReasoningResultRequest) (int, error) {
+// executeDetection 执行原子检测任务
+func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRequest, callbackReq *bizpb.ReportReasoningResultRequest) (int, time.Duration, error) {
 	taskDir := filepath.Join(s.Config().ReasoningWorkDir, req.TaskCode, req.ImageUuid)
 	if err := os.MkdirAll(taskDir, 0o755); err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	defer func() {
 		_ = os.RemoveAll(taskDir)
 	}()
 
 	if err := reasoningUtils.DownloadOriginalImage(ctx, req, taskDir, s.Config().ArtifactDownloadTimeout); err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	detector, err := s.Registry().Get(req.TaskCode)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	if err := detector.Detect(ctx, req.ImageUuid); err != nil {
-		return 0, err
+
+	detectorStart := time.Now()
+	err = detector.Detect(ctx, req.ImageUuid)
+	detectorCost := time.Since(detectorStart)
+	if err != nil {
+		return 0, time.Since(detectorStart), err
 	}
+
 	reportJSON, err := reasoningUtils.ReadCompactReportJSON(taskDir)
 	if err != nil {
-		return 0, err
+		return 0, detectorCost, err
 	}
+
 	callbackReq.ResultJson = reportJSON
-	if len(req.Artifacts) > 0 {
-		uploadedArtifacts := reasoningUtils.UploadArtifacts(ctx, req.Artifacts, taskDir, s.Config().ArtifactUploadTimeout)
-		callbackReq.Artifacts = uploadedArtifacts
+	callbackReq.Artifacts = reasoningUtils.UploadArtifacts(ctx, req.Artifacts, taskDir, s.Config().ArtifactUploadTimeout)
+
+	artifactCount := 0
+	for _, artifact := range callbackReq.Artifacts {
+		if artifact != nil && artifact.Uploaded {
+			artifactCount++
+		}
 	}
-	callbackReq.Status = consts.DetectionStatusSucceeded
-	return len(callbackReq.Artifacts), nil
+
+	return artifactCount, detectorCost, nil
 }
