@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"icw_common/dto"
+	"icw_common/gen/core/biz"
 	"icw_core_api/consts"
 )
 
@@ -25,25 +25,25 @@ func BearerToken(c *gin.Context) string {
 	return strings.TrimSpace(strings.TrimPrefix(header, prefix))
 }
 
-// GetCurrentUser 从 Gin Context 中获取当前登录用户
-func GetCurrentUser(c *gin.Context) (*dto.User, error) {
-	value, ok := c.Get(consts.ContextUser)
+// GetCurrentUser 从 Gin Context 中获取用户信息
+func GetCurrentUser(c *gin.Context) (*bizpb.User, error) {
+	value, ok := c.Get(consts.ContextCurrentUser)
 	if !ok || value == nil {
 		return nil, errors.New("current user not found in Gin context")
 	}
-	user, ok := value.(*dto.User)
+	user, ok := value.(*bizpb.User)
 	if !ok || user == nil || user.Id == 0 || user.Email == "" || user.Name == "" {
 		return nil, errors.New("invalid current user in Gin context")
 	}
 	return user, nil
 }
 
-// GetRequestId 从请求上下文中获取请求 ID
-func GetRequestId(ctx context.Context) string {
+// GetXRequestId 从请求上下文中获取请求 ID
+func GetXRequestId(ctx context.Context) string {
 	if ctx == nil {
 		return ""
 	}
-	requestId, ok := ctx.Value(consts.ContextRequestId).(string)
+	requestId, ok := ctx.Value(consts.ContextXRequestId).(string)
 	if !ok {
 		return ""
 	}
