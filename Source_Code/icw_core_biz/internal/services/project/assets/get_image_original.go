@@ -1,22 +1,24 @@
 package assets
 
 import (
+	"context"
 	"strings"
 
-	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/repositories/minio"
 )
 
 // GetProjectImageOriginal 获取原图
-func (s *Service) GetProjectImageOriginal(req *project.GetProjectImageOriginalRequest, resp *project.GetProjectImageOriginalResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) GetProjectImageOriginal(ctx context.Context, req *bizpb.GetProjectImageOriginalRequest) (*bizpb.GetProjectImageOriginalResponse, error) {
+	resp := &bizpb.GetProjectImageOriginalResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.getProjectImageOriginal(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) getProjectImageOriginal(req *project.GetProjectImageOriginalRequest, resp *project.GetProjectImageOriginalResponse) error {
+func (s *Service) getProjectImageOriginal(req *bizpb.GetProjectImageOriginalRequest, resp *bizpb.GetProjectImageOriginalResponse) error {
 	imageUuid := strings.TrimSpace(req.ImageUuid)
 	if imageUuid == "" {
 		return rpc_err.BadRequestDefault("image uuid is required")
@@ -29,7 +31,7 @@ func (s *Service) getProjectImageOriginal(req *project.GetProjectImageOriginalRe
 	if imageRecord == nil {
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
-	if imageRecord.Status != consts.ProjectImageStatusUploaded {
+	if imageRecord.Status != bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED {
 		return rpc_err.BadRequestDefault("project image status is not uploaded")
 	}
 
@@ -41,7 +43,7 @@ func (s *Service) getProjectImageOriginal(req *project.GetProjectImageOriginalRe
 	if originalURL == "" {
 		return rpc_err.BadRequest(rpc_err.DetailProjectImageExpired, "project image original object is not found")
 	}
-	resp.OriginalURL = originalURL
+	resp.OriginalUrl = originalURL
 
 	return nil
 }

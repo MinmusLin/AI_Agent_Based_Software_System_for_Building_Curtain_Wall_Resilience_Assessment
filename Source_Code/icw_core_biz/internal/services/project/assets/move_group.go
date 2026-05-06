@@ -1,19 +1,23 @@
 package assets
 
 import (
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
+	"context"
+
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // MoveProjectGroup 移动图像组
-func (s *Service) MoveProjectGroup(req *project.MoveProjectGroupRequest, resp *project.MoveProjectGroupResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) MoveProjectGroup(ctx context.Context, req *bizpb.MoveProjectGroupRequest) (*bizpb.MoveProjectGroupResponse, error) {
+	resp := &bizpb.MoveProjectGroupResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.moveProjectGroup(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) moveProjectGroup(req *project.MoveProjectGroupRequest, resp *project.MoveProjectGroupResponse) error {
+func (s *Service) moveProjectGroup(req *bizpb.MoveProjectGroupRequest, resp *bizpb.MoveProjectGroupResponse) error {
 	if req.PreviousGroupId == req.NextGroupId || req.GroupId == req.PreviousGroupId || req.GroupId == req.NextGroupId {
 		return rpc_err.BadRequestDefault("project group move target is invalid")
 	}

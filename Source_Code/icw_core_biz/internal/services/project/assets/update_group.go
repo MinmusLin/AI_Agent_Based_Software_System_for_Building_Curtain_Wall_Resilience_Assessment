@@ -1,20 +1,24 @@
 package assets
 
 import (
+	"context"
+
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/project/utils"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // UpdateProjectGroup 更新图像组
-func (s *Service) UpdateProjectGroup(req *project.UpdateProjectGroupRequest, resp *project.UpdateProjectGroupResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) UpdateProjectGroup(ctx context.Context, req *bizpb.UpdateProjectGroupRequest) (*bizpb.UpdateProjectGroupResponse, error) {
+	resp := &bizpb.UpdateProjectGroupResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.updateProjectGroup(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) updateProjectGroup(req *project.UpdateProjectGroupRequest, resp *project.UpdateProjectGroupResponse) error {
+func (s *Service) updateProjectGroup(req *bizpb.UpdateProjectGroupRequest, resp *bizpb.UpdateProjectGroupResponse) error {
 	// 标准化项目图像组名称
 	name, err := utils.NormalizeProjectGroupName(req.Name)
 	if err != nil {

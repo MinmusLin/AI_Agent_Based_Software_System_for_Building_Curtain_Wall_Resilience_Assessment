@@ -1,22 +1,25 @@
 package assets
 
 import (
+	"context"
 	"strings"
 
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/common"
 	"icw_core_biz/internal/services/project/utils"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 )
 
 // DeleteProjectImage 删除图像
-func (s *Service) DeleteProjectImage(req *project.DeleteProjectImageRequest, resp *project.DeleteProjectImageResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) DeleteProjectImage(ctx context.Context, req *bizpb.DeleteProjectImageRequest) (*bizpb.DeleteProjectImageResponse, error) {
+	resp := &bizpb.DeleteProjectImageResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.deleteProjectImage(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) deleteProjectImage(req *project.DeleteProjectImageRequest, _ *project.DeleteProjectImageResponse) error {
+func (s *Service) deleteProjectImage(req *bizpb.DeleteProjectImageRequest, _ *bizpb.DeleteProjectImageResponse) error {
 	if len(req.ImageUuids) == 0 {
 		return rpc_err.BadRequestDefault("image uuids are required")
 	}

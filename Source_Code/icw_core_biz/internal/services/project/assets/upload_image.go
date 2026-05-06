@@ -1,27 +1,30 @@
 package assets
 
 import (
+	"context"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
 
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/internal/services/project/utils"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
 )
 
 // UploadProjectImage 上传图像
-func (s *Service) UploadProjectImage(req *project.UploadProjectImageRequest, resp *project.UploadProjectImageResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) UploadProjectImage(ctx context.Context, req *bizpb.UploadProjectImageRequest) (*bizpb.UploadProjectImageResponse, error) {
+	resp := &bizpb.UploadProjectImageResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.uploadProjectImage(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, resp *project.UploadProjectImageResponse) error {
+func (s *Service) uploadProjectImage(req *bizpb.UploadProjectImageRequest, resp *bizpb.UploadProjectImageResponse) error {
 	if len(req.Images) == 0 {
 		return rpc_err.BadRequestDefault("project images are required")
 	}
@@ -35,7 +38,7 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	uploadItems := make([]*project.UploadProjectImageItem, 0, len(req.Images))
+	uploadItems := make([]*bizpb.UploadProjectImageItem, 0, len(req.Images))
 	for _, image := range req.Images {
 		if image == nil {
 			continue
@@ -75,7 +78,7 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 			return rpc_err.BadRequestDefault(err.Error())
 		}
 
-		uploadItems = append(uploadItems, &project.UploadProjectImageItem{
+		uploadItems = append(uploadItems, &bizpb.UploadProjectImageItem{
 			FileName:     fileName,
 			ContentType:  contentType,
 			SizeBytes:    image.SizeBytes,
@@ -105,8 +108,8 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 			return err
 		}
 
-		item.OriginalUploadURL = originalUploadURL
-		item.ThumbnailUploadURL = thumbnailUploadURL
+		item.OriginalUploadUrl = originalUploadURL
+		item.ThumbnailUploadUrl = thumbnailUploadURL
 
 		createRecords = append(createRecords, &mysql.ProjectImageCreateRecord{
 			ImageUuid:   item.ImageUuid,
@@ -127,17 +130,17 @@ func (s *Service) uploadProjectImage(req *project.UploadProjectImageRequest, res
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	resp.Images = make([]*project.UploadProjectImageResult, 0, len(uploadItems))
+	resp.Images = make([]*bizpb.UploadProjectImageResult, 0, len(uploadItems))
 	for index, item := range uploadItems {
 		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecords[index], s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}
 
-		resp.Images = append(resp.Images, &project.UploadProjectImageResult{
+		resp.Images = append(resp.Images, &bizpb.UploadProjectImageResult{
 			Image:              projectImage,
-			OriginalUploadURL:  item.OriginalUploadURL,
-			ThumbnailUploadURL: item.ThumbnailUploadURL,
+			OriginalUploadUrl:  item.OriginalUploadUrl,
+			ThumbnailUploadUrl: item.ThumbnailUploadUrl,
 		})
 	}
 

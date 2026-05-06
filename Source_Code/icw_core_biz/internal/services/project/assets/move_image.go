@@ -1,21 +1,24 @@
 package assets
 
 import (
+	"context"
 	"strings"
 
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // MoveProjectImage 移动图像
-func (s *Service) MoveProjectImage(req *project.MoveProjectImageRequest, resp *project.MoveProjectImageResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) MoveProjectImage(ctx context.Context, req *bizpb.MoveProjectImageRequest) (*bizpb.MoveProjectImageResponse, error) {
+	resp := &bizpb.MoveProjectImageResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.moveProjectImage(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) moveProjectImage(req *project.MoveProjectImageRequest, resp *project.MoveProjectImageResponse) error {
+func (s *Service) moveProjectImage(req *bizpb.MoveProjectImageRequest, resp *bizpb.MoveProjectImageResponse) error {
 	if len(req.ImageUuids) == 0 {
 		return rpc_err.BadRequestDefault("image uuids are required")
 	}
@@ -45,7 +48,7 @@ func (s *Service) moveProjectImage(req *project.MoveProjectImageRequest, resp *p
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	resp.Images = make([]*project.ProjectImage, 0, len(imageRecords))
+	resp.Images = make([]*bizpb.ProjectImage, 0, len(imageRecords))
 	for _, imageRecord := range imageRecords {
 		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
 		if err != nil {

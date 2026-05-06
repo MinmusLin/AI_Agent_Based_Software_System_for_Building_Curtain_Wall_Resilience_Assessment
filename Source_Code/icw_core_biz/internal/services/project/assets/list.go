@@ -1,18 +1,22 @@
 package assets
 
 import (
-	"icw_core_biz/pkg/dto/project"
+	"context"
+
+	"icw_common/gen/core/biz"
 	"icw_core_biz/repositories/mysql"
 )
 
 // GetProjectAssets 获取项目图像列表
-func (s *Service) GetProjectAssets(req *project.GetProjectAssetsRequest, resp *project.GetProjectAssetsResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) GetProjectAssets(ctx context.Context, req *bizpb.GetProjectAssetsRequest) (*bizpb.GetProjectAssetsResponse, error) {
+	resp := &bizpb.GetProjectAssetsResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.getProjectAssets(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) getProjectAssets(req *project.GetProjectAssetsRequest, resp *project.GetProjectAssetsResponse) error {
+func (s *Service) getProjectAssets(req *bizpb.GetProjectAssetsRequest, resp *bizpb.GetProjectAssetsResponse) error {
 	groups, err := s.MySQL().ListProjectGroups(s.Ctx(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err
@@ -30,7 +34,7 @@ func (s *Service) getProjectAssets(req *project.GetProjectAssetsRequest, resp *p
 		imageMap[imageRecord.GroupId] = append(imageMap[imageRecord.GroupId], imageRecord)
 	}
 
-	resp.Groups = make([]*project.ProjectGroup, 0, len(groups))
+	resp.Groups = make([]*bizpb.ProjectGroup, 0, len(groups))
 	for _, groupRecord := range groups {
 		group, err := mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, imageMap[groupRecord.Id], s.Config().ProjectImageGetTTL)
 		if err != nil {

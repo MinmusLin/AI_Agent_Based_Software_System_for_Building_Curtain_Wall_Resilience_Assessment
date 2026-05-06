@@ -1,23 +1,26 @@
 package assets
 
 import (
+	"context"
 	"errors"
 
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/common"
 	"icw_core_biz/internal/services/project/utils"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // DeleteProjectGroup 删除图像组
-func (s *Service) DeleteProjectGroup(req *project.DeleteProjectGroupRequest, resp *project.DeleteProjectGroupResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) DeleteProjectGroup(ctx context.Context, req *bizpb.DeleteProjectGroupRequest) (*bizpb.DeleteProjectGroupResponse, error) {
+	resp := &bizpb.DeleteProjectGroupResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.deleteProjectGroup(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) deleteProjectGroup(req *project.DeleteProjectGroupRequest, _ *project.DeleteProjectGroupResponse) error {
+func (s *Service) deleteProjectGroup(req *bizpb.DeleteProjectGroupRequest, _ *bizpb.DeleteProjectGroupResponse) error {
 	images, err := s.MySQL().ListProjectImagesByGroupId(s.Ctx(), req.UserId, req.ProjectId, req.GroupId)
 	if err != nil {
 		return err

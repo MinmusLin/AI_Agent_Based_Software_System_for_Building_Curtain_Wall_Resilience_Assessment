@@ -1,30 +1,33 @@
 package assets
 
 import (
+	"context"
 	"strings"
 
-	"icw_core_biz/internal/services/project/consts"
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/project/events"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
 )
 
 // ReportProjectImage 上报图像
-func (s *Service) ReportProjectImage(req *project.ReportProjectImageRequest, resp *project.ReportProjectImageResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) ReportProjectImage(ctx context.Context, req *bizpb.ReportProjectImageRequest) (*bizpb.ReportProjectImageResponse, error) {
+	resp := &bizpb.ReportProjectImageResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.reportProjectImage(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) reportProjectImage(req *project.ReportProjectImageRequest, _ *project.ReportProjectImageResponse) error {
+func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bizpb.ReportProjectImageResponse) error {
 	imageUuid := strings.TrimSpace(req.ImageUuid)
 	if imageUuid == "" {
 		return rpc_err.BadRequestDefault("image uuid is required")
 	}
-	status := consts.ParseProjectImageStatus(req.Status)
-	if status != consts.ProjectImageStatusUploaded && status != consts.ProjectImageStatusFailed {
+	status := enum.ParseProjectImageStatus(req.Status)
+	if status != bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED && status != bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_FAILED {
 		return rpc_err.BadRequestDefault("project image status is invalid")
 	}
 
@@ -36,7 +39,7 @@ func (s *Service) reportProjectImage(req *project.ReportProjectImageRequest, _ *
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	if status == consts.ProjectImageStatusUploaded {
+	if status == bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED {
 		originalKey, err := minio.GenProjectImageOriginalKey(req.ProjectId, imageUuid)
 		if err != nil {
 			return rpc_err.BadRequestDefault(err.Error())

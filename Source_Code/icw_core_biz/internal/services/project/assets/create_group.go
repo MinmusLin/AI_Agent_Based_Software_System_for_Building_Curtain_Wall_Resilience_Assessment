@@ -1,12 +1,13 @@
 package assets
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
@@ -16,13 +17,15 @@ const (
 )
 
 // CreateProjectGroup 创建图像组
-func (s *Service) CreateProjectGroup(req *project.CreateProjectGroupRequest, resp *project.CreateProjectGroupResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) CreateProjectGroup(ctx context.Context, req *bizpb.CreateProjectGroupRequest) (*bizpb.CreateProjectGroupResponse, error) {
+	resp := &bizpb.CreateProjectGroupResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.createProjectGroup(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) createProjectGroup(req *project.CreateProjectGroupRequest, resp *project.CreateProjectGroupResponse) error {
+func (s *Service) createProjectGroup(req *bizpb.CreateProjectGroupRequest, resp *bizpb.CreateProjectGroupResponse) error {
 	start := time.Now()
 
 	for {
