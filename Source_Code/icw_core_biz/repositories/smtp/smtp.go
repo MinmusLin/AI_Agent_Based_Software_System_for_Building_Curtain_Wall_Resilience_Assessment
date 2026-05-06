@@ -21,6 +21,7 @@ type Repository struct {
 	EmailCodeTTLMinutes int
 }
 
+// NewRepository 创建 SMTP 简单邮件传输协议服务
 func NewRepository(cfg configs.Config) *Repository {
 	return &Repository{
 		SMTPHost:            cfg.SMTPHost,
@@ -40,7 +41,7 @@ func (r *Repository) Configured() bool {
 // SendEmailCode 发送验证码邮件
 func (r *Repository) SendEmailCode(to, scene, code string) error {
 	if !r.Configured() {
-		return errors.New("SMTP service not configured")
+		return errors.New("smtp service not configured")
 	}
 	subject, sceneName, err := emailSceneText(scene)
 	if err != nil {
