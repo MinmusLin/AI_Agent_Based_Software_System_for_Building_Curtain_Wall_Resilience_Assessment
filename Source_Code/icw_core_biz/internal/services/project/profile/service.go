@@ -15,6 +15,9 @@ type Service struct {
 
 // NewService 创建基础信息服务
 func NewService(ctx context.Context, deps *common.Deps) *Service {
+	if deps == nil {
+		deps = &common.Deps{}
+	}
 	return &Service{
 		BaseService: common.NewBaseService(ctx, deps),
 	}

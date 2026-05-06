@@ -15,6 +15,9 @@ type Service struct {
 
 // NewService 创建评估报告服务
 func NewService(ctx context.Context, deps *common.Deps) *Service {
+	if deps == nil {
+		deps = &common.Deps{}
+	}
 	return &Service{
 		BaseService: common.NewBaseService(ctx, deps),
 	}
