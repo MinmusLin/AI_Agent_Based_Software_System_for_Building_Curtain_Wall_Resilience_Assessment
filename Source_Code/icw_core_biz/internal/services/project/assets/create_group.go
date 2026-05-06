@@ -2,6 +2,7 @@ package assets
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -30,7 +31,7 @@ func (s *Service) createProjectGroup(req *bizpb.CreateProjectGroupRequest, resp 
 
 	for {
 		if time.Since(start) > CreateProjectGroupTimeout {
-			return rpc_err.InternalErrorDefault("create project group timeout")
+			return errors.New("create project group timeout")
 		}
 
 		// 分配新图像组的下一个序号
@@ -39,7 +40,7 @@ func (s *Service) createProjectGroup(req *bizpb.CreateProjectGroupRequest, resp 
 			return err
 		}
 		if seq <= 0 {
-			return rpc_err.InternalErrorDefault("create project group sequence error")
+			return errors.New("create project group sequence error")
 		}
 
 		// 生成新图像组名称

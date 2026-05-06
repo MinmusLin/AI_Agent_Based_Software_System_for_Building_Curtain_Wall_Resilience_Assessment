@@ -28,7 +28,7 @@ type TokenMetadata struct {
 func NewTokenMetadata(cfg configs.Config, tokens *TokenManager, user *mysql.UserRecord) (*TokenMetadata, error) {
 	userDTO := mysql.UserRecordToDTO(user)
 	if userDTO == nil {
-		return nil, rpc_err.InternalErrorDefault("user is nil")
+		return nil, errors.New("user is nil")
 	}
 
 	// 签发短期 Access Token
@@ -153,7 +153,7 @@ func IssueTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository
 // IssueRotatedTokens 刷新场景下，签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
 func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *bizpb.RefreshResponse) error {
 	if resp == nil {
-		return rpc_err.InternalErrorDefault("response is nil")
+		return errors.New("response is nil")
 	}
 	pair, err := NewTokenMetadata(cfg, tokens, user)
 	if err != nil {
