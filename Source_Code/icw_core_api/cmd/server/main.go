@@ -50,7 +50,7 @@ func main() {
 	defer func() {
 		_ = coreBizClient.Close()
 	}()
-	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "Connected to RPC service icw.core.biz successfully")
+	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC service icw.core.biz initialized successfully")
 
 	// 初始化路由
 	router := handlers.RegisterRoutes(cfg, coreBizClient, webSocketHub)
