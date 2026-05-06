@@ -9,25 +9,28 @@ import (
 // Hub 管理项目维度 WebSocket 连接
 type Hub struct {
 	mu      sync.RWMutex
-	clients map[uint64]map[*Client]struct{}
+	clients map[uint64]map[string]map[*Client]struct{}
 }
 
 // NewHub 创建 WebSocket Hub
 func NewHub() *Hub {
 	return &Hub{
-		clients: make(map[uint64]map[*Client]struct{}),
+		clients: make(map[uint64]map[string]map[*Client]struct{}),
 	}
 }
 
 // Register 注册 WebSocket 连接
-func (h *Hub) Register(projectId uint64, conn *websocket.Conn) *Client {
-	client := newClient(h, projectId, conn)
+func (h *Hub) Register(projectId uint64, scope string, conn *websocket.Conn) *Client {
+	client := newClient(h, projectId, scope, conn)
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	if _, ok := h.clients[projectId]; !ok {
-		h.clients[projectId] = make(map[*Client]struct{})
+		h.clients[projectId] = make(map[string]map[*Client]struct{})
 	}
-	h.clients[projectId][client] = struct{}{}
+	if _, ok := h.clients[projectId][scope]; !ok {
+		h.clients[projectId][scope] = make(map[*Client]struct{})
+	}
+	h.clients[projectId][scope][client] = struct{}{}
 	return client
 }
 
@@ -38,7 +41,11 @@ func (h *Hub) Unregister(client *Client) {
 	}
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	clients, ok := h.clients[client.projectId]
+	scopes, ok := h.clients[client.projectId]
+	if !ok {
+		return
+	}
+	clients, ok := scopes[client.scope]
 	if !ok {
 		return
 	}
@@ -48,18 +55,25 @@ func (h *Hub) Unregister(client *Client) {
 	delete(clients, client)
 	close(client.send)
 	if len(clients) == 0 {
+		delete(scopes, client.scope)
+	}
+	if len(scopes) == 0 {
 		delete(h.clients, client.projectId)
 	}
 }
 
 // BroadcastProject 向指定项目的所有 WebSocket 连接广播消息
-func (h *Hub) BroadcastProject(projectId uint64, projectCode string, payload []byte) {
+func (h *Hub) BroadcastProject(projectId uint64, projectCode, scope string, payload []byte) {
 	if h == nil || len(payload) == 0 {
 		return
 	}
 	h.mu.RLock()
-	clients := make([]*Client, 0, len(h.clients[projectId]))
-	for client := range h.clients[projectId] {
+	scopes := h.clients[projectId]
+	clients := make([]*Client, 0, len(scopes[scope]))
+	for client := range scopes[scope] {
+		if client == nil {
+			continue
+		}
 		clients = append(clients, client)
 	}
 	h.mu.RUnlock()
@@ -77,8 +91,8 @@ func (h *Hub) BroadcastProject(projectId uint64, projectCode string, payload []b
 	}
 
 	if dropped > 0 {
-		WSError("[%s] Broadcast failed, clients=%d sent=%d dropped=%d payload_bytes=%d", projectCode, len(clients), sent, dropped, len(payload))
+		WSError("[%s|%s] Broadcast failed, clients=%d sent=%d dropped=%d payload_bytes=%d", projectCode, scope, len(clients), sent, dropped, len(payload))
 		return
 	}
-	WSInfo("[%s] Broadcast succeeded, clients=%d payload_bytes=%d", projectCode, len(clients), len(payload))
+	WSInfo("[%s|%s] Broadcast succeeded, clients=%d payload_bytes=%d", projectCode, scope, len(clients), len(payload))
 }

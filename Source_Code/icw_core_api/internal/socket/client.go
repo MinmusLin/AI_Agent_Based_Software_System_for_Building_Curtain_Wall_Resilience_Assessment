@@ -25,15 +25,17 @@ type Client struct {
 	conn      *websocket.Conn
 	send      chan []byte
 	projectId uint64
+	scope     string
 }
 
 // newClient 创建单 WebSocket 连接
-func newClient(hub *Hub, projectId uint64, conn *websocket.Conn) *Client {
+func newClient(hub *Hub, projectId uint64, scope string, conn *websocket.Conn) *Client {
 	return &Client{
 		hub:       hub,
 		conn:      conn,
 		send:      make(chan []byte, SendBufferSize),
 		projectId: projectId,
+		scope:     scope,
 	}
 }
 

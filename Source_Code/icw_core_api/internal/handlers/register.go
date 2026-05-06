@@ -128,10 +128,9 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		// 智能检测 Handler
 		projectDetectionHandler := detection.NewHandler(handlerDeps)
 		projectDetectionRouter := projectRouter.Group("/detection")
+		projectDetectionRoutes := common.NewRouteGroup(projectDetectionRouter, routeDescriptions)
 		{
-			if projectDetectionHandler == nil || projectDetectionRouter == nil || projectDetectionEditable == nil {
-				// TODO: Prevent errors on unused variables
-			}
+			projectDetectionRoutes.POST("/start", "启动项目智能检测", projectDetectionEditable, projectDetectionHandler.StartProjectDetection)
 		}
 
 		// 人工复核 Handler
@@ -161,6 +160,7 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		socketSetupRouter := socketRouter.Group("/setup")
 		{
 			common.NewRouteGroup(socketSetupRouter, routeDescriptions).GET("/assets", "建立图像资产 WebSocket 连接", socketHandler.SetupAssetsWebSocket)
+			common.NewRouteGroup(socketSetupRouter, routeDescriptions).GET("/detection", "建立智能检测 WebSocket 连接", socketHandler.SetupDetectionWebSocket)
 		}
 
 		// Socket 票据 Router

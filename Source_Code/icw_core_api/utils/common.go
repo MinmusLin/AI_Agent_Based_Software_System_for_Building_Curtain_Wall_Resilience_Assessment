@@ -25,7 +25,7 @@ func BearerToken(c *gin.Context) string {
 	return strings.TrimSpace(strings.TrimPrefix(header, prefix))
 }
 
-// GetCurrentUser 从 Gin Context 中获取用户信息
+// GetCurrentUser 从 Gin Context 中获取当前登录用户
 func GetCurrentUser(c *gin.Context) (*bizpb.User, error) {
 	value, ok := c.Get(consts.ContextCurrentUser)
 	if !ok || value == nil {
