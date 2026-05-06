@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"icw_core_biz/pkg/rpc_err"
+	"icw_common/rpc_err"
 )
 
 // RpcErrorMessages 业务错误枚举提示
