@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"icw_common/consts"
+	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc_err"
 	"icw_common/utils"
@@ -28,11 +29,11 @@ func projectProgressIs(expected consts.ProjectProgress) ProjectProgressCondition
 }
 
 // ProjectStatusCondition 项目状态校验条件
-type ProjectStatusCondition func(status consts.ProjectStatus) bool
+type ProjectStatusCondition func(status bizpb.ProjectStatus) bool
 
 // projectStatusIs 校验项目状态是否等于指定值
-func projectStatusIs(expected consts.ProjectStatus) ProjectStatusCondition {
-	return func(status consts.ProjectStatus) bool {
+func projectStatusIs(expected bizpb.ProjectStatus) ProjectStatusCondition {
+	return func(status bizpb.ProjectStatus) bool {
 		return status == expected
 	}
 }
@@ -75,7 +76,7 @@ func projectAccessRequired(coreBizClient *icw_core_biz.Client, progressCondition
 		}
 
 		// 根据项目状态按需校验项目阶段编辑权限
-		if statusCondition != nil && !statusCondition(consts.ParseProjectStatus(rpcResp.Status)) {
+		if statusCondition != nil && !statusCondition(enum.ParseProjectStatus(rpcResp.Status)) {
 			response.WriteError(c, rpc_err.BadRequestDefault("project status condition is not satisfied"))
 			c.Abort()
 			return
@@ -138,7 +139,7 @@ func ProjectProfileEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFunc 
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressInitializationFinished),
-		projectStatusIs(consts.ProjectStatusActive),
+		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
 	)
 }
 
@@ -147,7 +148,7 @@ func ProjectAssetsEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressProfileFinished),
-		projectStatusIs(consts.ProjectStatusActive),
+		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
 	)
 }
 
@@ -156,7 +157,7 @@ func ProjectDetectionEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFun
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressAssetsFinished),
-		projectStatusIs(consts.ProjectStatusActive),
+		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
 	)
 }
 
@@ -165,7 +166,7 @@ func ProjectReviewEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressDetectionFinished),
-		projectStatusIs(consts.ProjectStatusActive),
+		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
 	)
 }
 
@@ -174,6 +175,6 @@ func ProjectReportEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressReviewFinished),
-		projectStatusIs(consts.ProjectStatusActive),
+		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
 	)
 }
