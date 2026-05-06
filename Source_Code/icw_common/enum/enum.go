@@ -34,6 +34,30 @@ func ParseEmailCodeScene(value string) bizpb.EmailCodeScene {
 	}
 }
 
+// LoginSceneString 将登录方式枚举转换为字符串
+func LoginSceneString(scene bizpb.LoginScene) string {
+	switch scene {
+	case bizpb.LoginScene_LOGIN_SCENE_PASSWORD:
+		return "password"
+	case bizpb.LoginScene_LOGIN_SCENE_EMAIL:
+		return "email"
+	default:
+		return ""
+	}
+}
+
+// ParseLoginScene 将存储值转换为登录方式枚举
+func ParseLoginScene(value string) bizpb.LoginScene {
+	switch strings.TrimSpace(value) {
+	case "password":
+		return bizpb.LoginScene_LOGIN_SCENE_PASSWORD
+	case "email":
+		return bizpb.LoginScene_LOGIN_SCENE_EMAIL
+	default:
+		return bizpb.LoginScene_LOGIN_SCENE_UNKNOWN
+	}
+}
+
 // EmailSendStatusString 将邮件发送状态枚举转换为字符串
 func EmailSendStatusString(status bizpb.EmailSendStatus) string {
 	switch status {

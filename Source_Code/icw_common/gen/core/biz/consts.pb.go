@@ -78,6 +78,59 @@ func (EmailCodeScene) EnumDescriptor() ([]byte, []int) {
 	return file_core_biz_consts_proto_rawDescGZIP(), []int{0}
 }
 
+// 登录方式
+type LoginScene int32
+
+const (
+	// 登录方式-未知
+	LoginScene_LOGIN_SCENE_UNKNOWN LoginScene = 0
+	// 登录方式-密码登录
+	LoginScene_LOGIN_SCENE_PASSWORD LoginScene = 1
+	// 登录方式-邮箱验证码登录
+	LoginScene_LOGIN_SCENE_EMAIL LoginScene = 2
+)
+
+// Enum value maps for LoginScene.
+var (
+	LoginScene_name = map[int32]string{
+		0: "LOGIN_SCENE_UNKNOWN",
+		1: "LOGIN_SCENE_PASSWORD",
+		2: "LOGIN_SCENE_EMAIL",
+	}
+	LoginScene_value = map[string]int32{
+		"LOGIN_SCENE_UNKNOWN":  0,
+		"LOGIN_SCENE_PASSWORD": 1,
+		"LOGIN_SCENE_EMAIL":    2,
+	}
+)
+
+func (x LoginScene) Enum() *LoginScene {
+	p := new(LoginScene)
+	*p = x
+	return p
+}
+
+func (x LoginScene) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoginScene) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[1].Descriptor()
+}
+
+func (LoginScene) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[1]
+}
+
+func (x LoginScene) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoginScene.Descriptor instead.
+func (LoginScene) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{1}
+}
+
 // 邮件发送状态
 type EmailSendStatus int32
 
@@ -115,11 +168,11 @@ func (x EmailSendStatus) String() string {
 }
 
 func (EmailSendStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_consts_proto_enumTypes[1].Descriptor()
+	return file_core_biz_consts_proto_enumTypes[2].Descriptor()
 }
 
 func (EmailSendStatus) Type() protoreflect.EnumType {
-	return &file_core_biz_consts_proto_enumTypes[1]
+	return &file_core_biz_consts_proto_enumTypes[2]
 }
 
 func (x EmailSendStatus) Number() protoreflect.EnumNumber {
@@ -128,7 +181,7 @@ func (x EmailSendStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EmailSendStatus.Descriptor instead.
 func (EmailSendStatus) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{1}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{2}
 }
 
 // 项目状态
@@ -172,11 +225,11 @@ func (x ProjectStatus) String() string {
 }
 
 func (ProjectStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_consts_proto_enumTypes[2].Descriptor()
+	return file_core_biz_consts_proto_enumTypes[3].Descriptor()
 }
 
 func (ProjectStatus) Type() protoreflect.EnumType {
-	return &file_core_biz_consts_proto_enumTypes[2]
+	return &file_core_biz_consts_proto_enumTypes[3]
 }
 
 func (x ProjectStatus) Number() protoreflect.EnumNumber {
@@ -185,7 +238,7 @@ func (x ProjectStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectStatus.Descriptor instead.
 func (ProjectStatus) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{2}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{3}
 }
 
 // 项目图像状态
@@ -229,11 +282,11 @@ func (x ProjectImageStatus) String() string {
 }
 
 func (ProjectImageStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_consts_proto_enumTypes[3].Descriptor()
+	return file_core_biz_consts_proto_enumTypes[4].Descriptor()
 }
 
 func (ProjectImageStatus) Type() protoreflect.EnumType {
-	return &file_core_biz_consts_proto_enumTypes[3]
+	return &file_core_biz_consts_proto_enumTypes[4]
 }
 
 func (x ProjectImageStatus) Number() protoreflect.EnumNumber {
@@ -242,7 +295,7 @@ func (x ProjectImageStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectImageStatus.Descriptor instead.
 func (ProjectImageStatus) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{3}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{4}
 }
 
 // 项目图像检测主任务状态
@@ -298,11 +351,11 @@ func (x ProjectDetectionTaskStatus) String() string {
 }
 
 func (ProjectDetectionTaskStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_consts_proto_enumTypes[4].Descriptor()
+	return file_core_biz_consts_proto_enumTypes[5].Descriptor()
 }
 
 func (ProjectDetectionTaskStatus) Type() protoreflect.EnumType {
-	return &file_core_biz_consts_proto_enumTypes[4]
+	return &file_core_biz_consts_proto_enumTypes[5]
 }
 
 func (x ProjectDetectionTaskStatus) Number() protoreflect.EnumNumber {
@@ -311,7 +364,7 @@ func (x ProjectDetectionTaskStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectDetectionTaskStatus.Descriptor instead.
 func (ProjectDetectionTaskStatus) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{4}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{5}
 }
 
 // 项目图像检测子任务状态
@@ -359,11 +412,11 @@ func (x ProjectDetectionSubTaskStatus) String() string {
 }
 
 func (ProjectDetectionSubTaskStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_consts_proto_enumTypes[5].Descriptor()
+	return file_core_biz_consts_proto_enumTypes[6].Descriptor()
 }
 
 func (ProjectDetectionSubTaskStatus) Type() protoreflect.EnumType {
-	return &file_core_biz_consts_proto_enumTypes[5]
+	return &file_core_biz_consts_proto_enumTypes[6]
 }
 
 func (x ProjectDetectionSubTaskStatus) Number() protoreflect.EnumNumber {
@@ -372,7 +425,7 @@ func (x ProjectDetectionSubTaskStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectDetectionSubTaskStatus.Descriptor instead.
 func (ProjectDetectionSubTaskStatus) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{5}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{6}
 }
 
 var File_core_biz_consts_proto protoreflect.FileDescriptor
@@ -384,7 +437,12 @@ const file_core_biz_consts_proto_rawDesc = "" +
 	"\x18EMAIL_CODE_SCENE_UNKNOWN\x10\x00\x12\x1d\n" +
 	"\x19EMAIL_CODE_SCENE_REGISTER\x10\x01\x12\x1a\n" +
 	"\x16EMAIL_CODE_SCENE_LOGIN\x10\x02\x12\x1a\n" +
-	"\x16EMAIL_CODE_SCENE_RESET\x10\x03*m\n" +
+	"\x16EMAIL_CODE_SCENE_RESET\x10\x03*V\n" +
+	"\n" +
+	"LoginScene\x12\x17\n" +
+	"\x13LOGIN_SCENE_UNKNOWN\x10\x00\x12\x18\n" +
+	"\x14LOGIN_SCENE_PASSWORD\x10\x01\x12\x15\n" +
+	"\x11LOGIN_SCENE_EMAIL\x10\x02*m\n" +
 	"\x0fEmailSendStatus\x12\x1d\n" +
 	"\x19EMAIL_SEND_STATUS_UNKNOWN\x10\x00\x12\x1d\n" +
 	"\x19EMAIL_SEND_STATUS_SUCCESS\x10\x01\x12\x1c\n" +
@@ -426,14 +484,15 @@ func file_core_biz_consts_proto_rawDescGZIP() []byte {
 	return file_core_biz_consts_proto_rawDescData
 }
 
-var file_core_biz_consts_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_core_biz_consts_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
 var file_core_biz_consts_proto_goTypes = []any{
 	(EmailCodeScene)(0),                // 0: icw.core.biz.EmailCodeScene
-	(EmailSendStatus)(0),               // 1: icw.core.biz.EmailSendStatus
-	(ProjectStatus)(0),                 // 2: icw.core.biz.ProjectStatus
-	(ProjectImageStatus)(0),            // 3: icw.core.biz.ProjectImageStatus
-	(ProjectDetectionTaskStatus)(0),    // 4: icw.core.biz.ProjectDetectionTaskStatus
-	(ProjectDetectionSubTaskStatus)(0), // 5: icw.core.biz.ProjectDetectionSubTaskStatus
+	(LoginScene)(0),                    // 1: icw.core.biz.LoginScene
+	(EmailSendStatus)(0),               // 2: icw.core.biz.EmailSendStatus
+	(ProjectStatus)(0),                 // 3: icw.core.biz.ProjectStatus
+	(ProjectImageStatus)(0),            // 4: icw.core.biz.ProjectImageStatus
+	(ProjectDetectionTaskStatus)(0),    // 5: icw.core.biz.ProjectDetectionTaskStatus
+	(ProjectDetectionSubTaskStatus)(0), // 6: icw.core.biz.ProjectDetectionSubTaskStatus
 }
 var file_core_biz_consts_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -453,7 +512,7 @@ func file_core_biz_consts_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_consts_proto_rawDesc), len(file_core_biz_consts_proto_rawDesc)),
-			NumEnums:      6,
+			NumEnums:      7,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,
