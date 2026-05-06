@@ -6,43 +6,34 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/status"
 
 	"icw_common/consts"
 )
 
-// GRPCUnaryServerInterceptor 生成 gRPC 服务端入口日志拦截器
+// GRPCUnaryServerInterceptor gRPC 服务端日志拦截器
 func GRPCUnaryServerInterceptor(scope string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		start := time.Now()
 		resp, err := handler(ctx, req)
-		logGRPCServer(scope, ctx, req, resp, info, time.Since(start), err)
+		logGRPCServer(ctx, scope, req, resp, err, time.Since(start), info)
 		return resp, err
 	}
 }
 
-// GRPCUnaryClientInterceptor 生成只记录失败调用的 gRPC 客户端日志拦截器
-func GRPCUnaryClientInterceptor(scope, psm string) grpc.UnaryClientInterceptor {
+// GRPCUnaryClientInterceptor gRPC 客户端日志拦截器
+func GRPCUnaryClientInterceptor(scope string) grpc.UnaryClientInterceptor {
 	return func(ctx context.Context, method string, req, resp interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 		start := time.Now()
 		err := invoker(ctx, method, req, resp, cc, opts...)
 		if !IsEmptyError(err) {
-			logGRPCClient(scope, ctx, method, req, resp, time.Since(start), err)
+			logGRPCClient(ctx, scope, method, req, resp, err, time.Since(start))
 		}
 		return err
 	}
 }
 
-// gRPCMethod 将 /package.Service/Method 格式转换为 Service.Method
-func gRPCMethod(fullMethod string) string {
-	fullMethod = strings.TrimSpace(strings.TrimPrefix(fullMethod, "/"))
-	if fullMethod == "" {
-		return "unknown"
-	}
-	return fullMethod
-}
-
-func logGRPCServer(scope string, ctx context.Context, req, resp interface{}, info *grpc.UnaryServerInfo, cost time.Duration, err error) {
+// logGRPCServer 输出 gRPC 服务端日志
+func logGRPCServer(ctx context.Context, scope string, req, resp interface{}, err error, cost time.Duration, info *grpc.UnaryServerInfo) {
 	requestId := RequestIdFromGRPCContext(ctx)
 	if requestId == "" {
 		requestId = "-"
@@ -67,11 +58,12 @@ func logGRPCServer(scope string, ctx context.Context, req, resp interface{}, inf
 		gRPCMethod(fullMethod),
 		JSONF(req),
 		JSONF(resp),
-		FormatErrorLog(grpcErrorMessage(err)),
+		FormatErrorLog(GRPCErrorMessage(err)),
 	)
 }
 
-func logGRPCClient(scope string, ctx context.Context, method string, req, resp interface{}, cost time.Duration, err error) {
+// logGRPCClient 输出 gRPC 客户端日志
+func logGRPCClient(ctx context.Context, scope, method string, req, resp interface{}, err error, cost time.Duration) {
 	requestId := RequestIdFromGRPCContext(ctx)
 	if requestId == "" {
 		requestId = "-"
@@ -82,16 +74,15 @@ func logGRPCClient(scope string, ctx context.Context, method string, req, resp i
 		gRPCMethod(method),
 		JSONF(req),
 		JSONF(resp),
-		FormatErrorLog(grpcErrorMessage(err)),
+		FormatErrorLog(GRPCErrorMessage(err)),
 	)
 }
 
-func grpcErrorMessage(err error) string {
-	if err == nil {
-		return ""
+// gRPCMethod 获取 gRPC 方法名称
+func gRPCMethod(fullMethod string) string {
+	fullMethod = strings.TrimSpace(strings.TrimPrefix(fullMethod, "/"))
+	if fullMethod == "" {
+		return "unknown"
 	}
-	if grpcStatus, ok := status.FromError(err); ok {
-		return grpcStatus.Message()
-	}
-	return err.Error()
+	return fullMethod
 }

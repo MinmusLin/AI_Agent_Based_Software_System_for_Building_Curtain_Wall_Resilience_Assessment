@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"strings"
 
+	"google.golang.org/grpc/status"
+
 	"icw_common/consts"
 )
 
@@ -38,6 +40,17 @@ func IsNil(value interface{}) bool {
 	default:
 		return false
 	}
+}
+
+// GRPCErrorMessage 将 gRPC 错误转换为错误文本
+func GRPCErrorMessage(err error) string {
+	if err == nil {
+		return ""
+	}
+	if grpcStatus, ok := status.FromError(err); ok {
+		return grpcStatus.Message()
+	}
+	return err.Error()
 }
 
 // IsEmptyError 判断错误是否为空错误

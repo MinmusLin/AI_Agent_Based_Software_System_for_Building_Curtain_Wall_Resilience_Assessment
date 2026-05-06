@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/status"
 
 	"icw_common/utils"
 )
@@ -37,10 +36,7 @@ func CallGRPC[PBReq any, PBResp any](
 
 	pbResp, err := invoke(ctx, req)
 	if err != nil {
-		if grpcStatus, ok := status.FromError(err); ok {
-			return errors.New(grpcStatus.Message())
-		}
-		return err
+		return errors.New(utils.GRPCErrorMessage(err))
 	}
 	if resp == nil || pbResp == nil {
 		return errors.New("grpc response is nil")
