@@ -4,7 +4,7 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
-// 评估报告服务
+// 评估报告 RPC 服务
 service ProjectReportService {
   rpc Ping(PingRequest) returns (PingResponse);
 }

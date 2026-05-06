@@ -126,7 +126,7 @@ message UploadProjectImageResponse {
   repeated .icw.common.UploadProjectImageResult images = 1;
 }
 
-// 图像资产服务
+// 图像资产 RPC 服务
 service ProjectAssetsService {
   // 创建图像组
   rpc CreateProjectGroup(CreateProjectGroupRequest) returns (CreateProjectGroupResponse);

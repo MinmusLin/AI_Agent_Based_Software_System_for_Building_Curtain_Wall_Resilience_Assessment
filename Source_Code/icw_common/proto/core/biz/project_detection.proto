@@ -32,7 +32,7 @@ message ReportReasoningResultRequest {
 // ReportReasoningResult 响应结构体
 message ReportReasoningResultResponse {}
 
-// 智能检测服务
+// 智能检测 RPC 服务
 service ProjectDetectionService {
   // 上报图像检测分类结果
   rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);

@@ -63,7 +63,7 @@ message ListProjectsResponse {
   repeated ProjectListItem completed_projects = 2;
 }
 
-// 项目核心服务
+// 项目核心 RPC 服务
 service ProjectCoreService {
   // 项目进度流转
   rpc AdvanceProject(AdvanceProjectRequest) returns (AdvanceProjectResponse);

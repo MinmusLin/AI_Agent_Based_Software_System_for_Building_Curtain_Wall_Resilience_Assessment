@@ -87,7 +87,7 @@ message SendEmailCodeResponse {
   int32 expires_in_seconds = 1;
 }
 
-// 登录鉴权服务
+// 登录鉴权 RPC 服务
 service AuthService {
   // 登录
   rpc Login(LoginRequest) returns (LoginResponse);

@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package icw.common;
+
+option go_package = "icw_common/gen/common;commonpb";
+
+// 用户信息结构体
+message User {
+  uint64 id = 1;
+  string email = 2;
+  string name = 3;
+}
+
+// 项目图像结构体
+message ProjectImage {
+  string uuid = 1;
+  string file_name = 2;
+  string content_type = 3;
+  uint64 size_bytes = 4;
+  uint32 width = 5;
+  uint32 height = 6;
+  string metadata = 7;
+  string status = 8;
+  string thumbnail_url = 9;
+  string uploaded_at = 10;
+  string created_at = 11;
+}
+
+// 项目图像上传结果结构体
+message UploadProjectImageResult {
+  ProjectImage image = 1;
+  string original_upload_url = 2;
+  string thumbnail_upload_url = 3;
+}
