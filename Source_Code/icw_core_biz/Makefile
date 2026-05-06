@@ -1,4 +1,4 @@
-APP_NAME := icw_activity_classification
+APP_NAME := icw_core_biz
 GO ?= go
 MAIN := ./cmd/server
 PKGS := ./...

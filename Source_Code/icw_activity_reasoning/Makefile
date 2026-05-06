@@ -1,4 +1,4 @@
-APP_NAME := icw_core_api
+APP_NAME := icw_activity_reasoning
 GO ?= go
 MAIN := ./cmd/server
 PKGS := ./...
