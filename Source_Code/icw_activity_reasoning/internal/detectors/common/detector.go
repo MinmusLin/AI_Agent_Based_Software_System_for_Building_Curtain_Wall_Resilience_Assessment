@@ -57,9 +57,11 @@ func (d *PythonDetector) Detect(ctx context.Context, imageUuid string) error {
 	}
 	taskDir := filepath.Join(d.runtimeRoot, d.code, imageUuid)
 	imagePath := filepath.Join(taskDir, "original.png")
+	errorPath := filepath.Join(taskDir, "error.log")
 	if info, err := os.Stat(imagePath); err != nil || info.IsDir() {
 		return fmt.Errorf("original image not found: %s", imagePath)
 	}
+	_ = os.Remove(errorPath)
 	args := []string{
 		d.runner,
 		"--task-code", d.code,
@@ -73,8 +75,19 @@ func (d *PythonDetector) Detect(ctx context.Context, imageUuid string) error {
 		args...,
 	)
 	cmd.Dir = filepath.Dir(d.runner)
-	_, err := cmd.CombinedOutput()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
+		errorBytes, readErr := os.ReadFile(errorPath)
+		message := ""
+		if readErr == nil {
+			message = strings.TrimSpace(string(errorBytes))
+		}
+		if message == "" {
+			message = strings.TrimSpace(string(output))
+		}
+		if message != "" {
+			return fmt.Errorf("run python detector %s failed, err: %v, message: %s", d.code, err, message)
+		}
 		return fmt.Errorf("run python detector %s failed: %v", d.code, err)
 	}
 	return nil
