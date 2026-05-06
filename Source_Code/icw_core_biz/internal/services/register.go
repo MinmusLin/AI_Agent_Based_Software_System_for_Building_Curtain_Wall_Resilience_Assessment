@@ -38,7 +38,6 @@ func RegisterRPCServices(ctx context.Context, serviceDeps *common.Deps, grpcServ
 // registry RPC 服务注册表
 func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCServiceMeta {
 	return []common.RPCServiceMeta{
-
 		{
 			Name:        "AuthService",
 			Description: "登录鉴权服务",
