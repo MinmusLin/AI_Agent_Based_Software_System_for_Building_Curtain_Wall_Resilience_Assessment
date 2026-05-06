@@ -12,9 +12,7 @@ message StartRequest {
 }
 
 // Start 响应结构体
-message StartResponse {
-  repeated string task_codes = 1;
-}
+message StartResponse {}
 
 // 分类能力 RPC 服务
 service ClassificationService {

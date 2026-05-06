@@ -469,6 +469,91 @@ func (x *ProjectImageStatusChangedMessage) GetImage() *common.ProjectImage {
 	return nil
 }
 
+// 项目图像检测任务状态变化 WebSocket 消息结构体
+type ProjectDetectionTaskStatusChangedMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	ProjectId     string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	TaskUuid      string                 `protobuf:"bytes,3,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	ImageUuid     string                 `protobuf:"bytes,4,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	Stage         string                 `protobuf:"bytes,6,opt,name=stage,proto3" json:"stage,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) Reset() {
+	*x = ProjectDetectionTaskStatusChangedMessage{}
+	mi := &file_core_api_common_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionTaskStatusChangedMessage) ProtoMessage() {}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_common_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionTaskStatusChangedMessage.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionTaskStatusChangedMessage) Descriptor() ([]byte, []int) {
+	return file_core_api_common_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetImageUuid() string {
+	if x != nil {
+		return x.ImageUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetStage() string {
+	if x != nil {
+		return x.Stage
+	}
+	return ""
+}
+
 var File_core_api_common_proto protoreflect.FileDescriptor
 
 const file_core_api_common_proto_rawDesc = "" +
@@ -518,7 +603,16 @@ const file_core_api_common_proto_rawDesc = "" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\x123\n" +
-	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05imageB\x1fZ\x1dicw_common/gen/core/api;apipbP\x00b\x06proto3"
+	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\"\xc7\x01\n" +
+	"(ProjectDetectionTaskStatusChangedMessage\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1b\n" +
+	"\ttask_uuid\x18\x03 \x01(\tR\btaskUuid\x12\x1d\n" +
+	"\n" +
+	"image_uuid\x18\x04 \x01(\tR\timageUuid\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12\x14\n" +
+	"\x05stage\x18\x06 \x01(\tR\x05stageB\x1fZ\x1dicw_common/gen/core/api;apipbP\x00b\x06proto3"
 
 var (
 	file_core_api_common_proto_rawDescOnce sync.Once
@@ -532,18 +626,19 @@ func file_core_api_common_proto_rawDescGZIP() []byte {
 	return file_core_api_common_proto_rawDescData
 }
 
-var file_core_api_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_core_api_common_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_core_api_common_proto_goTypes = []any{
-	(*Project)(nil),                          // 0: icw.core.api.Project
-	(*ProjectListItem)(nil),                  // 1: icw.core.api.ProjectListItem
-	(*ProjectGroup)(nil),                     // 2: icw.core.api.ProjectGroup
-	(*UploadProjectImageItem)(nil),           // 3: icw.core.api.UploadProjectImageItem
-	(*ProjectImageStatusChangedMessage)(nil), // 4: icw.core.api.ProjectImageStatusChangedMessage
-	(*common.ProjectImage)(nil),              // 5: icw.core.common.ProjectImage
+	(*Project)(nil),                                  // 0: icw.core.api.Project
+	(*ProjectListItem)(nil),                          // 1: icw.core.api.ProjectListItem
+	(*ProjectGroup)(nil),                             // 2: icw.core.api.ProjectGroup
+	(*UploadProjectImageItem)(nil),                   // 3: icw.core.api.UploadProjectImageItem
+	(*ProjectImageStatusChangedMessage)(nil),         // 4: icw.core.api.ProjectImageStatusChangedMessage
+	(*ProjectDetectionTaskStatusChangedMessage)(nil), // 5: icw.core.api.ProjectDetectionTaskStatusChangedMessage
+	(*common.ProjectImage)(nil),                      // 6: icw.core.common.ProjectImage
 }
 var file_core_api_common_proto_depIdxs = []int32{
-	5, // 0: icw.core.api.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
-	5, // 1: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
+	6, // 0: icw.core.api.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
+	6, // 1: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -562,7 +657,7 @@ func file_core_api_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_common_proto_rawDesc), len(file_core_api_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -21,6 +21,104 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// StartProjectDetection 请求结构体
+type StartProjectDetectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartProjectDetectionRequest) Reset() {
+	*x = StartProjectDetectionRequest{}
+	mi := &file_core_biz_project_detection_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartProjectDetectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartProjectDetectionRequest) ProtoMessage() {}
+
+func (x *StartProjectDetectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_detection_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartProjectDetectionRequest.ProtoReflect.Descriptor instead.
+func (*StartProjectDetectionRequest) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *StartProjectDetectionRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *StartProjectDetectionRequest) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
+// StartProjectDetection 响应结构体
+type StartProjectDetectionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskCount     uint32                 `protobuf:"varint,1,opt,name=task_count,json=taskCount,proto3" json:"task_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartProjectDetectionResponse) Reset() {
+	*x = StartProjectDetectionResponse{}
+	mi := &file_core_biz_project_detection_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartProjectDetectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartProjectDetectionResponse) ProtoMessage() {}
+
+func (x *StartProjectDetectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_detection_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartProjectDetectionResponse.ProtoReflect.Descriptor instead.
+func (*StartProjectDetectionResponse) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *StartProjectDetectionResponse) GetTaskCount() uint32 {
+	if x != nil {
+		return x.TaskCount
+	}
+	return 0
+}
+
 // ReportClassificationResult 请求结构体
 type ReportClassificationResultRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -35,7 +133,7 @@ type ReportClassificationResultRequest struct {
 
 func (x *ReportClassificationResultRequest) Reset() {
 	*x = ReportClassificationResultRequest{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[0]
+	mi := &file_core_biz_project_detection_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +145,7 @@ func (x *ReportClassificationResultRequest) String() string {
 func (*ReportClassificationResultRequest) ProtoMessage() {}
 
 func (x *ReportClassificationResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[0]
+	mi := &file_core_biz_project_detection_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +158,7 @@ func (x *ReportClassificationResultRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ReportClassificationResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportClassificationResultRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{0}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ReportClassificationResultRequest) GetTaskUuid() string {
@@ -107,7 +205,7 @@ type ReportClassificationResultResponse struct {
 
 func (x *ReportClassificationResultResponse) Reset() {
 	*x = ReportClassificationResultResponse{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[1]
+	mi := &file_core_biz_project_detection_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -119,7 +217,7 @@ func (x *ReportClassificationResultResponse) String() string {
 func (*ReportClassificationResultResponse) ProtoMessage() {}
 
 func (x *ReportClassificationResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[1]
+	mi := &file_core_biz_project_detection_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -132,7 +230,7 @@ func (x *ReportClassificationResultResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ReportClassificationResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportClassificationResultResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{1}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{3}
 }
 
 // ReportReasoningResult 请求结构体
@@ -151,7 +249,7 @@ type ReportReasoningResultRequest struct {
 
 func (x *ReportReasoningResultRequest) Reset() {
 	*x = ReportReasoningResultRequest{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[2]
+	mi := &file_core_biz_project_detection_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -163,7 +261,7 @@ func (x *ReportReasoningResultRequest) String() string {
 func (*ReportReasoningResultRequest) ProtoMessage() {}
 
 func (x *ReportReasoningResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[2]
+	mi := &file_core_biz_project_detection_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -176,7 +274,7 @@ func (x *ReportReasoningResultRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportReasoningResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportReasoningResultRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{2}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ReportReasoningResultRequest) GetTaskCode() string {
@@ -237,7 +335,7 @@ type ReportReasoningResultResponse struct {
 
 func (x *ReportReasoningResultResponse) Reset() {
 	*x = ReportReasoningResultResponse{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[3]
+	mi := &file_core_biz_project_detection_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -249,7 +347,7 @@ func (x *ReportReasoningResultResponse) String() string {
 func (*ReportReasoningResultResponse) ProtoMessage() {}
 
 func (x *ReportReasoningResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[3]
+	mi := &file_core_biz_project_detection_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -262,14 +360,21 @@ func (x *ReportReasoningResultResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportReasoningResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportReasoningResultResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{3}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{5}
 }
 
 var File_core_biz_project_detection_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_detection_proto_rawDesc = "" +
 	"\n" +
-	" core/biz/project_detection.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"\xbb\x01\n" +
+	" core/biz/project_detection.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"V\n" +
+	"\x1cStartProjectDetectionRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\">\n" +
+	"\x1dStartProjectDetectionResponse\x12\x1d\n" +
+	"\n" +
+	"task_count\x18\x01 \x01(\rR\ttaskCount\"\xbb\x01\n" +
 	"!ReportClassificationResultRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
@@ -289,8 +394,9 @@ const file_core_biz_project_detection_proto_rawDesc = "" +
 	"resultJson\x12I\n" +
 	"\tartifacts\x18\x06 \x03(\v2+.icw.core.biz.ReasoningArtifactUploadResultR\tartifacts\x12#\n" +
 	"\rerror_message\x18\a \x01(\tR\ferrorMessage\"\x1f\n" +
-	"\x1dReportReasoningResultResponse2\x8c\x02\n" +
-	"\x17ProjectDetectionService\x12\x7f\n" +
+	"\x1dReportReasoningResultResponse2\xfe\x02\n" +
+	"\x17ProjectDetectionService\x12p\n" +
+	"\x15StartProjectDetection\x12*.icw.core.biz.StartProjectDetectionRequest\x1a+.icw.core.biz.StartProjectDetectionResponse\x12\x7f\n" +
 	"\x1aReportClassificationResult\x12/.icw.core.biz.ReportClassificationResultRequest\x1a0.icw.core.biz.ReportClassificationResultResponse\x12p\n" +
 	"\x15ReportReasoningResult\x12*.icw.core.biz.ReportReasoningResultRequest\x1a+.icw.core.biz.ReportReasoningResultResponseB\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
 
@@ -306,22 +412,26 @@ func file_core_biz_project_detection_proto_rawDescGZIP() []byte {
 	return file_core_biz_project_detection_proto_rawDescData
 }
 
-var file_core_biz_project_detection_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_core_biz_project_detection_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_core_biz_project_detection_proto_goTypes = []any{
-	(*ReportClassificationResultRequest)(nil),  // 0: icw.core.biz.ReportClassificationResultRequest
-	(*ReportClassificationResultResponse)(nil), // 1: icw.core.biz.ReportClassificationResultResponse
-	(*ReportReasoningResultRequest)(nil),       // 2: icw.core.biz.ReportReasoningResultRequest
-	(*ReportReasoningResultResponse)(nil),      // 3: icw.core.biz.ReportReasoningResultResponse
-	(*ReasoningArtifactUploadResult)(nil),      // 4: icw.core.biz.ReasoningArtifactUploadResult
+	(*StartProjectDetectionRequest)(nil),       // 0: icw.core.biz.StartProjectDetectionRequest
+	(*StartProjectDetectionResponse)(nil),      // 1: icw.core.biz.StartProjectDetectionResponse
+	(*ReportClassificationResultRequest)(nil),  // 2: icw.core.biz.ReportClassificationResultRequest
+	(*ReportClassificationResultResponse)(nil), // 3: icw.core.biz.ReportClassificationResultResponse
+	(*ReportReasoningResultRequest)(nil),       // 4: icw.core.biz.ReportReasoningResultRequest
+	(*ReportReasoningResultResponse)(nil),      // 5: icw.core.biz.ReportReasoningResultResponse
+	(*ReasoningArtifactUploadResult)(nil),      // 6: icw.core.biz.ReasoningArtifactUploadResult
 }
 var file_core_biz_project_detection_proto_depIdxs = []int32{
-	4, // 0: icw.core.biz.ReportReasoningResultRequest.artifacts:type_name -> icw.core.biz.ReasoningArtifactUploadResult
-	0, // 1: icw.core.biz.ProjectDetectionService.ReportClassificationResult:input_type -> icw.core.biz.ReportClassificationResultRequest
-	2, // 2: icw.core.biz.ProjectDetectionService.ReportReasoningResult:input_type -> icw.core.biz.ReportReasoningResultRequest
-	1, // 3: icw.core.biz.ProjectDetectionService.ReportClassificationResult:output_type -> icw.core.biz.ReportClassificationResultResponse
-	3, // 4: icw.core.biz.ProjectDetectionService.ReportReasoningResult:output_type -> icw.core.biz.ReportReasoningResultResponse
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
+	6, // 0: icw.core.biz.ReportReasoningResultRequest.artifacts:type_name -> icw.core.biz.ReasoningArtifactUploadResult
+	0, // 1: icw.core.biz.ProjectDetectionService.StartProjectDetection:input_type -> icw.core.biz.StartProjectDetectionRequest
+	2, // 2: icw.core.biz.ProjectDetectionService.ReportClassificationResult:input_type -> icw.core.biz.ReportClassificationResultRequest
+	4, // 3: icw.core.biz.ProjectDetectionService.ReportReasoningResult:input_type -> icw.core.biz.ReportReasoningResultRequest
+	1, // 4: icw.core.biz.ProjectDetectionService.StartProjectDetection:output_type -> icw.core.biz.StartProjectDetectionResponse
+	3, // 5: icw.core.biz.ProjectDetectionService.ReportClassificationResult:output_type -> icw.core.biz.ReportClassificationResultResponse
+	5, // 6: icw.core.biz.ProjectDetectionService.ReportReasoningResult:output_type -> icw.core.biz.ReportReasoningResultResponse
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -339,7 +449,7 @@ func file_core_biz_project_detection_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_project_detection_proto_rawDesc), len(file_core_biz_project_detection_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

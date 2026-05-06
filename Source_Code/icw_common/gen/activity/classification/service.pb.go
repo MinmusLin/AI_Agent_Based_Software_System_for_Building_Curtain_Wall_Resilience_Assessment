@@ -85,7 +85,6 @@ func (x *StartRequest) GetPresignGetUrl() string {
 // Start 响应结构体
 type StartResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TaskCodes     []string               `protobuf:"bytes,1,rep,name=task_codes,json=taskCodes,proto3" json:"task_codes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -120,13 +119,6 @@ func (*StartResponse) Descriptor() ([]byte, []int) {
 	return file_activity_classification_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *StartResponse) GetTaskCodes() []string {
-	if x != nil {
-		return x.TaskCodes
-	}
-	return nil
-}
-
 var File_activity_classification_service_proto protoreflect.FileDescriptor
 
 const file_activity_classification_service_proto_rawDesc = "" +
@@ -136,10 +128,8 @@ const file_activity_classification_service_proto_rawDesc = "" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
 	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12&\n" +
-	"\x0fpresign_get_url\x18\x03 \x01(\tR\rpresignGetUrl\".\n" +
-	"\rStartResponse\x12\x1d\n" +
-	"\n" +
-	"task_codes\x18\x01 \x03(\tR\ttaskCodes2w\n" +
+	"\x0fpresign_get_url\x18\x03 \x01(\tR\rpresignGetUrl\"\x0f\n" +
+	"\rStartResponse2w\n" +
 	"\x15ClassificationService\x12^\n" +
 	"\x05Start\x12).icw.activity.classification.StartRequest\x1a*.icw.activity.classification.StartResponseB9Z7icw_common/gen/activity/classification;classificationpbb\x06proto3"
 

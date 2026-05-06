@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ProjectDetectionService_StartProjectDetection_FullMethodName      = "/icw.core.biz.ProjectDetectionService/StartProjectDetection"
 	ProjectDetectionService_ReportClassificationResult_FullMethodName = "/icw.core.biz.ProjectDetectionService/ReportClassificationResult"
 	ProjectDetectionService_ReportReasoningResult_FullMethodName      = "/icw.core.biz.ProjectDetectionService/ReportReasoningResult"
 )
@@ -29,6 +30,8 @@ const (
 //
 // 智能检测 RPC 服务
 type ProjectDetectionServiceClient interface {
+	// 启动项目智能检测
+	StartProjectDetection(ctx context.Context, in *StartProjectDetectionRequest, opts ...grpc.CallOption) (*StartProjectDetectionResponse, error)
 	// 上报图像检测分类结果
 	ReportClassificationResult(ctx context.Context, in *ReportClassificationResultRequest, opts ...grpc.CallOption) (*ReportClassificationResultResponse, error)
 	// 上报图像检测推理结果
@@ -41,6 +44,16 @@ type projectDetectionServiceClient struct {
 
 func NewProjectDetectionServiceClient(cc grpc.ClientConnInterface) ProjectDetectionServiceClient {
 	return &projectDetectionServiceClient{cc}
+}
+
+func (c *projectDetectionServiceClient) StartProjectDetection(ctx context.Context, in *StartProjectDetectionRequest, opts ...grpc.CallOption) (*StartProjectDetectionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StartProjectDetectionResponse)
+	err := c.cc.Invoke(ctx, ProjectDetectionService_StartProjectDetection_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *projectDetectionServiceClient) ReportClassificationResult(ctx context.Context, in *ReportClassificationResultRequest, opts ...grpc.CallOption) (*ReportClassificationResultResponse, error) {
@@ -69,6 +82,8 @@ func (c *projectDetectionServiceClient) ReportReasoningResult(ctx context.Contex
 //
 // 智能检测 RPC 服务
 type ProjectDetectionServiceServer interface {
+	// 启动项目智能检测
+	StartProjectDetection(context.Context, *StartProjectDetectionRequest) (*StartProjectDetectionResponse, error)
 	// 上报图像检测分类结果
 	ReportClassificationResult(context.Context, *ReportClassificationResultRequest) (*ReportClassificationResultResponse, error)
 	// 上报图像检测推理结果
@@ -83,6 +98,9 @@ type ProjectDetectionServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectDetectionServiceServer struct{}
 
+func (UnimplementedProjectDetectionServiceServer) StartProjectDetection(context.Context, *StartProjectDetectionRequest) (*StartProjectDetectionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartProjectDetection not implemented")
+}
 func (UnimplementedProjectDetectionServiceServer) ReportClassificationResult(context.Context, *ReportClassificationResultRequest) (*ReportClassificationResultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReportClassificationResult not implemented")
 }
@@ -109,6 +127,24 @@ func RegisterProjectDetectionServiceServer(s grpc.ServiceRegistrar, srv ProjectD
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ProjectDetectionService_ServiceDesc, srv)
+}
+
+func _ProjectDetectionService_StartProjectDetection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartProjectDetectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectDetectionServiceServer).StartProjectDetection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectDetectionService_StartProjectDetection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectDetectionServiceServer).StartProjectDetection(ctx, req.(*StartProjectDetectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ProjectDetectionService_ReportClassificationResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -154,6 +190,10 @@ var ProjectDetectionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "icw.core.biz.ProjectDetectionService",
 	HandlerType: (*ProjectDetectionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "StartProjectDetection",
+			Handler:    _ProjectDetectionService_StartProjectDetection_Handler,
+		},
 		{
 			MethodName: "ReportClassificationResult",
 			Handler:    _ProjectDetectionService_ReportClassificationResult_Handler,
