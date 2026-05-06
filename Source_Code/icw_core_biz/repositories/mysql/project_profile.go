@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 
-	"icw_common/consts"
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
 )
@@ -60,7 +59,7 @@ func (r *Repository) FindProjectByIdAndUserId(ctx context.Context, userId, proje
 		return nil, err
 	}
 
-	project.Progress = consts.ParseProjectProgress(progress)
+	project.Progress = enum.ParseProjectProgress(progress)
 	project.Status = enum.ParseProjectStatus(status)
 
 	return project, nil
@@ -97,7 +96,7 @@ func (r *Repository) UpdateProjectProfile(
 			known_issues = ?,
 			assessment_goal = ?
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
-	`, name, buildingName, buildingLocation, builtYearValue, buildingDescription, knownIssues, assessmentGoal, projectId, userId, consts.ProjectProgressInitializationFinished.Uint8(), enum.ProjectStatusString(bizpb.ProjectStatus_Active))
+	`, name, buildingName, buildingLocation, builtYearValue, buildingDescription, knownIssues, assessmentGoal, projectId, userId, enum.ProjectProgressUint8(bizpb.ProjectProgress_InitializationFinished), enum.ProjectStatusString(bizpb.ProjectStatus_Active))
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +111,7 @@ func (r *Repository) UpdateProjectProfile(
 		if err != nil || project == nil {
 			return project, err
 		}
-		if project.Progress != consts.ProjectProgressInitializationFinished || project.Status != bizpb.ProjectStatus_Active {
+		if project.Progress != bizpb.ProjectProgress_InitializationFinished || project.Status != bizpb.ProjectStatus_Active {
 			return nil, nil
 		}
 		return project, nil

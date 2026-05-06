@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 
-	"icw_common/consts"
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	projectConsts "icw_core_biz/internal/services/project/consts"
@@ -13,7 +12,7 @@ import (
 type advanceProjectTxFunc func(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error
 
 // AdvanceProject 按用户 ID 和项目 ID 流转项目进度
-func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, status bizpb.ProjectStatus_Value, fn advanceProjectTxFunc) (bool, error) {
+func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress bizpb.ProjectProgress_Value, status bizpb.ProjectStatus_Value, fn advanceProjectTxFunc) (bool, error) {
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return false, err
@@ -26,7 +25,7 @@ func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint6
 		UPDATE projects
 		SET progress = ?, status = ?
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
-	`, toProgress.Uint8(), enum.ProjectStatusString(status), projectId, userId, fromProgress.Uint8(), enum.ProjectStatusString(bizpb.ProjectStatus_Active))
+	`, enum.ProjectProgressUint8(toProgress), enum.ProjectStatusString(status), projectId, userId, enum.ProjectProgressUint8(fromProgress), enum.ProjectStatusString(bizpb.ProjectStatus_Active))
 	if err != nil {
 		return false, err
 	}
@@ -145,7 +144,7 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 		); err != nil {
 			return nil, nil, err
 		}
-		project.Progress = consts.ParseProjectProgress(progress)
+		project.Progress = enum.ParseProjectProgress(progress)
 		project.Status = enum.ParseProjectStatus(status)
 		if project.Status == bizpb.ProjectStatus_Active {
 			activeProjects = append(activeProjects, project)

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"time"
 
-	"icw_common/consts"
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/utils"
@@ -81,7 +80,7 @@ type ProjectRecord struct {
 	BuildingDescription sql.NullString
 	KnownIssues         sql.NullString
 	AssessmentGoal      sql.NullString
-	Progress            consts.ProjectProgress
+	Progress            bizpb.ProjectProgress_Value
 	Status              bizpb.ProjectStatus_Value
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
@@ -102,7 +101,7 @@ func ProjectRecordToDTO(record *ProjectRecord) *bizpb.Project {
 		KnownIssues:         record.KnownIssues.String,
 		AssessmentGoal:      record.AssessmentGoal.String,
 		ThumbnailUrl:        "",
-		Progress:            uint32(record.Progress.Uint8()),
+		Progress:            uint32(enum.ProjectProgressUint8(record.Progress)),
 		CreatedAt:           timeToString(record.CreatedAt),
 		UpdatedAt:           timeToString(record.UpdatedAt),
 	}
@@ -138,7 +137,7 @@ func ProjectRecordsToListItemsDTO(records []*ProjectRecord) []*bizpb.ProjectList
 			BuildingName:     record.BuildingName,
 			BuildingLocation: record.BuildingLocation,
 			ThumbnailUrl:     "",
-			Progress:         uint32(record.Progress.Uint8()),
+			Progress:         uint32(enum.ProjectProgressUint8(record.Progress)),
 			CreatedAt:        timeToString(record.CreatedAt),
 		})
 	}

@@ -27,7 +27,7 @@ func (s *Service) checkProjectAccess(req *bizpb.CheckProjectAccessRequest, resp 
 	}
 
 	resp.ProjectId = projectRecord.Id
-	resp.Progress = uint32(projectRecord.Progress.Uint8())
+	resp.Progress = uint32(enum.ProjectProgressUint8(projectRecord.Progress))
 	resp.Status = enum.ProjectStatusString(projectRecord.Status)
 
 	return nil
