@@ -5,12 +5,10 @@ import (
 	"icw_common/gen/core/biz"
 )
 
-// NewAdvanceProjectResponse 将 BIZ 项目进度流转响应转换为 API 项目进度流转响应
 func NewAdvanceProjectResponse(_ *bizpb.AdvanceProjectResponse) *apipb.AdvanceProjectResponse {
 	return &apipb.AdvanceProjectResponse{}
 }
 
-// NewCreateProjectResponse 将 BIZ 创建项目响应转换为 API 创建项目响应
 func NewCreateProjectResponse(resp *bizpb.CreateProjectResponse) *apipb.CreateProjectResponse {
 	if resp == nil {
 		return nil
@@ -20,7 +18,6 @@ func NewCreateProjectResponse(resp *bizpb.CreateProjectResponse) *apipb.CreatePr
 	}
 }
 
-// NewDeleteProjectResponse 将 BIZ 删除项目响应转换为 API 删除项目响应
 func NewDeleteProjectResponse(resp *bizpb.DeleteProjectResponse) *apipb.DeleteProjectResponse {
 	if resp == nil {
 		return nil
@@ -31,7 +28,6 @@ func NewDeleteProjectResponse(resp *bizpb.DeleteProjectResponse) *apipb.DeletePr
 	}
 }
 
-// NewListProjectsResponse 将 BIZ 项目列表响应转换为 API 项目列表响应
 func NewListProjectsResponse(resp *bizpb.ListProjectsResponse) *apipb.ListProjectsResponse {
 	if resp == nil {
 		return nil

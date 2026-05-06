@@ -6,7 +6,6 @@ import (
 	"icw_common/utils"
 )
 
-// NewProject 将 BIZ 项目结构体转换为 API 项目结构体
 func NewProject(project *bizpb.Project) *apipb.Project {
 	if project == nil {
 		return nil
@@ -27,7 +26,36 @@ func NewProject(project *bizpb.Project) *apipb.Project {
 	}
 }
 
-// NewProjectListItem 将 BIZ 项目列表项结构体转换为 API 项目列表项结构体
+func NewProjectGroup(group *bizpb.ProjectGroup) *apipb.ProjectGroup {
+	if group == nil {
+		return nil
+	}
+	return &apipb.ProjectGroup{
+		Id:        utils.Encode(group.Id),
+		Name:      group.Name,
+		SortOrder: group.SortOrder,
+		Images:    NewProjectImages(group.Images),
+	}
+}
+
+func NewProjectGroups(groups []*bizpb.ProjectGroup) []*apipb.ProjectGroup {
+	if groups == nil {
+		return make([]*apipb.ProjectGroup, 0)
+	}
+	items := make([]*apipb.ProjectGroup, 0, len(groups))
+	for _, group := range groups {
+		if group == nil {
+			continue
+		}
+		items = append(items, NewProjectGroup(group))
+	}
+	return items
+}
+
+func NewProjectImages(images []*bizpb.ProjectImage) []*apipb.ProjectImage {
+	return images
+}
+
 func NewProjectListItem(project *bizpb.ProjectListItem) *apipb.ProjectListItem {
 	if project == nil {
 		return nil
@@ -43,7 +71,6 @@ func NewProjectListItem(project *bizpb.ProjectListItem) *apipb.ProjectListItem {
 	}
 }
 
-// NewProjectListItems 将 BIZ 项目列表项切片转换为 API 项目列表项切片
 func NewProjectListItems(projects []*bizpb.ProjectListItem) []*apipb.ProjectListItem {
 	if projects == nil {
 		return make([]*apipb.ProjectListItem, 0)
@@ -58,35 +85,27 @@ func NewProjectListItems(projects []*bizpb.ProjectListItem) []*apipb.ProjectList
 	return items
 }
 
-// NewProjectImages 将 BIZ 图像切片转换为 API 图像切片
-func NewProjectImages(images []*bizpb.ProjectImage) []*apipb.ProjectImage {
-	return images
-}
-
-// NewProjectGroup 将 BIZ 图像组结构体转换为 API 图像组结构体
-func NewProjectGroup(group *bizpb.ProjectGroup) *apipb.ProjectGroup {
-	if group == nil {
+func NewProjectImageStatusChangedMessage(event *bizpb.ProjectImageStatusChangedEvent) *apipb.ProjectImageStatusChangedMessage {
+	if event == nil {
 		return nil
 	}
-	return &apipb.ProjectGroup{
-		Id:        utils.Encode(group.Id),
-		Name:      group.Name,
-		SortOrder: group.SortOrder,
-		Images:    NewProjectImages(group.Images),
+	return &apipb.ProjectImageStatusChangedMessage{
+		Type:      event.EventType,
+		ProjectId: event.ProjectCode,
+		Image:     event.Image,
 	}
 }
 
-// NewProjectGroups 将 BIZ 图像组切片转换为 API 图像组切片
-func NewProjectGroups(groups []*bizpb.ProjectGroup) []*apipb.ProjectGroup {
-	if groups == nil {
-		return make([]*apipb.ProjectGroup, 0)
+func NewUploadProjectImageItem(image *apipb.UploadProjectImageItem) *bizpb.UploadProjectImageItem {
+	if image == nil {
+		return nil
 	}
-	items := make([]*apipb.ProjectGroup, 0, len(groups))
-	for _, group := range groups {
-		if group == nil {
-			continue
-		}
-		items = append(items, NewProjectGroup(group))
+	return &bizpb.UploadProjectImageItem{
+		FileName:    image.FileName,
+		ContentType: image.ContentType,
+		SizeBytes:   image.SizeBytes,
+		Width:       image.Width,
+		Height:      image.Height,
+		Metadata:    image.Metadata,
 	}
-	return items
 }
