@@ -110,7 +110,7 @@ func parseProjectIdFromRequest(c *gin.Context) (uint64, error) {
 		ProjectId string `json:"project_id"`
 	}
 	if err := json.Unmarshal(body, &req); err != nil {
-		return 0, rpc_err.BadRequestDefault("id is invalid")
+		return 0, rpc_err.BadRequestDefault(err.Error())
 	}
 	projectCode = req.ProjectId
 	if projectCode == "" {
