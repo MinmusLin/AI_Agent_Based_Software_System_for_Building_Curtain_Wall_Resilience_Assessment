@@ -13,7 +13,7 @@ import (
 type advanceProjectTxFunc func(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error
 
 // AdvanceProject 按用户 ID 和项目 ID 流转项目进度
-func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, status bizpb.ProjectStatus, fn advanceProjectTxFunc) (bool, error) {
+func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, status bizpb.ProjectStatus_Value, fn advanceProjectTxFunc) (bool, error) {
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return false, err
@@ -26,7 +26,7 @@ func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint6
 		UPDATE projects
 		SET progress = ?, status = ?
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
-	`, toProgress.Uint8(), enum.ProjectStatusString(status), projectId, userId, fromProgress.Uint8(), enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE))
+	`, toProgress.Uint8(), enum.ProjectStatusString(status), projectId, userId, fromProgress.Uint8(), enum.ProjectStatusString(bizpb.ProjectStatus_Active))
 	if err != nil {
 		return false, err
 	}
@@ -77,7 +77,7 @@ func (r *Repository) DeleteProject(ctx context.Context, userId, projectId uint64
 		UPDATE projects
 		SET status = ?
 		WHERE id = ? AND user_id = ? AND status != ?
-	`, enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_DELETED), projectId, userId, enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_DELETED))
+	`, enum.ProjectStatusString(bizpb.ProjectStatus_Deleted), projectId, userId, enum.ProjectStatusString(bizpb.ProjectStatus_Deleted))
 	if err != nil {
 		return false, err
 	}
@@ -110,7 +110,7 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 		FROM projects
 		WHERE user_id = ? AND status IN (?, ?)
 		ORDER BY created_at DESC
-	`, userId, enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE), enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED))
+	`, userId, enum.ProjectStatusString(bizpb.ProjectStatus_Active), enum.ProjectStatusString(bizpb.ProjectStatus_Completed))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -147,9 +147,9 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 		}
 		project.Progress = consts.ParseProjectProgress(progress)
 		project.Status = enum.ParseProjectStatus(status)
-		if project.Status == bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE {
+		if project.Status == bizpb.ProjectStatus_Active {
 			activeProjects = append(activeProjects, project)
-		} else if project.Status == bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED {
+		} else if project.Status == bizpb.ProjectStatus_Completed {
 			completedProjects = append(completedProjects, project)
 		} else {
 			continue

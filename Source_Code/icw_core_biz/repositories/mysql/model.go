@@ -64,7 +64,7 @@ type EmailSendLogRecord struct {
 	SenderEmail   string
 	Scene         string
 	EmailCode     string
-	Status        bizpb.EmailSendStatus
+	Status        bizpb.EmailSendStatus_Value
 	ErrorMessage  sql.NullString
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -82,7 +82,7 @@ type ProjectRecord struct {
 	KnownIssues         sql.NullString
 	AssessmentGoal      sql.NullString
 	Progress            consts.ProjectProgress
-	Status              bizpb.ProjectStatus
+	Status              bizpb.ProjectStatus_Value
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
 }
@@ -207,7 +207,7 @@ type ProjectImageRecord struct {
 	Width       uint32
 	Height      uint32
 	Metadata    string
-	Status      bizpb.ProjectImageStatus
+	Status      bizpb.ProjectImageStatus_Value
 	UploadedAt  sql.NullTime
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -241,7 +241,7 @@ func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, r
 		UploadedAt:  timeToString(record.UploadedAt.Time),
 		CreatedAt:   timeToString(record.CreatedAt),
 	}
-	if record.Status != bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED {
+	if record.Status != bizpb.ProjectImageStatus_Uploaded {
 		return item, nil
 	}
 	var err error

@@ -12,11 +12,11 @@ import (
 // emailSceneText 根据邮箱验证码业务场景类型生成邮件标题和业务场景名称
 func emailSceneText(scene string) (string, string, error) {
 	switch enum.ParseEmailCodeScene(scene) {
-	case bizpb.EmailCodeScene_EMAIL_CODE_SCENE_REGISTER:
+	case bizpb.EmailCodeScene_Register:
 		return "注册验证码 - 建筑幕墙韧性评估软件系统", "账号注册", nil
-	case bizpb.EmailCodeScene_EMAIL_CODE_SCENE_LOGIN:
+	case bizpb.EmailCodeScene_Login:
 		return "登录验证码 - 建筑幕墙韧性评估软件系统", "账号登录", nil
-	case bizpb.EmailCodeScene_EMAIL_CODE_SCENE_RESET:
+	case bizpb.EmailCodeScene_Reset:
 		return "重置验证码 - 建筑幕墙韧性评估软件系统", "重置密码", nil
 	default:
 		return "", "", errors.New("invalid email code scene")
