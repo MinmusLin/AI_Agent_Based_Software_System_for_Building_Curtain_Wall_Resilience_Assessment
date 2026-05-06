@@ -115,11 +115,9 @@ message ProjectDetectionSubTaskStatus {
     Unknown = 0;
     // 等待中
     Pending = 1;
-    // 检测中
-    Running = 2;
     // 成功
-    Succeeded = 3;
+    Succeeded = 2;
     // 失败
-    Failed = 4;
+    Failed = 3;
   }
 }
