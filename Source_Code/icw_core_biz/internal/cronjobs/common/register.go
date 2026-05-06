@@ -1,7 +1,7 @@
 package common
 
 import (
-	"icw_core_biz/utils"
+	"icw_common/utils"
 )
 
 // CronJobMeta 定时任务配置
@@ -22,7 +22,7 @@ func FormatRegistryTable(cronJobs []CronJobMeta) string {
 		descriptionValues = append(descriptionValues, item.Description)
 		cronExpressionValues = append(cronExpressionValues, item.Cron)
 	}
-	return utils.FormatTable([]utils.TableColumn{
+	return utils.FormatTable([]*utils.TableColumn{
 		{
 			Header: "psm",
 			Values: psmValues,
