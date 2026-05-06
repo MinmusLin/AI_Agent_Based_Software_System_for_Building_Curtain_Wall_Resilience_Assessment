@@ -1,15 +1,11 @@
 package configs
 
 import (
-	"bufio"
 	"errors"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
-	"icw_core_biz/consts"
-	"icw_core_biz/utils"
+	"icw_common/env"
 )
 
 // Config 服务配置
@@ -132,102 +128,44 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		CoreBizAddr:                EnvString("ICW_CORE_BIZ_ADDR"),
-		ActivityClassificationAddr: EnvString("ICW_ACTIVITY_CLASSIFICATION_ADDR"),
-		ActivityReasoningAddr:      EnvString("ICW_ACTIVITY_REASONING_ADDR"),
-		ActivitySummaryAddr:        EnvString("ICW_ACTIVITY_SUMMARY_ADDR"),
-		MySQLUsername:              EnvString("MYSQL_USERNAME"),
-		MySQLPassword:              EnvString("MYSQL_PASSWORD"),
-		MySQLAddr:                  EnvString("MYSQL_ADDR"),
-		MySQLDatabase:              EnvString("MYSQL_DATABASE"),
-		RedisAddr:                  EnvString("REDIS_ADDR"),
-		RedisPassword:              EnvString("REDIS_PASSWORD"),
-		RedisDB:                    EnvInt("REDIS_DB"),
-		SMTPHost:                   EnvString("SMTP_HOST"),
-		SMTPPort:                   EnvInt("SMTP_PORT"),
-		SMTPPassword:               EnvString("SMTP_PASSWORD"),
-		SMTPFromName:               EnvString("SMTP_FROM_NAME"),
-		SMTPFromEmail:              EnvString("SMTP_FROM_EMAIL"),
-		MinIOEndpoint:              EnvString("MINIO_ENDPOINT"),
-		MinIOAccessKey:             EnvString("MINIO_ACCESS_KEY"),
-		MinIOAccessSecret:          EnvString("MINIO_ACCESS_SECRET"),
-		MinIOBucket:                EnvString("MINIO_BUCKET"),
-		RocketMQNamesrvAddr:        EnvString("ROCKETMQ_NAMESRV_ADDR"),
-		RocketMQProjectEventTopic:  EnvString("ROCKETMQ_PROJECT_EVENT_TOPIC"),
-		JWTSecret:                  EnvString("JWT_SECRET"),
-		EmailCodeSecret:            EnvString("EMAIL_CODE_SECRET"),
-		EmailCodeTTL:               time.Duration(EnvInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
-		LoginFailTTL:               time.Duration(EnvInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
-		AccessTokenTTL:             time.Duration(EnvInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
-		RefreshTokenTTL:            time.Duration(EnvInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
-		AvatarGetTTL:               time.Duration(EnvInt("AVATAR_GET_TTL_MINUTES")) * time.Minute,
-		AvatarUploadTTL:            time.Duration(EnvInt("AVATAR_UPLOAD_TTL_MINUTES")) * time.Minute,
-		ProjectImageGetTTL:         time.Duration(EnvInt("PROJECT_IMAGE_GET_TTL_MINUTES")) * time.Minute,
-		ProjectImageUploadTTL:      time.Duration(EnvInt("PROJECT_IMAGE_UPLOAD_TTL_MINUTES")) * time.Minute,
-		SocketTicketTTL:            time.Duration(EnvInt("SOCKET_TICKET_TTL_MINUTES")) * time.Minute,
-		ProjectImagePendingTimeout: time.Duration(EnvInt("PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES")) * time.Minute,
-		PendingImageTimeoutJobCron: EnvString("PENDING_IMAGE_TIMEOUT_JOB_CRON"),
+		CoreBizAddr:                env.EnvString("ICW_CORE_BIZ_ADDR"),
+		ActivityClassificationAddr: env.EnvString("ICW_ACTIVITY_CLASSIFICATION_ADDR"),
+		ActivityReasoningAddr:      env.EnvString("ICW_ACTIVITY_REASONING_ADDR"),
+		ActivitySummaryAddr:        env.EnvString("ICW_ACTIVITY_SUMMARY_ADDR"),
+		MySQLUsername:              env.EnvString("MYSQL_USERNAME"),
+		MySQLPassword:              env.EnvString("MYSQL_PASSWORD"),
+		MySQLAddr:                  env.EnvString("MYSQL_ADDR"),
+		MySQLDatabase:              env.EnvString("MYSQL_DATABASE"),
+		RedisAddr:                  env.EnvString("REDIS_ADDR"),
+		RedisPassword:              env.EnvString("REDIS_PASSWORD"),
+		RedisDB:                    env.EnvInt("REDIS_DB"),
+		SMTPHost:                   env.EnvString("SMTP_HOST"),
+		SMTPPort:                   env.EnvInt("SMTP_PORT"),
+		SMTPPassword:               env.EnvString("SMTP_PASSWORD"),
+		SMTPFromName:               env.EnvString("SMTP_FROM_NAME"),
+		SMTPFromEmail:              env.EnvString("SMTP_FROM_EMAIL"),
+		MinIOEndpoint:              env.EnvString("MINIO_ENDPOINT"),
+		MinIOAccessKey:             env.EnvString("MINIO_ACCESS_KEY"),
+		MinIOAccessSecret:          env.EnvString("MINIO_ACCESS_SECRET"),
+		MinIOBucket:                env.EnvString("MINIO_BUCKET"),
+		RocketMQNamesrvAddr:        env.EnvString("ROCKETMQ_NAMESRV_ADDR"),
+		RocketMQProjectEventTopic:  env.EnvString("ROCKETMQ_PROJECT_EVENT_TOPIC"),
+		JWTSecret:                  env.EnvString("JWT_SECRET"),
+		EmailCodeSecret:            env.EnvString("EMAIL_CODE_SECRET"),
+		EmailCodeTTL:               time.Duration(env.EnvInt("EMAIL_CODE_TTL_MINUTES")) * time.Minute,
+		LoginFailTTL:               time.Duration(env.EnvInt("LOGIN_FAIL_TTL_MINUTES")) * time.Minute,
+		AccessTokenTTL:             time.Duration(env.EnvInt("ACCESS_TOKEN_TTL_MINUTES")) * time.Minute,
+		RefreshTokenTTL:            time.Duration(env.EnvInt("REFRESH_TOKEN_TTL_MINUTES")) * time.Minute,
+		AvatarGetTTL:               time.Duration(env.EnvInt("AVATAR_GET_TTL_MINUTES")) * time.Minute,
+		AvatarUploadTTL:            time.Duration(env.EnvInt("AVATAR_UPLOAD_TTL_MINUTES")) * time.Minute,
+		ProjectImageGetTTL:         time.Duration(env.EnvInt("PROJECT_IMAGE_GET_TTL_MINUTES")) * time.Minute,
+		ProjectImageUploadTTL:      time.Duration(env.EnvInt("PROJECT_IMAGE_UPLOAD_TTL_MINUTES")) * time.Minute,
+		SocketTicketTTL:            time.Duration(env.EnvInt("SOCKET_TICKET_TTL_MINUTES")) * time.Minute,
+		ProjectImagePendingTimeout: time.Duration(env.EnvInt("PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES")) * time.Minute,
+		PendingImageTimeoutJobCron: env.EnvString("PENDING_IMAGE_TIMEOUT_JOB_CRON"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
 	}
 	return cfg, nil
-}
-
-// LoadDotEnv 从 .env 文件加载环境变量
-func LoadDotEnv(path string) {
-	file, err := os.Open(path)
-	if err != nil {
-		utils.LogFatal(consts.LogScopeInit, "Failed to open .env file: %v", err)
-	}
-	defer func() {
-		_ = file.Close()
-	}()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		key, value, ok := strings.Cut(line, "=")
-		if !ok {
-			continue
-		}
-		key = strings.TrimSpace(key)
-		value = strings.Trim(strings.TrimSpace(value), `"'`)
-		if key == "" || value == "" {
-			continue
-		}
-		if _, exists := os.LookupEnv(key); !exists {
-			if err := os.Setenv(key, value); err != nil {
-				utils.LogFatal(consts.LogScopeInit, "Failed to set environment variable %s=%s: %v", key, value, err)
-			}
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		utils.LogFatal(consts.LogScopeInit, "Failed to read .env file: %v", err)
-	}
-}
-
-// EnvString 获取环境变量（String 类型）
-func EnvString(key string) string {
-	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
-		return value
-	}
-	return ""
-}
-
-// EnvInt 获取环境变量（Int 类型）
-func EnvInt(key string) int {
-	value := strings.TrimSpace(os.Getenv(key))
-	if value == "" {
-		return 0
-	}
-	parsedInt, err := strconv.Atoi(value)
-	if err != nil {
-		return 0
-	}
-	return parsedInt
 }
