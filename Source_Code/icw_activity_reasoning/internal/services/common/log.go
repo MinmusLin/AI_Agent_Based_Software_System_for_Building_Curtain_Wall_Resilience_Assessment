@@ -4,8 +4,9 @@ import (
 	"strings"
 	"time"
 
-	reasoningConsts "icw_activity_reasoning/consts"
 	"icw_common/consts"
+	"icw_common/enum"
+	"icw_common/gen/activity"
 	"icw_common/utils"
 )
 
@@ -42,7 +43,7 @@ func CallbackInfo(requestId, taskCode, taskUuid, imageUuid, status string, start
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
 		imageUuid,
-		utils.If[string](status == reasoningConsts.DetectionStatusSucceeded, consts.LogColorBoldGreen, consts.LogColorBoldRed), status, consts.LogColorReset,
+		utils.If[string](status == enum.DetectionStatusString(activitypb.DetectionStatus_Succeeded), consts.LogColorBoldGreen, consts.LogColorBoldRed), status, consts.LogColorReset,
 	)
 }
 
@@ -54,7 +55,7 @@ func CallbackError(requestId, taskCode, taskUuid, imageUuid, status string, star
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
 		imageUuid,
-		utils.If[string](status == reasoningConsts.DetectionStatusSucceeded, consts.LogColorBoldGreen, consts.LogColorBoldRed), status, consts.LogColorReset,
+		utils.If[string](status == enum.DetectionStatusString(activitypb.DetectionStatus_Succeeded), consts.LogColorBoldGreen, consts.LogColorBoldRed), status, consts.LogColorReset,
 		utils.FormatErrorLog(err),
 	)
 }

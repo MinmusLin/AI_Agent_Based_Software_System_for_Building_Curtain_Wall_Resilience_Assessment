@@ -8,10 +8,11 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"icw_activity_reasoning/consts"
 	"icw_activity_reasoning/internal/services/common"
 	reasoningUtils "icw_activity_reasoning/internal/services/reasoning/utils"
 	"icw_activity_reasoning/rpc/icw_core_biz"
+	"icw_common/enum"
+	"icw_common/gen/activity"
 	"icw_common/gen/activity/reasoning"
 	"icw_common/gen/core/biz"
 	"icw_common/utils"
@@ -49,11 +50,11 @@ func (s *Service) asynExecuteDetection(requestId string, req *reasoningpb.StartR
 	// 执行原子检测任务
 	artifactCount, detectorCost, err := s.executeDetection(ctx, req, callbackReq)
 	if utils.IsEmptyError(err) {
-		callbackReq.Status = consts.DetectionStatusSucceeded
+		callbackReq.Status = enum.DetectionStatusString(activitypb.DetectionStatus_Succeeded)
 		callbackReq.ErrorMessage = ""
 		common.ReasoningInfo(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost)
 	} else {
-		callbackReq.Status = consts.DetectionStatusFailed
+		callbackReq.Status = enum.DetectionStatusString(activitypb.DetectionStatus_Failed)
 		callbackReq.ErrorMessage = err.Error()
 		common.ReasoningError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost, err)
 	}
