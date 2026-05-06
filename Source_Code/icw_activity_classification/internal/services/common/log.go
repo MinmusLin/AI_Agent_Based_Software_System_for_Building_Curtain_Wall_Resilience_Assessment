@@ -10,24 +10,24 @@ import (
 )
 
 // ClassificationInfo 输出标准分类能力日志
-func ClassificationInfo(requestId, taskUuid, imageUuid string, taskCodeCount int, cost time.Duration) {
-	utils.LogInfo(consts.LogScopeClassification, consts.LogColorBoldPurple, "[%s] %s %13v %s task_uuid=%s image_uuid=%s task_codes=%d",
+func ClassificationInfo(requestId, taskUuid, imageUuid string, taskCodes []string, cost time.Duration) {
+	utils.LogInfo(consts.LogScopeClassification, consts.LogColorBoldPurple, "[%s] %s %13v %s task_uuid=%s image_uuid=%s task_codes=%s",
 		requestId,
 		consts.LogColorBoldBlackOnWhite, cost, consts.LogColorReset,
 		taskUuid,
 		imageUuid,
-		taskCodeCount,
+		utils.JSONF(taskCodes),
 	)
 }
 
 // ClassificationError 输出失败分类能力日志
-func ClassificationError(requestId, taskUuid, imageUuid string, taskCodeCount int, cost time.Duration, err error) {
+func ClassificationError(requestId, taskUuid, imageUuid string, taskCodes []string, cost time.Duration, err error) {
 	utils.LogError(consts.LogScopeClassification, "[%s] %s %13v %s task_uuid=%s image_uuid=%s task_codes=%d err=%s",
 		requestId,
 		consts.LogColorBoldBlackOnWhite, cost, consts.LogColorReset,
 		taskUuid,
 		imageUuid,
-		taskCodeCount,
+		utils.JSONF(taskCodes),
 		utils.FormatErrorLog(err),
 	)
 }

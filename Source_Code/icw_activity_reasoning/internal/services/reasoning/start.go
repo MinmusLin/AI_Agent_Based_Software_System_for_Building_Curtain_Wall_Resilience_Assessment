@@ -64,12 +64,12 @@ func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.Start
 	callbackCtx := rpc.WithRequestIdToOutgoingContext(context.Background(), requestId)
 	callbackResp := &bizpb.ReportReasoningResultResponse{}
 	callbackStart := time.Now()
-	err = icw_core_biz.ReportReasoningResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp)
-	if utils.IsEmptyError(err) {
+	if err := icw_core_biz.ReportReasoningResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); utils.IsEmptyError(err) {
 		common.CallbackInfo(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart)
 		return
+	} else {
+		common.CallbackError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart, err)
 	}
-	common.CallbackError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart, err)
 }
 
 // executeDetection 执行原子检测任务
