@@ -3,11 +3,13 @@ package socket
 import (
 	"context"
 
+	"icw_common/gen/core/biz"
 	"icw_core_biz/internal/services/common"
 )
 
 // Service WebSocket 连接票据服务
 type Service struct {
+	bizpb.UnimplementedSocketServiceServer
 	*common.BaseService
 }
 

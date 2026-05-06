@@ -1,23 +1,27 @@
 package socket
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 	"time"
 
-	"icw_core_biz/internal/services/socket/utils"
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
+	"icw_common/utils"
+	bizUtils "icw_core_biz/internal/services/socket/utils"
 )
 
 // CreateSocketTicket 创建 WebSocket 连接票据
-func (s *Service) CreateSocketTicket(req *dto.CreateSocketTicketRequest, resp *dto.CreateSocketTicketResponse) error {
-	return s.CallRPC(req, resp, func() error {
-		return s.createSocketTicket(req, resp)
+func (s *Service) CreateSocketTicket(ctx context.Context, req *bizpb.CreateSocketTicketRequest) (*bizpb.CreateSocketTicketResponse, error) {
+	resp := &bizpb.CreateSocketTicketResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
+		return s.createSocketTicket(ctx, req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) createSocketTicket(req *dto.CreateSocketTicketRequest, resp *dto.CreateSocketTicketResponse) error {
+func (s *Service) createSocketTicket(ctx context.Context, req *bizpb.CreateSocketTicketRequest, resp *bizpb.CreateSocketTicketResponse) error {
 	if req.UserId == 0 || req.ProjectId == 0 {
 		return rpc_err.BadRequestDefault("socket ticket resource is required")
 	}
@@ -28,19 +32,19 @@ func (s *Service) createSocketTicket(req *dto.CreateSocketTicketRequest, resp *d
 	}
 
 	// 生成 WebSocket 连接票据
-	ticket, err := utils.NewTicket()
+	ticket, err := bizUtils.NewTicket()
 	if err != nil {
 		return err
 	}
 
 	// 生成 WebSocket 连接票据上下文
 	expiresIn := int64(s.Config().SocketTicketTTL.Seconds())
-	ticketContext := &dto.SocketTicketContext{
+	ticketContext := &bizUtils.SocketTicketContext{
 		UserId:      req.UserId,
 		ProjectId:   req.ProjectId,
 		ProjectCode: projectCode,
 		SocketScope: socketScope,
-		RequestId:   strings.TrimSpace(req.RequestId),
+		RequestId:   utils.RequestIdFromIncomingContext(ctx),
 		CreateAt:    time.Now().Format("2006-01-02 15:04:05"),
 	}
 	contextBytes, err := json.Marshal(ticketContext)
@@ -49,7 +53,7 @@ func (s *Service) createSocketTicket(req *dto.CreateSocketTicketRequest, resp *d
 	}
 
 	// 保存 WebSocket 连接票据上下文
-	if err := s.Redis().SaveSocketTicket(s.Ctx(), utils.TicketHash(ticket), string(contextBytes), time.Duration(expiresIn)*time.Second); err != nil {
+	if err := s.Redis().SaveSocketTicket(s.Ctx(), bizUtils.TicketHash(ticket), string(contextBytes), time.Duration(expiresIn)*time.Second); err != nil {
 		return err
 	}
 

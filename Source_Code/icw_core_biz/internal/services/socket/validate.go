@@ -1,22 +1,25 @@
 package socket
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/socket/utils"
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
 )
 
 // ValidateSocketTicket 校验 WebSocket 连接票据
-func (s *Service) ValidateSocketTicket(req *dto.ValidateSocketTicketRequest, resp *dto.ValidateSocketTicketResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) ValidateSocketTicket(ctx context.Context, req *bizpb.ValidateSocketTicketRequest) (*bizpb.ValidateSocketTicketResponse, error) {
+	resp := &bizpb.ValidateSocketTicketResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.validateSocketTicket(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) validateSocketTicket(req *dto.ValidateSocketTicketRequest, _ *dto.ValidateSocketTicketResponse) error {
+func (s *Service) validateSocketTicket(req *bizpb.ValidateSocketTicketRequest, _ *bizpb.ValidateSocketTicketResponse) error {
 	ticket := strings.TrimSpace(req.Ticket)
 	projectCode := strings.TrimSpace(req.ProjectCode)
 	socketScope := strings.TrimSpace(req.SocketScope)
@@ -34,7 +37,7 @@ func (s *Service) validateSocketTicket(req *dto.ValidateSocketTicketRequest, _ *
 	}
 
 	// 解析 WebSocket 连接票据上下文
-	var ticketContext dto.SocketTicketContext
+	var ticketContext utils.SocketTicketContext
 	if err := json.Unmarshal([]byte(rawContext), &ticketContext); err != nil {
 		return err
 	}
