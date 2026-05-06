@@ -12,7 +12,7 @@ type TableColumn struct {
 }
 
 // FormatTable 将表格列数据格式化为终端表格
-func FormatTable(columns []TableColumn) string {
+func FormatTable(columns []*TableColumn) string {
 	if len(columns) == 0 {
 		return ""
 	}
@@ -58,7 +58,7 @@ func formatTableRow(values []string, widths []int) string {
 }
 
 // formatTableHeaderRow
-func formatTableHeaderRow(columns []TableColumn) []string {
+func formatTableHeaderRow(columns []*TableColumn) []string {
 	headers := make([]string, 0, len(columns))
 	for _, column := range columns {
 		headers = append(headers, column.Header)
@@ -79,7 +79,7 @@ func formatTableBorder(widths []int) string {
 }
 
 // formatTableDataRow
-func formatTableDataRow(columns []TableColumn, rowIndex int) []string {
+func formatTableDataRow(columns []*TableColumn, rowIndex int) []string {
 	values := make([]string, 0, len(columns))
 	for _, column := range columns {
 		if rowIndex >= len(column.Values) {
