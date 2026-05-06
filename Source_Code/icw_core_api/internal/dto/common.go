@@ -92,6 +92,23 @@ func NewProjectImageStatusChangedMessage(event *bizpb.ProjectImageStatusChangedE
 	}
 }
 
+func NewProjectDetectionTaskStatusChangedMessage(event *bizpb.ProjectDetectionTaskStatusChangedEvent) *apipb.ProjectDetectionTaskStatusChangedMessage {
+	if event == nil {
+		return nil
+	}
+	return &apipb.ProjectDetectionTaskStatusChangedMessage{
+		Type:       event.EventType,
+		ProjectId:  event.ProjectCode,
+		ImageUuid:  event.ImageUuid,
+		NodeCode:   event.NodeCode,
+		MainTaskId: event.MainTaskId,
+		MainStatus: event.MainStatus,
+		SubTaskId:  event.SubTaskId,
+		SubStatus:  event.SubStatus,
+		OccurredAt: event.OccurredAt,
+	}
+}
+
 func NewUploadProjectImageItem(image *apipb.UploadProjectImageItem) *bizpb.UploadProjectImageItem {
 	if image == nil {
 		return nil
