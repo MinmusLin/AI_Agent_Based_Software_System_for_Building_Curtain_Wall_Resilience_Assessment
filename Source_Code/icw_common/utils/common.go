@@ -65,5 +65,5 @@ func FormatErrorLog(err interface{}) string {
 	if IsEmptyError(err) {
 		return msg
 	}
-	return consts.LogColorBoldPurple + msg + consts.LogColorReset
+	return consts.LogColorBoldRed + msg + consts.LogColorReset
 }

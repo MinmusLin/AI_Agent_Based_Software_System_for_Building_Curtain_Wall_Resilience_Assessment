@@ -43,7 +43,7 @@ func cronLog(name string, start time.Time, result interface{}, err error) {
 
 // CronInfo 输出标准定时任务日志
 func CronInfo(format string, args ...interface{}) {
-	utils.LogInfo(consts.LogScopeCron, consts.LogColorBoldPink, format, args...)
+	utils.LogInfo(consts.LogScopeCron, consts.LogColorBoldPurple, format, args...)
 }
 
 // CronWarn 输出警告定时任务日志

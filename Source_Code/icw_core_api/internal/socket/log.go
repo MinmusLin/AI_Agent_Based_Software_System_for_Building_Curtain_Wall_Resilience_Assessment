@@ -7,7 +7,7 @@ import (
 
 // WSInfo 输出标准 WebSocket 日志
 func WSInfo(format string, args ...interface{}) {
-	utils.LogInfo(consts.LogScopeWS, consts.LogColorBoldPink, format, args...)
+	utils.LogInfo(consts.LogScopeWS, consts.LogColorBoldPurple, format, args...)
 }
 
 // WSError 输出错误 WebSocket 日志
