@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"icw_core_biz/configs"
+	"icw_common/env"
 )
 
 // Config 服务配置
@@ -45,12 +45,12 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		GinMode:                   configs.EnvString("GIN_MODE"),
-		CoreApiAddr:               configs.EnvString("ICW_CORE_API_ADDR"),
-		CoreBizAddr:               configs.EnvString("ICW_CORE_BIZ_ADDR"),
-		RocketMQNamesrvAddr:       configs.EnvString("ROCKETMQ_NAMESRV_ADDR"),
-		RocketMQProjectEventTopic: configs.EnvString("ROCKETMQ_PROJECT_EVENT_TOPIC"),
-		RocketMQConsumerGroup:     configs.EnvString("ROCKETMQ_CONSUMER_GROUP"),
+		GinMode:                   env.EnvString("GIN_MODE"),
+		CoreApiAddr:               env.EnvString("ICW_CORE_API_ADDR"),
+		CoreBizAddr:               env.EnvString("ICW_CORE_BIZ_ADDR"),
+		RocketMQNamesrvAddr:       env.EnvString("ROCKETMQ_NAMESRV_ADDR"),
+		RocketMQProjectEventTopic: env.EnvString("ROCKETMQ_PROJECT_EVENT_TOPIC"),
+		RocketMQConsumerGroup:     env.EnvString("ROCKETMQ_CONSUMER_GROUP"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
