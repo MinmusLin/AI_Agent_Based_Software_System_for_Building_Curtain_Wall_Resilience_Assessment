@@ -29,11 +29,11 @@ func projectProgressIs(expected consts.ProjectProgress) ProjectProgressCondition
 }
 
 // ProjectStatusCondition 项目状态校验条件
-type ProjectStatusCondition func(status bizpb.ProjectStatus) bool
+type ProjectStatusCondition func(status bizpb.ProjectStatus_Value) bool
 
 // projectStatusIs 校验项目状态是否等于指定值
-func projectStatusIs(expected bizpb.ProjectStatus) ProjectStatusCondition {
-	return func(status bizpb.ProjectStatus) bool {
+func projectStatusIs(expected bizpb.ProjectStatus_Value) ProjectStatusCondition {
+	return func(status bizpb.ProjectStatus_Value) bool {
 		return status == expected
 	}
 }
@@ -139,7 +139,7 @@ func ProjectProfileEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFunc 
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressInitializationFinished),
-		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
+		projectStatusIs(bizpb.ProjectStatus_Active),
 	)
 }
 
@@ -148,7 +148,7 @@ func ProjectAssetsEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressProfileFinished),
-		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
+		projectStatusIs(bizpb.ProjectStatus_Active),
 	)
 }
 
@@ -157,7 +157,7 @@ func ProjectDetectionEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFun
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressAssetsFinished),
-		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
+		projectStatusIs(bizpb.ProjectStatus_Active),
 	)
 }
 
@@ -166,7 +166,7 @@ func ProjectReviewEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressDetectionFinished),
-		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
+		projectStatusIs(bizpb.ProjectStatus_Active),
 	)
 }
 
@@ -175,6 +175,6 @@ func ProjectReportEditable(coreBizClient *icw_core_biz.Client) gin.HandlerFunc {
 	return projectAccessRequired(
 		coreBizClient,
 		projectProgressIs(consts.ProjectProgressReviewFinished),
-		projectStatusIs(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE),
+		projectStatusIs(bizpb.ProjectStatus_Active),
 	)
 }
