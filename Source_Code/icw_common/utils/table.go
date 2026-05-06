@@ -41,7 +41,7 @@ func FormatTable(columns []*TableColumn) string {
 	return builder.String()
 }
 
-// formatTableRow
+// formatTableRow 格式化表格行数据
 func formatTableRow(values []string, widths []int) string {
 	var builder strings.Builder
 	builder.WriteString("|")
@@ -57,7 +57,7 @@ func formatTableRow(values []string, widths []int) string {
 	return builder.String()
 }
 
-// formatTableHeaderRow
+// formatTableHeaderRow 格式化标题行数据
 func formatTableHeaderRow(columns []*TableColumn) []string {
 	headers := make([]string, 0, len(columns))
 	for _, column := range columns {
@@ -66,7 +66,7 @@ func formatTableHeaderRow(columns []*TableColumn) []string {
 	return headers
 }
 
-// formatTableBorder
+// formatTableBorder 格式化表格边框线
 func formatTableBorder(widths []int) string {
 	var builder strings.Builder
 	builder.WriteString("+")
@@ -78,7 +78,7 @@ func formatTableBorder(widths []int) string {
 	return builder.String()
 }
 
-// formatTableDataRow
+// formatTableDataRow 格式化数据行数据
 func formatTableDataRow(columns []*TableColumn, rowIndex int) []string {
 	values := make([]string, 0, len(columns))
 	for _, column := range columns {
@@ -91,7 +91,7 @@ func formatTableDataRow(columns []*TableColumn, rowIndex int) []string {
 	return values
 }
 
-// padRight
+// padRight 在字符串右侧填充空格至指定宽度
 func padRight(value string, width int) string {
 	padding := width - displayWidth(value)
 	if padding <= 0 {
@@ -100,7 +100,7 @@ func padRight(value string, width int) string {
 	return value + strings.Repeat(" ", padding)
 }
 
-// displayWidth
+// displayWidth 计算字符串终端显示宽度
 func displayWidth(value string) int {
 	width := 0
 	for _, r := range value {
