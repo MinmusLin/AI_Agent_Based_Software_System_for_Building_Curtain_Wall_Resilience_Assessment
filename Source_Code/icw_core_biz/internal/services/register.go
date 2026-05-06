@@ -65,10 +65,10 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			},
 			Methods: []common.RPCMethodMeta{
 				{Name: "AdvanceProject", Description: "项目进度流转"},
+				{Name: "CheckProjectAccess", Description: "校验项目访问权限"},
 				{Name: "CreateProject", Description: "创建项目"},
 				{Name: "DeleteProject", Description: "删除项目"},
 				{Name: "ListProjects", Description: "获取项目列表"},
-				{Name: "CheckProjectAccess", Description: "校验项目访问权限"},
 			},
 		},
 		{
@@ -79,11 +79,11 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 				bizpb.RegisterProjectProfileServiceServer(server, service.(*profile.Service))
 			},
 			Methods: []common.RPCMethodMeta{
+				{Name: "DeleteProjectThumbnail", Description: "删除项目缩略图"},
 				{Name: "GetProjectProfile", Description: "获取项目基础信息"},
 				{Name: "GetProjectThumbnail", Description: "获取项目缩略图"},
-				{Name: "UploadProjectThumbnail", Description: "上传项目缩略图"},
-				{Name: "DeleteProjectThumbnail", Description: "删除项目缩略图"},
 				{Name: "UpdateProjectProfile", Description: "更新项目基础信息"},
+				{Name: "UploadProjectThumbnail", Description: "上传项目缩略图"},
 			},
 		},
 		{
@@ -94,15 +94,15 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 				bizpb.RegisterProjectAssetsServiceServer(server, service.(*assets.Service))
 			},
 			Methods: []common.RPCMethodMeta{
-				{Name: "GetProjectAssets", Description: "获取项目图像列表"},
 				{Name: "CreateProjectGroup", Description: "创建图像组"},
 				{Name: "DeleteProjectGroup", Description: "删除图像组"},
-				{Name: "MoveProjectGroup", Description: "移动图像组"},
-				{Name: "UpdateProjectGroup", Description: "更新图像组"},
 				{Name: "DeleteProjectImage", Description: "删除图像"},
+				{Name: "GetProjectAssets", Description: "获取项目图像列表"},
 				{Name: "GetProjectImageOriginal", Description: "获取原图"},
+				{Name: "MoveProjectGroup", Description: "移动图像组"},
 				{Name: "MoveProjectImage", Description: "移动图像"},
 				{Name: "ReportProjectImage", Description: "上报图像"},
+				{Name: "UpdateProjectGroup", Description: "更新图像组"},
 				{Name: "UploadProjectImage", Description: "上传图像"},
 			},
 		},
@@ -160,9 +160,9 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 				bizpb.RegisterUserServiceServer(server, service.(*user.Service))
 			},
 			Methods: []common.RPCMethodMeta{
+				{Name: "DeleteAvatar", Description: "删除用户自定义头像"},
 				{Name: "GetAvatar", Description: "获取用户头像"},
 				{Name: "UploadAvatar", Description: "上传用户自定义头像"},
-				{Name: "DeleteAvatar", Description: "删除用户自定义头像"},
 			},
 		},
 	}
