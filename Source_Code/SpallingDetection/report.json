@@ -1,0 +1,39 @@
+{
+  "input": "/Users/bytedance/Desktop/AI_Agent_Based_Software_System_for_Building_Curtain_Wall_Resilience_Assessment/Source_Code/SpallingDetection/test.jpg",
+  "image_size": {
+    "width": 531,
+    "height": 381
+  },
+  "model_output": {
+    "predicted_index": 0,
+    "predicted_class": "defect",
+    "is_spalling": true,
+    "confidence": 0.989133,
+    "class_names": [
+      "defect",
+      "undefect"
+    ],
+    "logits": [
+      2.064598,
+      -2.446472
+    ],
+    "probabilities": [
+      0.989133,
+      0.010867
+    ],
+    "probabilities_by_class": {
+      "defect": 0.989133,
+      "undefect": 0.010867
+    }
+  },
+  "result": "defect",
+  "has_spalling": true,
+  "confidence": 0.989133,
+  "model": "/Users/bytedance/Desktop/AI_Agent_Based_Software_System_for_Building_Curtain_Wall_Resilience_Assessment/Source_Code/SpallingDetection/model/best_weights_model.pt",
+  "device": "cpu",
+  "input_size": 224,
+  "runtime_seconds": 0.256,
+  "outputs": {
+    "report_json": "/Users/bytedance/Desktop/AI_Agent_Based_Software_System_for_Building_Curtain_Wall_Resilience_Assessment/Source_Code/SpallingDetection/outputs/test-20260506-232031/test-report.json"
+  }
+}
