@@ -74,58 +74,89 @@
 
 | JSON 英文名称 | 中文名称 | 意义 | 备注 |
 | --- | --- | --- | --- |
-| `status` | 检测状态 | `success` 表示成功，`failed` 表示未形成有效污渍检测结果 | 推荐落库；核心状态字段 |
-| `total_blocks` | 有污渍块数量 | 当前报告中保留下来的污渍块数量 | 推荐落库；核心统计字段 |
-| `average_stain_percentage` | 平均污渍百分比 | 所有污渍块的平均污渍占比 | 推荐落库；核心量化指标 |
-| `max_stain_percentage` | 最大污渍百分比 | 所有污渍块中的最大污渍占比 | 推荐落库；核心量化指标 |
-| `detections[].block_number` | 块编号 | 污渍块在图像中的编号，和输出文件 `block_{no}.png` 对应 | 可选落库；目标级明细字段 |
-| `detections[].confidence` | 检测置信度 | 图像块检测模型对该块的置信度 | 可选落库；目标级明细字段 |
-| `detections[].class_id` | 类别 ID | 图像块检测模型类别 ID | 可选落库；目标级明细字段 |
-| `detections[].class_name` | 类别名称 | 图像块检测模型类别名称 | 可选落库；目标级明细字段 |
-| `detections[].bbox_xyxy` | 边界框坐标 | 图像块检测框坐标，格式为 `[x1,y1,x2,y2]` | 可选落库；定位字段 |
-| `detections[].corners[].x` | 透视角点 X 坐标 | 图像块四角点的 X 坐标 | 不建议单独落库；适合原始 JSON |
-| `detections[].corners[].y` | 透视角点 Y 坐标 | 图像块四角点的 Y 坐标 | 不建议单独落库；适合原始 JSON |
-| `detections[].block_size.width` | 块宽度 | 透视矫正后图像块宽度 | 可选落库；目标级明细字段 |
-| `detections[].block_size.height` | 块高度 | 透视矫正后图像块高度 | 可选落库；目标级明细字段 |
-| `detections[].block_area_px` | 块面积 | 透视矫正后图像块面积，单位像素 | 可选落库；目标级明细字段 |
-| `detections[].has_stain` | 是否有污渍 | 当前块是否判定存在污渍 | 推荐落库；如建明细表则为核心字段 |
-| `detections[].stain_ratio` | 污渍比例 | 当前块污渍面积占比，取值范围 0 到 1 | 推荐落库；如建明细表则为核心字段 |
-| `detections[].stain_percentage` | 污渍百分比 | 当前块污渍比例的百分比表达 | 可选落库；如只保留比例可不单独落库 |
-| `detections[].variance` | 块亮度方差 | 分块统计得到的方差，用于跳过低变化区域 | 可选落库；算法解释字段 |
-| `detections[].threshold` | 二值化阈值 | 当前块污渍分割使用的阈值 | 可选落库；算法复现字段 |
-| `detections[].status` | 块处理状态 | 当前块处理状态，如 `processed` | 可选落库；明细表状态字段 |
+| `has_stain` | 是否存在污渍 | 布尔值，表示是否存在有效污渍区域 | 推荐落库；核心筛选字段 |
+| `stain_count` | 污渍区域数量 | 有污渍的区域数量，不统计无污渍块 | 推荐落库；核心统计字段 |
+| `average_stain_ratio` | 平均污渍比例 | 所有污渍区域污渍占比的平均值，按百分比数值保存 | 推荐落库；核心量化指标 |
+| `max_stain_ratio` | 最大污渍比例 | 所有污渍区域污渍占比的最大值，按百分比数值保存 | 推荐落库；核心量化指标 |
+| `regions[].id` | 污渍区域序号 | 只对有污渍区域从 1 开始顺序编号，不跳号 | 可选落库；如需目标级明细表则落库 |
+| `regions[].confidence` | 检测置信度 | 图像块检测模型对该区域的置信度 | 可选落库；目标级明细字段 |
+| `regions[].bbox_xyxy` | 边界框坐标 | 图像块检测框坐标，格式为 `[x1,y1,x2,y2]` | 可选落库；定位字段 |
+| `regions[].region_width` | 区域宽度 | 透视矫正后区域宽度 | 可选落库；目标级明细字段 |
+| `regions[].region_height` | 区域高度 | 透视矫正后区域高度 | 可选落库；目标级明细字段 |
+| `regions[].stain_pixels` | 污渍像素数 | 污渍在矫正后区域中的像素数量 | 推荐落库；如建明细表则为核心字段 |
+| `regions[].stain_ratio` | 污渍面积比例 | 污渍像素数占矫正后区域像素数比例，取值范围 0 到 1 | 推荐落库；如建明细表则为核心字段 |
 | `runtime` | 执行时间 | 生成报告时的 Linux Unix 秒级时间戳 | 推荐落库；用于任务时间追踪 |
+
+```
+{
+  "has_stain": true,
+  "stain_count": 5,
+  "average_stain_ratio": 12.0048,
+  "max_stain_ratio": 38.3384,
+  "regions": [
+    {
+      "id": 1,
+      "confidence": 0.953774,
+      "bbox_xyxy": [21.41,1000.95,2362.81,1784.65],
+      "region_width": 2327,
+      "region_height": 783,
+      "stain_pixels": 3833,
+      "stain_ratio": 0.383384
+    }
+  ],
+  "runtime": 12312332
+}
+```
 
 ## 四、玻璃平整度检测 FlatnessDetection
 
 | JSON 英文名称 | 中文名称 | 意义 | 备注 |
 | --- | --- | --- | --- |
-| `flatness_result` | 平整度结论 | 字符串枚举，仅包含 `平整`、`不平整`、`非玻璃` | 推荐落库；核心筛选字段 |
-| `glass_count` | 玻璃区域数量 | 检测出的玻璃区域总数 | 推荐落库；核心统计字段 |
-| `flat_glass_count` | 平整玻璃区域数量 | 被判定为平整的玻璃区域数量 | 推荐落库；核心统计字段 |
-| `uneven_glass_count` | 不平整玻璃区域数量 | 被判定为不平整的玻璃区域数量 | 推荐落库；核心统计字段 |
-| `glass_regions[].id` | 玻璃区域序号 | 单个玻璃区域编号 | 可选落库；如建区域明细表则落库 |
-| `glass_regions[].bbox.x` | 区域边界框 X 坐标 | 单个玻璃区域边界框左上角 X 坐标 | 可选落库；区域定位字段 |
-| `glass_regions[].bbox.y` | 区域边界框 Y 坐标 | 单个玻璃区域边界框左上角 Y 坐标 | 可选落库；区域定位字段 |
-| `glass_regions[].bbox.width` | 区域边界框宽度 | 单个玻璃区域边界框宽度 | 可选落库；区域定位字段 |
-| `glass_regions[].bbox.height` | 区域边界框高度 | 单个玻璃区域边界框高度 | 可选落库；区域定位字段 |
-| `glass_regions[].area_px` | 区域面积 | 单个玻璃区域面积，单位像素 | 推荐落库；如建区域明细表则为核心字段 |
-| `glass_regions[].flatness_result` | 区域平整度结果 | `1` 表示平整，`0` 表示不平整 | 推荐落库；如建区域明细表则为核心字段 |
-| `glass_regions[].is_flat` | 区域是否平整 | 单个玻璃区域是否平整 | 推荐落库；如建区域明细表则为核心字段 |
-| `glass_regions[].edge_result` | 边缘分析结果 | 边缘清晰度分析得到的平整性判断 | 可选落库；算法解释字段 |
-| `glass_regions[].line_result` | 直线分析结果 | Hough 直线角度分布得到的平整性判断 | 可选落库；算法解释字段 |
-| `glass_regions[].gradient_result` | 梯度分析结果 | 梯度变化得到的平整性判断 | 可选落库；算法解释字段 |
-| `glass_regions[].frequency_result` | 频谱分析结果 | 频域变化得到的平整性判断 | 可选落库；算法解释字段 |
-| `glass_regions[].edge_count` | 边缘数量 | Canny 边缘点数量 | 可选落库；算法解释字段 |
-| `glass_regions[].laplacian_variance` | 拉普拉斯方差 | 衡量边缘清晰度和模糊程度 | 可选落库；算法解释字段 |
-| `glass_regions[].line_count` | 直线数量 | Hough 检测出的直线数量 | 可选落库；算法解释字段 |
-| `glass_regions[].angle_std` | 直线角度标准差 | 直线角度离散程度 | 可选落库；算法解释字段 |
-| `glass_regions[].gradient_mean` | 梯度均值 | 玻璃区域梯度强度平均值 | 可选落库；算法解释字段 |
-| `glass_regions[].gradient_std` | 梯度标准差 | 玻璃区域梯度强度离散程度 | 可选落库；算法解释字段 |
-| `glass_regions[].frequency_min` | 频谱最小值 | 频谱幅值最小值 | 可选落库；算法解释字段 |
-| `glass_regions[].frequency_max` | 频谱最大值 | 频谱幅值最大值 | 可选落库；算法解释字段 |
-| `glass_regions[].frequency_diff` | 频谱范围差 | 频谱最大值与最小值差值 | 可选落库；算法解释字段 |
+| `result` | 平整度结论 | 字符串枚举，仅包含 `平整`、`不平整`、`非玻璃` | 推荐落库；核心筛选字段 |
+| `is_flat` | 是否整体平整 | 仅当结论为 `平整` 时为 `true` | 推荐落库；核心筛选字段 |
+| `uneven_count` | 不平整玻璃块数量 | 不平整玻璃区域数量 | 推荐落库；核心统计字段 |
+| `regions[].id` | 不平整区域序号 | 只对不平整玻璃区域从 1 开始顺序编号，不跳号 | 可选落库；如需目标级明细表则落库 |
+| `regions[].bbox_xyxy` | 区域边界框坐标 | 左上角和右下角坐标，格式为 `[x1,y1,x2,y2]` | 可选落库；区域定位字段 |
+| `regions[].edge_uneven_detected` | 边缘判据是否发现不平整 | `true` 表示边缘判据认为不平整，`false` 表示平整 | 可选落库；算法解释字段 |
+| `regions[].line_uneven_detected` | 直线判据是否发现不平整 | `true` 表示直线判据认为不平整，`false` 表示平整 | 可选落库；算法解释字段 |
+| `regions[].gradient_uneven_detected` | 梯度判据是否发现不平整 | `true` 表示梯度判据认为不平整，`false` 表示平整 | 可选落库；算法解释字段 |
+| `regions[].frequency_uneven_detected` | 频谱判据是否发现不平整 | `true` 表示频谱判据认为不平整，`false` 表示平整 | 可选落库；算法解释字段 |
+| `regions[].edge_count` | 边缘数量 | Canny 边缘点数量 | 可选落库；算法解释字段 |
+| `regions[].laplacian_variance` | 拉普拉斯方差 | 衡量边缘清晰度和模糊程度 | 可选落库；算法解释字段 |
+| `regions[].line_count` | 直线数量 | Hough 检测出的直线数量 | 可选落库；算法解释字段 |
+| `regions[].angle_std` | 直线角度标准差 | 直线角度离散程度 | 可选落库；算法解释字段 |
+| `regions[].gradient_mean` | 梯度均值 | 玻璃区域梯度强度平均值 | 可选落库；算法解释字段 |
+| `regions[].gradient_std` | 梯度标准差 | 玻璃区域梯度强度离散程度 | 可选落库；算法解释字段 |
+| `regions[].frequency_min` | 频谱最小值 | 频谱幅值最小值 | 可选落库；算法解释字段 |
+| `regions[].frequency_max` | 频谱最大值 | 频谱幅值最大值 | 可选落库；算法解释字段 |
 | `runtime` | 执行时间 | 生成报告时的 Linux Unix 秒级时间戳 | 推荐落库；用于任务时间追踪 |
+
+```
+{
+  "result": "不平整",
+  "is_flat": false,
+  "uneven_count": 1,
+  "regions": [
+    {
+      "id": 1,
+      "bbox_xyxy": [0,0,0,0],
+      "edge_uneven_detected": false,
+      "line_uneven_detected": true,
+      "gradient_uneven_detected": true,
+      "frequency_uneven_detected": false,
+      "edge_count": 60438,
+      "laplacian_variance": 4254.554801,
+      "line_count": 587,
+      "angle_std": 73.2174,
+      "gradient_mean": 137.417486,
+      "gradient_std": 155.640067,
+      "frequency_min": 35.819298,
+      "frequency_max": 343.158295
+    }
+  ],
+  "runtime": 1141
+}
+```
 
 ## 五、玻璃爆裂检测 SpallingDetection
 
@@ -133,8 +164,12 @@
 | --- | --- | --- | --- |
 | `has_spalling` | 是否存在爆裂 | 布尔值，表示是否判定为玻璃爆裂 | 推荐落库；核心筛选字段 |
 | `confidence` | 检测置信度 | 分类预测置信度 | 推荐落库；核心可信度字段 |
-| `predicted_index` | 预测类别索引 | 模型输出的类别索引 | 可选落库；模型明细字段 |
-| `logits` | 原始输出值 | 模型分类层原始 logits | 不建议单独落库；算法调试字段 |
-| `probabilities` | 类别概率列表 | 各类别 softmax 概率列表 | 可选落库；如果需要完整概率解释可落 JSON 字段 |
-| `probabilities_by_class` | 按类别映射的概率 | 类别名称到概率的映射 | 可选落库；比 `probabilities` 更适合展示 |
 | `runtime` | 执行时间 | 生成报告时的 Linux Unix 秒级时间戳 | 推荐落库；用于任务时间追踪 |
+
+```
+{
+  "has_spalling": true,
+  "confidence": 0.989133,
+  "runtime": 256
+}
+```
