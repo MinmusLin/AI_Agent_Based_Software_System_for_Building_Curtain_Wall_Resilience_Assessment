@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 
 	"icw_common/consts"
 	"icw_common/utils"
@@ -59,7 +60,7 @@ func logGRPCServer(ctx context.Context, scope string, req, resp interface{}, err
 		gRPCMethod(fullMethod),
 		utils.JSONF(req),
 		utils.JSONF(resp),
-		utils.FormatErrorLog(utils.GRPCErrorMessage(err)),
+		utils.FormatErrorLog(gRPCErrorMessage(err)),
 	)
 }
 
@@ -75,7 +76,7 @@ func logGRPCClient(ctx context.Context, scope, method string, req, resp interfac
 		gRPCMethod(method),
 		utils.JSONF(req),
 		utils.JSONF(resp),
-		utils.FormatErrorLog(utils.GRPCErrorMessage(err)),
+		utils.FormatErrorLog(gRPCErrorMessage(err)),
 	)
 }
 
@@ -86,4 +87,15 @@ func gRPCMethod(fullMethod string) string {
 		return "unknown"
 	}
 	return fullMethod
+}
+
+// gRPCErrorMessage 获取 gRPC 错误文本
+func gRPCErrorMessage(err error) string {
+	if err == nil {
+		return ""
+	}
+	if grpcStatus, ok := status.FromError(err); ok {
+		return grpcStatus.Message()
+	}
+	return err.Error()
 }

@@ -67,7 +67,7 @@ func CallGRPC[PBReq any, PBResp any](
 
 	pbResp, err := invoke(ctx, req)
 	if err != nil {
-		return errors.New(utils.GRPCErrorMessage(err))
+		return errors.New(gRPCErrorMessage(err))
 	}
 	if resp == nil || pbResp == nil {
 		return errors.New("grpc response is nil")
