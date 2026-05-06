@@ -12,9 +12,10 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/apache/rocketmq-client-go/v2/rlog"
 
+	"icw_common/consts"
+	"icw_common/gen/core/biz"
 	"icw_common/utils"
 	"icw_core_biz/configs"
-	"icw_core_biz/pkg/dto/project"
 )
 
 // Repository RocketMQ 消息队列生产者服务
@@ -66,7 +67,7 @@ func (r *Repository) ProducerSendSync(ctx context.Context, message *primitive.Me
 }
 
 // PublishProjectImageStatusChangedEvent 发布项目图像状态变化事件
-func (r *Repository) PublishProjectImageStatusChangedEvent(ctx context.Context, event *project.ProjectImageStatusChangedEvent) (err error) {
+func (r *Repository) PublishProjectImageStatusChangedEvent(ctx context.Context, event *bizpb.ProjectImageStatusChangedEvent) (err error) {
 	if r == nil || r.producer == nil || event == nil || event.Image == nil {
 		return nil
 	}
@@ -77,7 +78,7 @@ func (r *Repository) PublishProjectImageStatusChangedEvent(ctx context.Context, 
 	}
 
 	message := primitive.NewMessage(r.topic, body)
-	message.WithTag(project.EventTagProjectImageStatusChanged)
+	message.WithTag(consts.EventTagProjectImageStatusChanged)
 	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", event.EventType, event.ProjectId, event.Image.Uuid)})
 
 	_, err = r.ProducerSendSync(ctx, message)
