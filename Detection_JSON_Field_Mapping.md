@@ -21,10 +21,10 @@
 {
   "has_corrosion": true,
   "corrosion_count": 8,
-  "corrosion_pixels": 51465,
-  "corrosion_ratio": 0.125647,
   "max_confidence": 0.961351,
   "average_confidence": 0.640132,
+  "corrosion_pixels": 51465,
+  "corrosion_ratio": 0.125647,
   "regions": [
     {
       "id": 1,
@@ -43,32 +43,32 @@
 | JSON 英文名称 | 中文名称 | 意义 | 备注 |
 | --- | --- | --- | --- |
 | `has_crack` | 是否存在裂缝 | 布尔值，表示是否检测到裂缝像素 | 推荐落库；核心筛选字段 |
+| `crack_count` | 裂缝区域数量 | 按面积排序后的裂缝区域数量 | 推荐落库；核心统计字段 |
 | `crack_pixels` | 裂缝像素数 | 裂缝掩码覆盖的像素数量 | 推荐落库；核心量化指标 |
 | `crack_ratio` | 裂缝面积比例 | 裂缝像素数占整图像素数比例，取值范围 0 到 1 | 推荐落库；核心量化指标 |
-| `region_count` | 裂缝区域数量 | 连通裂缝区域数量 | 推荐落库；核心统计字段 |
-| `largest_region.id` | 最大裂缝区域序号 | 面积最大的裂缝区域序号 | 可选落库；可直接落最大区域摘要字段 |
-| `largest_region.area_px` | 最大裂缝区域面积 | 最大裂缝区域面积，单位像素 | 推荐落库；严重程度辅助指标 |
-| `largest_region.bbox.x` | 最大区域边界框 X 坐标 | 最大裂缝区域边界框左上角 X 坐标 | 可选落库；定位字段 |
-| `largest_region.bbox.y` | 最大区域边界框 Y 坐标 | 最大裂缝区域边界框左上角 Y 坐标 | 可选落库；定位字段 |
-| `largest_region.bbox.width` | 最大区域边界框宽度 | 最大裂缝区域边界框宽度 | 可选落库；定位字段 |
-| `largest_region.bbox.height` | 最大区域边界框高度 | 最大裂缝区域边界框高度 | 可选落库；定位字段 |
-| `largest_region.bbox_diagonal_px` | 最大区域边界框对角线 | 最大裂缝区域边界框对角线长度 | 可选落库；尺度字段 |
-| `largest_region.centroid.x` | 最大区域中心 X 坐标 | 最大裂缝区域质心 X 坐标 | 可选落库；定位字段 |
-| `largest_region.centroid.y` | 最大区域中心 Y 坐标 | 最大裂缝区域质心 Y 坐标 | 可选落库；定位字段 |
-| `largest_region.rank` | 最大区域排序 | 按面积排序后的名次 | 不建议单独落库；最大区域固定为第 1 名 |
-| `severity` | 裂缝严重程度 | 根据裂缝像素比例得到的 `none`、`low`、`medium`、`high` | 推荐落库；核心等级字段 |
-| `suggestion` | 处理建议 | 根据严重程度生成的检查建议 | 推荐落库；可直接用于报告展示 |
-| `regions[].id` | 裂缝区域序号 | 单个裂缝连通区域序号 | 可选落库；如需目标级明细表则落库 |
-| `regions[].area_px` | 裂缝区域面积 | 单个裂缝区域面积，单位像素 | 可选落库；目标级明细字段 |
-| `regions[].bbox.x` | 区域边界框 X 坐标 | 单个裂缝区域边界框左上角 X 坐标 | 可选落库；定位字段 |
-| `regions[].bbox.y` | 区域边界框 Y 坐标 | 单个裂缝区域边界框左上角 Y 坐标 | 可选落库；定位字段 |
-| `regions[].bbox.width` | 区域边界框宽度 | 单个裂缝区域边界框宽度 | 可选落库；定位字段 |
-| `regions[].bbox.height` | 区域边界框高度 | 单个裂缝区域边界框高度 | 可选落库；定位字段 |
-| `regions[].bbox_diagonal_px` | 区域边界框对角线 | 单个裂缝区域边界框对角线长度 | 可选落库；尺度字段 |
-| `regions[].centroid.x` | 区域中心 X 坐标 | 单个裂缝区域质心 X 坐标 | 可选落库；定位字段 |
-| `regions[].centroid.y` | 区域中心 Y 坐标 | 单个裂缝区域质心 Y 坐标 | 可选落库；定位字段 |
-| `regions[].rank` | 区域面积排序 | 单个裂缝区域按面积从大到小的排序 | 可选落库；目标级明细字段 |
-| `runtime_seconds` | 执行耗时 | 原子检测运行耗时，单位秒，数值格式保存 | 推荐落库；用于性能统计 |
+| `regions[].id` | 裂缝区域序号 | 裂缝区域按 `mask_pixels` 从大到小排序后，从 1 开始重新编号 | 可选落库；如需目标级明细表则落库 |
+| `regions[].bbox_xyxy` | 裂缝区域边界框 | 左上角和右下角坐标，格式为 `[x1,y1,x2,y2]` | 可选落库；定位字段 |
+| `regions[].mask_pixels` | 裂缝区域像素数 | 单个裂缝区域的掩码像素数量 | 可选落库；目标级明细字段 |
+| `regions[].mask_ratio` | 裂缝区域面积比例 | 单个裂缝区域像素数占整图像素数比例，取值范围 0 到 1 | 可选落库；目标级明细字段 |
+| `runtime` | 执行时间 | 生成报告时的 Linux Unix 秒级时间戳 | 推荐落库；用于任务时间追踪 |
+
+```
+{
+  "has_crack": true,
+  "crack_count": 1,
+  "crack_pixels": 8450,
+  "crack_ratio": 0.042102,
+  "regions": [
+    {
+      "id": 1,
+      "bbox_xyxy": [179,160,530,291],
+      "mask_pixels": 8450,
+      "mask_ratio": 0.056362
+    }
+  ],
+  "runtime": 12312312
+}
+```
 
 ## 三、石材污渍检测 StainDetection
 
@@ -94,7 +94,7 @@
 | `detections[].variance` | 块亮度方差 | 分块统计得到的方差，用于跳过低变化区域 | 可选落库；算法解释字段 |
 | `detections[].threshold` | 二值化阈值 | 当前块污渍分割使用的阈值 | 可选落库；算法复现字段 |
 | `detections[].status` | 块处理状态 | 当前块处理状态，如 `processed` | 可选落库；明细表状态字段 |
-| `runtime_seconds` | 执行耗时 | 原子检测运行耗时，单位秒，数值格式保存 | 推荐落库；用于性能统计 |
+| `runtime` | 执行时间 | 生成报告时的 Linux Unix 秒级时间戳 | 推荐落库；用于任务时间追踪 |
 
 ## 四、玻璃平整度检测 FlatnessDetection
 
@@ -125,7 +125,7 @@
 | `glass_regions[].frequency_min` | 频谱最小值 | 频谱幅值最小值 | 可选落库；算法解释字段 |
 | `glass_regions[].frequency_max` | 频谱最大值 | 频谱幅值最大值 | 可选落库；算法解释字段 |
 | `glass_regions[].frequency_diff` | 频谱范围差 | 频谱最大值与最小值差值 | 可选落库；算法解释字段 |
-| `runtime_seconds` | 执行耗时 | 原子检测运行耗时，单位秒，数值格式保存 | 推荐落库；用于性能统计 |
+| `runtime` | 执行时间 | 生成报告时的 Linux Unix 秒级时间戳 | 推荐落库；用于任务时间追踪 |
 
 ## 五、玻璃爆裂检测 SpallingDetection
 
@@ -137,4 +137,4 @@
 | `logits` | 原始输出值 | 模型分类层原始 logits | 不建议单独落库；算法调试字段 |
 | `probabilities` | 类别概率列表 | 各类别 softmax 概率列表 | 可选落库；如果需要完整概率解释可落 JSON 字段 |
 | `probabilities_by_class` | 按类别映射的概率 | 类别名称到概率的映射 | 可选落库；比 `probabilities` 更适合展示 |
-| `runtime_seconds` | 执行耗时 | 原子检测运行耗时，单位秒，数值格式保存 | 推荐落库；用于性能统计 |
+| `runtime` | 执行时间 | 生成报告时的 Linux Unix 秒级时间戳 | 推荐落库；用于任务时间追踪 |
