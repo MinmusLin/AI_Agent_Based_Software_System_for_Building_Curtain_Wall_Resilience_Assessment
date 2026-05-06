@@ -34,7 +34,7 @@ func NewProjectGroup(group *bizpb.ProjectGroup) *apipb.ProjectGroup {
 		Id:        utils.Encode(group.Id),
 		Name:      group.Name,
 		SortOrder: group.SortOrder,
-		Images:    NewProjectImages(group.Images),
+		Images:    group.Images,
 	}
 }
 
@@ -50,10 +50,6 @@ func NewProjectGroups(groups []*bizpb.ProjectGroup) []*apipb.ProjectGroup {
 		items = append(items, NewProjectGroup(group))
 	}
 	return items
-}
-
-func NewProjectImages(images []*bizpb.ProjectImage) []*apipb.ProjectImage {
-	return images
 }
 
 func NewProjectListItem(project *bizpb.ProjectListItem) *apipb.ProjectListItem {

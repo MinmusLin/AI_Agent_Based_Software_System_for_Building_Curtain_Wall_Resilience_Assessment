@@ -54,7 +54,7 @@ func NewMoveProjectImageResponse(resp *bizpb.MoveProjectImageResponse) *apipb.Mo
 		return nil
 	}
 	return &apipb.MoveProjectImageResponse{
-		Images: NewProjectImages(resp.Images),
+		Images: resp.Images,
 	}
 }
 
