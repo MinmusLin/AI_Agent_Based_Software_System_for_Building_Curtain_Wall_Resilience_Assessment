@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+// StartProjectDetection 请求结构体
+message StartProjectDetectionRequest {
+  string project_id = 1;
+}
+
+// StartProjectDetection 响应结构体
+message StartProjectDetectionResponse {
+  uint32 task_count = 1;
+}
