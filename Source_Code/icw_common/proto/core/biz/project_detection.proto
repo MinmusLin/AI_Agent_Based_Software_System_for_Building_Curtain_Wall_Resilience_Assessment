@@ -6,6 +6,17 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 import "core/biz/common.proto";
 
+// StartProjectDetection 请求结构体
+message StartProjectDetectionRequest {
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+}
+
+// StartProjectDetection 响应结构体
+message StartProjectDetectionResponse {
+  uint32 task_count = 1;
+}
+
 // ReportClassificationResult 请求结构体
 message ReportClassificationResultRequest {
   string task_uuid = 1;
@@ -34,6 +45,8 @@ message ReportReasoningResultResponse {}
 
 // 智能检测 RPC 服务
 service ProjectDetectionService {
+  // 启动项目智能检测
+  rpc StartProjectDetection(StartProjectDetectionRequest) returns (StartProjectDetectionResponse);
   // 上报图像检测分类结果
   rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);
   // 上报图像检测推理结果
