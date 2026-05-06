@@ -4,4 +4,4 @@ package icw.activity.classification;
 
 option go_package = "icw_common/gen/activity/classification;classificationpb";
 
-import public "activity/classification/classification.proto";
+import public "activity/classification/service.proto";
