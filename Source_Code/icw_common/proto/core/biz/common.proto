@@ -67,8 +67,8 @@ message ProjectImageStatusChangedEvent {
   string occurred_at = 7;
 }
 
-// 图像检测推理产物结构体
-message ReasoningArtifact {
+// 图像检测推理产物上传结果结构体
+message ReasoningArtifactUploadResult {
   string name = 1;
   bool uploaded = 2;
   string sha256 = 3;

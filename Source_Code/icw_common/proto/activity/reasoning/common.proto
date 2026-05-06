@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package icw.activity.reasoning;
+
+option go_package = "icw_common/gen/activity/reasoning;reasoningpb";
+
+// 图像检测推理产物上传计划结构体
+message ReasoningArtifactUploadPlan {
+  string name = 1;
+  string presign_upload_url = 2;
+  string content_type = 3;
+}

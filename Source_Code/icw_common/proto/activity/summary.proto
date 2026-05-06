@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package icw.activity.summary;
+
+option go_package = "icw_common/gen/activity/summary;summarypb";
+
+import public "activity/summary/summary.proto";

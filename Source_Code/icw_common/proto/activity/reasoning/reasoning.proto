@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package icw.activity.reasoning;
+
+option go_package = "icw_common/gen/activity/reasoning;reasoningpb";
+
+import "activity/reasoning/common.proto";
+
+// Start 请求结构体
+message StartRequest {
+  string task_uuid = 1;
+  string task_code = 2;
+  string image_uuid = 3;
+  string presign_get_url = 4;
+  repeated ReasoningArtifactUploadPlan artifacts = 5;
+}
+
+// Start 响应结构体
+message StartResponse {}
+
+// 推理能力 RPC 服务
+service ReasoningService {
+  // 启动推理任务
+  rpc Start(StartRequest) returns (StartResponse);
+}

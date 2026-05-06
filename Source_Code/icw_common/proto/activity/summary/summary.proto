@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package icw.activity.summary;
+
+option go_package = "icw_common/gen/activity/summary;summarypb";
+
+// 智能总结 RPC 服务
+service SummaryService {
+  rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message PingRequest {}
+
+message PingResponse {}

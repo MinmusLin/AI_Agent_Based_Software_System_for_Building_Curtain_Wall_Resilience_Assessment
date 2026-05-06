@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package icw.activity.classification;
+
+option go_package = "icw_common/gen/activity/classification;classificationpb";
+
+// Start 请求结构体
+message StartRequest {
+  string task_uuid = 1;
+  string image_uuid = 2;
+  string presign_get_url = 3;
+}
+
+// Start 响应结构体
+message StartResponse {}
+
+// 分类能力 RPC 服务
+service ClassificationService {
+  // 启动分类任务
+  rpc Start(StartRequest) returns (StartResponse);
+}
