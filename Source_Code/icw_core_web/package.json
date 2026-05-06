@@ -23,7 +23,8 @@
     "dev": "tsc -b && vite",
     "preview": "tsc -b && vite preview",
     "build": "tsc -b && vite build",
-    "lint": "eslint . --fix && prettier --write . && stylelint \"src/**/*.css\" --fix"
+    "lint": "eslint . --fix && prettier --write . && stylelint \"src/**/*.css\" --fix",
+    "clean": "rm -rf node_modules && rm -rf dist"
   },
   "engines": {
     "node": ">=20.19.0",
