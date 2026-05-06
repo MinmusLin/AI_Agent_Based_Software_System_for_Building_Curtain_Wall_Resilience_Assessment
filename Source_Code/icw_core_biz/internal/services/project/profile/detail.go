@@ -1,19 +1,23 @@
 package profile
 
 import (
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
+	"context"
+
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // GetProjectProfile 获取项目基础信息
-func (s *Service) GetProjectProfile(req *project.GetProjectProfileRequest, resp *project.GetProjectProfileResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) GetProjectProfile(ctx context.Context, req *bizpb.GetProjectProfileRequest) (*bizpb.GetProjectProfileResponse, error) {
+	resp := &bizpb.GetProjectProfileResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.getProjectProfile(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) getProjectProfile(req *project.GetProjectProfileRequest, resp *project.GetProjectProfileResponse) error {
+func (s *Service) getProjectProfile(req *bizpb.GetProjectProfileRequest, resp *bizpb.GetProjectProfileResponse) error {
 	projectRecord, err := s.MySQL().FindProjectByIdAndUserId(s.Ctx(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err

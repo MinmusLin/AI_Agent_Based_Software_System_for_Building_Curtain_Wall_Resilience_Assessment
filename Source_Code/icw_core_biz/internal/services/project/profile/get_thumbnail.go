@@ -1,24 +1,28 @@
 package profile
 
 import (
-	"icw_core_biz/pkg/dto/project"
+	"context"
+
+	"icw_common/gen/core/biz"
 	"icw_core_biz/repositories/minio"
 )
 
 // GetProjectThumbnail 获取项目缩略图
-func (s *Service) GetProjectThumbnail(req *project.GetProjectThumbnailRequest, resp *project.GetProjectThumbnailResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) GetProjectThumbnail(ctx context.Context, req *bizpb.GetProjectThumbnailRequest) (*bizpb.GetProjectThumbnailResponse, error) {
+	resp := &bizpb.GetProjectThumbnailResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.getProjectThumbnail(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) getProjectThumbnail(req *project.GetProjectThumbnailRequest, resp *project.GetProjectThumbnailResponse) error {
+func (s *Service) getProjectThumbnail(req *bizpb.GetProjectThumbnailRequest, resp *bizpb.GetProjectThumbnailResponse) error {
 	// 获取项目缩略图下载预签名 URL
 	thumbnailURL, err := minio.PresignProjectThumbnailURL(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, req.ProjectId, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}
-	resp.ThumbnailURL = thumbnailURL
+	resp.ThumbnailUrl = thumbnailURL
 
 	return nil
 }

@@ -1,20 +1,24 @@
 package profile
 
 import (
+	"context"
+
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
 )
 
 // UploadProjectThumbnail 上传项目缩略图
-func (s *Service) UploadProjectThumbnail(req *project.UploadProjectThumbnailRequest, resp *project.UploadProjectThumbnailResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) UploadProjectThumbnail(ctx context.Context, req *bizpb.UploadProjectThumbnailRequest) (*bizpb.UploadProjectThumbnailResponse, error) {
+	resp := &bizpb.UploadProjectThumbnailResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.uploadProjectThumbnail(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) uploadProjectThumbnail(req *project.UploadProjectThumbnailRequest, resp *project.UploadProjectThumbnailResponse) error {
+func (s *Service) uploadProjectThumbnail(req *bizpb.UploadProjectThumbnailRequest, resp *bizpb.UploadProjectThumbnailResponse) error {
 	if req.ContentType != consts.ThumbnailContentType {
 		return rpc_err.BadRequest(rpc_err.DetailInvalidImageContentType, "image content type must be image/png")
 	}
@@ -30,7 +34,7 @@ func (s *Service) uploadProjectThumbnail(req *project.UploadProjectThumbnailRequ
 	if err != nil {
 		return err
 	}
-	resp.UploadURL = uploadURL
+	resp.UploadUrl = uploadURL
 
 	return nil
 }

@@ -1,20 +1,24 @@
 package profile
 
 import (
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
+	"context"
+
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/redis"
 )
 
 // DeleteProjectThumbnail 删除项目缩略图
-func (s *Service) DeleteProjectThumbnail(req *project.DeleteProjectThumbnailRequest, resp *project.DeleteProjectThumbnailResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) DeleteProjectThumbnail(ctx context.Context, req *bizpb.DeleteProjectThumbnailRequest) (*bizpb.DeleteProjectThumbnailResponse, error) {
+	resp := &bizpb.DeleteProjectThumbnailResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.deleteProjectThumbnail(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) deleteProjectThumbnail(req *project.DeleteProjectThumbnailRequest, _ *project.DeleteProjectThumbnailResponse) error {
+func (s *Service) deleteProjectThumbnail(req *bizpb.DeleteProjectThumbnailRequest, _ *bizpb.DeleteProjectThumbnailResponse) error {
 	// 生成项目缩略图对象 Key
 	thumbnailKey, err := minio.GenProjectThumbnailKey(req.ProjectId)
 	if err != nil {

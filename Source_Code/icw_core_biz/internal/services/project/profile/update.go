@@ -1,20 +1,24 @@
 package profile
 
 import (
+	"context"
+
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/project/utils"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // UpdateProjectProfile 更新项目基础信息
-func (s *Service) UpdateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) UpdateProjectProfile(ctx context.Context, req *bizpb.UpdateProjectProfileRequest) (*bizpb.UpdateProjectProfileResponse, error) {
+	resp := &bizpb.UpdateProjectProfileResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.updateProjectProfile(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) updateProjectProfile(req *project.UpdateProjectProfileRequest, resp *project.UpdateProjectProfileResponse) error {
+func (s *Service) updateProjectProfile(req *bizpb.UpdateProjectProfileRequest, resp *bizpb.UpdateProjectProfileResponse) error {
 	fields, err := utils.NormalizeProjectProfileFields(
 		req.Name,
 		req.BuildingName,
@@ -34,7 +38,7 @@ func (s *Service) updateProjectProfile(req *project.UpdateProjectProfileRequest,
 		fields.Name,
 		fields.BuildingName,
 		fields.BuildingLocation,
-		req.BuiltYear,
+		uint16(req.BuiltYear),
 		fields.BuildingDescription,
 		fields.KnownIssues,
 		fields.AssessmentGoal,
