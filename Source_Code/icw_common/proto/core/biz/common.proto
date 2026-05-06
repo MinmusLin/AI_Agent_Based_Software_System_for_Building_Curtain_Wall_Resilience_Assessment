@@ -33,45 +33,12 @@ message ProjectListItem {
   string created_at = 7;
 }
 
-// 项目图像结构体
-message ProjectImage {
-  string uuid = 1;
-  string file_name = 2;
-  string content_type = 3;
-  uint64 size_bytes = 4;
-  uint32 width = 5;
-  uint32 height = 6;
-  string metadata = 7;
-  string status = 8;
-  string thumbnail_url = 9;
-  string uploaded_at = 10;
-  string created_at = 11;
-}
-
-// 项目图像状态变化事件结构体
-message ProjectImageStatusChangedEvent {
-  string event_id = 1;
-  string event_type = 2;
-  uint64 project_id = 3;
-  string project_code = 4;
-  uint64 user_id = 5;
-  .icw.common.ProjectImage image = 6;
-  string occurred_at = 7;
-}
-
 // 项目图像组结构体
 message ProjectGroup {
   uint64 id = 1;
   string name = 2;
   string sort_order = 3;
   repeated .icw.common.ProjectImage images = 4;
-}
-
-// 图像检测推理产物结构体
-message ReasoningArtifact {
-  string name = 1;
-  bool uploaded = 2;
-  string sha256 = 3;
 }
 
 // 上传图像项结构体
@@ -87,4 +54,22 @@ message UploadProjectImageItem {
   string thumbnail_key = 9;
   string original_upload_url = 10;
   string thumbnail_upload_url = 11;
+}
+
+// 项目图像状态变化事件结构体
+message ProjectImageStatusChangedEvent {
+  string event_id = 1;
+  string event_type = 2;
+  uint64 project_id = 3;
+  string project_code = 4;
+  uint64 user_id = 5;
+  .icw.common.ProjectImage image = 6;
+  string occurred_at = 7;
+}
+
+// 图像检测推理产物结构体
+message ReasoningArtifact {
+  string name = 1;
+  bool uploaded = 2;
+  string sha256 = 3;
 }
