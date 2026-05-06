@@ -41,7 +41,7 @@ func (s *Service) getProjectImageOriginal(req *bizpb.GetProjectImageOriginalRequ
 		return err
 	}
 	if originalURL == "" {
-		return rpc_err.BadRequest(rpc_err.DetailProjectImageExpired, "project image original object is not found")
+		return rpc_err.BadRequest(rpc_err.DetailProjectImageExpired, "project image original object not found")
 	}
 	resp.OriginalUrl = originalURL
 

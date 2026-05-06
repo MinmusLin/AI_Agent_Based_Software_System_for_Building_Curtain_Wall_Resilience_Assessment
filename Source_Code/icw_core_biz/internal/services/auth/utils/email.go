@@ -22,7 +22,7 @@ var (
 func NormalizeEmailAddress(value string) (string, error) {
 	input := strings.TrimSpace(value)
 	if input == "" {
-		return "", errors.New("email address is empty")
+		return "", errors.New("email address is required")
 	}
 	address, err := mail.ParseAddress(input)
 	if err != nil || address == nil || address.Address == "" {

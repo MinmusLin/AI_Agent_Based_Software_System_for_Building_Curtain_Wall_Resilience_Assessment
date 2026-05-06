@@ -15,7 +15,7 @@ var (
 	// ErrPasswordTooWeak 密码强度过弱
 	ErrPasswordTooWeak = errors.New("password too weak")
 	// ErrNameIsEmpty 用户名称为空
-	ErrNameIsEmpty = errors.New("name is empty")
+	ErrNameIsEmpty = errors.New("name is required")
 	// ErrNameTooLong 用户名称长度过长
 	ErrNameTooLong = errors.New("name too long")
 )
