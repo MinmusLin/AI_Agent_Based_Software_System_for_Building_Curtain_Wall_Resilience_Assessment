@@ -113,11 +113,11 @@ CREATE TABLE `project_group_images` (
 -- project_detection_tasks 项目图像检测主任务表
 CREATE TABLE `project_detection_tasks` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主任务 ID',
-  `uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主任务 UUID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主任务 UUID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
-  `image_uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '图像 UUID',
+  `image_uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '图像 UUID',
   `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '主任务状态：pending|classifying|detecting|summarizing|succeeded|failed',
   `corrosion_should_execute` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否执行金属锈蚀检测',
   `corrosion_task_id` bigint unsigned DEFAULT NULL COMMENT '金属锈蚀检测子任务 ID',
@@ -148,12 +148,12 @@ CREATE TABLE `project_detection_tasks` (
 -- project_detection_corrosion_tasks 项目图像金属锈蚀检测子任务表
 CREATE TABLE `project_detection_corrosion_tasks` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '子任务 ID',
-  `uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
   `main_task_id` bigint unsigned NOT NULL COMMENT '主任务 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
-  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
   `has_corrosion` tinyint(1) DEFAULT NULL COMMENT '是否存在锈蚀',
   `corrosion_count` int unsigned DEFAULT NULL COMMENT '锈蚀区域数量',
   `max_confidence` decimal(10,6) DEFAULT NULL COMMENT '最高置信度',
@@ -181,12 +181,12 @@ CREATE TABLE `project_detection_corrosion_tasks` (
 -- project_detection_crack_tasks 项目图像石材裂缝检测子任务表
 CREATE TABLE `project_detection_crack_tasks` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '子任务 ID',
-  `uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
   `main_task_id` bigint unsigned NOT NULL COMMENT '主任务 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
-  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
   `has_crack` tinyint(1) DEFAULT NULL COMMENT '是否存在裂缝',
   `crack_count` int unsigned DEFAULT NULL COMMENT '裂缝区域数量',
   `crack_pixels` bigint unsigned DEFAULT NULL COMMENT '裂缝区域像素数',
@@ -212,12 +212,12 @@ CREATE TABLE `project_detection_crack_tasks` (
 -- project_detection_stain_tasks 项目图像石材污渍检测子任务表
 CREATE TABLE `project_detection_stain_tasks` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '子任务 ID',
-  `uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
   `main_task_id` bigint unsigned NOT NULL COMMENT '主任务 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
-  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
   `has_stain` tinyint(1) DEFAULT NULL COMMENT '是否存在污渍',
   `stain_count` int unsigned DEFAULT NULL COMMENT '污渍区域数量',
   `average_stain_ratio` decimal(10,6) DEFAULT NULL COMMENT '平均污渍面积比例',
@@ -243,12 +243,12 @@ CREATE TABLE `project_detection_stain_tasks` (
 -- project_detection_flatness_tasks 项目图像玻璃平整度检测子任务表
 CREATE TABLE `project_detection_flatness_tasks` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '子任务 ID',
-  `uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
   `main_task_id` bigint unsigned NOT NULL COMMENT '主任务 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
-  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
   `result` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '检测结果：flat|uneven|notglass',
   `uneven_count` int unsigned DEFAULT NULL COMMENT '不平整区域数量',
   `regions` json DEFAULT NULL COMMENT '不平整区域列表',
@@ -272,12 +272,12 @@ CREATE TABLE `project_detection_flatness_tasks` (
 -- project_detection_spalling_tasks 项目图像玻璃爆裂检测子任务表
 CREATE TABLE `project_detection_spalling_tasks` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '子任务 ID',
-  `uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '子任务 UUID',
   `main_task_id` bigint unsigned NOT NULL COMMENT '主任务 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
-  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '子任务状态：pending|succeeded|failed',
   `has_spalling` tinyint(1) DEFAULT NULL COMMENT '是否存在爆裂',
   `confidence` decimal(10,6) DEFAULT NULL COMMENT '置信度',
   `runtime_seconds` decimal(10,6) DEFAULT NULL COMMENT '执行耗时',
@@ -300,12 +300,12 @@ CREATE TABLE `project_detection_spalling_tasks` (
 -- project_detection_summary_tasks 项目图像检测总结任务表
 CREATE TABLE `project_detection_summary_tasks` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '任务 ID',
-  `uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务 UUID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务 UUID',
   `main_task_id` bigint unsigned NOT NULL COMMENT '主任务 ID',
   `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
-  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '任务状态：pending|succeeded|failed',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '任务状态：pending|succeeded|failed',
   `started_at` datetime(3) DEFAULT NULL COMMENT '开始时间',
   `finished_at` datetime(3) DEFAULT NULL COMMENT '完成时间',
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
