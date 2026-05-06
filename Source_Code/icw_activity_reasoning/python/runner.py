@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 
-ERROR_FILE_NAME = 'runner_error.txt'
+ERROR_FILE_NAME = 'error.log'
 
 
 # 解析命令行输入参数
