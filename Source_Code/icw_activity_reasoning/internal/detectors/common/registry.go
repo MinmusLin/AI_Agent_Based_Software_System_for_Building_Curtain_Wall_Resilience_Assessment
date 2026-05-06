@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"icw_core_biz/utils"
+	"icw_common/utils"
 )
 
 // Detector 原子检测能力
@@ -88,7 +88,7 @@ func FormatRegistryTable(registry *Registry) string {
 		recordsTaskCodes = append(recordsTaskCodes, detector.Code())
 		recordsDescriptions = append(recordsDescriptions, detector.Description())
 	}
-	return utils.FormatTable([]utils.TableColumn{
+	return utils.FormatTable([]*utils.TableColumn{
 		{
 			Header: "detector",
 			Values: recordsTaskCodes,
