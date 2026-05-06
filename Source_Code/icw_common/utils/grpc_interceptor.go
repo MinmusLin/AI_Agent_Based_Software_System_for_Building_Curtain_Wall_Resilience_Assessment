@@ -52,13 +52,12 @@ func logGRPCServer(scope string, ctx context.Context, req, resp interface{}, inf
 		fullMethod = info.FullMethod
 	}
 	if IsEmptyError(err) {
-		LogInfo(scope, consts.LogColorBoldGreen, "[%s] %s %13v %s [%s] req=%s resp=%s err=%s",
+		LogInfo(scope, consts.LogColorBoldGreen, "[%s] %s %13v %s [%s] req=%s resp=%s",
 			requestId,
 			consts.LogColorBoldBlackOnWhite, cost, consts.LogColorReset,
 			gRPCMethod(fullMethod),
 			JSONF(req),
 			JSONF(resp),
-			FormatErrorLog(grpcErrorMessage(err)),
 		)
 		return
 	}
