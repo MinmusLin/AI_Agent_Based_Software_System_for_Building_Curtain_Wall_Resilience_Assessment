@@ -10,6 +10,7 @@ import (
 
 	"icw_common/consts"
 	"icw_common/env"
+	"icw_common/rpc"
 	"icw_common/utils"
 	"icw_core_biz/configs"
 	"icw_core_biz/internal/cronjobs"
@@ -124,7 +125,7 @@ func main() {
 	))
 
 	// 注册 gRPC 服务
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(utils.GRPCUnaryServerInterceptor(consts.LogScopeRPC)))
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(rpc.UnaryServerInterceptor(consts.LogScopeRPC)))
 	services.RegisterRPCServices(ctx, serviceCommon.NewDeps(
 		cfg,
 		mysql.NewRepository(dataMySQL),
