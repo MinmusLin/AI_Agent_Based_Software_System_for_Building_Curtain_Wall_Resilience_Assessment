@@ -7,7 +7,7 @@ import (
 	"icw_common/rpc"
 )
 
-// Ping 智能总结服务探活
+// Ping 总结能力服务探活
 func Ping(ctx context.Context, client *Client, req *summarypb.PingRequest, resp *summarypb.PingResponse) error {
 	return rpc.CallGRPC[summarypb.PingRequest, summarypb.PingResponse](ctx, client, req, resp, client.Ping)
 }
