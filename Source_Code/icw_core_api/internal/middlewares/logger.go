@@ -22,7 +22,7 @@ func Logger() gin.HandlerFunc {
 
 		requestId := "-"
 		if param.Request != nil {
-			if v := utils.GetRequestId(param.Request.Context()); v != "" {
+			if v := utils.GetXRequestId(param.Request.Context()); v != "" {
 				requestId = v
 			}
 		}

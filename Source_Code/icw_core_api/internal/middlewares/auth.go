@@ -28,7 +28,7 @@ func AuthRequired(coreBizClient *icw_core_biz.Client) gin.HandlerFunc {
 		}
 
 		// 将用户信息写入请求上下文，交给后续 Handler 使用
-		c.Set(consts.ContextUser, rpcResp.User)
+		c.Set(consts.ContextCurrentUser, rpcResp.User)
 
 		c.Next()
 	}
