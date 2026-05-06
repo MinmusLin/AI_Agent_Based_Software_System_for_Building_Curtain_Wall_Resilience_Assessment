@@ -16,6 +16,16 @@ enum EmailCodeScene {
   EMAIL_CODE_SCENE_RESET = 3;
 }
 
+// 登录方式
+enum LoginScene {
+  // 登录方式-未知
+  LOGIN_SCENE_UNKNOWN = 0;
+  // 登录方式-密码登录
+  LOGIN_SCENE_PASSWORD = 1;
+  // 登录方式-邮箱验证码登录
+  LOGIN_SCENE_EMAIL = 2;
+}
+
 // 邮件发送状态
 enum EmailSendStatus {
   // 邮件发送状态-未知
