@@ -432,12 +432,10 @@ const (
 	ProjectDetectionSubTaskStatus_Unknown ProjectDetectionSubTaskStatus_Value = 0
 	// 等待中
 	ProjectDetectionSubTaskStatus_Pending ProjectDetectionSubTaskStatus_Value = 1
-	// 检测中
-	ProjectDetectionSubTaskStatus_Running ProjectDetectionSubTaskStatus_Value = 2
 	// 成功
-	ProjectDetectionSubTaskStatus_Succeeded ProjectDetectionSubTaskStatus_Value = 3
+	ProjectDetectionSubTaskStatus_Succeeded ProjectDetectionSubTaskStatus_Value = 2
 	// 失败
-	ProjectDetectionSubTaskStatus_Failed ProjectDetectionSubTaskStatus_Value = 4
+	ProjectDetectionSubTaskStatus_Failed ProjectDetectionSubTaskStatus_Value = 3
 )
 
 // Enum value maps for ProjectDetectionSubTaskStatus_Value.
@@ -445,16 +443,14 @@ var (
 	ProjectDetectionSubTaskStatus_Value_name = map[int32]string{
 		0: "Unknown",
 		1: "Pending",
-		2: "Running",
-		3: "Succeeded",
-		4: "Failed",
+		2: "Succeeded",
+		3: "Failed",
 	}
 	ProjectDetectionSubTaskStatus_Value_value = map[string]int32{
 		"Unknown":   0,
 		"Pending":   1,
-		"Running":   2,
-		"Succeeded": 3,
-		"Failed":    4,
+		"Succeeded": 2,
+		"Failed":    3,
 	}
 )
 
@@ -835,15 +831,14 @@ const file_core_biz_consts_proto_rawDesc = "" +
 	"\vSummarizing\x10\x04\x12\r\n" +
 	"\tSucceeded\x10\x05\x12\n" +
 	"\n" +
-	"\x06Failed\x10\x06\"j\n" +
-	"\x1dProjectDetectionSubTaskStatus\"I\n" +
+	"\x06Failed\x10\x06\"]\n" +
+	"\x1dProjectDetectionSubTaskStatus\"<\n" +
 	"\x05Value\x12\v\n" +
 	"\aUnknown\x10\x00\x12\v\n" +
-	"\aPending\x10\x01\x12\v\n" +
-	"\aRunning\x10\x02\x12\r\n" +
-	"\tSucceeded\x10\x03\x12\n" +
+	"\aPending\x10\x01\x12\r\n" +
+	"\tSucceeded\x10\x02\x12\n" +
 	"\n" +
-	"\x06Failed\x10\x04B\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
+	"\x06Failed\x10\x03B\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
 
 var (
 	file_core_biz_consts_proto_rawDescOnce sync.Once

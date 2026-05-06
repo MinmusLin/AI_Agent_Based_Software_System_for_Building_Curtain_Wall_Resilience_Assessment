@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 智能总结 RPC 服务
+// 总结能力 RPC 服务
 type SummaryServiceClient interface {
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
@@ -53,7 +53,7 @@ func (c *summaryServiceClient) Ping(ctx context.Context, in *PingRequest, opts .
 // All implementations must embed UnimplementedSummaryServiceServer
 // for forward compatibility.
 //
-// 智能总结 RPC 服务
+// 总结能力 RPC 服务
 type SummaryServiceServer interface {
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedSummaryServiceServer()

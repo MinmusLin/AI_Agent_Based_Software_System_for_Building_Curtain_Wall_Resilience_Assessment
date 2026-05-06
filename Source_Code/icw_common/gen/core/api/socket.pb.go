@@ -25,6 +25,7 @@ const (
 type CreateSocketTicketRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	SocketScope   string                 `protobuf:"bytes,2,opt,name=socket_scope,json=socketScope,proto3" json:"socket_scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -62,6 +63,13 @@ func (*CreateSocketTicketRequest) Descriptor() ([]byte, []int) {
 func (x *CreateSocketTicketRequest) GetProjectId() string {
 	if x != nil {
 		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *CreateSocketTicketRequest) GetSocketScope() string {
+	if x != nil {
+		return x.SocketScope
 	}
 	return ""
 }
@@ -123,10 +131,11 @@ var File_core_api_socket_proto protoreflect.FileDescriptor
 
 const file_core_api_socket_proto_rawDesc = "" +
 	"\n" +
-	"\x15core/api/socket.proto\x12\ficw.core.api\":\n" +
+	"\x15core/api/socket.proto\x12\ficw.core.api\"]\n" +
 	"\x19CreateSocketTicketRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\"S\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12!\n" +
+	"\fsocket_scope\x18\x02 \x01(\tR\vsocketScope\"S\n" +
 	"\x1aCreateSocketTicketResponse\x12\x16\n" +
 	"\x06ticket\x18\x01 \x01(\tR\x06ticket\x12\x1d\n" +
 	"\n" +

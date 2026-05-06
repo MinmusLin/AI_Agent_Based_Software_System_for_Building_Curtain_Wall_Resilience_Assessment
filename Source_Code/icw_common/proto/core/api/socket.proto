@@ -7,6 +7,7 @@ option go_package = "icw_common/gen/core/api;apipb";
 // CreateSocketTicket 请求结构体
 message CreateSocketTicketRequest {
   string project_id = 1;
+  string socket_scope = 2;
 }
 
 // CreateSocketTicket 响应结构体

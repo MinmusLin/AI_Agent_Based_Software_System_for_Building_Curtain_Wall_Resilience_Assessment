@@ -549,11 +549,13 @@ type ProjectDetectionTaskStatusChangedEvent struct {
 	ProjectId     uint64                 `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	ProjectCode   string                 `protobuf:"bytes,4,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
 	UserId        uint64                 `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	TaskUuid      string                 `protobuf:"bytes,6,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
-	ImageUuid     string                 `protobuf:"bytes,7,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	Status        string                 `protobuf:"bytes,8,opt,name=status,proto3" json:"status,omitempty"`
-	Stage         string                 `protobuf:"bytes,9,opt,name=stage,proto3" json:"stage,omitempty"`
-	OccurredAt    string                 `protobuf:"bytes,10,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
+	ImageUuid     string                 `protobuf:"bytes,6,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	NodeCode      string                 `protobuf:"bytes,7,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
+	MainTaskId    string                 `protobuf:"bytes,8,opt,name=main_task_id,json=mainTaskId,proto3" json:"main_task_id,omitempty"`
+	MainStatus    string                 `protobuf:"bytes,9,opt,name=main_status,json=mainStatus,proto3" json:"main_status,omitempty"`
+	SubTaskId     string                 `protobuf:"bytes,10,opt,name=sub_task_id,json=subTaskId,proto3" json:"sub_task_id,omitempty"`
+	SubStatus     string                 `protobuf:"bytes,11,opt,name=sub_status,json=subStatus,proto3" json:"sub_status,omitempty"`
+	OccurredAt    string                 `protobuf:"bytes,12,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -623,13 +625,6 @@ func (x *ProjectDetectionTaskStatusChangedEvent) GetUserId() uint64 {
 	return 0
 }
 
-func (x *ProjectDetectionTaskStatusChangedEvent) GetTaskUuid() string {
-	if x != nil {
-		return x.TaskUuid
-	}
-	return ""
-}
-
 func (x *ProjectDetectionTaskStatusChangedEvent) GetImageUuid() string {
 	if x != nil {
 		return x.ImageUuid
@@ -637,16 +632,37 @@ func (x *ProjectDetectionTaskStatusChangedEvent) GetImageUuid() string {
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedEvent) GetStatus() string {
+func (x *ProjectDetectionTaskStatusChangedEvent) GetNodeCode() string {
 	if x != nil {
-		return x.Status
+		return x.NodeCode
 	}
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedEvent) GetStage() string {
+func (x *ProjectDetectionTaskStatusChangedEvent) GetMainTaskId() string {
 	if x != nil {
-		return x.Stage
+		return x.MainTaskId
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedEvent) GetMainStatus() string {
+	if x != nil {
+		return x.MainStatus
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedEvent) GetSubTaskId() string {
+	if x != nil {
+		return x.SubTaskId
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedEvent) GetSubStatus() string {
+	if x != nil {
+		return x.SubStatus
 	}
 	return ""
 }
@@ -781,7 +797,7 @@ const file_core_biz_common_proto_rawDesc = "" +
 	"\auser_id\x18\x05 \x01(\x04R\x06userId\x123\n" +
 	"\x05image\x18\x06 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\x12\x1f\n" +
 	"\voccurred_at\x18\a \x01(\tR\n" +
-	"occurredAt\"\xc8\x02\n" +
+	"occurredAt\"\x9c\x03\n" +
 	"&ProjectDetectionTaskStatusChangedEvent\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1d\n" +
 	"\n" +
@@ -789,14 +805,19 @@ const file_core_biz_common_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x03 \x01(\x04R\tprojectId\x12!\n" +
 	"\fproject_code\x18\x04 \x01(\tR\vprojectCode\x12\x17\n" +
-	"\auser_id\x18\x05 \x01(\x04R\x06userId\x12\x1b\n" +
-	"\ttask_uuid\x18\x06 \x01(\tR\btaskUuid\x12\x1d\n" +
+	"\auser_id\x18\x05 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\a \x01(\tR\timageUuid\x12\x16\n" +
-	"\x06status\x18\b \x01(\tR\x06status\x12\x14\n" +
-	"\x05stage\x18\t \x01(\tR\x05stage\x12\x1f\n" +
-	"\voccurred_at\x18\n" +
-	" \x01(\tR\n" +
+	"image_uuid\x18\x06 \x01(\tR\timageUuid\x12\x1b\n" +
+	"\tnode_code\x18\a \x01(\tR\bnodeCode\x12 \n" +
+	"\fmain_task_id\x18\b \x01(\tR\n" +
+	"mainTaskId\x12\x1f\n" +
+	"\vmain_status\x18\t \x01(\tR\n" +
+	"mainStatus\x12\x1e\n" +
+	"\vsub_task_id\x18\n" +
+	" \x01(\tR\tsubTaskId\x12\x1d\n" +
+	"\n" +
+	"sub_status\x18\v \x01(\tR\tsubStatus\x12\x1f\n" +
+	"\voccurred_at\x18\f \x01(\tR\n" +
 	"occurredAt\"g\n" +
 	"\x1dReasoningArtifactUploadResult\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +

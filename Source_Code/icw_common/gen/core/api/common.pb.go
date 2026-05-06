@@ -474,10 +474,13 @@ type ProjectDetectionTaskStatusChangedMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	TaskUuid      string                 `protobuf:"bytes,3,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
-	ImageUuid     string                 `protobuf:"bytes,4,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	Stage         string                 `protobuf:"bytes,6,opt,name=stage,proto3" json:"stage,omitempty"`
+	ImageUuid     string                 `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	NodeCode      string                 `protobuf:"bytes,4,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
+	MainTaskId    string                 `protobuf:"bytes,5,opt,name=main_task_id,json=mainTaskId,proto3" json:"main_task_id,omitempty"`
+	MainStatus    string                 `protobuf:"bytes,6,opt,name=main_status,json=mainStatus,proto3" json:"main_status,omitempty"`
+	SubTaskId     string                 `protobuf:"bytes,7,opt,name=sub_task_id,json=subTaskId,proto3" json:"sub_task_id,omitempty"`
+	SubStatus     string                 `protobuf:"bytes,8,opt,name=sub_status,json=subStatus,proto3" json:"sub_status,omitempty"`
+	OccurredAt    string                 `protobuf:"bytes,9,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -526,13 +529,6 @@ func (x *ProjectDetectionTaskStatusChangedMessage) GetProjectId() string {
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedMessage) GetTaskUuid() string {
-	if x != nil {
-		return x.TaskUuid
-	}
-	return ""
-}
-
 func (x *ProjectDetectionTaskStatusChangedMessage) GetImageUuid() string {
 	if x != nil {
 		return x.ImageUuid
@@ -540,16 +536,44 @@ func (x *ProjectDetectionTaskStatusChangedMessage) GetImageUuid() string {
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedMessage) GetStatus() string {
+func (x *ProjectDetectionTaskStatusChangedMessage) GetNodeCode() string {
 	if x != nil {
-		return x.Status
+		return x.NodeCode
 	}
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedMessage) GetStage() string {
+func (x *ProjectDetectionTaskStatusChangedMessage) GetMainTaskId() string {
 	if x != nil {
-		return x.Stage
+		return x.MainTaskId
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetMainStatus() string {
+	if x != nil {
+		return x.MainStatus
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetSubTaskId() string {
+	if x != nil {
+		return x.SubTaskId
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetSubStatus() string {
+	if x != nil {
+		return x.SubStatus
+	}
+	return ""
+}
+
+func (x *ProjectDetectionTaskStatusChangedMessage) GetOccurredAt() string {
+	if x != nil {
+		return x.OccurredAt
 	}
 	return ""
 }
@@ -603,16 +627,23 @@ const file_core_api_common_proto_rawDesc = "" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\x123\n" +
-	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\"\xc7\x01\n" +
+	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\"\xbc\x02\n" +
 	"(ProjectDetectionTaskStatusChangedMessage\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1b\n" +
-	"\ttask_uuid\x18\x03 \x01(\tR\btaskUuid\x12\x1d\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x04 \x01(\tR\timageUuid\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\x12\x14\n" +
-	"\x05stage\x18\x06 \x01(\tR\x05stageB\x1fZ\x1dicw_common/gen/core/api;apipbP\x00b\x06proto3"
+	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12\x1b\n" +
+	"\tnode_code\x18\x04 \x01(\tR\bnodeCode\x12 \n" +
+	"\fmain_task_id\x18\x05 \x01(\tR\n" +
+	"mainTaskId\x12\x1f\n" +
+	"\vmain_status\x18\x06 \x01(\tR\n" +
+	"mainStatus\x12\x1e\n" +
+	"\vsub_task_id\x18\a \x01(\tR\tsubTaskId\x12\x1d\n" +
+	"\n" +
+	"sub_status\x18\b \x01(\tR\tsubStatus\x12\x1f\n" +
+	"\voccurred_at\x18\t \x01(\tR\n" +
+	"occurredAtB\x1fZ\x1dicw_common/gen/core/api;apipbP\x00b\x06proto3"
 
 var (
 	file_core_api_common_proto_rawDescOnce sync.Once
