@@ -17,6 +17,7 @@ import (
 	cronjobCommon "icw_core_biz/internal/cronjobs/common"
 	"icw_core_biz/internal/services"
 	serviceCommon "icw_core_biz/internal/services/common"
+	"icw_core_biz/internal/workers"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
 	"icw_core_biz/repositories/redis"
@@ -115,24 +116,35 @@ func main() {
 		_ = activitySummaryClient.Close()
 	}()
 
+	// 初始化数据服务
+	mysqlRepo := mysql.NewRepository(dataMySQL)
+	redisRepo := redis.NewRepository(dataRedis)
+	rocketMQRepo := rocketmq.NewRepository(dataRocketMQ, cfg.RocketMQProjectEventTopic)
+	minioRepo := minio.NewRepository(dataMinIO, cfg.MinIOBucket)
+
 	// 启动定时任务
 	cronjobs.Start(ctx, cronjobCommon.NewDeps(
 		cfg,
-		mysql.NewRepository(dataMySQL),
-		redis.NewRepository(dataRedis),
-		rocketmq.NewRepository(dataRocketMQ, cfg.RocketMQProjectEventTopic),
-		minio.NewRepository(dataMinIO, cfg.MinIOBucket),
+		mysqlRepo,
+		redisRepo,
+		rocketMQRepo,
+		minioRepo,
 	))
+
+	// 启动项目图像检测任务 Worker
+	detectionWorker := workers.NewDetectionWorker(cfg, mysqlRepo, minioRepo, rocketMQRepo, activityClassificationClient, activityReasoningClient)
+	detectionWorker.Start(ctx)
 
 	// 注册 gRPC 服务
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(rpc.UnaryServerInterceptor(consts.LogScopeRPC)))
 	services.RegisterRPCServices(ctx, serviceCommon.NewDeps(
 		cfg,
-		mysql.NewRepository(dataMySQL),
-		redis.NewRepository(dataRedis),
-		rocketmq.NewRepository(dataRocketMQ, cfg.RocketMQProjectEventTopic),
-		minio.NewRepository(dataMinIO, cfg.MinIOBucket),
+		mysqlRepo,
+		redisRepo,
+		rocketMQRepo,
+		minioRepo,
 		smtp.NewRepository(cfg),
+		detectionWorker,
 		activityClassificationClient,
 		activityReasoningClient,
 		activitySummaryClient,

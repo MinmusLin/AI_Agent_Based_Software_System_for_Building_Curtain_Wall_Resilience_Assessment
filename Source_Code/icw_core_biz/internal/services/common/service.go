@@ -5,6 +5,7 @@ import (
 	"icw_common/rpc_err"
 	"icw_common/utils"
 	"icw_core_biz/configs"
+	"icw_core_biz/internal/workers"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
 	"icw_core_biz/repositories/redis"
@@ -23,6 +24,7 @@ type Deps struct {
 	RocketMQ                     *rocketmq.Repository
 	MinIO                        *minio.Repository
 	SMTP                         *smtp.Repository
+	DetectionWorker              *workers.DetectionWorker
 	ActivityClassificationClient *icw_activity_classification.Client
 	ActivityReasoningClient      *icw_activity_reasoning.Client
 	ActivitySummaryClient        *icw_activity_summary.Client
@@ -36,6 +38,7 @@ func NewDeps(
 	RocketMQ *rocketmq.Repository,
 	MinIO *minio.Repository,
 	SMTP *smtp.Repository,
+	DetectionWorker *workers.DetectionWorker,
 	ActivityClassificationClient *icw_activity_classification.Client,
 	ActivityReasoningClient *icw_activity_reasoning.Client,
 	ActivitySummaryClient *icw_activity_summary.Client,
@@ -47,6 +50,7 @@ func NewDeps(
 		RocketMQ:                     RocketMQ,
 		MinIO:                        MinIO,
 		SMTP:                         SMTP,
+		DetectionWorker:              DetectionWorker,
 		ActivityClassificationClient: ActivityClassificationClient,
 		ActivityReasoningClient:      ActivityReasoningClient,
 		ActivitySummaryClient:        ActivitySummaryClient,
@@ -141,6 +145,14 @@ func (s *BaseService) SMTP() *smtp.Repository {
 		return nil
 	}
 	return s.deps.SMTP
+}
+
+// DetectionWorker 获取项目图像检测任务 Worker
+func (s *BaseService) DetectionWorker() *workers.DetectionWorker {
+	if s == nil || s.deps == nil {
+		return nil
+	}
+	return s.deps.DetectionWorker
 }
 
 // ActivityClassificationClient 获取 icw.activity.classification RPC Client
