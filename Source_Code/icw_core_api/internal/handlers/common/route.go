@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"icw_core_biz/utils"
+	"icw_common/utils"
 )
 
 // RouteGroup 封装 Gin 路由注册器
@@ -62,7 +62,7 @@ func FormatRoutesTable(routes gin.RoutesInfo, descriptions map[string]string) st
 		descriptionValues = append(descriptionValues, descriptions[routeKey(route.Method, route.Path)])
 		handlerValues = append(handlerValues, strings.TrimSuffix(strings.TrimPrefix(route.Handler, "icw_core_api/internal/handlers/"), "-fm"))
 	}
-	return utils.FormatTable([]utils.TableColumn{
+	return utils.FormatTable([]*utils.TableColumn{
 		{
 			Header: "method",
 			Values: methodValues,
