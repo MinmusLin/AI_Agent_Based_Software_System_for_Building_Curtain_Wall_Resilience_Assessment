@@ -61,7 +61,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 
 	// 账号锁定（登录失败次数达上限）时不发送登录验证码
 	if scene == bizpb.EmailCodeScene_EMAIL_CODE_SCENE_LOGIN {
-		locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx(), consts.LoginEmail.String(), emailHash, consts.LoginFailureLimit)
+		locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx(), enum.LoginSceneString(bizpb.LoginScene_LOGIN_SCENE_EMAIL), emailHash, consts.LoginFailureLimit)
 		if err != nil {
 			return err
 		}
