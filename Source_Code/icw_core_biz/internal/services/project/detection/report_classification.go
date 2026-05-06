@@ -1,16 +1,20 @@
 package detection
 
 import (
-	"icw_core_biz/pkg/dto/project"
+	"context"
+
+	"icw_common/gen/core/biz"
 )
 
 // ReportClassificationResult 上报图像检测分类结果
-func (s *Service) ReportClassificationResult(req *project.ReportClassificationResultRequest, resp *project.ReportClassificationResultResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) ReportClassificationResult(ctx context.Context, req *bizpb.ReportClassificationResultRequest) (*bizpb.ReportClassificationResultResponse, error) {
+	resp := &bizpb.ReportClassificationResultResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.reportClassificationResult(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) reportClassificationResult(_ *project.ReportClassificationResultRequest, _ *project.ReportClassificationResultResponse) error {
+func (s *Service) reportClassificationResult(_ *bizpb.ReportClassificationResultRequest, _ *bizpb.ReportClassificationResultResponse) error {
 	return nil
 }
