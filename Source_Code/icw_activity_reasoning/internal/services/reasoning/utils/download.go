@@ -12,8 +12,8 @@ import (
 	"icw_common/gen/activity/reasoning"
 )
 
-// DownloadSourceImage 下载待检测原图到任务临时目录
-func DownloadSourceImage(ctx context.Context, req *reasoningpb.StartRequest, taskDir string, timeout time.Duration) error {
+// DownloadOriginalImage 下载原始图像
+func DownloadOriginalImage(ctx context.Context, req *reasoningpb.StartRequest, taskDir string, timeout time.Duration) error {
 	downloadCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -28,20 +28,22 @@ func DownloadSourceImage(ctx context.Context, req *reasoningpb.StartRequest, tas
 	defer func() {
 		_ = resp.Body.Close()
 	}()
+
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		return fmt.Errorf("download original image failed: status=%d", resp.StatusCode)
 	}
 
-	imagePath := filepath.Join(taskDir, "original.png")
-	file, err := os.Create(imagePath)
+	file, err := os.Create(filepath.Join(taskDir, "original.png"))
 	if err != nil {
 		return err
 	}
 	defer func() {
 		_ = file.Close()
 	}()
+
 	if _, err := io.Copy(file, resp.Body); err != nil {
 		return err
 	}
+
 	return nil
 }

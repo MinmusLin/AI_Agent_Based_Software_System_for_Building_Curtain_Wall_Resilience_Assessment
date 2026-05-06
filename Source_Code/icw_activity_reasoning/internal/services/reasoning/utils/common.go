@@ -8,15 +8,13 @@ import (
 	"strings"
 )
 
-// SanitizePathPart 清洗本地路径片段
-func SanitizePathPart(value string) string {
+// IsSafePathPart 判断字符串是否可作为单层路径片段
+func IsSafePathPart(value string) bool {
 	value = strings.TrimSpace(value)
-	value = strings.ReplaceAll(value, "/", "_")
-	value = strings.ReplaceAll(value, "\\", "_")
-	if value == "" {
-		return "unknown"
+	if value == "" || value == "." || value == ".." {
+		return false
 	}
-	return value
+	return !strings.ContainsAny(value, `/\`)
 }
 
 // ReportPath 获取任务报告路径
@@ -29,27 +27,18 @@ func ArtifactPath(taskDir, artifactName string) string {
 	return filepath.Join(taskDir, strings.TrimSpace(artifactName))
 }
 
-// ReadCompactReportJSON 读取任务报告并压缩为 JSON 字符串
+// ReadCompactReportJSON 读取任务报告文件并转换为 JSON 压缩字符串
 func ReadCompactReportJSON(taskDir string) (string, error) {
 	bytesValue, err := os.ReadFile(ReportPath(taskDir))
 	if err != nil {
-		return "", err
+		return "{}", err
 	}
 	buffer := &bytes.Buffer{}
 	if err := json.Compact(buffer, bytesValue); err != nil {
-		return "", err
+		return "{}", err
 	}
 	if strings.TrimSpace(buffer.String()) == "" {
-		return "", os.ErrInvalid
+		return "{}", os.ErrInvalid
 	}
-	return buffer.String(), nil
-}
-
-// IsSafePathPart 判断字符串是否可作为单层路径片段
-func IsSafePathPart(value string) bool {
-	value = strings.TrimSpace(value)
-	if value == "" || value == "." || value == ".." {
-		return false
-	}
-	return !strings.ContainsAny(value, `/\`)
+	return strings.TrimSpace(buffer.String()), nil
 }
