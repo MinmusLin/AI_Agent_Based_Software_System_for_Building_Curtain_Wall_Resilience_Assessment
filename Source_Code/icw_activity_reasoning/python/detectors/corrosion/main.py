@@ -16,12 +16,14 @@ CONFIDENCE_THRESHOLD = 0.25
 IOU_THRESHOLD = 0.45
 
 
+# 解析命令行输入参数
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
     return parser.parse_args()
 
 
+# 读取并校验输入图像
 def read_image(input_path: Path) -> np.ndarray:
     if not input_path.exists():
         raise FileNotFoundError(f'input image not found: {input_path}')
@@ -31,6 +33,7 @@ def read_image(input_path: Path) -> np.ndarray:
     return image
 
 
+# 执行模型推理并返回预测结果
 def predict(model: YOLO, image: np.ndarray) -> Any:
     return model.predict(
         source=image,
@@ -49,6 +52,7 @@ def predict(model: YOLO, image: np.ndarray) -> Any:
     )
 
 
+# 将掩码转换为像素数量和占比指标
 def mask_to_metrics(mask: np.ndarray, image_area: int) -> dict[str, Any]:
     binary_mask = (mask > 0.5).astype(np.uint8)
     mask_pixels = int(binary_mask.sum())
@@ -58,6 +62,7 @@ def mask_to_metrics(mask: np.ndarray, image_area: int) -> dict[str, Any]:
     }
 
 
+# 提取锈蚀检测区域结果
 def extract_detections(result: Any, image_shape: tuple[int, int, int]) -> list[dict[str, Any]]:
     image_height, image_width = image_shape[:2]
     image_area = int(image_height * image_width)
@@ -94,6 +99,7 @@ def extract_detections(result: Any, image_shape: tuple[int, int, int]) -> list[d
     return detections
 
 
+# 保存带检测标注的图像
 def save_annotated_image(image: np.ndarray, result: Any | None, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     annotated_image = result.plot() if result is not None else image
@@ -101,6 +107,7 @@ def save_annotated_image(image: np.ndarray, result: Any | None, output_dir: Path
     cv2.imwrite(str(output_path), annotated_image)
 
 
+# 构建检测结果报告数据
 def build_report(image: np.ndarray, detections: list[dict[str, Any]]) -> dict[str, Any]:
     image_height, image_width = image.shape[:2]
     rust_pixels = int(sum(item.get('mask_pixels', 0) for item in detections))
@@ -117,6 +124,7 @@ def build_report(image: np.ndarray, detections: list[dict[str, Any]]) -> dict[st
     }
 
 
+# 执行金属锈蚀检测
 def main() -> int:
     args = parse_args()
     start_time = time.time()

@@ -16,16 +16,19 @@ INPUT_SIZE = 224
 CLASS_NAMES = ['defect', 'undefect']
 
 
+# 解析命令行输入参数
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
     return parser.parse_args()
 
 
+# 获取当前可用的推理设备
 def get_device() -> torch.device:
     return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+# 构建模型网络结构
 def build_model() -> nn.Module:
     model = models.resnet34(weights=None)
     num_features = model.fc.in_features
@@ -33,6 +36,7 @@ def build_model() -> nn.Module:
     return model
 
 
+# 加载模型权重并切换为推理模式
 def load_model(model_path: Path, device: torch.device) -> nn.Module:
     model = build_model()
     state_dict = torch.load(model_path, map_location=device)
@@ -44,12 +48,14 @@ def load_model(model_path: Path, device: torch.device) -> nn.Module:
     return model
 
 
+# 读取并校验输入图像
 def read_image(input_path: Path) -> Image.Image:
     if not input_path.exists():
         raise FileNotFoundError(f'input image not found: {input_path}')
     return Image.open(input_path).convert('RGB')
 
 
+# 对输入图像执行模型预处理
 def preprocess_image(image: Image.Image) -> torch.Tensor:
     transform = transforms.Compose(
         [
@@ -61,6 +67,7 @@ def preprocess_image(image: Image.Image) -> torch.Tensor:
     return transform(image).unsqueeze(0)
 
 
+# 执行模型推理并返回预测结果
 def predict(model: nn.Module, image: Image.Image, device: torch.device) -> dict[str, float | bool]:
     tensor = preprocess_image(image).to(device)
     with torch.no_grad():
@@ -76,6 +83,7 @@ def predict(model: nn.Module, image: Image.Image, device: torch.device) -> dict[
     }
 
 
+# 构建检测结果报告数据
 def build_report(prediction: dict[str, float | bool]) -> dict[str, float | bool]:
     return {
         'has_spalling': prediction['has_spalling'],
@@ -83,6 +91,7 @@ def build_report(prediction: dict[str, float | bool]) -> dict[str, float | bool]
     }
 
 
+# 执行玻璃爆裂检测
 def main() -> int:
     args = parse_args()
     start_time = time.time()

@@ -13,6 +13,7 @@ import torch.nn.functional as F
 from PIL import Image, ImageDraw
 from torchvision import transforms
 
+
 APP_ROOT = Path(__file__).resolve().parent
 MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 INPUT_SIZE = 416
@@ -21,10 +22,13 @@ MIN_SEGMENT_AREA = 200
 
 
 class LambdaBase(nn.Sequential):
+
+    # 初始化当前模型模块的参数
     def __init__(self, lambda_func, *args):
         super(LambdaBase, self).__init__(*args)
         self.lambda_func = lambda_func
 
+    # 准备 Lambda 模块的前向输入
     def forward_prepare(self, input_tensor):
         output = []
         for module in self._modules.values():
@@ -33,16 +37,22 @@ class LambdaBase(nn.Sequential):
 
 
 class Lambda(LambdaBase):
+
+    # 执行当前模型模块的前向传播
     def forward(self, input_tensor):
         return self.lambda_func(self.forward_prepare(input_tensor))
 
 
 class LambdaMap(LambdaBase):
+
+    # 执行当前模型模块的前向传播
     def forward(self, input_tensor):
         return list(map(self.lambda_func, self.forward_prepare(input_tensor)))
 
 
 class LambdaReduce(LambdaBase):
+
+    # 执行当前模型模块的前向传播
     def forward(self, input_tensor):
         return reduce(self.lambda_func, self.forward_prepare(input_tensor))
 
@@ -706,6 +716,8 @@ RESNEXT_101_32X4D = nn.Sequential(
 
 
 class ResNeXt101(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, backbone_path):
         super(ResNeXt101, self).__init__()
         net = RESNEXT_101_32X4D
@@ -720,6 +732,7 @@ class ResNeXt101(nn.Module):
         self.layer3 = net[6]
         self.layer4 = net[7]
 
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         layer0 = self.layer0(x)
         layer1 = self.layer1(layer0)
@@ -729,6 +742,8 @@ class ResNeXt101(nn.Module):
         return layer4
 
 class BasicConv(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, in_planes, out_planes, kernel_size, stride=1, padding=0, dilation=1, groups=1, relu=True,
                  bn=True, bias=False):
         super(BasicConv, self).__init__()
@@ -738,6 +753,7 @@ class BasicConv(nn.Module):
         self.bn = nn.BatchNorm2d(out_planes, eps=1e-5, momentum=0.01, affine=True) if bn else None
         self.relu = nn.ReLU() if relu else None
 
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         x = self.conv(x)
         if self.bn is not None:
@@ -748,11 +764,15 @@ class BasicConv(nn.Module):
 
 
 class Flatten(nn.Module):
+
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         return x.view(x.size(0), -1)
 
 
 class ChannelGate(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg']):
         super(ChannelGate, self).__init__()
         self.gate_channels = gate_channels
@@ -764,6 +784,7 @@ class ChannelGate(nn.Module):
         )
         self.pool_types = pool_types
 
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         channel_att_sum = None
         for pool_type in self.pool_types:
@@ -789,6 +810,7 @@ class ChannelGate(nn.Module):
         return x * scale
 
 
+# 计算二维特征图的 log-sum-exp 池化结果
 def logsumexp_2d(tensor):
     tensor_flatten = tensor.view(tensor.size(0), tensor.size(1), -1)
     s, _ = torch.max(tensor_flatten, dim=2, keepdim=True)
@@ -797,17 +819,22 @@ def logsumexp_2d(tensor):
 
 
 class ChannelPool(nn.Module):
+
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         return torch.mean(x, 1).unsqueeze(1)
 
 
 class SpatialGate(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self):
         super(SpatialGate, self).__init__()
         kernel_size = 7
         self.compress = ChannelPool()
         self.spatial = BasicConv(1, 1, kernel_size, stride=1, padding=(kernel_size - 1) // 2, relu=False)
 
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         x_compress = self.compress(x)
         x_out = self.spatial(x_compress)
@@ -816,6 +843,8 @@ class SpatialGate(nn.Module):
 
 
 class CBAM(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, gate_channels=128, reduction_ratio=16, pool_types=['avg'], no_spatial=False):
         super(CBAM, self).__init__()
         self.ChannelGate = ChannelGate(gate_channels, reduction_ratio, pool_types)
@@ -823,6 +852,7 @@ class CBAM(nn.Module):
         if not no_spatial:
             self.SpatialGate = SpatialGate()
 
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         x_out = self.ChannelGate(x)
         if not self.no_spatial:
@@ -831,6 +861,8 @@ class CBAM(nn.Module):
 
 
 class LCFI(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, input_channels, dr1=1, dr2=2, dr3=3, dr4=4):
         super(LCFI, self).__init__()
         self.input_channels = input_channels
@@ -925,6 +957,7 @@ class LCFI(nn.Module):
             nn.BatchNorm2d(self.channels_single),
             nn.ReLU())
 
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         p1_input = self.p1_channel_reduction(x)
         p1 = self.p1_fusion(torch.cat((self.p1_d1(p1_input), self.p1_d2(p1_input)), 1))
@@ -944,6 +977,8 @@ class LCFI(nn.Module):
 
 
 class GDNet(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, backbone_path=None):
         super(GDNet, self).__init__()
 
@@ -979,6 +1014,7 @@ class GDNet(nn.Module):
             if isinstance(m, nn.ReLU):
                 m.inplace = True
 
+    # 执行当前模型模块的前向传播
     def forward(self, x):
         layer0 = self.layer0(x)
         layer1 = self.layer1(layer0)
@@ -1017,16 +1053,19 @@ class GDNet(nn.Module):
         return torch.sigmoid(h_predict), torch.sigmoid(l_predict), torch.sigmoid(final_predict)
 
 
+# 解析命令行输入参数
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
     return parser.parse_args()
 
 
+# 获取当前可用的推理设备
 def get_device() -> torch.device:
     return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+# 加载模型权重并切换为推理模式
 def load_model(model_path: Path, device: torch.device) -> nn.Module:
     model = GDNet()
     checkpoint = torch.load(model_path, map_location=device)
@@ -1040,12 +1079,14 @@ def load_model(model_path: Path, device: torch.device) -> nn.Module:
     return model
 
 
+# 读取并校验输入图像
 def read_image(input_path: Path) -> Image.Image:
     if not input_path.exists():
         raise FileNotFoundError(f'input image not found: {input_path}')
     return Image.open(input_path).convert('RGB')
 
 
+# 对输入图像执行模型预处理
 def preprocess_image(image: Image.Image) -> torch.Tensor:
     transform = transforms.Compose(
         [
@@ -1057,6 +1098,7 @@ def preprocess_image(image: Image.Image) -> torch.Tensor:
     return transform(image).unsqueeze(0)
 
 
+# 执行分割模型推理并生成掩码
 def predict_mask(model: nn.Module, image: Image.Image, device: torch.device) -> np.ndarray:
     width, height = image.size
     tensor = preprocess_image(image).to(device)
@@ -1068,11 +1110,13 @@ def predict_mask(model: nn.Module, image: Image.Image, device: torch.device) -> 
     return np.where(mask > MASK_THRESHOLD, 255, 0).astype(np.uint8)
 
 
+# 从玻璃掩码中提取白色候选区域
 def extract_white_regions(binary_mask: np.ndarray) -> list[np.ndarray]:
     contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return list(contours)
 
 
+# 按比例扩展候选区域边界框
 def expand_bounding_box(x: int, y: int, width: int, height: int, image_shape: tuple[int, int], padding_ratio: float = 0.1) -> tuple[int, int, int, int]:
     image_height, image_width = image_shape
     padding_width = int(width * padding_ratio)
@@ -1084,6 +1128,7 @@ def expand_bounding_box(x: int, y: int, width: int, height: int, image_shape: tu
     return new_x, new_y, new_width, new_height
 
 
+# 从原图中裁剪候选玻璃区域
 def segment_from_original_image(original_image: np.ndarray, contours: list[np.ndarray]) -> list[dict[str, Any]]:
     segments = []
     image_height, image_width = original_image.shape[:2]
@@ -1099,6 +1144,7 @@ def segment_from_original_image(original_image: np.ndarray, contours: list[np.nd
     return segments
 
 
+# 裁剪玻璃区域边缘以保留主体区域
 def crop_glass_region(image: np.ndarray, border_ratio: float = 0.1) -> np.ndarray:
     height, width = image.shape[:2]
     top = int(height * border_ratio)
@@ -1108,11 +1154,13 @@ def crop_glass_region(image: np.ndarray, border_ratio: float = 0.1) -> np.ndarra
     return image[top:bottom, left:right]
 
 
+# 保存频谱分析可视化图像
 def save_frequency_image(path: Path, magnitude_spectrum: np.ndarray) -> None:
     normalized = cv2.normalize(magnitude_spectrum, None, 0, 255, cv2.NORM_MINMAX)
     cv2.imwrite(str(path), normalized.astype(np.uint8))
 
 
+# 检测单个玻璃区域的平整度指标
 def detect_glass_flatness(segment_image: np.ndarray, region_id: int, output_dir: Path) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     cropped_image = crop_glass_region(segment_image, border_ratio=0.1)
@@ -1179,11 +1227,13 @@ def detect_glass_flatness(segment_image: np.ndarray, region_id: int, output_dir:
     }
 
 
+# 保存玻璃分割掩码图像
 def save_mask(binary_mask: np.ndarray, output_dir: Path) -> None:
     mask_path = output_dir / 'mask.png'
     cv2.imwrite(str(mask_path), binary_mask)
 
 
+# 保存玻璃区域叠加可视化图像
 def save_overlay(image: Image.Image, glass_reports: list[dict[str, Any]], output_dir: Path) -> None:
     pil_image = image.convert('RGBA')
     overlay = Image.new('RGBA', pil_image.size, (0, 0, 0, 0))
@@ -1198,6 +1248,7 @@ def save_overlay(image: Image.Image, glass_reports: list[dict[str, Any]], output
     result.save(overlay_path)
 
 
+# 构建检测结果报告数据
 def build_report(glass_reports: list[dict[str, Any]]) -> dict[str, Any]:
     uneven_reports = [item for item in glass_reports if not item['is_flat']]
     if not glass_reports:
@@ -1232,6 +1283,7 @@ def build_report(glass_reports: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+# 执行玻璃平整度检测
 def main() -> int:
     args = parse_args()
     start_time = time.time()

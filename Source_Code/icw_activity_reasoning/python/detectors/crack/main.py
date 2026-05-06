@@ -21,11 +21,15 @@ NUM_CLASSES = 2
 
 
 class Gelu(nn.Module):
+
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
         return 0.5 * tensor * (1 + torch.tanh(np.sqrt(2 / np.pi) * (tensor + 0.044715 * torch.pow(tensor, 3))))
 
 
 class OverlapPatchEmbed(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, patch_size: int, stride: int, in_channels: int, embed_dim: int) -> None:
         super().__init__()
         self.proj = nn.Conv2d(
@@ -37,6 +41,7 @@ class OverlapPatchEmbed(nn.Module):
         )
         self.norm = nn.LayerNorm(embed_dim)
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor) -> tuple[torch.Tensor, int, int]:
         tensor = self.proj(tensor)
         _, _, height, width = tensor.shape
@@ -46,6 +51,8 @@ class OverlapPatchEmbed(nn.Module):
 
 
 class Attention(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(
         self,
         dim: int,
@@ -70,6 +77,7 @@ class Attention(nn.Module):
         self.proj = nn.Linear(dim, dim)
         self.proj_drop = nn.Dropout(proj_drop)
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor, height: int, width: int) -> torch.Tensor:
         batch_size, point_count, channel_count = tensor.shape
         query = self.q(tensor).reshape(
@@ -109,10 +117,13 @@ class Attention(nn.Module):
 
 
 class DepthwiseConv(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, dim: int) -> None:
         super().__init__()
         self.dwconv = nn.Conv2d(dim, dim, 3, 1, 1, bias=True, groups=dim)
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor, height: int, width: int) -> torch.Tensor:
         batch_size, _, channel_count = tensor.shape
         tensor = tensor.transpose(1, 2).view(batch_size, channel_count, height, width)
@@ -121,6 +132,8 @@ class DepthwiseConv(nn.Module):
 
 
 class FeedForward(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, in_features: int, hidden_features: int, drop: float) -> None:
         super().__init__()
         self.fc1 = nn.Linear(in_features, hidden_features)
@@ -129,6 +142,7 @@ class FeedForward(nn.Module):
         self.fc2 = nn.Linear(hidden_features, in_features)
         self.drop = nn.Dropout(drop)
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor, height: int, width: int) -> torch.Tensor:
         tensor = self.fc1(tensor)
         tensor = self.dwconv(tensor, height, width)
@@ -139,6 +153,8 @@ class FeedForward(nn.Module):
 
 
 class TransformerBlock(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(
         self,
         dim: int,
@@ -158,6 +174,7 @@ class TransformerBlock(nn.Module):
         self.mlp = FeedForward(dim, int(dim * mlp_ratio), drop)
         self.drop_path = nn.Identity()
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor, height: int, width: int) -> torch.Tensor:
         tensor = tensor + self.drop_path(self.attn(self.norm1(tensor), height, width))
         tensor = tensor + self.drop_path(self.mlp(self.norm2(tensor), height, width))
@@ -165,6 +182,8 @@ class TransformerBlock(nn.Module):
 
 
 class MixVisionTransformer(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self) -> None:
         super().__init__()
         embed_dims = [64, 128, 320, 512]
@@ -189,6 +208,7 @@ class MixVisionTransformer(nn.Module):
         self.norm3 = norm_layer(embed_dims[2])
         self.norm4 = norm_layer(embed_dims[3])
 
+    # 构建 MixVisionTransformer 阶段模块列表
     @staticmethod
     def build_blocks(
         embed_dims: list[int],
@@ -216,6 +236,7 @@ class MixVisionTransformer(nn.Module):
             ]
         )
 
+    # 执行 MixVisionTransformer 的单个阶段
     def run_stage(
         self,
         tensor: torch.Tensor,
@@ -229,6 +250,7 @@ class MixVisionTransformer(nn.Module):
         tensor = norm(tensor)
         return tensor, height, width
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor) -> list[torch.Tensor]:
         batch_size = tensor.shape[0]
         outputs = []
@@ -252,27 +274,35 @@ class MixVisionTransformer(nn.Module):
 
 
 class LinearEmbedding(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, input_dim: int, embed_dim: int) -> None:
         super().__init__()
         self.proj = nn.Linear(input_dim, embed_dim)
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
         tensor = tensor.flatten(2).transpose(1, 2)
         return self.proj(tensor)
 
 
 class ConvModule(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self, in_channels: int, out_channels: int) -> None:
         super().__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, 1, 1, 0, groups=1, bias=False)
         self.bn = nn.BatchNorm2d(out_channels, eps=0.001, momentum=0.03)
         self.act = nn.ReLU()
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
         return self.act(self.bn(self.conv(tensor)))
 
 
 class SegFormerHead(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self) -> None:
         super().__init__()
         in_channels = [64, 128, 320, 512]
@@ -285,6 +315,7 @@ class SegFormerHead(nn.Module):
         self.linear_pred = nn.Conv2d(embedding_dim, NUM_CLASSES, kernel_size=1)
         self.dropout = nn.Dropout2d(0.1)
 
+    # 执行当前模型模块的前向传播
     def forward(self, inputs: list[torch.Tensor]) -> torch.Tensor:
         c1, c2, c3, c4 = inputs
         batch_size = c4.shape[0]
@@ -305,11 +336,14 @@ class SegFormerHead(nn.Module):
 
 
 class SegFormer(nn.Module):
+
+    # 初始化当前模型模块的参数
     def __init__(self) -> None:
         super().__init__()
         self.backbone = MixVisionTransformer()
         self.decode_head = SegFormerHead()
 
+    # 执行当前模型模块的前向传播
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
         height, width = tensor.size(2), tensor.size(3)
         tensor = self.backbone(tensor)
@@ -317,16 +351,19 @@ class SegFormer(nn.Module):
         return torch_functional.interpolate(tensor, size=(height, width), mode='bilinear', align_corners=True)
 
 
+# 解析命令行输入参数
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
     return parser.parse_args()
 
 
+# 获取当前可用的推理设备
 def get_device() -> torch.device:
     return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+# 加载模型权重并切换为推理模式
 def load_model(model_path: Path, device: torch.device) -> SegFormer:
     model = SegFormer()
     state_dict = torch.load(model_path, map_location=device)
@@ -338,12 +375,14 @@ def load_model(model_path: Path, device: torch.device) -> SegFormer:
     return model
 
 
+# 将输入图像转换为 RGB 格式
 def convert_to_rgb(image: Image.Image) -> Image.Image:
     if len(np.shape(image)) == 3 and np.shape(image)[2] == 3:
         return image
     return image.convert('RGB')
 
 
+# 按比例缩放图像并填充到目标尺寸
 def resize_image(image: Image.Image, size: tuple[int, int]) -> tuple[Image.Image, int, int]:
     image_width, image_height = image.size
     target_width, target_height = size
@@ -356,18 +395,21 @@ def resize_image(image: Image.Image, size: tuple[int, int]) -> tuple[Image.Image
     return resized_image, new_width, new_height
 
 
+# 对输入图像执行模型预处理
 def preprocess_image(image: np.ndarray) -> np.ndarray:
     image -= np.array([123.675, 116.28, 103.53], np.float32)
     image /= np.array([58.395, 57.12, 57.375], np.float32)
     return image
 
 
+# 读取并校验输入图像
 def read_image(input_path: Path) -> Image.Image:
     if not input_path.exists():
         raise FileNotFoundError(f'input image not found: {input_path}')
     return convert_to_rgb(Image.open(input_path))
 
 
+# 执行分割模型推理并生成掩码
 def predict_mask(model: SegFormer, image: Image.Image, device: torch.device) -> np.ndarray:
     original_height, original_width = np.array(image).shape[:2]
     resized_image, new_width, new_height = resize_image(image, (INPUT_SIZE, INPUT_SIZE))
@@ -386,6 +428,7 @@ def predict_mask(model: SegFormer, image: Image.Image, device: torch.device) -> 
     return prediction.argmax(axis=-1).astype(np.uint8)
 
 
+# 从裂缝掩码中提取连通区域
 def extract_regions(mask: np.ndarray) -> tuple[np.ndarray, list[dict[str, Any]]]:
     binary_mask = (mask == 1).astype(np.uint8)
     image_height, image_width = binary_mask.shape[:2]
@@ -420,6 +463,7 @@ def extract_regions(mask: np.ndarray) -> tuple[np.ndarray, list[dict[str, Any]]]
     ]
 
 
+# 构建检测结果报告数据
 def build_report(cleaned_mask: np.ndarray, regions: list[dict[str, Any]]) -> dict[str, Any]:
     image_height, image_width = cleaned_mask.shape[:2]
     total_pixels = int(image_height * image_width)
@@ -435,6 +479,7 @@ def build_report(cleaned_mask: np.ndarray, regions: list[dict[str, Any]]) -> dic
     }
 
 
+# 保存检测输出图像文件
 def save_outputs(image: Image.Image, cleaned_mask: np.ndarray, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     rgb_image = np.array(image).astype(np.uint8)
@@ -454,6 +499,7 @@ def save_outputs(image: Image.Image, cleaned_mask: np.ndarray, output_dir: Path)
     cv2.imwrite(str(overlay_path), cv2.cvtColor(overlay_image, cv2.COLOR_RGB2BGR))
 
 
+# 执行石材裂缝检测
 def main() -> int:
     args = parse_args()
     start_time = time.time()

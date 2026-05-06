@@ -7,6 +7,7 @@ from pathlib import Path
 ERROR_FILE_NAME = 'runner_error.txt'
 
 
+# 解析命令行输入参数
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--task-code', required=True)
@@ -16,6 +17,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+# 调用指定脚本并校验报告输出
 def run_detector(task_code: str, detector_path: Path, image_path: Path, task_runtime_dir: Path) -> Path:
     if not detector_path.exists():
         raise FileNotFoundError(f'detector directory not found: {detector_path}')
@@ -43,12 +45,14 @@ def run_detector(task_code: str, detector_path: Path, image_path: Path, task_run
     return report_path
 
 
+# 写入捕获的错误信息
 def write_error(task_runtime_dir: Path, err: Exception) -> None:
     task_runtime_dir.mkdir(parents=True, exist_ok=True)
     message = str(err).strip() or err.__class__.__name__
     (task_runtime_dir / ERROR_FILE_NAME).write_text(message, encoding='utf-8')
 
 
+# 校验路径片段是否安全可用
 def safe_path_part(value: str, name: str) -> str:
     value = value.strip()
     if not value or value in {'.', '..'} or '/' in value or '\\' in value:
@@ -56,6 +60,7 @@ def safe_path_part(value: str, name: str) -> str:
     return value
 
 
+# 执行检测
 def main() -> int:
     args = parse_args()
     task_code = safe_path_part(args.task_code, 'task_code')
@@ -79,6 +84,7 @@ def main() -> int:
     return 0
 
 
+# 执行主流程并兜底异常
 def run() -> int:
     try:
         return main()

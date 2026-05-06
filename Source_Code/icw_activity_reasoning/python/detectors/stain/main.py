@@ -15,6 +15,7 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
+
 APP_ROOT = Path(__file__).resolve().parent
 MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 IMAGE_SIZE = 640
@@ -22,12 +23,14 @@ CONFIDENCE_THRESHOLD = 0.3
 IOU_THRESHOLD = 0.45
 
 
+# 解析命令行输入参数
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
     return parser.parse_args()
 
 
+# 读取并校验输入图像
 def read_image(input_path: Path) -> np.ndarray:
     if not input_path.exists():
         raise FileNotFoundError(f'input image not found: {input_path}')
@@ -37,6 +40,7 @@ def read_image(input_path: Path) -> np.ndarray:
     return image
 
 
+# 按透视变换需要排序四个角点
 def sort_corners(points: np.ndarray) -> np.ndarray:
     points = points.reshape(-1, 2).astype(np.float32)
     ordered = np.zeros((4, 2), dtype=np.float32)
@@ -49,6 +53,7 @@ def sort_corners(points: np.ndarray) -> np.ndarray:
     return ordered
 
 
+# 将检测多边形转换为四角点
 def polygon_to_corners(polygon: np.ndarray) -> np.ndarray | None:
     if polygon is None or len(polygon) < 4:
         return None
@@ -62,6 +67,7 @@ def polygon_to_corners(polygon: np.ndarray) -> np.ndarray | None:
     return sort_corners(cv2.boxPoints(rect))
 
 
+# 按四角点透视矫正幕墙块
 def warp_block(image: np.ndarray, corners: np.ndarray) -> tuple[np.ndarray, int, int]:
     width_top = cv2.norm(corners[0], corners[1])
     width_bottom = cv2.norm(corners[3], corners[2])
@@ -80,6 +86,7 @@ def warp_block(image: np.ndarray, corners: np.ndarray) -> tuple[np.ndarray, int,
     return warped_image, output_width, output_height
 
 
+# 将图像切分为固定网格块
 def partition_image(image: np.ndarray, num_rows: int, num_cols: int) -> list[np.ndarray]:
     height, width = image.shape[:2]
     block_height = height // num_rows
@@ -91,6 +98,7 @@ def partition_image(image: np.ndarray, num_rows: int, num_cols: int) -> list[np.
     ]
 
 
+# 计算矫正区域中的污渍指标
 def calculate_stain(block_image: np.ndarray, output_path: Path) -> dict[str, Any]:
     blocks = partition_image(block_image, 4, 4)
     mean_values = [float(np.mean(block[:, :, 0])) for block in blocks if block.size > 0]
@@ -130,6 +138,7 @@ def calculate_stain(block_image: np.ndarray, output_path: Path) -> dict[str, Any
     }
 
 
+# 执行模型推理并返回预测结果
 def predict(model: YOLO, image_path: Path) -> Any:
     return model.predict(
         source=str(image_path),
@@ -149,6 +158,7 @@ def predict(model: YOLO, image_path: Path) -> Any:
     )
 
 
+# 构建无污渍结果的默认报告
 def empty_report() -> dict[str, Any]:
     return {
         'has_stain': False,
@@ -159,6 +169,7 @@ def empty_report() -> dict[str, Any]:
     }
 
 
+# 生成污渍检测产物和报告数据
 def build_outputs(image: np.ndarray, results: Any, output_dir: Path) -> dict[str, Any]:
     annotated_path = output_dir / 'annotated.png'
     if not results or len(results) == 0:
@@ -243,6 +254,7 @@ def build_outputs(image: np.ndarray, results: Any, output_dir: Path) -> dict[str
     }
 
 
+# 执行石材污渍检测
 def main() -> int:
     args = parse_args()
     start_time = time.time()
