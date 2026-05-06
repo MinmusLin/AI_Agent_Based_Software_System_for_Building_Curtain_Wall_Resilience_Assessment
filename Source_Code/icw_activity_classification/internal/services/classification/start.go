@@ -51,12 +51,12 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 		callbackReq.Status = enum.DetectionStatusString(activitypb.DetectionStatus_Succeeded)
 		callbackReq.TaskCodes = taskCodes
 		callbackReq.ErrorMessage = ""
-		common.ClassificationInfo(requestId, req.TaskUuid, req.ImageUuid, len(taskCodes), classificationCost)
+		common.ClassificationInfo(requestId, req.TaskUuid, req.ImageUuid, taskCodes, classificationCost)
 	} else {
 		callbackReq.Status = enum.DetectionStatusString(activitypb.DetectionStatus_Failed)
 		callbackReq.TaskCodes = nil
 		callbackReq.ErrorMessage = err.Error()
-		common.ClassificationError(requestId, req.TaskUuid, req.ImageUuid, len(taskCodes), classificationCost, err)
+		common.ClassificationError(requestId, req.TaskUuid, req.ImageUuid, taskCodes, classificationCost, err)
 	}
 
 	// 上报图像检测分类结果

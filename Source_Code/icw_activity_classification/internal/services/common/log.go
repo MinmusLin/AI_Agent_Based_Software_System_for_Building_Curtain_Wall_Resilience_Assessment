@@ -22,7 +22,7 @@ func ClassificationInfo(requestId, taskUuid, imageUuid string, taskCodes []strin
 
 // ClassificationError 输出失败分类能力日志
 func ClassificationError(requestId, taskUuid, imageUuid string, taskCodes []string, cost time.Duration, err error) {
-	utils.LogError(consts.LogScopeClassification, "[%s] %s %13v %s task_uuid=%s image_uuid=%s task_codes=%d err=%s",
+	utils.LogError(consts.LogScopeClassification, "[%s] %s %13v %s task_uuid=%s image_uuid=%s task_codes=%s err=%s",
 		requestId,
 		consts.LogColorBoldBlackOnWhite, cost, consts.LogColorReset,
 		taskUuid,
