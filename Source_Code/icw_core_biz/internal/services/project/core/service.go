@@ -13,6 +13,7 @@ type Service struct {
 	*common.BaseService
 }
 
+// NewService 创建项目核心服务
 func NewService(ctx context.Context, deps *common.Deps) *Service {
 	return &Service{
 		BaseService: common.NewBaseService(ctx, deps),

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"icw_common/rpc_err"
 	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/redis"
 )
@@ -81,14 +81,6 @@ func NormalizeProjectImageMetadata(metadata string) (string, error) {
 	return compacted.String(), nil
 }
 
-// validateStringMaxLength 校验字符串最大字符数
-func validateStringMaxLength(value string, maxLength int, detailCode rpc_err.DetailCode, message string) error {
-	if utf8.RuneCountInString(value) > maxLength {
-		return rpc_err.BadRequest(detailCode, message)
-	}
-	return nil
-}
-
 // RemoveProjectImageObjects 删除项目图像原图和缩略图对象
 func RemoveProjectImageObjects(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, userId, projectId uint64, imageUuid string) error {
 	if redisRepo != nil {
@@ -115,4 +107,12 @@ func RemoveProjectImageObjects(ctx context.Context, minioRepo *minio.Repository,
 	}
 
 	return removeErr
+}
+
+// validateStringMaxLength 校验字符串最大字符数
+func validateStringMaxLength(value string, maxLength int, detailCode rpc_err.DetailCode, message string) error {
+	if utf8.RuneCountInString(value) > maxLength {
+		return rpc_err.BadRequest(detailCode, message)
+	}
+	return nil
 }

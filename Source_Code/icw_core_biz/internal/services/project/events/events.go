@@ -6,19 +6,20 @@ import (
 
 	"github.com/google/uuid"
 
-	"icw_core_biz/pkg/dto/project"
+	"icw_common/consts"
+	"icw_common/gen/core/biz"
+	"icw_common/utils"
 	"icw_core_biz/repositories/rocketmq"
-	"icw_core_biz/utils"
 )
 
 // PublishProjectImageStatusChangedEvent 发布项目图像状态变化事件
-func PublishProjectImageStatusChangedEvent(ctx context.Context, rocketMQ *rocketmq.Repository, userId, projectId uint64, image *project.ProjectImage) {
+func PublishProjectImageStatusChangedEvent(ctx context.Context, rocketMQ *rocketmq.Repository, userId, projectId uint64, image *bizpb.ProjectImage) {
 	if image == nil {
 		return
 	}
-	event := &project.ProjectImageStatusChangedEvent{
+	event := &bizpb.ProjectImageStatusChangedEvent{
 		EventId:     uuid.NewString(),
-		EventType:   project.EventTypeProjectImageStatusChanged,
+		EventType:   consts.EventTypeProjectImageStatusChanged,
 		ProjectId:   projectId,
 		ProjectCode: utils.Encode(projectId),
 		UserId:      userId,

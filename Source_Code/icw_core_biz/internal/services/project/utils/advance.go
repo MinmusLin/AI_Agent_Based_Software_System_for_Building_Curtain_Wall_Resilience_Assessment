@@ -3,13 +3,14 @@ package utils
 import (
 	"context"
 
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
+	"icw_common/consts"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // ProjectAlreadyAdvanced 判断项目进度是否被并发请求流转
-func ProjectAlreadyAdvanced(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, toProgress dto.ProjectProgress, nextStatus dto.ProjectStatus) (bool, error) {
+func ProjectAlreadyAdvanced(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, toProgress consts.ProjectProgress, nextStatus bizpb.ProjectStatus) (bool, error) {
 	projectRecord, err := repo.FindProjectByIdAndUserId(ctx, userId, projectId)
 	if err != nil || projectRecord == nil {
 		return false, err
@@ -18,14 +19,14 @@ func ProjectAlreadyAdvanced(ctx context.Context, repo *mysql.Repository, userId,
 }
 
 // BeforeAdvanceProject 项目进度流转前置扩展点
-func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress dto.ProjectProgress) error {
+func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress) error {
 	// 项目基础信息阶段 -> 图像资产构建阶段
-	if fromProgress == dto.ProjectProgressInitializationFinished && toProgress == dto.ProjectProgressProfileFinished {
+	if fromProgress == consts.ProjectProgressInitializationFinished && toProgress == consts.ProjectProgressProfileFinished {
 		return nil
 	}
 
 	// 图像资产构建阶段 -> Agent 智能检测阶段
-	if fromProgress == dto.ProjectProgressProfileFinished && toProgress == dto.ProjectProgressAssetsFinished {
+	if fromProgress == consts.ProjectProgressProfileFinished && toProgress == consts.ProjectProgressAssetsFinished {
 		groupCount, err := repo.CountProjectGroups(ctx, userId, projectId)
 		if err != nil {
 			return err
@@ -54,17 +55,17 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 	}
 
 	// Agent 智能检测阶段 -> 人工复核确认阶段
-	if fromProgress == dto.ProjectProgressAssetsFinished && toProgress == dto.ProjectProgressDetectionFinished {
+	if fromProgress == consts.ProjectProgressAssetsFinished && toProgress == consts.ProjectProgressDetectionFinished {
 		return nil
 	}
 
 	// 人工复核确认阶段 -> 评估报告生成阶段
-	if fromProgress == dto.ProjectProgressDetectionFinished && toProgress == dto.ProjectProgressReviewFinished {
+	if fromProgress == consts.ProjectProgressDetectionFinished && toProgress == consts.ProjectProgressReviewFinished {
 		return nil
 	}
 
 	// 评估报告生成阶段 -> 项目已完成
-	if fromProgress == dto.ProjectProgressReviewFinished && toProgress == dto.ProjectProgressReportFinished {
+	if fromProgress == consts.ProjectProgressReviewFinished && toProgress == consts.ProjectProgressReportFinished {
 		return nil
 	}
 
@@ -72,29 +73,29 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 }
 
 // AdvanceProject 项目进度流转扩展点
-func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress dto.ProjectProgress, nextStatus dto.ProjectStatus) (bool, error) {
+func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, nextStatus bizpb.ProjectStatus) (bool, error) {
 	// 项目基础信息阶段 -> 图像资产构建阶段
-	if fromProgress == dto.ProjectProgressInitializationFinished && toProgress == dto.ProjectProgressProfileFinished {
+	if fromProgress == consts.ProjectProgressInitializationFinished && toProgress == consts.ProjectProgressProfileFinished {
 		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, mysql.PostAdvanceProjectProfileToAssets)
 	}
 
 	// 图像资产构建阶段 -> Agent 智能检测阶段
-	if fromProgress == dto.ProjectProgressProfileFinished && toProgress == dto.ProjectProgressAssetsFinished {
+	if fromProgress == consts.ProjectProgressProfileFinished && toProgress == consts.ProjectProgressAssetsFinished {
 		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
 	// Agent 智能检测阶段 -> 人工复核确认阶段
-	if fromProgress == dto.ProjectProgressAssetsFinished && toProgress == dto.ProjectProgressDetectionFinished {
+	if fromProgress == consts.ProjectProgressAssetsFinished && toProgress == consts.ProjectProgressDetectionFinished {
 		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
 	// 人工复核确认阶段 -> 评估报告生成阶段
-	if fromProgress == dto.ProjectProgressDetectionFinished && toProgress == dto.ProjectProgressReviewFinished {
+	if fromProgress == consts.ProjectProgressDetectionFinished && toProgress == consts.ProjectProgressReviewFinished {
 		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
 	// 评估报告生成阶段 -> 项目已完成
-	if fromProgress == dto.ProjectProgressReviewFinished && toProgress == dto.ProjectProgressReportFinished {
+	if fromProgress == consts.ProjectProgressReviewFinished && toProgress == consts.ProjectProgressReportFinished {
 		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
