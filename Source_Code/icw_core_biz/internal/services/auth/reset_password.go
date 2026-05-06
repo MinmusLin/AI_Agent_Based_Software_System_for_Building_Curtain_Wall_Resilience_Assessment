@@ -42,7 +42,7 @@ func (s *Service) resetPassword(req *bizpb.ResetPasswordRequest, _ *bizpb.ResetP
 	}
 
 	// 校验邮箱验证码，验证成功后即消费，防止同一个验证码被重复使用
-	if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, enum.EmailCodeSceneString(bizpb.EmailCodeScene_EMAIL_CODE_SCENE_RESET), emailHash, req.EmailCode); err != nil {
+	if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, enum.EmailCodeSceneString(bizpb.EmailCodeScene_Reset), emailHash, req.EmailCode); err != nil {
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}

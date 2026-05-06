@@ -32,13 +32,13 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 
 	// 获取邮箱验证码业务场景枚举
 	scene := enum.ParseEmailCodeScene(req.Scene)
-	if scene == bizpb.EmailCodeScene_EMAIL_CODE_SCENE_UNKNOWN {
+	if scene == bizpb.EmailCodeScene_Unknown {
 		return rpc_err.BadRequestDefault("invalid email code scene")
 	}
 	sceneValue := enum.EmailCodeSceneString(scene)
 
 	// 注册场景：邮箱必须尚未注册
-	if scene == bizpb.EmailCodeScene_EMAIL_CODE_SCENE_REGISTER {
+	if scene == bizpb.EmailCodeScene_Register {
 		user, err := s.MySQL().FindUserByEmail(s.Ctx(), email)
 		if err != nil {
 			return err
@@ -49,7 +49,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 	}
 
 	// 登录和重置密码场景：邮箱必须已被注册
-	if scene == bizpb.EmailCodeScene_EMAIL_CODE_SCENE_LOGIN || scene == bizpb.EmailCodeScene_EMAIL_CODE_SCENE_RESET {
+	if scene == bizpb.EmailCodeScene_Login || scene == bizpb.EmailCodeScene_Reset {
 		user, err := s.MySQL().FindUserByEmail(s.Ctx(), email)
 		if err != nil {
 			return err
@@ -60,8 +60,8 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 	}
 
 	// 账号锁定（登录失败次数达上限）时不发送登录验证码
-	if scene == bizpb.EmailCodeScene_EMAIL_CODE_SCENE_LOGIN {
-		locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx(), enum.LoginSceneString(bizpb.LoginScene_LOGIN_SCENE_EMAIL), emailHash, consts.LoginFailureLimit)
+	if scene == bizpb.EmailCodeScene_Login {
+		locked, ttl, err := s.Redis().IsLoginLocked(s.Ctx(), enum.LoginSceneString(bizpb.LoginScene_Email), emailHash, consts.LoginFailureLimit)
 		if err != nil {
 			return err
 		}
@@ -90,13 +90,13 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 
 	// 发送邮箱验证码
 	if err := s.SMTP().SendEmailCode(email, sceneValue, code); err != nil {
-		s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, bizpb.EmailSendStatus_EMAIL_SEND_STATUS_FAILED, err.Error())
+		s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, bizpb.EmailSendStatus_Failed, err.Error())
 		if err := s.Redis().ClearEmailCode(s.Ctx(), sceneValue, emailHash); err != nil {
 			common.RpcWarn("Clear email code failed, scene: %s, email: %s, err: %v", sceneValue, email, err)
 		}
 		return rpc_err.InternalError(rpc_err.DetailSendEmailCodeFailed, err.Error())
 	}
-	s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, bizpb.EmailSendStatus_EMAIL_SEND_STATUS_SUCCESS, "")
+	s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, bizpb.EmailSendStatus_Success, "")
 
 	// 邮箱验证码发送成功，返回验证码有效期
 	resp.ExpiresInSeconds = int32(s.Config().EmailCodeTTL.Seconds())
@@ -105,7 +105,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 }
 
 // recordEmailSendLog 记录邮件发送日志
-func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail, scene, emailCode string, status bizpb.EmailSendStatus, errorMessage string) {
+func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail, scene, emailCode string, status bizpb.EmailSendStatus_Value, errorMessage string) {
 	if err := s.MySQL().CreateEmailSendLog(ctx, receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, status, errorMessage); err != nil {
 		common.RpcWarn("Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %s", receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, enum.EmailSendStatusString(status), err.Error())
 	}

@@ -22,7 +22,7 @@ func (s *Service) checkProjectAccess(req *bizpb.CheckProjectAccessRequest, resp 
 	if err != nil {
 		return err
 	}
-	if projectRecord == nil || (projectRecord.Status != bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE && projectRecord.Status != bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED) {
+	if projectRecord == nil || (projectRecord.Status != bizpb.ProjectStatus_Active && projectRecord.Status != bizpb.ProjectStatus_Completed) {
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project is not accessible")
 	}
 

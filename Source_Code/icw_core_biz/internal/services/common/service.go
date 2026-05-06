@@ -3,45 +3,64 @@ package common
 import (
 	"context"
 	"reflect"
-	"runtime"
-	"time"
 
+	"icw_common/rpc_err"
 	"icw_core_biz/configs"
-	"icw_core_biz/pkg/rpc_err"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
 	"icw_core_biz/repositories/redis"
 	"icw_core_biz/repositories/rocketmq"
 	"icw_core_biz/repositories/smtp"
+	"icw_core_biz/rpc/rpc_activity_classification"
+	"icw_core_biz/rpc/rpc_activity_reasoning"
+	"icw_core_biz/rpc/rpc_activity_summary"
 )
 
 // Deps RPC Service 的公共依赖集合
 type Deps struct {
-	Config   configs.Config
-	MySQL    *mysql.Repository
-	Redis    *redis.Repository
-	RocketMQ *rocketmq.Repository
-	MinIO    *minio.Repository
-	SMTP     *smtp.Repository
+	Config                       configs.Config
+	MySQL                        *mysql.Repository
+	Redis                        *redis.Repository
+	RocketMQ                     *rocketmq.Repository
+	MinIO                        *minio.Repository
+	SMTP                         *smtp.Repository
+	ActivityClassificationClient *rpc_activity_classification.Client
+	ActivityReasoningClient      *rpc_activity_reasoning.Client
+	ActivitySummaryClient        *rpc_activity_summary.Client
 }
 
-func NewDeps(Config configs.Config, MySQL *mysql.Repository, Redis *redis.Repository, RocketMQ *rocketmq.Repository, MinIO *minio.Repository, SMTP *smtp.Repository) *Deps {
+// NewDeps 创建 RPC Service 的公共依赖集合
+func NewDeps(
+	Config configs.Config,
+	MySQL *mysql.Repository,
+	Redis *redis.Repository,
+	RocketMQ *rocketmq.Repository,
+	MinIO *minio.Repository,
+	SMTP *smtp.Repository,
+	ActivityClassificationClient *rpc_activity_classification.Client,
+	ActivityReasoningClient *rpc_activity_reasoning.Client,
+	ActivitySummaryClient *rpc_activity_summary.Client,
+) *Deps {
 	return &Deps{
-		Config:   Config,
-		MySQL:    MySQL,
-		Redis:    Redis,
-		RocketMQ: RocketMQ,
-		MinIO:    MinIO,
-		SMTP:     SMTP,
+		Config:                       Config,
+		MySQL:                        MySQL,
+		Redis:                        Redis,
+		RocketMQ:                     RocketMQ,
+		MinIO:                        MinIO,
+		SMTP:                         SMTP,
+		ActivityClassificationClient: ActivityClassificationClient,
+		ActivityReasoningClient:      ActivityReasoningClient,
+		ActivitySummaryClient:        ActivitySummaryClient,
 	}
 }
 
-// BaseService 提供所有 RPC Service 共享的基础依赖
+// BaseService 所有 RPC Service 共享的基础依赖
 type BaseService struct {
 	deps *Deps
 	ctx  context.Context
 }
 
+// NewBaseService 创建所有 RPC Service 共享的基础依赖
 func NewBaseService(ctx context.Context, deps *Deps) *BaseService {
 	if ctx == nil {
 		ctx = context.Background()
@@ -56,16 +75,10 @@ func NewBaseService(ctx context.Context, deps *Deps) *BaseService {
 }
 
 // CallRPC RPC 服务通用调用
-func (s *BaseService) CallRPC(req, resp interface{}, fn func() error) (err error) {
-	pc, _, _, ok := runtime.Caller(1)
-	method := "unknown"
-	if ok {
-		method = rpcMethodFromPC(pc)
+func (s *BaseService) CallRPC(ctx context.Context, req, resp interface{}, fn func() error) (err error) {
+	if ctx == nil {
+		ctx = context.Background()
 	}
-	start := time.Now()
-	defer func() {
-		rpcLog(method, req, resp, start, err)
-	}()
 
 	if req == nil {
 		return rpc_err.BadRequestDefault("request is nil")
@@ -140,4 +153,28 @@ func (s *BaseService) SMTP() *smtp.Repository {
 		return nil
 	}
 	return s.deps.SMTP
+}
+
+// ActivityClassificationClient 获取 icw.activity.classification RPC Client
+func (s *BaseService) ActivityClassificationClient() *rpc_activity_classification.Client {
+	if s == nil || s.deps == nil {
+		return nil
+	}
+	return s.deps.ActivityClassificationClient
+}
+
+// ActivityReasoningClient 获取 icw.activity.reasoning RPC Client
+func (s *BaseService) ActivityReasoningClient() *rpc_activity_reasoning.Client {
+	if s == nil || s.deps == nil {
+		return nil
+	}
+	return s.deps.ActivityReasoningClient
+}
+
+// ActivitySummaryClient 获取 icw.activity.summary RPC Client
+func (s *BaseService) ActivitySummaryClient() *rpc_activity_summary.Client {
+	if s == nil || s.deps == nil {
+		return nil
+	}
+	return s.deps.ActivitySummaryClient
 }

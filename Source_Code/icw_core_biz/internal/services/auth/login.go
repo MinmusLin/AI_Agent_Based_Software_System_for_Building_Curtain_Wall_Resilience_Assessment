@@ -33,7 +33,7 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 
 	// 获取登录方式枚举
 	scene := enum.ParseLoginScene(req.Scene)
-	if scene == bizpb.LoginScene_LOGIN_SCENE_UNKNOWN {
+	if scene == bizpb.LoginScene_Unknown {
 		return rpc_err.BadRequestDefault("invalid login scene")
 	}
 
@@ -60,7 +60,7 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 	}
 
 	switch scene {
-	case bizpb.LoginScene_LOGIN_SCENE_PASSWORD:
+	case bizpb.LoginScene_Password:
 		// 密码登录
 		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Code)); err != nil {
 			if err := s.Redis().RecordLoginFailure(s.Ctx(), enum.LoginSceneString(scene), emailHash, s.Config().LoginFailTTL); err != nil {
@@ -68,9 +68,9 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 			}
 			return rpc_err.BadRequest(rpc_err.DetailInvalidCredentials, err.Error())
 		}
-	case bizpb.LoginScene_LOGIN_SCENE_EMAIL:
+	case bizpb.LoginScene_Email:
 		// 邮箱验证码登录
-		if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, enum.EmailCodeSceneString(bizpb.EmailCodeScene_EMAIL_CODE_SCENE_LOGIN), emailHash, req.Code); err != nil {
+		if err := utils.VerifyEmailCode(s.Ctx(), s.Redis(), s.Config().EmailCodeSecret, enum.EmailCodeSceneString(bizpb.EmailCodeScene_Login), emailHash, req.Code); err != nil {
 			if !utils.IsEmailCodeBusinessError(err) {
 				return err
 			}
@@ -84,10 +84,10 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 	}
 
 	// 登录成功后清除登录失败计数
-	if err := s.Redis().ClearLoginFailure(s.Ctx(), enum.LoginSceneString(bizpb.LoginScene_LOGIN_SCENE_PASSWORD), emailHash); err != nil {
+	if err := s.Redis().ClearLoginFailure(s.Ctx(), enum.LoginSceneString(bizpb.LoginScene_Password), emailHash); err != nil {
 		return err
 	}
-	if err := s.Redis().ClearLoginFailure(s.Ctx(), enum.LoginSceneString(bizpb.LoginScene_LOGIN_SCENE_EMAIL), emailHash); err != nil {
+	if err := s.Redis().ClearLoginFailure(s.Ctx(), enum.LoginSceneString(bizpb.LoginScene_Email), emailHash); err != nil {
 		return err
 	}
 

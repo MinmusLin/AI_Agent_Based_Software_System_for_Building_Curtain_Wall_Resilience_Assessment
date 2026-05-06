@@ -3,8 +3,8 @@ package common
 import (
 	"time"
 
+	"icw_common/consts"
 	"icw_common/utils"
-	"icw_core_biz/consts"
 )
 
 // cronLog 输出定时任务执行日志

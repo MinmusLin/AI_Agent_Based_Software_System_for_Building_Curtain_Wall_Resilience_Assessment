@@ -31,7 +31,7 @@ func (s *Service) getProjectImageOriginal(req *bizpb.GetProjectImageOriginalRequ
 	if imageRecord == nil {
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
-	if imageRecord.Status != bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED {
+	if imageRecord.Status != bizpb.ProjectImageStatus_Uploaded {
 		return rpc_err.BadRequestDefault("project image status is not uploaded")
 	}
 

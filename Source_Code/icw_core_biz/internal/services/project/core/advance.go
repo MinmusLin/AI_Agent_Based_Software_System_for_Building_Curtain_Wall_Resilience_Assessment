@@ -29,9 +29,9 @@ func (s *Service) advanceProject(req *bizpb.AdvanceProjectRequest, _ *bizpb.Adva
 	}
 	fromProgress := consts.ParseProjectProgress(uint8(req.FromProgress))
 	toProgress := consts.ParseProjectProgress(uint8(req.ToProgress))
-	nextStatus := bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE
+	nextStatus := bizpb.ProjectStatus_Active
 	if toProgress == consts.ProjectProgressReportFinished {
-		nextStatus = bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED
+		nextStatus = bizpb.ProjectStatus_Completed
 	}
 
 	// 如果项目进度已被并发请求流转，请求视为成功

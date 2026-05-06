@@ -10,7 +10,7 @@ import (
 )
 
 // ProjectAlreadyAdvanced 判断项目进度是否被并发请求流转
-func ProjectAlreadyAdvanced(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, toProgress consts.ProjectProgress, nextStatus bizpb.ProjectStatus) (bool, error) {
+func ProjectAlreadyAdvanced(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, toProgress consts.ProjectProgress, nextStatus bizpb.ProjectStatus_Value) (bool, error) {
 	projectRecord, err := repo.FindProjectByIdAndUserId(ctx, userId, projectId)
 	if err != nil || projectRecord == nil {
 		return false, err
@@ -73,7 +73,7 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 }
 
 // AdvanceProject 项目进度流转扩展点
-func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, nextStatus bizpb.ProjectStatus) (bool, error) {
+func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, nextStatus bizpb.ProjectStatus_Value) (bool, error) {
 	// 项目基础信息阶段 -> 图像资产构建阶段
 	if fromProgress == consts.ProjectProgressInitializationFinished && toProgress == consts.ProjectProgressProfileFinished {
 		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, mysql.PostAdvanceProjectProfileToAssets)

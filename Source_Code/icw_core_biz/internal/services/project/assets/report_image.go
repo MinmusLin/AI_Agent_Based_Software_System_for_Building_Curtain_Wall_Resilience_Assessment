@@ -27,7 +27,7 @@ func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bi
 		return rpc_err.BadRequestDefault("image uuid is required")
 	}
 	status := enum.ParseProjectImageStatus(req.Status)
-	if status != bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED && status != bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_FAILED {
+	if status != bizpb.ProjectImageStatus_Uploaded && status != bizpb.ProjectImageStatus_Failed {
 		return rpc_err.BadRequestDefault("project image status is invalid")
 	}
 
@@ -39,7 +39,7 @@ func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bi
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	if status == bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED {
+	if status == bizpb.ProjectImageStatus_Uploaded {
 		originalKey, err := minio.GenProjectImageOriginalKey(req.ProjectId, imageUuid)
 		if err != nil {
 			return rpc_err.BadRequestDefault(err.Error())
