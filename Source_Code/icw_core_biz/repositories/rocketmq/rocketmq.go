@@ -12,9 +12,9 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/apache/rocketmq-client-go/v2/rlog"
 
+	"icw_common/utils"
 	"icw_core_biz/configs"
 	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/utils"
 )
 
 // Repository RocketMQ 消息队列生产者服务
