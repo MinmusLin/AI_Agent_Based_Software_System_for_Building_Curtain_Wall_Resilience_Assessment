@@ -45,12 +45,12 @@ func main() {
 	// 初始化 icw.core.biz 服务
 	coreBizClient, err := icw_core_biz.NewClient(consts.CoreBizPSM, cfg.CoreBizAddr)
 	if err != nil {
-		utils.LogFatal(consts.LogScopeInit, "Failed to connect to icw.core.biz service: %v", err)
+		utils.LogFatal(consts.LogScopeInit, "Failed to initialize icw.core.biz service: %v", err)
 	}
+	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC service icw.core.biz initialized successfully")
 	defer func() {
 		_ = coreBizClient.Close()
 	}()
-	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC service icw.core.biz initialized successfully")
 
 	// 初始化路由
 	router := handlers.RegisterRoutes(cfg, coreBizClient, webSocketHub)

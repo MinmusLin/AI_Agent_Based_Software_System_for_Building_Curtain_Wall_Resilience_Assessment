@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"net"
-	"net/rpc"
 
 	goredis "github.com/redis/go-redis/v9"
+	"google.golang.org/grpc"
 
+	"icw_common/consts"
+	"icw_common/env"
+	"icw_common/utils"
 	"icw_core_biz/configs"
-	"icw_core_biz/consts"
 	"icw_core_biz/internal/cronjobs"
 	cronjobCommon "icw_core_biz/internal/cronjobs/common"
 	"icw_core_biz/internal/services"
@@ -19,7 +21,9 @@ import (
 	"icw_core_biz/repositories/redis"
 	"icw_core_biz/repositories/rocketmq"
 	"icw_core_biz/repositories/smtp"
-	"icw_core_biz/utils"
+	"icw_core_biz/rpc/rpc_activity_classification"
+	"icw_core_biz/rpc/rpc_activity_reasoning"
+	"icw_core_biz/rpc/rpc_activity_summary"
 )
 
 // main icw.core.biz 服务入口
@@ -29,12 +33,14 @@ func main() {
 	ctx := context.Background()
 
 	// 加载服务配置
-	configs.LoadDotEnv(".env")
+	if err := env.LoadDotEnv(".env"); err != nil {
+		utils.LogFatal(consts.LogScopeInit, "Failed to load .env file: %v", err)
+	}
 	cfg, err := configs.Load()
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to load config: %v", err)
 	}
-	utils.LogInfo(consts.LogScopeInit, "", "Config initialized successfully:\n%s", utils.FormatEnvConfig(cfg))
+	utils.LogInfo(consts.LogScopeInit, "", "Config initialized successfully:\n%s", env.FormatEnvConfig(cfg))
 
 	// 初始化 MySQL
 	dataMySQL, err := sql.Open("mysql", mysql.MySQLDSN(cfg))
@@ -81,6 +87,33 @@ func main() {
 	}()
 	rocketmq.MQInfo("RocketMQ producer starts running")
 
+	// 初始化 icw.activity.classification 服务
+	activityClassificationClient, err := rpc_activity_classification.NewClient(cfg.ActivityClassificationAddr)
+	if err != nil {
+		utils.LogFatal(consts.LogScopeInit, "Failed to initialize icw.activity.classification service: %v", err)
+	}
+	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC service icw.activity.classification initialized successfully")
+
+	// 初始化 icw.activity.reasoning 服务
+	activityReasoningClient, err := rpc_activity_reasoning.NewClient(cfg.ActivityReasoningAddr)
+	if err != nil {
+		utils.LogFatal(consts.LogScopeInit, "Failed to initialize icw.activity.reasoning service: %v", err)
+	}
+	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC service icw.activity.reasoning initialized successfully")
+
+	// 初始化 icw.activity.summary 服务
+	activitySummaryClient, err := rpc_activity_summary.NewClient(cfg.ActivitySummaryAddr)
+	if err != nil {
+		utils.LogFatal(consts.LogScopeInit, "Failed to initialize icw.activity.summary service: %v", err)
+	}
+	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC service icw.activity.summary initialized successfully")
+
+	defer func() {
+		_ = activityClassificationClient.Close()
+		_ = activityReasoningClient.Close()
+		_ = activitySummaryClient.Close()
+	}()
+
 	// 启动定时任务
 	cronjobs.Start(ctx, cronjobCommon.NewDeps(
 		cfg,
@@ -90,7 +123,8 @@ func main() {
 		minio.NewRepository(dataMinIO, cfg.MinIOBucket),
 	))
 
-	// 注册 RPC 服务
+	// 注册 gRPC 服务
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(utils.GRPCUnaryServerInterceptor(consts.LogScopeRPC, consts.LogColorBoldGreen)))
 	services.RegisterRPCServices(ctx, serviceCommon.NewDeps(
 		cfg,
 		mysql.NewRepository(dataMySQL),
@@ -98,7 +132,10 @@ func main() {
 		rocketmq.NewRepository(dataRocketMQ, cfg.RocketMQProjectEventTopic),
 		minio.NewRepository(dataMinIO, cfg.MinIOBucket),
 		smtp.NewRepository(cfg),
-	))
+		activityClassificationClient,
+		activityReasoningClient,
+		activitySummaryClient,
+	), grpcServer)
 
 	// 运行 icw.core.biz 服务
 	serviceCommon.RpcInfo("icw.core.biz service starts running on %s", cfg.CoreBizAddr)
@@ -106,5 +143,7 @@ func main() {
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to run icw.core.biz service: %v", err)
 	}
-	rpc.Accept(listener)
+	if err := grpcServer.Serve(listener); err != nil {
+		utils.LogFatal(consts.LogScopeInit, "Failed to run icw.core.biz service: %v", err)
+	}
 }
