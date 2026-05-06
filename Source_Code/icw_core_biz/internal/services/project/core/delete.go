@@ -1,19 +1,23 @@
 package core
 
 import (
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
+	"context"
+
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_biz/repositories/mysql"
 )
 
 // DeleteProject 删除项目
-func (s *Service) DeleteProject(req *project.DeleteProjectRequest, resp *project.DeleteProjectResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) DeleteProject(ctx context.Context, req *bizpb.DeleteProjectRequest) (*bizpb.DeleteProjectResponse, error) {
+	resp := &bizpb.DeleteProjectResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.deleteProject(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) deleteProject(req *project.DeleteProjectRequest, resp *project.DeleteProjectResponse) error {
+func (s *Service) deleteProject(req *bizpb.DeleteProjectRequest, resp *bizpb.DeleteProjectResponse) error {
 	deleted, err := s.MySQL().DeleteProject(s.Ctx(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err

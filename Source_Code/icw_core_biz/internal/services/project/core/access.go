@@ -1,30 +1,34 @@
 package core
 
 import (
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/dto/project"
-	"icw_core_biz/pkg/rpc_err"
+	"context"
+
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 )
 
 // CheckProjectAccess 校验项目访问权限
-func (s *Service) CheckProjectAccess(req *project.CheckProjectAccessRequest, resp *project.CheckProjectAccessResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) CheckProjectAccess(ctx context.Context, req *bizpb.CheckProjectAccessRequest) (*bizpb.CheckProjectAccessResponse, error) {
+	resp := &bizpb.CheckProjectAccessResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.checkProjectAccess(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) checkProjectAccess(req *project.CheckProjectAccessRequest, resp *project.CheckProjectAccessResponse) error {
+func (s *Service) checkProjectAccess(req *bizpb.CheckProjectAccessRequest, resp *bizpb.CheckProjectAccessResponse) error {
 	projectRecord, err := s.MySQL().FindProjectByIdAndUserId(s.Ctx(), req.UserId, req.ProjectId)
 	if err != nil {
 		return err
 	}
-	if projectRecord == nil || (projectRecord.Status != dto.ProjectStatusActive && projectRecord.Status != dto.ProjectStatusCompleted) {
+	if projectRecord == nil || (projectRecord.Status != bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE && projectRecord.Status != bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED) {
 		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project is not accessible")
 	}
 
 	resp.ProjectId = projectRecord.Id
-	resp.Progress = projectRecord.Progress.Uint8()
-	resp.Status = projectRecord.Status.String()
+	resp.Progress = uint32(projectRecord.Progress.Uint8())
+	resp.Status = enum.ProjectStatusString(projectRecord.Status)
 
 	return nil
 }

@@ -1,18 +1,22 @@
 package core
 
 import (
-	"icw_core_biz/pkg/dto/project"
+	"context"
+
+	"icw_common/gen/core/biz"
 	"icw_core_biz/repositories/mysql"
 )
 
 // ListProjects 获取项目列表
-func (s *Service) ListProjects(req *project.ListProjectsRequest, resp *project.ListProjectsResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) ListProjects(ctx context.Context, req *bizpb.ListProjectsRequest) (*bizpb.ListProjectsResponse, error) {
+	resp := &bizpb.ListProjectsResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.listProjects(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) listProjects(req *project.ListProjectsRequest, resp *project.ListProjectsResponse) error {
+func (s *Service) listProjects(req *bizpb.ListProjectsRequest, resp *bizpb.ListProjectsResponse) error {
 	activeProjects, completedProjects, err := s.MySQL().ListProjects(s.Ctx(), req.UserId)
 	if err != nil {
 		return err

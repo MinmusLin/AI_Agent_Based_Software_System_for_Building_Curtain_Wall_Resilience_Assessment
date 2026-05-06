@@ -1,19 +1,23 @@
 package core
 
 import (
+	"context"
+
+	"icw_common/gen/core/biz"
 	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/pkg/dto/project"
 	"icw_core_biz/repositories/mysql"
 )
 
 // CreateProject 创建项目
-func (s *Service) CreateProject(req *project.CreateProjectRequest, resp *project.CreateProjectResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) CreateProject(ctx context.Context, req *bizpb.CreateProjectRequest) (*bizpb.CreateProjectResponse, error) {
+	resp := &bizpb.CreateProjectResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.createProject(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) createProject(req *project.CreateProjectRequest, resp *project.CreateProjectResponse) error {
+func (s *Service) createProject(req *bizpb.CreateProjectRequest, resp *bizpb.CreateProjectResponse) error {
 	projectRecord, err := s.MySQL().CreateProject(s.Ctx(), req.UserId, consts.DefaultProjectName)
 	if err != nil {
 		return err

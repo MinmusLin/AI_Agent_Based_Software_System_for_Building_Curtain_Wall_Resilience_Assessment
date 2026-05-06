@@ -3,11 +3,13 @@ package core
 import (
 	"context"
 
+	"icw_common/gen/core/biz"
 	"icw_core_biz/internal/services/common"
 )
 
 // Service 项目核心服务
 type Service struct {
+	bizpb.UnimplementedProjectCoreServiceServer
 	*common.BaseService
 }
 
