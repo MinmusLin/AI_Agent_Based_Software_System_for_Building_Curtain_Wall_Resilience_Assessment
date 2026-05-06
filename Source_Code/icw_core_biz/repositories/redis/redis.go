@@ -13,6 +13,7 @@ type Repository struct {
 	redis *redis.Client
 }
 
+// NewRepository 创建 Redis 非关系型数据库服务
 func NewRepository(rdb *redis.Client) *Repository {
 	return &Repository{
 		redis: rdb,

@@ -3,7 +3,7 @@ package redis
 import (
 	"fmt"
 
-	"icw_core_biz/utils"
+	"icw_common/utils"
 )
 
 // genEmailCodeKey 生成邮箱验证码哈希 Key
