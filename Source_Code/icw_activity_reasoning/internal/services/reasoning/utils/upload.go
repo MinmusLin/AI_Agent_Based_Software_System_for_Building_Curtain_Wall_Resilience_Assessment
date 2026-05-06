@@ -16,17 +16,10 @@ import (
 
 // UploadArtifacts 并发上传任务产物
 func UploadArtifacts(ctx context.Context, plans []*reasoningpb.ReasoningArtifactUploadPlan, taskDir string, timeout time.Duration) []*bizpb.ReasoningArtifactUploadResult {
-	uploadPlans := make([]*reasoningpb.ReasoningArtifactUploadPlan, 0, len(plans))
-	for _, plan := range plans {
-		if plan != nil {
-			uploadPlans = append(uploadPlans, plan)
-		}
-	}
-
-	results := make([]*bizpb.ReasoningArtifactUploadResult, len(uploadPlans))
+	results := make([]*bizpb.ReasoningArtifactUploadResult, len(plans))
 
 	wg := sync.WaitGroup{}
-	for index, plan := range uploadPlans {
+	for index, plan := range plans {
 		wg.Add(1)
 		go func(resultIndex int, item *reasoningpb.ReasoningArtifactUploadPlan) {
 			defer wg.Done()
@@ -68,9 +61,7 @@ func uploadArtifact(ctx context.Context, plan *reasoningpb.ReasoningArtifactUplo
 	}
 
 	httpReq.ContentLength = info.Size()
-	if plan.ContentType != "" {
-		httpReq.Header.Set("Content-Type", plan.ContentType)
-	}
+	httpReq.Header.Set("Content-Type", plan.ContentType)
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {

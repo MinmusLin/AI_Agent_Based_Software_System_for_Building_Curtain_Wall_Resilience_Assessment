@@ -24,7 +24,7 @@ func reportPath(taskDir string) string {
 
 // artifactPath 获取任务产物路径
 func artifactPath(taskDir, artifactName string) string {
-	return filepath.Join(taskDir, strings.TrimSpace(artifactName))
+	return filepath.Join(taskDir, artifactName)
 }
 
 // ReadCompactReportJSON 读取任务报告文件并转换为 JSON 压缩字符串

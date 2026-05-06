@@ -55,10 +55,6 @@ func (d *PythonDetector) Detect(ctx context.Context, imageUuid string) error {
 	if d == nil {
 		return errors.New("python detector is nil")
 	}
-	imageUuid = strings.TrimSpace(imageUuid)
-	if imageUuid == "" {
-		return errors.New("image uuid is required")
-	}
 	taskDir := filepath.Join(d.runtimeRoot, d.code, imageUuid)
 	imagePath := filepath.Join(taskDir, "original.png")
 	if info, err := os.Stat(imagePath); err != nil || info.IsDir() {
