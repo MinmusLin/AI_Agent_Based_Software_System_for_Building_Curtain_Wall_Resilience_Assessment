@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"errors"
 
-	"icw_core_biz/pkg/dto"
+	"icw_common/consts"
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
 )
 
 // FindProjectByIdAndUserId 按用户 ID 和项目 ID 查询项目
@@ -58,8 +60,8 @@ func (r *Repository) FindProjectByIdAndUserId(ctx context.Context, userId, proje
 		return nil, err
 	}
 
-	project.Progress = dto.ParseProjectProgress(progress)
-	project.Status = dto.ParseProjectStatus(status)
+	project.Progress = consts.ParseProjectProgress(progress)
+	project.Status = enum.ParseProjectStatus(status)
 
 	return project, nil
 }
@@ -95,7 +97,7 @@ func (r *Repository) UpdateProjectProfile(
 			known_issues = ?,
 			assessment_goal = ?
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
-	`, name, buildingName, buildingLocation, builtYearValue, buildingDescription, knownIssues, assessmentGoal, projectId, userId, dto.ProjectProgressInitializationFinished.Uint8(), dto.ProjectStatusActive.String())
+	`, name, buildingName, buildingLocation, builtYearValue, buildingDescription, knownIssues, assessmentGoal, projectId, userId, consts.ProjectProgressInitializationFinished.Uint8(), enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE))
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +112,7 @@ func (r *Repository) UpdateProjectProfile(
 		if err != nil || project == nil {
 			return project, err
 		}
-		if project.Progress != dto.ProjectProgressInitializationFinished || project.Status != dto.ProjectStatusActive {
+		if project.Progress != consts.ProjectProgressInitializationFinished || project.Status != bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE {
 			return nil, nil
 		}
 		return project, nil

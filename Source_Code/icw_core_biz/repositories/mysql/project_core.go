@@ -4,14 +4,16 @@ import (
 	"context"
 	"database/sql"
 
-	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/pkg/dto"
+	"icw_common/consts"
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
+	projectConsts "icw_core_biz/internal/services/project/consts"
 )
 
 type advanceProjectTxFunc func(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error
 
 // AdvanceProject 按用户 ID 和项目 ID 流转项目进度
-func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress dto.ProjectProgress, status dto.ProjectStatus, fn advanceProjectTxFunc) (bool, error) {
+func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress consts.ProjectProgress, status bizpb.ProjectStatus, fn advanceProjectTxFunc) (bool, error) {
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return false, err
@@ -24,7 +26,7 @@ func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint6
 		UPDATE projects
 		SET progress = ?, status = ?
 		WHERE id = ? AND user_id = ? AND progress = ? AND status = ?
-	`, toProgress.Uint8(), status.String(), projectId, userId, fromProgress.Uint8(), dto.ProjectStatusActive.String())
+	`, toProgress.Uint8(), enum.ProjectStatusString(status), projectId, userId, fromProgress.Uint8(), enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE))
 	if err != nil {
 		return false, err
 	}
@@ -75,7 +77,7 @@ func (r *Repository) DeleteProject(ctx context.Context, userId, projectId uint64
 		UPDATE projects
 		SET status = ?
 		WHERE id = ? AND user_id = ? AND status != ?
-	`, dto.ProjectStatusDeleted.String(), projectId, userId, dto.ProjectStatusDeleted.String())
+	`, enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_DELETED), projectId, userId, enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_DELETED))
 	if err != nil {
 		return false, err
 	}
@@ -108,7 +110,7 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 		FROM projects
 		WHERE user_id = ? AND status IN (?, ?)
 		ORDER BY created_at DESC
-	`, userId, dto.ProjectStatusActive.String(), dto.ProjectStatusCompleted.String())
+	`, userId, enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE), enum.ProjectStatusString(bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,11 +145,11 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 		); err != nil {
 			return nil, nil, err
 		}
-		project.Progress = dto.ParseProjectProgress(progress)
-		project.Status = dto.ParseProjectStatus(status)
-		if project.Status == dto.ProjectStatusActive {
+		project.Progress = consts.ParseProjectProgress(progress)
+		project.Status = enum.ParseProjectStatus(status)
+		if project.Status == bizpb.ProjectStatus_PROJECT_STATUS_ACTIVE {
 			activeProjects = append(activeProjects, project)
-		} else if project.Status == dto.ProjectStatusCompleted {
+		} else if project.Status == bizpb.ProjectStatus_PROJECT_STATUS_COMPLETED {
 			completedProjects = append(completedProjects, project)
 		} else {
 			continue
@@ -167,7 +169,7 @@ func PostAdvanceProjectProfileToAssets(ctx context.Context, tx *sql.Tx, userId, 
 		SELECT ?, ?, ?, COALESCE(MAX(sort_order), -1) + 1
 		FROM project_groups
 		WHERE user_id = ? AND project_id = ?
-	`, projectId, userId, consts.DefaultProjectGroupName, userId, projectId)
+	`, projectId, userId, projectConsts.DefaultProjectGroupName, userId, projectId)
 
 	if IsDuplicateEntryError(err) {
 		return nil

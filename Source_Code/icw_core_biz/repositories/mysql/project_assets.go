@@ -6,7 +6,8 @@ import (
 	"errors"
 	"time"
 
-	"icw_core_biz/internal/services/project/consts"
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
 )
 
 // ListProjectGroups 按用户 ID 和项目 ID 查询图像组列表
@@ -100,7 +101,7 @@ func (r *Repository) ListProjectImages(ctx context.Context, userId, projectId ui
 		); err != nil {
 			return nil, err
 		}
-		image.Status = consts.ParseProjectImageStatus(status)
+		image.Status = enum.ParseProjectImageStatus(status)
 		images = append(images, image)
 	}
 	if err := rows.Err(); err != nil {
@@ -163,7 +164,7 @@ func (r *Repository) ListProjectImagesByGroupId(ctx context.Context, userId, pro
 		); err != nil {
 			return nil, err
 		}
-		image.Status = consts.ParseProjectImageStatus(status)
+		image.Status = enum.ParseProjectImageStatus(status)
 		images = append(images, image)
 	}
 	if err := rows.Err(); err != nil {
@@ -252,7 +253,7 @@ func (r *Repository) FindProjectImageById(ctx context.Context, userId, projectId
 		return nil, err
 	}
 
-	image.Status = consts.ParseProjectImageStatus(status)
+	image.Status = enum.ParseProjectImageStatus(status)
 
 	return image, nil
 }
@@ -307,7 +308,7 @@ func (r *Repository) FindProjectImageByUuid(ctx context.Context, userId, project
 		return nil, err
 	}
 
-	image.Status = consts.ParseProjectImageStatus(status)
+	image.Status = enum.ParseProjectImageStatus(status)
 
 	return image, nil
 }
@@ -429,7 +430,7 @@ func (r *Repository) CreateProjectImages(ctx context.Context, userId, projectId,
 				status
 			)
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		`, groupId, projectId, userId, image.ImageUuid, image.FileName, image.ContentType, image.SizeBytes, image.Width, image.Height, image.Metadata, consts.ProjectImageStatusPending.String())
+		`, groupId, projectId, userId, image.ImageUuid, image.FileName, image.ContentType, image.SizeBytes, image.Width, image.Height, image.Metadata, enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_PENDING))
 		if err != nil {
 			return nil, err
 		}
@@ -826,7 +827,7 @@ func (r *Repository) UpdateProjectGroupName(ctx context.Context, userId, project
 }
 
 // UpdateProjectImageStatus 按用户 ID、项目 ID 和图像 UUID 更新图像状态
-func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, projectId uint64, imageUuid string, status consts.ProjectImageStatus) (*ProjectImageRecord, error) {
+func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, projectId uint64, imageUuid string, status bizpb.ProjectImageStatus) (*ProjectImageRecord, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_group_images
 		SET status = ?,
@@ -834,16 +835,16 @@ func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, proje
 		WHERE uuid = ? AND user_id = ? AND project_id = ?
 			AND (status = ? AND ? IN (?, ?))
 	`,
-		status.String(),
-		status.String(),
-		consts.ProjectImageStatusUploaded.String(),
+		enum.ProjectImageStatusString(status),
+		enum.ProjectImageStatusString(status),
+		enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED),
 		imageUuid,
 		userId,
 		projectId,
-		consts.ProjectImageStatusPending.String(),
-		status.String(),
-		consts.ProjectImageStatusUploaded.String(),
-		consts.ProjectImageStatusFailed.String(),
+		enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_PENDING),
+		enum.ProjectImageStatusString(status),
+		enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED),
+		enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_FAILED),
 	)
 	if err != nil {
 		return nil, err
@@ -885,7 +886,7 @@ func (r *Repository) GetProjectAssetsReadyStats(ctx context.Context, userId, pro
 			AND i.user_id = g.user_id
 			AND i.project_id = g.project_id
 		WHERE g.user_id = ? AND g.project_id = ?
-	`, consts.ProjectImageStatusPending.String(), consts.ProjectImageStatusUploaded.String(), consts.ProjectImageStatusFailed.String(), userId, projectId).Scan(
+	`, enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_PENDING), enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED), enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_FAILED), userId, projectId).Scan(
 		&stats.PendingImageCount,
 		&stats.UploadedImageCount,
 		&stats.FailedImageCount,
@@ -929,7 +930,7 @@ func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeou
 		WHERE status = ? AND created_at < NOW(3) - INTERVAL ? SECOND
 		ORDER BY created_at ASC, id ASC
 		FOR UPDATE
-	`, consts.ProjectImageStatusPending.String(), int64(timeout.Seconds()))
+	`, enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_PENDING), int64(timeout.Seconds()))
 	if err != nil {
 		return nil, err
 	}
@@ -972,7 +973,7 @@ func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeou
 			UPDATE project_group_images
 			SET status = ?
 			WHERE id = ? AND status = ?
-		`, consts.ProjectImageStatusFailed.String(), image.Id, consts.ProjectImageStatusPending.String())
+		`, enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_FAILED), image.Id, enum.ProjectImageStatusString(bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_PENDING))
 		if err != nil {
 			return nil, err
 		}
@@ -985,7 +986,7 @@ func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeou
 			continue
 		}
 
-		image.Status = consts.ProjectImageStatusFailed
+		image.Status = bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_FAILED
 	}
 
 	if err := tx.Commit(); err != nil {

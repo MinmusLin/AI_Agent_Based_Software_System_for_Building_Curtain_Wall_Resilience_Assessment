@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"icw_core_biz/internal/services/auth/consts"
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
 )
 
 // CreateLoginSession 登录时保存登录态 Refresh Token，并更新用户最近登录时间
@@ -178,7 +179,7 @@ func (r *Repository) RevokeRefreshTokensByEmail(ctx context.Context, email strin
 }
 
 // CreateEmailSendLog 创建邮件发送记录
-func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail, senderEmail, scene, emailCode string, status consts.EmailSendStatus, errorMessage string) error {
+func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail, senderEmail, scene, emailCode string, status bizpb.EmailSendStatus, errorMessage string) error {
 	var nullErrorMessage sql.NullString
 	if strings.TrimSpace(errorMessage) != "" {
 		nullErrorMessage = sql.NullString{
@@ -190,7 +191,7 @@ func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail, send
 	_, err := r.mysql.ExecContext(ctx, `
 		INSERT INTO email_send_logs(receiver_email, sender_email, scene, email_code, status, error_message)
 		VALUES (?, ?, ?, ?, ?, ?)
-	`, receiverEmail, senderEmail, scene, emailCode, status.String(), nullErrorMessage)
+	`, receiverEmail, senderEmail, scene, emailCode, enum.EmailSendStatusString(status), nullErrorMessage)
 
 	return err
 }

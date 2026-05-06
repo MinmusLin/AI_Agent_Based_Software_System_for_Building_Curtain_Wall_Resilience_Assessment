@@ -6,10 +6,9 @@ import (
 	"errors"
 	"time"
 
-	authConsts "icw_core_biz/internal/services/auth/consts"
-	projectConsts "icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/dto/project"
+	"icw_common/consts"
+	"icw_common/enum"
+	"icw_common/gen/core/biz"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/redis"
 )
@@ -33,11 +32,11 @@ type UserRecord struct {
 }
 
 // UserRecordToDTO 将 MySQL 数据模型转换为 RPC 数据模型
-func UserRecordToDTO(user *UserRecord) *dto.User {
+func UserRecordToDTO(user *UserRecord) *bizpb.User {
 	if user == nil {
 		return nil
 	}
-	return &dto.User{
+	return &bizpb.User{
 		Id:    user.Id,
 		Email: user.Email,
 		Name:  user.Name,
@@ -64,7 +63,7 @@ type EmailSendLogRecord struct {
 	SenderEmail   string
 	Scene         string
 	EmailCode     string
-	Status        authConsts.EmailSendStatus
+	Status        bizpb.EmailSendStatus
 	ErrorMessage  sql.NullString
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -81,35 +80,35 @@ type ProjectRecord struct {
 	BuildingDescription sql.NullString
 	KnownIssues         sql.NullString
 	AssessmentGoal      sql.NullString
-	Progress            dto.ProjectProgress
-	Status              dto.ProjectStatus
+	Progress            consts.ProjectProgress
+	Status              bizpb.ProjectStatus
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
 }
 
 // ProjectRecordToDTO 将 MySQL 数据模型转换为 RPC 数据模型
-func ProjectRecordToDTO(record *ProjectRecord) *project.Project {
+func ProjectRecordToDTO(record *ProjectRecord) *bizpb.Project {
 	if record == nil {
 		return nil
 	}
-	return &project.Project{
+	return &bizpb.Project{
 		Id:                  record.Id,
 		Name:                record.Name,
 		BuildingName:        record.BuildingName,
 		BuildingLocation:    record.BuildingLocation,
-		BuiltYear:           nullInt64ToUint16(record.BuiltYear),
+		BuiltYear:           uint32(nullInt64ToUint16(record.BuiltYear)),
 		BuildingDescription: record.BuildingDescription.String,
 		KnownIssues:         record.KnownIssues.String,
 		AssessmentGoal:      record.AssessmentGoal.String,
-		ThumbnailURL:        "",
-		Progress:            record.Progress.Uint8(),
+		ThumbnailUrl:        "",
+		Progress:            uint32(record.Progress.Uint8()),
 		CreatedAt:           timeToString(record.CreatedAt),
 		UpdatedAt:           timeToString(record.UpdatedAt),
 	}
 }
 
 // ProjectRecordToDTOWithThumbnail 将 MySQL 数据模型转换为 RPC 数据模型，并添加项目缩略图下载预签名 URL
-func ProjectRecordToDTOWithThumbnail(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, record *ProjectRecord, ttl time.Duration) (*project.Project, error) {
+func ProjectRecordToDTOWithThumbnail(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, record *ProjectRecord, ttl time.Duration) (*bizpb.Project, error) {
 	item := ProjectRecordToDTO(record)
 	if item == nil {
 		return nil, nil
@@ -118,27 +117,27 @@ func ProjectRecordToDTOWithThumbnail(ctx context.Context, minioRepo *minio.Repos
 	if err != nil {
 		return nil, err
 	}
-	item.ThumbnailURL = thumbnailURL
+	item.ThumbnailUrl = thumbnailURL
 	return item, nil
 }
 
 // ProjectRecordsToListItemsDTO 将 MySQL 数据模型转换为 RPC 数据模型
-func ProjectRecordsToListItemsDTO(records []*ProjectRecord) []*project.ProjectListItem {
+func ProjectRecordsToListItemsDTO(records []*ProjectRecord) []*bizpb.ProjectListItem {
 	if records == nil {
-		return make([]*project.ProjectListItem, 0)
+		return make([]*bizpb.ProjectListItem, 0)
 	}
-	items := make([]*project.ProjectListItem, 0, len(records))
+	items := make([]*bizpb.ProjectListItem, 0, len(records))
 	for _, record := range records {
 		if record == nil {
 			continue
 		}
-		items = append(items, &project.ProjectListItem{
+		items = append(items, &bizpb.ProjectListItem{
 			Id:               record.Id,
 			Name:             record.Name,
 			BuildingName:     record.BuildingName,
 			BuildingLocation: record.BuildingLocation,
-			ThumbnailURL:     "",
-			Progress:         record.Progress.Uint8(),
+			ThumbnailUrl:     "",
+			Progress:         uint32(record.Progress.Uint8()),
 			CreatedAt:        timeToString(record.CreatedAt),
 		})
 	}
@@ -146,7 +145,7 @@ func ProjectRecordsToListItemsDTO(records []*ProjectRecord) []*project.ProjectLi
 }
 
 // ProjectRecordsToListItemsDTOWithThumbnail 将 MySQL 数据模型转换为 RPC 数据模型，并添加项目缩略图下载预签名 URL
-func ProjectRecordsToListItemsDTOWithThumbnail(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, records []*ProjectRecord, ttl time.Duration) ([]*project.ProjectListItem, error) {
+func ProjectRecordsToListItemsDTOWithThumbnail(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, records []*ProjectRecord, ttl time.Duration) ([]*bizpb.ProjectListItem, error) {
 	items := ProjectRecordsToListItemsDTO(records)
 	if items == nil {
 		return nil, nil
@@ -160,7 +159,7 @@ func ProjectRecordsToListItemsDTOWithThumbnail(ctx context.Context, minioRepo *m
 		if err != nil {
 			return nil, err
 		}
-		items[itemIndex].ThumbnailURL = thumbnailURL
+		items[itemIndex].ThumbnailUrl = thumbnailURL
 		itemIndex++
 	}
 	return items, nil
@@ -178,7 +177,7 @@ type ProjectGroupRecord struct {
 }
 
 // ProjectGroupRecordToDTO 将 MySQL 数据模型转换为 RPC 数据模型
-func ProjectGroupRecordToDTO(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, record *ProjectGroupRecord, images []*ProjectImageRecord, ttl time.Duration) (*project.ProjectGroup, error) {
+func ProjectGroupRecordToDTO(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, record *ProjectGroupRecord, images []*ProjectImageRecord, ttl time.Duration) (*bizpb.ProjectGroup, error) {
 	if record == nil {
 		return nil, nil
 	}
@@ -186,7 +185,7 @@ func ProjectGroupRecordToDTO(ctx context.Context, minioRepo *minio.Repository, r
 	if err != nil {
 		return nil, err
 	}
-	return &project.ProjectGroup{
+	return &bizpb.ProjectGroup{
 		Id:        record.Id,
 		Name:      record.Name,
 		SortOrder: record.SortOrder,
@@ -207,7 +206,7 @@ type ProjectImageRecord struct {
 	Width       uint32
 	Height      uint32
 	Metadata    string
-	Status      projectConsts.ProjectImageStatus
+	Status      bizpb.ProjectImageStatus
 	UploadedAt  sql.NullTime
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -225,11 +224,11 @@ type ProjectImageCreateRecord struct {
 }
 
 // ProjectImageRecordToDTO 将 MySQL 数据模型转换为 RPC 数据模型
-func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, record *ProjectImageRecord, ttl time.Duration) (*project.ProjectImage, error) {
+func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, record *ProjectImageRecord, ttl time.Duration) (*bizpb.ProjectImage, error) {
 	if record == nil {
 		return nil, nil
 	}
-	item := &project.ProjectImage{
+	item := &bizpb.ProjectImage{
 		Uuid:        record.Uuid,
 		FileName:    record.FileName,
 		ContentType: record.ContentType,
@@ -237,15 +236,15 @@ func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, r
 		Width:       record.Width,
 		Height:      record.Height,
 		Metadata:    record.Metadata,
-		Status:      record.Status.String(),
+		Status:      enum.ProjectImageStatusString(record.Status),
 		UploadedAt:  timeToString(record.UploadedAt.Time),
 		CreatedAt:   timeToString(record.CreatedAt),
 	}
-	if record.Status != projectConsts.ProjectImageStatusUploaded {
+	if record.Status != bizpb.ProjectImageStatus_PROJECT_IMAGE_STATUS_UPLOADED {
 		return item, nil
 	}
 	var err error
-	item.ThumbnailURL, err = minio.PresignProjectImageThumbnailURL(ctx, minioRepo, redisRepo, record.UserId, record.ProjectId, record.Uuid, ttl)
+	item.ThumbnailUrl, err = minio.PresignProjectImageThumbnailURL(ctx, minioRepo, redisRepo, record.UserId, record.ProjectId, record.Uuid, ttl)
 	if err != nil {
 		return nil, err
 	}
@@ -253,11 +252,11 @@ func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, r
 }
 
 // ProjectImageRecordsToDTO 将 MySQL 数据模型转换为 RPC 数据模型
-func ProjectImageRecordsToDTO(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, records []*ProjectImageRecord, ttl time.Duration) ([]*project.ProjectImage, error) {
+func ProjectImageRecordsToDTO(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, records []*ProjectImageRecord, ttl time.Duration) ([]*bizpb.ProjectImage, error) {
 	if records == nil {
-		return make([]*project.ProjectImage, 0), nil
+		return make([]*bizpb.ProjectImage, 0), nil
 	}
-	items := make([]*project.ProjectImage, 0, len(records))
+	items := make([]*bizpb.ProjectImage, 0, len(records))
 	for _, record := range records {
 		if record == nil {
 			continue
