@@ -34,9 +34,6 @@ func GenCustomAvatarKey(emailHash string) string {
 
 // GenProjectThumbnailKey 生成项目缩略图对象 Key
 func GenProjectThumbnailKey(projectId uint64) (string, error) {
-	if projectId == 0 {
-		return "", errors.New("project id is invalid")
-	}
 	projectCode := utils.Encode(projectId)
 	if projectCode == "" {
 		return "", errors.New("project id is invalid")
@@ -46,32 +43,47 @@ func GenProjectThumbnailKey(projectId uint64) (string, error) {
 
 // GenProjectImageOriginalKey 生成项目图像原图对象 Key
 func GenProjectImageOriginalKey(projectId uint64, imageUuid string) (string, error) {
-	if projectId == 0 {
+	projectCode := utils.Encode(projectId)
+	if projectCode == "" {
 		return "", errors.New("project id is invalid")
 	}
 	imageUuid = strings.TrimSpace(imageUuid)
 	if imageUuid == "" {
 		return "", errors.New("image uuid is invalid")
-	}
-	projectCode := utils.Encode(projectId)
-	if projectCode == "" {
-		return "", errors.New("project id is invalid")
 	}
 	return fmt.Sprintf("projects/%s/assets/%s/original.png", projectCode, imageUuid), nil
 }
 
 // GenProjectImageThumbnailKey 生成项目图像缩略图对象 Key
 func GenProjectImageThumbnailKey(projectId uint64, imageUuid string) (string, error) {
-	if projectId == 0 {
+	projectCode := utils.Encode(projectId)
+	if projectCode == "" {
 		return "", errors.New("project id is invalid")
 	}
 	imageUuid = strings.TrimSpace(imageUuid)
 	if imageUuid == "" {
 		return "", errors.New("image uuid is invalid")
 	}
+	return fmt.Sprintf("projects/%s/assets/%s/thumbnail.png", projectCode, imageUuid), nil
+}
+
+// GenProjectDetectionArtifactKey 生成项目检测产物对象 Key
+func GenProjectDetectionArtifactKey(projectId uint64, imageUuid, taskCode, artifactName string) (string, error) {
 	projectCode := utils.Encode(projectId)
 	if projectCode == "" {
 		return "", errors.New("project id is invalid")
 	}
-	return fmt.Sprintf("projects/%s/assets/%s/thumbnail.png", projectCode, imageUuid), nil
+	imageUuid = strings.TrimSpace(imageUuid)
+	if imageUuid == "" {
+		return "", errors.New("image uuid is invalid")
+	}
+	taskCode = strings.TrimSpace(taskCode)
+	if taskCode == "" {
+		return "", errors.New("task code is invalid")
+	}
+	artifactName = strings.TrimSpace(artifactName)
+	if artifactName == "" {
+		return "", errors.New("artifact name is invalid")
+	}
+	return fmt.Sprintf("projects/%s/detections/%s/%s/%s", projectCode, imageUuid, taskCode, artifactName), nil
 }
