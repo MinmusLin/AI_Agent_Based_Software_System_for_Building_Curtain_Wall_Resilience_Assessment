@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// IsSafePathPart 判断字符串是否可作为单层路径片段
-func IsSafePathPart(value string) bool {
+// isSafePathPart 判断字符串是否可作为单层路径片段
+func isSafePathPart(value string) bool {
 	value = strings.TrimSpace(value)
 	if value == "" || value == "." || value == ".." {
 		return false
@@ -17,19 +17,19 @@ func IsSafePathPart(value string) bool {
 	return !strings.ContainsAny(value, `/\`)
 }
 
-// ReportPath 获取任务报告路径
-func ReportPath(taskDir string) string {
+// reportPath 获取任务报告路径
+func reportPath(taskDir string) string {
 	return filepath.Join(taskDir, "report.json")
 }
 
-// ArtifactPath 获取任务产物路径
-func ArtifactPath(taskDir, artifactName string) string {
+// artifactPath 获取任务产物路径
+func artifactPath(taskDir, artifactName string) string {
 	return filepath.Join(taskDir, strings.TrimSpace(artifactName))
 }
 
 // ReadCompactReportJSON 读取任务报告文件并转换为 JSON 压缩字符串
 func ReadCompactReportJSON(taskDir string) (string, error) {
-	bytesValue, err := os.ReadFile(ReportPath(taskDir))
+	bytesValue, err := os.ReadFile(reportPath(taskDir))
 	if err != nil {
 		return "{}", err
 	}

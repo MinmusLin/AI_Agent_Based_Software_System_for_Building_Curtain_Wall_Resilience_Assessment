@@ -26,7 +26,7 @@ func ValidateRequest(req *reasoningpb.StartRequest, registry *common.Registry) e
 	if strings.TrimSpace(req.ImageUuid) == "" {
 		return errors.New("image uuid is required")
 	}
-	if !IsSafePathPart(req.ImageUuid) {
+	if !isSafePathPart(req.ImageUuid) {
 		return errors.New("image uuid is invalid")
 	}
 	if strings.TrimSpace(req.PresignGetUrl) == "" {
@@ -44,7 +44,7 @@ func ValidateRequest(req *reasoningpb.StartRequest, registry *common.Registry) e
 		if artifactName == "" {
 			return errors.New("artifact name is required")
 		}
-		if !IsSafePathPart(artifactName) {
+		if !isSafePathPart(artifactName) {
 			return errors.New("artifact name is invalid")
 		}
 		if _, ok := artifactNames[artifactName]; ok {

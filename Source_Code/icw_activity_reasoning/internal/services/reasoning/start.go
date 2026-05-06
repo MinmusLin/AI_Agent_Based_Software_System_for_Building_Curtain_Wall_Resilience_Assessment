@@ -26,14 +26,14 @@ func (s *Service) Start(ctx context.Context, req *reasoningpb.StartRequest) (*re
 		}
 		taskReq := proto.Clone(req).(*reasoningpb.StartRequest)
 		requestId := utils.RequestIdFromIncomingContext(ctx)
-		go s.runModuleDetection(requestId, taskReq, resp)
+		go s.runModuleDetection(requestId, taskReq)
 		return nil
 	})
 	return resp, err
 }
 
 // runModuleDetection 异步执行原子检测任务
-func (s *Service) runModuleDetection(requestId string, req *reasoningpb.StartRequest, _ *reasoningpb.StartResponse) {
+func (s *Service) runModuleDetection(requestId string, req *reasoningpb.StartRequest) {
 	s.Acquire()
 	defer s.Release()
 
@@ -60,7 +60,9 @@ func (s *Service) runModuleDetection(requestId string, req *reasoningpb.StartReq
 	}
 
 	callbackCtx := utils.AppendRequestIdToOutgoingContext(context.Background(), requestId)
-	if err := icw_core_biz.ReportReasoningResult(ctx, s.CoreBizClient(), callbackReq, nil); err != nil {
+	cost := time.Since(start)
+	callbackResp := &bizpb.ReportReasoningResultResponse{}
+	if err := icw_core_biz.ReportReasoningResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); err != nil {
 		common.CallbackError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, cost, err)
 		return
 	}
@@ -69,11 +71,7 @@ func (s *Service) runModuleDetection(requestId string, req *reasoningpb.StartReq
 
 // executeModuleDetection 执行原子检测任务
 func (s *Service) executeModuleDetection(ctx context.Context, req *reasoningpb.StartRequest, callbackReq *bizpb.ReportReasoningResultRequest) (int, error) {
-	taskDir := filepath.Join(
-		s.Config().ReasoningWorkDir,
-		reasoningUtils.SanitizePathPart(req.TaskCode),
-		reasoningUtils.SanitizePathPart(req.ImageUuid),
-	)
+	taskDir := filepath.Join(s.Config().ReasoningWorkDir, req.TaskCode, req.ImageUuid)
 	if err := os.MkdirAll(taskDir, 0o755); err != nil {
 		return 0, err
 	}
@@ -81,7 +79,7 @@ func (s *Service) executeModuleDetection(ctx context.Context, req *reasoningpb.S
 		_ = os.RemoveAll(taskDir)
 	}()
 
-	if err := reasoningUtils.DownloadSourceImage(ctx, req, taskDir, s.Config().ArtifactDownloadTimeout); err != nil {
+	if err := reasoningUtils.DownloadOriginalImage(ctx, req, taskDir, s.Config().ArtifactDownloadTimeout); err != nil {
 		return 0, err
 	}
 
