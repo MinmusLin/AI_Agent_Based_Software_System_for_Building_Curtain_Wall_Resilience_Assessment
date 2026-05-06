@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	"icw_core_biz/utils"
+	"icw_common/utils"
 )
 
 // normalizeEndpoint 将 Endpoint 配置标准化为 MinIO SDK 需要的 <host>:<port> 格式

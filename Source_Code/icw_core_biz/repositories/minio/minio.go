@@ -17,6 +17,14 @@ type Repository struct {
 	bucket string
 }
 
+// NewRepository 创建 MinIO 对象存储服务
+func NewRepository(client *minio.Client, bucket string) *Repository {
+	return &Repository{
+		client: client,
+		bucket: bucket,
+	}
+}
+
 // NewClient 创建 MinIO SDK Client
 func NewClient(cfg configs.Config) (*minio.Client, error) {
 	endpoint, useSSL := normalizeEndpoint(cfg.MinIOEndpoint)
@@ -28,13 +36,6 @@ func NewClient(cfg configs.Config) (*minio.Client, error) {
 		return nil, err
 	}
 	return client, nil
-}
-
-func NewRepository(client *minio.Client, bucket string) *Repository {
-	return &Repository{
-		client: client,
-		bucket: bucket,
-	}
 }
 
 // StatObject 判断对象是否存在
