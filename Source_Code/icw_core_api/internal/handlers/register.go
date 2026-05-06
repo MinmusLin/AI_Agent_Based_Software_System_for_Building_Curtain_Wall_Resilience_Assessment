@@ -44,9 +44,9 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 	authRouter := router.Group("/auth")
 	authRoutes := common.NewRouteGroup(authRouter, routeDescriptions)
 	{
-		protectedAuth := authRouter.Group("")
 		authRoutes.POST("/login", "登录", authHandler.Login)
 		authRoutes.POST("/logout", "登出", authHandler.Logout)
+		protectedAuth := authRouter.Group("")
 		protectedAuth.Use(middlewares.AuthRequired(coreBizClient))
 		{
 			common.NewRouteGroup(protectedAuth, routeDescriptions).GET("/me", "获取用户信息", authHandler.Me)
@@ -63,9 +63,9 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 	userRoutes := common.NewRouteGroup(userRouter, routeDescriptions)
 	userRouter.Use(middlewares.AuthRequired(coreBizClient))
 	{
+		userRoutes.DELETE("/avatar", "删除用户自定义头像", userHandler.DeleteAvatar)
 		userRoutes.GET("/avatar", "获取用户头像", userHandler.GetAvatar)
 		userRoutes.POST("/avatar", "上传用户自定义头像", userHandler.UploadAvatar)
-		userRoutes.DELETE("/avatar", "删除用户自定义头像", userHandler.DeleteAvatar)
 	}
 
 	// WebSocket Handler

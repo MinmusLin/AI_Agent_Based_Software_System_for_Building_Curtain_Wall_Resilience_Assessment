@@ -30,7 +30,7 @@ func (h *Handler) DeleteProjectImage(c *gin.Context) {
 	// 将 Sqids 字符串解码为数字 ID
 	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
+		response.WriteError(c, rpc_err.BadRequestDefault(err.Error()))
 		return
 	}
 

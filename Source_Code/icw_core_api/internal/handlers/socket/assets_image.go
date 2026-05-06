@@ -28,7 +28,7 @@ func (h *Handler) SetupAssetsWebSocket(c *gin.Context) {
 	ticket := c.Query("ticket")
 	projectId, err := utils.Decode(projectCode)
 	if err != nil {
-		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
+		response.WriteError(c, rpc_err.BadRequestDefault(err.Error()))
 		return
 	}
 
