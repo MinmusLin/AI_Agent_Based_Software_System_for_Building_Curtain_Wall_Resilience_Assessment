@@ -3,12 +3,12 @@ package icw_core_biz
 import (
 	"icw_common/consts"
 	"icw_common/gen/core/biz"
-	"icw_core_api/rpc/common"
+	"icw_common/rpc"
 )
 
 // Client icw.core.biz gRPC Client
 type Client struct {
-	*common.Client
+	*rpc.Client
 	auth             bizpb.AuthServiceClient
 	projectAssets    bizpb.ProjectAssetsServiceClient
 	projectCore      bizpb.ProjectCoreServiceClient
@@ -22,7 +22,7 @@ type Client struct {
 
 // NewClient 创建 icw.core.biz gRPC Client
 func NewClient(address string) (*Client, error) {
-	baseClient, err := common.NewClient(consts.CoreBizPSM, address)
+	baseClient, err := rpc.NewClient(consts.CoreBizPSM, address)
 	if err != nil {
 		return nil, err
 	}

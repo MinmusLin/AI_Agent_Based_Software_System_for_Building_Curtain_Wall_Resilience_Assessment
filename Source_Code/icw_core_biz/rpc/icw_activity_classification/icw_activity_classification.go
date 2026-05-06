@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"icw_common/gen/activity/classification"
-	"icw_core_biz/rpc/common"
+	"icw_common/rpc"
 )
 
 // Start 启动分类任务
 func Start(ctx context.Context, client *Client, req *classificationpb.StartRequest, resp *classificationpb.StartResponse) error {
-	return common.CallGRPC[classificationpb.StartRequest, classificationpb.StartResponse](ctx, client, req, resp, client.Start)
+	return rpc.CallGRPC[classificationpb.StartRequest, classificationpb.StartResponse](ctx, client, req, resp, client.Start)
 }
