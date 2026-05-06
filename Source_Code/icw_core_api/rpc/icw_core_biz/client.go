@@ -28,13 +28,16 @@ func NewClient(address string) (*Client, error) {
 	}
 	conn := baseClient.Conn()
 	return &Client{
-		Client:         baseClient,
-		auth:           bizpb.NewAuthServiceClient(conn),
-		user:           bizpb.NewUserServiceClient(conn),
-		socket:         bizpb.NewSocketServiceClient(conn),
-		projectCore:    bizpb.NewProjectCoreServiceClient(conn),
-		projectProfile: bizpb.NewProjectProfileServiceClient(conn),
-		projectAssets:  bizpb.NewProjectAssetsServiceClient(conn),
+		Client:           baseClient,
+		auth:             bizpb.NewAuthServiceClient(conn),
+		user:             bizpb.NewUserServiceClient(conn),
+		socket:           bizpb.NewSocketServiceClient(conn),
+		projectCore:      bizpb.NewProjectCoreServiceClient(conn),
+		projectProfile:   bizpb.NewProjectProfileServiceClient(conn),
+		projectAssets:    bizpb.NewProjectAssetsServiceClient(conn),
+		projectDetection: bizpb.NewProjectDetectionServiceClient(conn),
+		projectReview:    bizpb.NewProjectReviewServiceClient(conn),
+		projectReport:    bizpb.NewProjectReportServiceClient(conn),
 	}, nil
 }
 

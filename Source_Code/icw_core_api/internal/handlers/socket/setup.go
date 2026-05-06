@@ -24,6 +24,16 @@ var upgrader = websocket.Upgrader{
 // SetupAssetsWebSocket 建立图像资产 WebSocket 连接
 // @router /socket/setup/assets [GET]
 func (h *Handler) SetupAssetsWebSocket(c *gin.Context) {
+	h.setupProjectWebSocket(c, consts.SocketScopeProjectAssets)
+}
+
+// SetupDetectionWebSocket 建立智能检测 WebSocket 连接
+// @router /socket/setup/detection [GET]
+func (h *Handler) SetupDetectionWebSocket(c *gin.Context) {
+	h.setupProjectWebSocket(c, consts.SocketScopeProjectDetection)
+}
+
+func (h *Handler) setupProjectWebSocket(c *gin.Context, socketScope string) {
 	projectCode := c.Query("project_id")
 	ticket := c.Query("ticket")
 	projectId, err := utils.Decode(projectCode)
@@ -34,7 +44,7 @@ func (h *Handler) SetupAssetsWebSocket(c *gin.Context) {
 
 	rpcReq := &bizpb.ValidateSocketTicketRequest{
 		ProjectCode: projectCode,
-		SocketScope: consts.SocketScopeProjectAssets,
+		SocketScope: socketScope,
 		Ticket:      ticket,
 	}
 	rpcResp := &bizpb.ValidateSocketTicketResponse{}
@@ -48,7 +58,7 @@ func (h *Handler) SetupAssetsWebSocket(c *gin.Context) {
 		return
 	}
 
-	client := h.hub.Register(projectId, conn)
+	client := h.hub.Register(projectId, socketScope, conn)
 	go client.WritePump()
 	client.ReadPump()
 }
