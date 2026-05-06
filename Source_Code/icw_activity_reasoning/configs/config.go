@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"icw_core_biz/configs"
+	"icw_common/env"
 )
 
 // Config 服务配置
@@ -58,14 +58,14 @@ func (cfg *Config) Validate() error {
 // Load 加载服务配置
 func Load() (Config, error) {
 	cfg := Config{
-		ActivityReasoningAddr:       configs.EnvString("ICW_ACTIVITY_REASONING_ADDR"),
-		CoreBizAddr:                 configs.EnvString("ICW_CORE_BIZ_ADDR"),
-		PythonBin:                   configs.EnvString("PYTHON_BIN"),
-		ReasoningWorkDir:            configs.EnvString("REASONING_WORK_DIR"),
-		ReasoningTaskMaxConcurrency: configs.EnvInt("REASONING_TASK_MAX_CONCURRENCY"),
-		ReasoningTaskTimeout:        time.Duration(configs.EnvInt("REASONING_TASK_TIMEOUT_MINUTES")) * time.Minute,
-		ArtifactDownloadTimeout:     time.Duration(configs.EnvInt("ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES")) * time.Minute,
-		ArtifactUploadTimeout:       time.Duration(configs.EnvInt("ARTIFACT_UPLOAD_TIMEOUT_MINUTES")) * time.Minute,
+		ActivityReasoningAddr:       env.EnvString("ICW_ACTIVITY_REASONING_ADDR"),
+		CoreBizAddr:                 env.EnvString("ICW_CORE_BIZ_ADDR"),
+		PythonBin:                   env.EnvString("PYTHON_BIN"),
+		ReasoningWorkDir:            env.EnvString("REASONING_WORK_DIR"),
+		ReasoningTaskMaxConcurrency: env.EnvInt("REASONING_TASK_MAX_CONCURRENCY"),
+		ReasoningTaskTimeout:        time.Duration(env.EnvInt("REASONING_TASK_TIMEOUT_MINUTES")) * time.Minute,
+		ArtifactDownloadTimeout:     time.Duration(env.EnvInt("ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES")) * time.Minute,
+		ArtifactUploadTimeout:       time.Duration(env.EnvInt("ARTIFACT_UPLOAD_TIMEOUT_MINUTES")) * time.Minute,
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err

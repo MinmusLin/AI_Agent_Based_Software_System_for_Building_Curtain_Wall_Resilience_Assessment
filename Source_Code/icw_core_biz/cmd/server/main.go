@@ -124,7 +124,7 @@ func main() {
 	))
 
 	// 注册 gRPC 服务
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(utils.GRPCUnaryServerInterceptor(consts.LogScopeRPC, consts.LogColorBoldGreen)))
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(utils.GRPCUnaryServerInterceptor(consts.LogScopeRPC)))
 	services.RegisterRPCServices(ctx, serviceCommon.NewDeps(
 		cfg,
 		mysql.NewRepository(dataMySQL),

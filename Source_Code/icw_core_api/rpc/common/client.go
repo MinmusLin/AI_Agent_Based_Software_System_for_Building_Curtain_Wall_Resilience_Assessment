@@ -31,7 +31,7 @@ func NewClient(psm, addr string) (*Client, error) {
 	conn, err := grpc.NewClient(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(utils.GRPCUnaryClientErrorInterceptor(consts.LogScopeRPC, psm)),
+		grpc.WithUnaryInterceptor(utils.GRPCUnaryClientInterceptor(consts.LogScopeRPC, psm)),
 	)
 	if err != nil {
 		return nil, err
