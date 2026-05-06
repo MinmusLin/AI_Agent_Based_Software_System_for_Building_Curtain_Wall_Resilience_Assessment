@@ -12,6 +12,16 @@ const (
 	TicketBytes = 32
 )
 
+// SocketTicketContext WebSocket 连接票据上下文
+type SocketTicketContext struct {
+	UserId      uint64
+	ProjectId   uint64
+	ProjectCode string
+	SocketScope string
+	RequestId   string
+	CreateAt    string
+}
+
 // NewTicket 生成 WebSocket 连接票据
 func NewTicket() (string, error) {
 	bytes := make([]byte, TicketBytes)
