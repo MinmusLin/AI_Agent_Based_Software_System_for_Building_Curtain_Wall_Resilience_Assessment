@@ -29,11 +29,11 @@ func BearerToken(c *gin.Context) string {
 func GetCurrentUser(c *gin.Context) (*bizpb.User, error) {
 	value, ok := c.Get(consts.ContextCurrentUser)
 	if !ok || value == nil {
-		return nil, errors.New("current user not found in Gin context")
+		return nil, errors.New("current user not found in gin context")
 	}
 	user, ok := value.(*bizpb.User)
 	if !ok || user == nil || user.Id == 0 || user.Email == "" || user.Name == "" {
-		return nil, errors.New("invalid current user in Gin context")
+		return nil, errors.New("invalid current user in gin context")
 	}
 	return user, nil
 }
