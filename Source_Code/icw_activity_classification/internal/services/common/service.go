@@ -11,15 +11,17 @@ import (
 
 // Deps RPC Service 的公共依赖集合
 type Deps struct {
-	Config  configs.Config
-	CoreBiz *icw_core_biz.Client
+	Config    configs.Config
+	CoreBiz   *icw_core_biz.Client
+	Semaphore chan struct{}
 }
 
 // NewDeps 创建 RPC Service 的公共依赖集合
 func NewDeps(config configs.Config, coreBiz *icw_core_biz.Client) *Deps {
 	return &Deps{
-		Config:  config,
-		CoreBiz: coreBiz,
+		Config:    config,
+		CoreBiz:   coreBiz,
+		Semaphore: make(chan struct{}, config.ClassificationTaskMaxConcurrency),
 	}
 }
 
@@ -79,4 +81,20 @@ func (s *BaseService) CoreBizClient() *icw_core_biz.Client {
 		return nil
 	}
 	return s.deps.CoreBiz
+}
+
+// Acquire 获取并发执行额度
+func (s *BaseService) Acquire() {
+	if s == nil || s.deps == nil || s.deps.Semaphore == nil {
+		return
+	}
+	s.deps.Semaphore <- struct{}{}
+}
+
+// Release 释放并发执行额度
+func (s *BaseService) Release() {
+	if s == nil || s.deps == nil || s.deps.Semaphore == nil {
+		return
+	}
+	<-s.deps.Semaphore
 }
