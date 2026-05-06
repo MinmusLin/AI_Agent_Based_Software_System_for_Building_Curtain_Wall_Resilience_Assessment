@@ -43,7 +43,7 @@ func main() {
 	rocketmq.MQInfo("RocketMQ consumer starts running")
 
 	// 初始化 icw.core.biz 服务
-	coreBizClient, err := icw_core_biz.NewClient(consts.CoreBizPSM, cfg.CoreBizAddr)
+	coreBizClient, err := icw_core_biz.NewClient(cfg.CoreBizAddr)
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to initialize icw.core.biz service: %v", err)
 	}

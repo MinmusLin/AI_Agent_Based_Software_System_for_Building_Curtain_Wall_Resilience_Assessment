@@ -1,6 +1,7 @@
 package icw_core_biz
 
 import (
+	"icw_common/consts"
 	"icw_common/gen/core/biz"
 	"icw_core_api/rpc/common"
 )
@@ -20,8 +21,8 @@ type Client struct {
 }
 
 // NewClient 创建 icw.core.biz gRPC Client
-func NewClient(psm, address string) (*Client, error) {
-	baseClient, err := common.NewClient(psm, address)
+func NewClient(address string) (*Client, error) {
+	baseClient, err := common.NewClient(consts.CoreBizPSM, address)
 	if err != nil {
 		return nil, err
 	}
