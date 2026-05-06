@@ -4,7 +4,7 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
-import public "common.proto";
+import public "core/common.proto";
 
 // 项目信息结构体
 message Project {
@@ -38,7 +38,7 @@ message ProjectGroup {
   uint64 id = 1;
   string name = 2;
   string sort_order = 3;
-  repeated .icw.common.ProjectImage images = 4;
+  repeated .icw.core.common.ProjectImage images = 4;
 }
 
 // 项目图像上传项结构体
@@ -63,7 +63,7 @@ message ProjectImageStatusChangedEvent {
   uint64 project_id = 3;
   string project_code = 4;
   uint64 user_id = 5;
-  .icw.common.ProjectImage image = 6;
+  .icw.core.common.ProjectImage image = 6;
   string occurred_at = 7;
 }
 

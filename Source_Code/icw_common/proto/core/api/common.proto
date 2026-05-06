@@ -4,7 +4,7 @@ package icw.core.api;
 
 option go_package = "icw_common/gen/core/api;apipb";
 
-import public "common.proto";
+import public "core/common.proto";
 
 // 项目信息结构体
 message Project {
@@ -38,7 +38,7 @@ message ProjectGroup {
   string id = 1;
   string name = 2;
   string sort_order = 3;
-  repeated .icw.common.ProjectImage images = 4;
+  repeated .icw.core.common.ProjectImage images = 4;
 }
 
 // 项目图像上传项结构体
@@ -55,5 +55,5 @@ message UploadProjectImageItem {
 message ProjectImageStatusChangedMessage {
   string type = 1;
   string project_id = 2;
-  .icw.common.ProjectImage image = 3;
+  .icw.core.common.ProjectImage image = 3;
 }

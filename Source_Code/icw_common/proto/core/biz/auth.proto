@@ -19,7 +19,7 @@ message LoginResponse {
   int32 access_token_expires_in = 2;
   string refresh_token = 3;
   int32 refresh_token_expires_in = 4;
-  .icw.common.User user = 5;
+  .icw.core.common.User user = 5;
 }
 
 // Logout 请求结构体
@@ -38,7 +38,7 @@ message MeRequest {
 
 // Me 响应结构体
 message MeResponse {
-  .icw.common.User user = 1;
+  .icw.core.common.User user = 1;
 }
 
 // Refresh 请求结构体
@@ -52,7 +52,7 @@ message RefreshResponse {
   int32 access_token_expires_in = 2;
   string refresh_token = 3;
   int32 refresh_token_expires_in = 4;
-  .icw.common.User user = 5;
+  .icw.core.common.User user = 5;
 }
 
 // Register 请求结构体

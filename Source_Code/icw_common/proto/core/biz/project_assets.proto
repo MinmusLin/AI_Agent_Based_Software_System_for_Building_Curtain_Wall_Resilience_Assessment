@@ -86,7 +86,7 @@ message MoveProjectImageRequest {
 
 // MoveProjectImage 响应结构体
 message MoveProjectImageResponse {
-  repeated .icw.common.ProjectImage images = 1;
+  repeated .icw.core.common.ProjectImage images = 1;
 }
 
 // ReportProjectImage 请求结构体
@@ -123,7 +123,7 @@ message UploadProjectImageRequest {
 
 // UploadProjectImage 响应结构体
 message UploadProjectImageResponse {
-  repeated .icw.common.UploadProjectImageResult images = 1;
+  repeated .icw.core.common.UploadProjectImageResult images = 1;
 }
 
 // 图像资产 RPC 服务
