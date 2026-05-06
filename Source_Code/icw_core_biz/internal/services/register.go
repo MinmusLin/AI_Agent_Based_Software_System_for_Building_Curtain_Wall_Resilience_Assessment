@@ -38,31 +38,7 @@ func RegisterRPCServices(ctx context.Context, serviceDeps *common.Deps, grpcServ
 // registry RPC 服务注册表
 func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCServiceMeta {
 	return []common.RPCServiceMeta{
-		{
-			Name:        "SocketService",
-			Description: "WebSocket 连接票据服务",
-			Service:     socket.NewService(ctx, serviceDeps),
-			Register: func(server grpc.ServiceRegistrar, service interface{}) {
-				bizpb.RegisterSocketServiceServer(server, service.(*socket.Service))
-			},
-			Methods: []common.RPCMethodMeta{
-				{Name: "CreateSocketTicket", Description: "创建 WebSocket 连接票据"},
-				{Name: "ValidateSocketTicket", Description: "校验 WebSocket 连接票据"},
-			},
-		},
-		{
-			Name:        "UserService",
-			Description: "用户业务服务",
-			Service:     user.NewService(ctx, serviceDeps),
-			Register: func(server grpc.ServiceRegistrar, service interface{}) {
-				bizpb.RegisterUserServiceServer(server, service.(*user.Service))
-			},
-			Methods: []common.RPCMethodMeta{
-				{Name: "GetAvatar", Description: "获取用户头像"},
-				{Name: "UploadAvatar", Description: "上传用户自定义头像"},
-				{Name: "DeleteAvatar", Description: "删除用户自定义头像"},
-			},
-		},
+
 		{
 			Name:        "AuthService",
 			Description: "登录鉴权服务",
@@ -162,6 +138,31 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []common.RPCService
 			},
 			Methods: []common.RPCMethodMeta{
 				{Name: "Ping", Description: "评估报告服务探活"},
+			},
+		},
+		{
+			Name:        "SocketService",
+			Description: "WebSocket 连接票据服务",
+			Service:     socket.NewService(ctx, serviceDeps),
+			Register: func(server grpc.ServiceRegistrar, service interface{}) {
+				bizpb.RegisterSocketServiceServer(server, service.(*socket.Service))
+			},
+			Methods: []common.RPCMethodMeta{
+				{Name: "CreateSocketTicket", Description: "创建 WebSocket 连接票据"},
+				{Name: "ValidateSocketTicket", Description: "校验 WebSocket 连接票据"},
+			},
+		},
+		{
+			Name:        "UserService",
+			Description: "用户业务服务",
+			Service:     user.NewService(ctx, serviceDeps),
+			Register: func(server grpc.ServiceRegistrar, service interface{}) {
+				bizpb.RegisterUserServiceServer(server, service.(*user.Service))
+			},
+			Methods: []common.RPCMethodMeta{
+				{Name: "GetAvatar", Description: "获取用户头像"},
+				{Name: "UploadAvatar", Description: "上传用户自定义头像"},
+				{Name: "DeleteAvatar", Description: "删除用户自定义头像"},
 			},
 		},
 	}
