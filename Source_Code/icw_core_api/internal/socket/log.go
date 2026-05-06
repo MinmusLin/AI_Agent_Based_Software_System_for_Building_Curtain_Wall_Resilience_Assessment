@@ -1,8 +1,8 @@
 package socket
 
 import (
-	"icw_core_biz/consts"
-	"icw_core_biz/utils"
+	"icw_common/consts"
+	"icw_common/utils"
 )
 
 // WSInfo 输出标准 WebSocket 日志
