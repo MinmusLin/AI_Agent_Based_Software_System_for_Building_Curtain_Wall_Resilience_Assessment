@@ -12,7 +12,7 @@ import (
 	apiUtils "icw_core_api/utils"
 )
 
-// ReadyClient 定义可被 API 层调用的 gRPC Client 基础能力
+// ReadyClient API 层通用 gRPC 调用能力
 type ReadyClient interface {
 	Ready() bool
 }
@@ -32,7 +32,7 @@ func CallGRPC[PBReq any, PBResp any](
 	requestId := apiUtils.GetRequestId(ctx)
 	ctx = utils.AppendRequestIdToOutgoingContext(ctx, requestId)
 
-	if client == nil || !client.Ready() {
+	if !client.Ready() {
 		return rpc_err.InternalErrorDefault("grpc client is nil")
 	}
 	if invoke == nil {
@@ -41,21 +41,15 @@ func CallGRPC[PBReq any, PBResp any](
 
 	pbResp, err := invoke(ctx, req)
 	if err != nil {
-		return normalizeGRPCError(err)
+		if grpcStatus, ok := status.FromError(err); ok {
+			return errors.New(grpcStatus.Message())
+		}
+		return err
 	}
 	if resp == nil || pbResp == nil {
 		return rpc_err.InternalErrorDefault("grpc response is nil")
 	}
 	*resp = *pbResp
-	return nil
-}
 
-func normalizeGRPCError(err error) error {
-	if err == nil {
-		return nil
-	}
-	if grpcStatus, ok := status.FromError(err); ok {
-		return errors.New(grpcStatus.Message())
-	}
-	return err
+	return nil
 }
