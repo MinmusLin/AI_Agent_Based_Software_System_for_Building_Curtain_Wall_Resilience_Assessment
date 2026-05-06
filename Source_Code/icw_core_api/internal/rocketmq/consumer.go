@@ -49,10 +49,21 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 				}
 				start := time.Now()
 				if err := dispatchProjectImageStatusChangedEvent(hub, message); err != nil {
-					MQError("[CONSUME|%s] cost=%s tag=%s msg_id=%s err=%s", message.Topic, time.Since(start), message.GetTags(), message.MsgId, utils.FormatErrorLog(err))
+					MQError("[CONSUME|%s] %s %13v %s msg_id=%s tag=%s err=%s",
+						message.Topic,
+						consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
+						message.MsgId,
+						message.GetTags(),
+						utils.FormatErrorLog(err),
+					)
 					continue
 				}
-				MQInfo("[CONSUME|%s] cost=%s tag=%s msg_id=%s", message.Topic, time.Since(start), message.GetTags(), message.MsgId)
+				MQInfo("[CONSUME|%s] %s %13v %s msg_id=%s tag=%s",
+					message.Topic,
+					consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
+					message.MsgId,
+					message.GetTags(),
+				)
 			}
 			return consumer.ConsumeSuccess, nil
 		},

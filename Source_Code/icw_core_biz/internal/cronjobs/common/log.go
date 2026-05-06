@@ -12,17 +12,33 @@ func cronLog(name string, start time.Time, result interface{}, err error) {
 	resultStr := utils.JSONF(result)
 	if utils.IsEmptyError(err) {
 		if resultStr == "" {
-			CronInfo("[%s] cost=%s", name, time.Since(start))
+			CronInfo("[%s] %s %13v %s result={}",
+				name,
+				consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
+			)
 			return
 		}
-		CronInfo("[%s] cost=%s result=%s", name, time.Since(start), resultStr)
+		CronInfo("[%s] %s %13v %s result=%s",
+			name,
+			consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
+			resultStr,
+		)
 		return
 	}
 	if resultStr == "" {
-		CronError("[%s] cost=%s err=%s", name, time.Since(start), utils.FormatErrorLog(err))
+		CronError("[%s] %s %13v %s result={} err=%s",
+			name,
+			consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
+			utils.FormatErrorLog(err),
+		)
 		return
 	}
-	CronError("[%s] cost=%s result=%s err=%s", name, time.Since(start), resultStr, utils.FormatErrorLog(err))
+	CronError("[%s] %s %13v %s result=%s err=%s",
+		name,
+		consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
+		resultStr,
+		utils.FormatErrorLog(err),
+	)
 }
 
 // CronInfo 输出标准定时任务日志
