@@ -5,23 +5,23 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"icw_core_biz/pkg/rpc_err"
+	"icw_common/rpc_err"
 )
 
-// OKEnvelope 标准成功响应
+// OKEnvelope HTTP 标准成功响应
 type OKEnvelope[T any] struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 	Data    T      `json:"data"`
 }
 
-// ErrorEnvelope 标准失败响应
+// ErrorEnvelope HTTP 标准失败响应
 type ErrorEnvelope struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-// OK 写入标准成功响应
+// OK 写入 HTTP 标准成功响应
 func OK[T any](c *gin.Context, data T) {
 	c.JSON(http.StatusOK, OKEnvelope[T]{
 		Code:    "OK",
@@ -30,7 +30,7 @@ func OK[T any](c *gin.Context, data T) {
 	})
 }
 
-// Error 写入标准失败响应
+// Error 写入 HTTP 标准失败响应
 func Error(c *gin.Context, status int, code, message string) {
 	c.JSON(status, ErrorEnvelope{
 		Code:    code,
