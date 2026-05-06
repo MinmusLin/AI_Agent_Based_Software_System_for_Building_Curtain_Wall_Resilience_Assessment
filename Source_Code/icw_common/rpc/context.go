@@ -12,16 +12,16 @@ const (
 	MetadataRequestId = "x-request-id"
 )
 
-// Context 生成 gRPC 出站调用上下文
-func Context(ctx context.Context) context.Context {
+// WithRequestIdFromContextToOutgoingContext 从上下文读取 Request ID 并写入 gRPC 出站元数据
+func WithRequestIdFromContextToOutgoingContext(ctx context.Context) context.Context {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	return AppendRequestIdToOutgoingContext(ctx, RequestIdFromGRPCContext(ctx))
+	return WithRequestIdToOutgoingContext(ctx, RequestIdFromGRPCContext(ctx))
 }
 
-// AppendRequestIdToOutgoingContext 将请求 ID 写入 gRPC 出站元数据
-func AppendRequestIdToOutgoingContext(ctx context.Context, requestId string) context.Context {
+// WithRequestIdToOutgoingContext 将指定 Request ID 写入 gRPC 出站元数据
+func WithRequestIdToOutgoingContext(ctx context.Context, requestId string) context.Context {
 	if ctx == nil {
 		ctx = context.Background()
 	}

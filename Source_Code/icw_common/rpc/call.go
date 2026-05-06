@@ -56,7 +56,7 @@ func CallGRPC[PBReq any, PBResp any](
 			requestId = resolved
 		}
 	}
-	ctx = AppendRequestIdToOutgoingContext(ctx, requestId)
+	ctx = WithRequestIdToOutgoingContext(ctx, requestId)
 
 	if utils.IsNil(client) || !client.Ready() {
 		return errors.New("grpc client is nil")
