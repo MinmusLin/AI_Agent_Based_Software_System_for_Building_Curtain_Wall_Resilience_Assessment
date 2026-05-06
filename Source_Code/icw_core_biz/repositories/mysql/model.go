@@ -9,6 +9,7 @@ import (
 	"icw_common/consts"
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
+	"icw_common/utils"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/redis"
 )
@@ -96,7 +97,7 @@ func ProjectRecordToDTO(record *ProjectRecord) *bizpb.Project {
 		Name:                record.Name,
 		BuildingName:        record.BuildingName,
 		BuildingLocation:    record.BuildingLocation,
-		BuiltYear:           uint32(nullInt64ToUint16(record.BuiltYear)),
+		BuiltYear:           utils.If[uint32](record.BuiltYear.Valid && record.BuiltYear.Int64 >= 0, uint32(record.BuiltYear.Int64), 0),
 		BuildingDescription: record.BuildingDescription.String,
 		KnownIssues:         record.KnownIssues.String,
 		AssessmentGoal:      record.AssessmentGoal.String,
