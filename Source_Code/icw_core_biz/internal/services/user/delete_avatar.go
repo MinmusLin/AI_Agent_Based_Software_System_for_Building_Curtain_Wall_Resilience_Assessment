@@ -1,20 +1,24 @@
 package user
 
 import (
+	"context"
+
+	"icw_common/gen/core/biz"
 	"icw_core_biz/internal/services/user/utils"
-	"icw_core_biz/pkg/dto"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/redis"
 )
 
 // DeleteAvatar 删除用户自定义头像
-func (s *Service) DeleteAvatar(req *dto.DeleteAvatarRequest, resp *dto.DeleteAvatarResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) DeleteAvatar(ctx context.Context, req *bizpb.DeleteAvatarRequest) (*bizpb.DeleteAvatarResponse, error) {
+	resp := &bizpb.DeleteAvatarResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.deleteAvatar(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) deleteAvatar(req *dto.DeleteAvatarRequest, _ *dto.DeleteAvatarResponse) error {
+func (s *Service) deleteAvatar(req *bizpb.DeleteAvatarRequest, _ *bizpb.DeleteAvatarResponse) error {
 	// 对标准化邮箱地址做 SHA-256 哈希
 	emailHash, err := utils.NormalizeEmailHash(req.Email)
 	if err != nil {

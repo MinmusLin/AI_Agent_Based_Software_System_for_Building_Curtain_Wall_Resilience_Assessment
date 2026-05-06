@@ -13,6 +13,7 @@ type Service struct {
 	*common.BaseService
 }
 
+// NewService 创建 WebSocket 连接票据服务
 func NewService(ctx context.Context, deps *common.Deps) *Service {
 	if deps == nil {
 		deps = &common.Deps{}

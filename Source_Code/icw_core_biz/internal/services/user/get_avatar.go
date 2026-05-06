@@ -1,20 +1,24 @@
 package user
 
 import (
+	"context"
+
+	"icw_common/gen/core/biz"
 	"icw_core_biz/internal/services/user/consts"
 	"icw_core_biz/internal/services/user/utils"
-	"icw_core_biz/pkg/dto"
 	"icw_core_biz/repositories/minio"
 )
 
 // GetAvatar 获取用户头像
-func (s *Service) GetAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarResponse) error {
-	return s.CallRPC(req, resp, func() error {
+func (s *Service) GetAvatar(ctx context.Context, req *bizpb.GetAvatarRequest) (*bizpb.GetAvatarResponse, error) {
+	resp := &bizpb.GetAvatarResponse{}
+	err := s.CallRPC(ctx, req, resp, func() error {
 		return s.getAvatar(req, resp)
 	})
+	return resp, err
 }
 
-func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarResponse) error {
+func (s *Service) getAvatar(req *bizpb.GetAvatarRequest, resp *bizpb.GetAvatarResponse) error {
 	resp.AvatarType = consts.AvatarTypeNone
 
 	// 对标准化邮箱地址做 SHA-256 哈希
@@ -29,7 +33,7 @@ func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 		return err
 	}
 	if avatarURL != "" {
-		resp.AvatarURL = avatarURL
+		resp.AvatarUrl = avatarURL
 		resp.AvatarType = consts.AvatarTypeCustom
 		return nil
 	}
@@ -40,7 +44,7 @@ func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 		return err
 	}
 	if avatarURL != "" {
-		resp.AvatarURL = avatarURL
+		resp.AvatarUrl = avatarURL
 		resp.AvatarType = consts.AvatarTypeDefault
 		return nil
 	}
@@ -54,12 +58,12 @@ func (s *Service) getAvatar(req *dto.GetAvatarRequest, resp *dto.GetAvatarRespon
 		return err
 	}
 	if avatarURL == "" {
-		resp.AvatarURL = ""
+		resp.AvatarUrl = ""
 		resp.AvatarType = consts.AvatarTypeNone
 		return nil
 	}
 
-	resp.AvatarURL = avatarURL
+	resp.AvatarUrl = avatarURL
 	resp.AvatarType = consts.AvatarTypeDefault
 	return nil
 }
