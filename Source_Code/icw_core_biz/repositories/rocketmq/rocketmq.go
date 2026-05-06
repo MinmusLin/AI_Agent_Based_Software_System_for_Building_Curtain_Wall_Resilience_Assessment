@@ -23,6 +23,7 @@ type Repository struct {
 	topic    string
 }
 
+// NewRepository 创建 RocketMQ 消息队列生产者服务
 func NewRepository(producer rocketmq.Producer, topic string) *Repository {
 	return &Repository{
 		producer: producer,
