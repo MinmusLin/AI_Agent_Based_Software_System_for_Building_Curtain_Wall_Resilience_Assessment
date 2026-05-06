@@ -1,18 +1,13 @@
 package consts
 
 const (
-	// CoreApiPSM icw.core.api 服务标识
-	CoreApiPSM = "icw.core.api"
+	// ContextCurrentUser 请求上下文用户信息 Key
+	ContextCurrentUser = "current-user"
+	// ContextXRequestId 请求上下文请求 ID Key
+	ContextXRequestId = "x-request-id"
 )
 
 const (
-	// ContextUser 请求上下文用户信息 Key
-	ContextUser = "current_user"
-)
-
-const (
-	// ContextRequestId 请求上下文请求 ID Key
-	ContextRequestId = "request_id"
-	// HeaderRequestId HTTP 请求 ID Header
-	HeaderRequestId = "X-Request-ID"
+	// HeaderXRequestId HTTP 请求 ID Header
+	HeaderXRequestId = "X-Request-ID"
 )
