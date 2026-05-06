@@ -5,9 +5,9 @@ import (
 
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/auth"
-	"icw_core_api/utils"
 )
 
 // Register 注册
@@ -30,5 +30,5 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, utils.NewRegisterResponse(rpcResp))
+	response.OK(c, dto.NewRegisterResponse(rpcResp))
 }

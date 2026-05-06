@@ -5,9 +5,9 @@ import (
 
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/auth"
-	"icw_core_api/utils"
 )
 
 // Login 登录
@@ -32,5 +32,5 @@ func (h *Handler) Login(c *gin.Context) {
 	// 新 Refresh Token 写入 HttpOnly Cookie，旧 Refresh Token 失效
 	h.setRefreshCookie(c, rpcResp.RefreshToken, int(rpcResp.RefreshTokenExpiresIn))
 
-	response.OK(c, utils.NewLoginResponse(rpcResp))
+	response.OK(c, dto.NewLoginResponse(rpcResp))
 }

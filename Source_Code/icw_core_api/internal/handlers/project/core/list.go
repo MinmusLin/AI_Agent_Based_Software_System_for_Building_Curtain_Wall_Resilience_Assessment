@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"icw_common/gen/core/biz"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/project_core"
 	"icw_core_api/utils"
@@ -28,5 +29,5 @@ func (h *Handler) ListProjects(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, utils.NewListProjectsResponse(rpcResp))
+	response.OK(c, dto.NewListProjectsResponse(rpcResp))
 }

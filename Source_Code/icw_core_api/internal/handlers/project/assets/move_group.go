@@ -7,6 +7,7 @@ import (
 	"icw_common/gen/core/biz"
 	"icw_common/rpc_err"
 	"icw_common/utils"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/project_assets"
 	apiUtils "icw_core_api/utils"
@@ -70,5 +71,5 @@ func (h *Handler) MoveProjectGroup(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, apiUtils.NewMoveProjectGroupResponse(rpcResp))
+	response.OK(c, dto.NewMoveProjectGroupResponse(rpcResp))
 }

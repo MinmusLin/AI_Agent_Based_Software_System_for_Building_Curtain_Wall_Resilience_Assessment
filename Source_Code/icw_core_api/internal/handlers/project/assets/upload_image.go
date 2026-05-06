@@ -7,6 +7,7 @@ import (
 	"icw_common/gen/core/biz"
 	"icw_common/rpc_err"
 	"icw_common/utils"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/project_assets"
 	apiUtils "icw_core_api/utils"
@@ -49,7 +50,7 @@ func (h *Handler) UploadProjectImage(c *gin.Context) {
 		if image == nil {
 			continue
 		}
-		rpcReq.Images = append(rpcReq.Images, apiUtils.NewUploadProjectImageItem(image))
+		rpcReq.Images = append(rpcReq.Images, dto.NewUploadProjectImageItem(image))
 	}
 	rpcResp := &bizpb.UploadProjectImageResponse{}
 	if err := project_assets.UploadProjectImage(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
@@ -57,5 +58,5 @@ func (h *Handler) UploadProjectImage(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, apiUtils.NewUploadProjectImageResponse(rpcResp))
+	response.OK(c, dto.NewUploadProjectImageResponse(rpcResp))
 }

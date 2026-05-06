@@ -56,35 +56,6 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		authRoutes.POST("/send-email-code", "发送邮箱验证码", authHandler.SendEmailCode)
 	}
 
-	// 用户业务 Handler
-	userHandler := user.NewHandler(handlerDeps)
-	userRouter := router.Group("/user")
-	userRoutes := common.NewRouteGroup(userRouter, routeDescriptions)
-	userRouter.Use(middlewares.AuthRequired(coreBizClient))
-	{
-		userRoutes.DELETE("/avatar", "删除用户自定义头像", userHandler.DeleteAvatar)
-		userRoutes.GET("/avatar", "获取用户头像", userHandler.GetAvatar)
-		userRoutes.POST("/avatar", "上传用户自定义头像", userHandler.UploadAvatar)
-	}
-
-	// WebSocket Handler
-	socketHandler := socket.NewHandler(handlerDeps, socketHub)
-	socketRouter := router.Group("/socket")
-	{
-		// Socket 建连 Router
-		socketSetupRouter := socketRouter.Group("/setup")
-		{
-			common.NewRouteGroup(socketSetupRouter, routeDescriptions).GET("/assets", "建立图像资产 WebSocket 连接", socketHandler.SetupAssetsWebSocket)
-		}
-
-		// Socket 票据 Router
-		socketTicketRouter := socketRouter.Group("")
-		socketTicketRouter.Use(middlewares.AuthRequired(coreBizClient))
-		{
-			common.NewRouteGroup(socketTicketRouter, routeDescriptions).POST("/ticket", "创建 WebSocket 连接票据", middlewares.ProjectAccessible(coreBizClient), socketHandler.CreateSocketTicket)
-		}
-	}
-
 	// 项目流程 Router
 	projectRouter := router.Group("/project")
 	projectRouter.Use(middlewares.AuthRequired(coreBizClient))
@@ -118,11 +89,11 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		projectProfileRouter := projectRouter.Group("/profile")
 		projectProfileRoutes := common.NewRouteGroup(projectProfileRouter, routeDescriptions)
 		{
+			projectProfileRoutes.DELETE("/thumbnail", "删除项目缩略图", projectProfileEditable, projectProfileHandler.DeleteProjectThumbnail)
 			projectProfileRoutes.GET("/detail", "获取项目基础信息", projectAccessible, projectProfileHandler.GetProjectProfile)
 			projectProfileRoutes.GET("/thumbnail", "获取项目缩略图", projectAccessible, projectProfileHandler.GetProjectThumbnail)
-			projectProfileRoutes.POST("/thumbnail", "上传项目缩略图", projectProfileEditable, projectProfileHandler.UploadProjectThumbnail)
-			projectProfileRoutes.DELETE("/thumbnail", "删除项目缩略图", projectProfileEditable, projectProfileHandler.DeleteProjectThumbnail)
 			projectProfileRoutes.POST("/update", "更新项目基础信息", projectProfileEditable, projectProfileHandler.UpdateProjectProfile)
+			projectProfileRoutes.POST("/thumbnail", "上传项目缩略图", projectProfileEditable, projectProfileHandler.UploadProjectThumbnail)
 		}
 
 		// 图像资产 Handler
@@ -180,5 +151,34 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 				// TODO: Prevent errors on unused variables
 			}
 		}
+	}
+
+	// WebSocket Handler
+	socketHandler := socket.NewHandler(handlerDeps, socketHub)
+	socketRouter := router.Group("/socket")
+	{
+		// Socket 建连 Router
+		socketSetupRouter := socketRouter.Group("/setup")
+		{
+			common.NewRouteGroup(socketSetupRouter, routeDescriptions).GET("/assets", "建立图像资产 WebSocket 连接", socketHandler.SetupAssetsWebSocket)
+		}
+
+		// Socket 票据 Router
+		socketTicketRouter := socketRouter.Group("")
+		socketTicketRouter.Use(middlewares.AuthRequired(coreBizClient))
+		{
+			common.NewRouteGroup(socketTicketRouter, routeDescriptions).POST("/ticket", "创建 WebSocket 连接票据", middlewares.ProjectAccessible(coreBizClient), socketHandler.CreateSocketTicket)
+		}
+	}
+
+	// 用户业务 Handler
+	userHandler := user.NewHandler(handlerDeps)
+	userRouter := router.Group("/user")
+	userRoutes := common.NewRouteGroup(userRouter, routeDescriptions)
+	userRouter.Use(middlewares.AuthRequired(coreBizClient))
+	{
+		userRoutes.DELETE("/avatar", "删除用户自定义头像", userHandler.DeleteAvatar)
+		userRoutes.GET("/avatar", "获取用户头像", userHandler.GetAvatar)
+		userRoutes.POST("/avatar", "上传用户自定义头像", userHandler.UploadAvatar)
 	}
 }

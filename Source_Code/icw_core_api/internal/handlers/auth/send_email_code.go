@@ -5,9 +5,9 @@ import (
 
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/auth"
-	"icw_core_api/utils"
 )
 
 // SendEmailCode 发送邮箱验证码
@@ -28,5 +28,5 @@ func (h *Handler) SendEmailCode(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, utils.NewSendEmailCodeResponse(rpcResp))
+	response.OK(c, dto.NewSendEmailCodeResponse(rpcResp))
 }

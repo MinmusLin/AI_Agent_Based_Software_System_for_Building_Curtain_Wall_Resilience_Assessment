@@ -5,9 +5,9 @@ import (
 
 	"icw_common/gen/core/biz"
 	"icw_common/rpc_err"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/auth"
-	"icw_core_api/utils"
 )
 
 // Refresh 刷新 Token
@@ -34,5 +34,5 @@ func (h *Handler) Refresh(c *gin.Context) {
 	// 新 Refresh Token 写入 HttpOnly Cookie，旧 Refresh Token 失效
 	h.setRefreshCookie(c, rpcResp.RefreshToken, int(rpcResp.RefreshTokenExpiresIn))
 
-	response.OK(c, utils.NewRefreshResponse(rpcResp))
+	response.OK(c, dto.NewRefreshResponse(rpcResp))
 }

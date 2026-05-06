@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"icw_common/gen/core/biz"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/auth"
 	"icw_core_api/utils"
@@ -15,7 +16,7 @@ func (h *Handler) Me(c *gin.Context) {
 	// 正常路由会先经过 AuthRequired 登录鉴权中间件，预期已经调用过 icw.core.biz AuthService.Me 接口
 	// 优先从 Gin Context 中获取用户信息，避免 RPC 重复调用
 	if user, err := utils.GetCurrentUser(c); err == nil {
-		response.OK(c, utils.NewMeResponse(&bizpb.MeResponse{
+		response.OK(c, dto.NewMeResponse(&bizpb.MeResponse{
 			User: user,
 		}))
 		return
@@ -31,5 +32,5 @@ func (h *Handler) Me(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, utils.NewMeResponse(rpcResp))
+	response.OK(c, dto.NewMeResponse(rpcResp))
 }

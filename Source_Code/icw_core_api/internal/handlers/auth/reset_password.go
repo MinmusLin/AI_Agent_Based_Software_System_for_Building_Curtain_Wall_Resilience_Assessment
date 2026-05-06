@@ -5,9 +5,9 @@ import (
 
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/auth"
-	"icw_core_api/utils"
 )
 
 // ResetPassword 重置密码
@@ -29,5 +29,5 @@ func (h *Handler) ResetPassword(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, utils.NewResetPasswordResponse(rpcResp))
+	response.OK(c, dto.NewResetPasswordResponse(rpcResp))
 }

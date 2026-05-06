@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"icw_common/gen/core/biz"
+	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/auth"
 	"icw_core_api/utils"
@@ -25,5 +26,5 @@ func (h *Handler) Logout(c *gin.Context) {
 	// 旧 Refresh Token 失效
 	h.clearRefreshCookie(c)
 
-	response.OK(c, utils.NewLogoutResponse(rpcResp))
+	response.OK(c, dto.NewLogoutResponse(rpcResp))
 }
