@@ -237,6 +237,70 @@ func (ProjectStatus_Value) EnumDescriptor() ([]byte, []int) {
 	return file_core_biz_consts_proto_rawDescGZIP(), []int{3, 0}
 }
 
+type ProjectProgress_Value int32
+
+const (
+	// 项目初始化完成，当前项目基础信息阶段
+	ProjectProgress_InitializationFinished ProjectProgress_Value = 0
+	// 项目基础信息完成，当前图像资产构建阶段
+	ProjectProgress_ProfileFinished ProjectProgress_Value = 1
+	// 图像资产构建完成，当前 Agent 智能检测阶段
+	ProjectProgress_AssetsFinished ProjectProgress_Value = 2
+	// Agent 智能检测完成，当前人工复核确认阶段
+	ProjectProgress_DetectionFinished ProjectProgress_Value = 3
+	// 人工复核确认完成，当前评估报告生成阶段
+	ProjectProgress_ReviewFinished ProjectProgress_Value = 4
+	// 评估报告生成完成，当前项目已完成
+	ProjectProgress_ReportFinished ProjectProgress_Value = 5
+)
+
+// Enum value maps for ProjectProgress_Value.
+var (
+	ProjectProgress_Value_name = map[int32]string{
+		0: "InitializationFinished",
+		1: "ProfileFinished",
+		2: "AssetsFinished",
+		3: "DetectionFinished",
+		4: "ReviewFinished",
+		5: "ReportFinished",
+	}
+	ProjectProgress_Value_value = map[string]int32{
+		"InitializationFinished": 0,
+		"ProfileFinished":        1,
+		"AssetsFinished":         2,
+		"DetectionFinished":      3,
+		"ReviewFinished":         4,
+		"ReportFinished":         5,
+	}
+)
+
+func (x ProjectProgress_Value) Enum() *ProjectProgress_Value {
+	p := new(ProjectProgress_Value)
+	*p = x
+	return p
+}
+
+func (x ProjectProgress_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProjectProgress_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_biz_consts_proto_enumTypes[4].Descriptor()
+}
+
+func (ProjectProgress_Value) Type() protoreflect.EnumType {
+	return &file_core_biz_consts_proto_enumTypes[4]
+}
+
+func (x ProjectProgress_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProjectProgress_Value.Descriptor instead.
+func (ProjectProgress_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{4, 0}
+}
+
 type ProjectImageStatus_Value int32
 
 const (
@@ -277,11 +341,11 @@ func (x ProjectImageStatus_Value) String() string {
 }
 
 func (ProjectImageStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_consts_proto_enumTypes[4].Descriptor()
+	return file_core_biz_consts_proto_enumTypes[5].Descriptor()
 }
 
 func (ProjectImageStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_biz_consts_proto_enumTypes[4]
+	return &file_core_biz_consts_proto_enumTypes[5]
 }
 
 func (x ProjectImageStatus_Value) Number() protoreflect.EnumNumber {
@@ -290,7 +354,7 @@ func (x ProjectImageStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectImageStatus_Value.Descriptor instead.
 func (ProjectImageStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{4, 0}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{5, 0}
 }
 
 type ProjectDetectionTaskStatus_Value int32
@@ -345,11 +409,11 @@ func (x ProjectDetectionTaskStatus_Value) String() string {
 }
 
 func (ProjectDetectionTaskStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_consts_proto_enumTypes[5].Descriptor()
+	return file_core_biz_consts_proto_enumTypes[6].Descriptor()
 }
 
 func (ProjectDetectionTaskStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_biz_consts_proto_enumTypes[5]
+	return &file_core_biz_consts_proto_enumTypes[6]
 }
 
 func (x ProjectDetectionTaskStatus_Value) Number() protoreflect.EnumNumber {
@@ -358,7 +422,7 @@ func (x ProjectDetectionTaskStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectDetectionTaskStatus_Value.Descriptor instead.
 func (ProjectDetectionTaskStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{5, 0}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{6, 0}
 }
 
 type ProjectDetectionSubTaskStatus_Value int32
@@ -405,11 +469,11 @@ func (x ProjectDetectionSubTaskStatus_Value) String() string {
 }
 
 func (ProjectDetectionSubTaskStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_consts_proto_enumTypes[6].Descriptor()
+	return file_core_biz_consts_proto_enumTypes[7].Descriptor()
 }
 
 func (ProjectDetectionSubTaskStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_biz_consts_proto_enumTypes[6]
+	return &file_core_biz_consts_proto_enumTypes[7]
 }
 
 func (x ProjectDetectionSubTaskStatus_Value) Number() protoreflect.EnumNumber {
@@ -418,7 +482,7 @@ func (x ProjectDetectionSubTaskStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectDetectionSubTaskStatus_Value.Descriptor instead.
 func (ProjectDetectionSubTaskStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{6, 0}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{7, 0}
 }
 
 // 邮箱验证码业务场景
@@ -569,6 +633,43 @@ func (*ProjectStatus) Descriptor() ([]byte, []int) {
 	return file_core_biz_consts_proto_rawDescGZIP(), []int{3}
 }
 
+// 项目进度
+type ProjectProgress struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectProgress) Reset() {
+	*x = ProjectProgress{}
+	mi := &file_core_biz_consts_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectProgress) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectProgress) ProtoMessage() {}
+
+func (x *ProjectProgress) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_consts_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectProgress.ProtoReflect.Descriptor instead.
+func (*ProjectProgress) Descriptor() ([]byte, []int) {
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{4}
+}
+
 // 项目图像状态
 type ProjectImageStatus struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -578,7 +679,7 @@ type ProjectImageStatus struct {
 
 func (x *ProjectImageStatus) Reset() {
 	*x = ProjectImageStatus{}
-	mi := &file_core_biz_consts_proto_msgTypes[4]
+	mi := &file_core_biz_consts_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -590,7 +691,7 @@ func (x *ProjectImageStatus) String() string {
 func (*ProjectImageStatus) ProtoMessage() {}
 
 func (x *ProjectImageStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_consts_proto_msgTypes[4]
+	mi := &file_core_biz_consts_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +704,7 @@ func (x *ProjectImageStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectImageStatus.ProtoReflect.Descriptor instead.
 func (*ProjectImageStatus) Descriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{4}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{5}
 }
 
 // 项目图像检测主任务状态
@@ -615,7 +716,7 @@ type ProjectDetectionTaskStatus struct {
 
 func (x *ProjectDetectionTaskStatus) Reset() {
 	*x = ProjectDetectionTaskStatus{}
-	mi := &file_core_biz_consts_proto_msgTypes[5]
+	mi := &file_core_biz_consts_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -627,7 +728,7 @@ func (x *ProjectDetectionTaskStatus) String() string {
 func (*ProjectDetectionTaskStatus) ProtoMessage() {}
 
 func (x *ProjectDetectionTaskStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_consts_proto_msgTypes[5]
+	mi := &file_core_biz_consts_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -640,7 +741,7 @@ func (x *ProjectDetectionTaskStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionTaskStatus.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionTaskStatus) Descriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{5}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{6}
 }
 
 // 项目图像检测子任务状态
@@ -652,7 +753,7 @@ type ProjectDetectionSubTaskStatus struct {
 
 func (x *ProjectDetectionSubTaskStatus) Reset() {
 	*x = ProjectDetectionSubTaskStatus{}
-	mi := &file_core_biz_consts_proto_msgTypes[6]
+	mi := &file_core_biz_consts_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -664,7 +765,7 @@ func (x *ProjectDetectionSubTaskStatus) String() string {
 func (*ProjectDetectionSubTaskStatus) ProtoMessage() {}
 
 func (x *ProjectDetectionSubTaskStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_consts_proto_msgTypes[6]
+	mi := &file_core_biz_consts_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -677,7 +778,7 @@ func (x *ProjectDetectionSubTaskStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionSubTaskStatus.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionSubTaskStatus) Descriptor() ([]byte, []int) {
-	return file_core_biz_consts_proto_rawDescGZIP(), []int{6}
+	return file_core_biz_consts_proto_rawDescGZIP(), []int{7}
 }
 
 var File_core_biz_consts_proto protoreflect.FileDescriptor
@@ -709,7 +810,15 @@ const file_core_biz_consts_proto_rawDesc = "" +
 	"\n" +
 	"\x06Active\x10\x01\x12\r\n" +
 	"\tCompleted\x10\x02\x12\v\n" +
-	"\aDeleted\x10\x03\"Q\n" +
+	"\aDeleted\x10\x03\"\x9f\x01\n" +
+	"\x0fProjectProgress\"\x8b\x01\n" +
+	"\x05Value\x12\x1a\n" +
+	"\x16InitializationFinished\x10\x00\x12\x13\n" +
+	"\x0fProfileFinished\x10\x01\x12\x12\n" +
+	"\x0eAssetsFinished\x10\x02\x12\x15\n" +
+	"\x11DetectionFinished\x10\x03\x12\x12\n" +
+	"\x0eReviewFinished\x10\x04\x12\x12\n" +
+	"\x0eReportFinished\x10\x05\"Q\n" +
 	"\x12ProjectImageStatus\";\n" +
 	"\x05Value\x12\v\n" +
 	"\aUnknown\x10\x00\x12\v\n" +
@@ -748,23 +857,25 @@ func file_core_biz_consts_proto_rawDescGZIP() []byte {
 	return file_core_biz_consts_proto_rawDescData
 }
 
-var file_core_biz_consts_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
-var file_core_biz_consts_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_core_biz_consts_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
+var file_core_biz_consts_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_core_biz_consts_proto_goTypes = []any{
 	(EmailCodeScene_Value)(0),                // 0: icw.core.biz.EmailCodeScene.Value
 	(LoginScene_Value)(0),                    // 1: icw.core.biz.LoginScene.Value
 	(EmailSendStatus_Value)(0),               // 2: icw.core.biz.EmailSendStatus.Value
 	(ProjectStatus_Value)(0),                 // 3: icw.core.biz.ProjectStatus.Value
-	(ProjectImageStatus_Value)(0),            // 4: icw.core.biz.ProjectImageStatus.Value
-	(ProjectDetectionTaskStatus_Value)(0),    // 5: icw.core.biz.ProjectDetectionTaskStatus.Value
-	(ProjectDetectionSubTaskStatus_Value)(0), // 6: icw.core.biz.ProjectDetectionSubTaskStatus.Value
-	(*EmailCodeScene)(nil),                   // 7: icw.core.biz.EmailCodeScene
-	(*LoginScene)(nil),                       // 8: icw.core.biz.LoginScene
-	(*EmailSendStatus)(nil),                  // 9: icw.core.biz.EmailSendStatus
-	(*ProjectStatus)(nil),                    // 10: icw.core.biz.ProjectStatus
-	(*ProjectImageStatus)(nil),               // 11: icw.core.biz.ProjectImageStatus
-	(*ProjectDetectionTaskStatus)(nil),       // 12: icw.core.biz.ProjectDetectionTaskStatus
-	(*ProjectDetectionSubTaskStatus)(nil),    // 13: icw.core.biz.ProjectDetectionSubTaskStatus
+	(ProjectProgress_Value)(0),               // 4: icw.core.biz.ProjectProgress.Value
+	(ProjectImageStatus_Value)(0),            // 5: icw.core.biz.ProjectImageStatus.Value
+	(ProjectDetectionTaskStatus_Value)(0),    // 6: icw.core.biz.ProjectDetectionTaskStatus.Value
+	(ProjectDetectionSubTaskStatus_Value)(0), // 7: icw.core.biz.ProjectDetectionSubTaskStatus.Value
+	(*EmailCodeScene)(nil),                   // 8: icw.core.biz.EmailCodeScene
+	(*LoginScene)(nil),                       // 9: icw.core.biz.LoginScene
+	(*EmailSendStatus)(nil),                  // 10: icw.core.biz.EmailSendStatus
+	(*ProjectStatus)(nil),                    // 11: icw.core.biz.ProjectStatus
+	(*ProjectProgress)(nil),                  // 12: icw.core.biz.ProjectProgress
+	(*ProjectImageStatus)(nil),               // 13: icw.core.biz.ProjectImageStatus
+	(*ProjectDetectionTaskStatus)(nil),       // 14: icw.core.biz.ProjectDetectionTaskStatus
+	(*ProjectDetectionSubTaskStatus)(nil),    // 15: icw.core.biz.ProjectDetectionSubTaskStatus
 }
 var file_core_biz_consts_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -784,8 +895,8 @@ func file_core_biz_consts_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_consts_proto_rawDesc), len(file_core_biz_consts_proto_rawDesc)),
-			NumEnums:      7,
-			NumMessages:   7,
+			NumEnums:      8,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

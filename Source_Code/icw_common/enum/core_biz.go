@@ -110,6 +110,36 @@ func ParseProjectStatus(value string) bizpb.ProjectStatus_Value {
 	}
 }
 
+// ProjectProgressUint8 将项目进度枚举转换为 uint8
+func ProjectProgressUint8(progress bizpb.ProjectProgress_Value) uint8 {
+	switch progress {
+	case bizpb.ProjectProgress_InitializationFinished,
+		bizpb.ProjectProgress_ProfileFinished,
+		bizpb.ProjectProgress_AssetsFinished,
+		bizpb.ProjectProgress_DetectionFinished,
+		bizpb.ProjectProgress_ReviewFinished,
+		bizpb.ProjectProgress_ReportFinished:
+		return uint8(progress)
+	default:
+		return uint8(bizpb.ProjectProgress_InitializationFinished)
+	}
+}
+
+// ParseProjectProgress 将存储值转换为项目进度枚举
+func ParseProjectProgress(value uint8) bizpb.ProjectProgress_Value {
+	switch progress := bizpb.ProjectProgress_Value(value); progress {
+	case bizpb.ProjectProgress_InitializationFinished,
+		bizpb.ProjectProgress_ProfileFinished,
+		bizpb.ProjectProgress_AssetsFinished,
+		bizpb.ProjectProgress_DetectionFinished,
+		bizpb.ProjectProgress_ReviewFinished,
+		bizpb.ProjectProgress_ReportFinished:
+		return progress
+	default:
+		return bizpb.ProjectProgress_InitializationFinished
+	}
+}
+
 // ProjectImageStatusString 将项目图像状态枚举转换为字符串
 func ProjectImageStatusString(status bizpb.ProjectImageStatus_Value) string {
 	switch status {

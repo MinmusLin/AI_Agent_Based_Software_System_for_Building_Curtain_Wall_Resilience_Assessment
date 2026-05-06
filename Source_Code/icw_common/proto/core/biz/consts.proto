@@ -56,6 +56,24 @@ message ProjectStatus {
   }
 }
 
+// 项目进度
+message ProjectProgress {
+  enum Value {
+    // 项目初始化完成，当前项目基础信息阶段
+    InitializationFinished = 0;
+    // 项目基础信息完成，当前图像资产构建阶段
+    ProfileFinished = 1;
+    // 图像资产构建完成，当前 Agent 智能检测阶段
+    AssetsFinished = 2;
+    // Agent 智能检测完成，当前人工复核确认阶段
+    DetectionFinished = 3;
+    // 人工复核确认完成，当前评估报告生成阶段
+    ReviewFinished = 4;
+    // 评估报告生成完成，当前项目已完成
+    ReportFinished = 5;
+  }
+}
+
 // 项目图像状态
 message ProjectImageStatus {
   enum Value {
