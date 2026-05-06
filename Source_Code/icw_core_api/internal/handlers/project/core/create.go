@@ -3,10 +3,10 @@ package core
 import (
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/internal/dto/project"
+	"icw_common/gen/core/biz"
 	"icw_core_api/internal/response"
+	"icw_core_api/rpc/icw_core_biz/project_core"
 	"icw_core_api/utils"
-	bizDto "icw_core_biz/pkg/dto/project"
 )
 
 // CreateProject 创建项目
@@ -19,14 +19,14 @@ func (h *Handler) CreateProject(c *gin.Context) {
 		return
 	}
 
-	rpcReq := &bizDto.CreateProjectRequest{
+	rpcReq := &bizpb.CreateProjectRequest{
 		UserId: user.Id,
 	}
-	rpcResp := &bizDto.CreateProjectResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "ProjectCoreService.CreateProject", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.CreateProjectResponse{}
+	if err := project_core.CreateProject(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
-	response.OK(c, project.NewCreateProjectResponse(rpcResp))
+	response.OK(c, utils.NewCreateProjectResponse(rpcResp))
 }

@@ -3,6 +3,9 @@ package handlers
 import (
 	"github.com/gin-gonic/gin"
 
+	"icw_common/consts"
+	"icw_common/utils"
+
 	"icw_core_api/configs"
 	"icw_core_api/internal/handlers/auth"
 	"icw_core_api/internal/handlers/common"
@@ -16,12 +19,11 @@ import (
 	"icw_core_api/internal/handlers/user"
 	"icw_core_api/internal/middlewares"
 	ws "icw_core_api/internal/socket"
-	"icw_core_biz/consts"
-	"icw_core_biz/utils"
+	"icw_core_api/rpc/icw_core_biz"
 )
 
 // RegisterRoutes 注册 HTTP 路由
-func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketHub *ws.Hub) *gin.Engine {
+func RegisterRoutes(cfg configs.Config, coreBizClient *icw_core_biz.Client, socketHub *ws.Hub) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(middlewares.RequestId(), middlewares.Logger(), gin.Recovery(), middlewares.CORS())
@@ -36,7 +38,7 @@ func RegisterRoutes(cfg configs.Config, coreBizClient *common.RPCClient, socketH
 }
 
 // registry HTTP 路由注册表
-func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *common.RPCClient, socketHub *ws.Hub, routeDescriptions map[string]string) {
+func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_core_biz.Client, socketHub *ws.Hub, routeDescriptions map[string]string) {
 	// 登录鉴权 Handler
 	authHandler := auth.NewHandler(handlerDeps)
 	authRouter := router.Group("/auth")

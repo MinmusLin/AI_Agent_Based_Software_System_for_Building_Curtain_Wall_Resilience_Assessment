@@ -3,40 +3,41 @@ package assets
 import (
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/internal/dto/project"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
+	"icw_common/utils"
 	"icw_core_api/internal/response"
-	"icw_core_api/utils"
-	bizDto "icw_core_biz/pkg/dto/project"
-	bizUtils "icw_core_biz/utils"
+	"icw_core_api/rpc/icw_core_biz/project_assets"
+	apiUtils "icw_core_api/utils"
 )
 
 // GetProjectImageOriginal 获取原图
 // @router /project/assets/image/original [GET]
 func (h *Handler) GetProjectImageOriginal(c *gin.Context) {
 	// 从 Gin Context 中获取当前登录用户
-	user, err := utils.GetCurrentUser(c)
+	user, err := apiUtils.GetCurrentUser(c)
 	if err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
-	projectId, err := bizUtils.Decode(c.Query("project_id"))
+	projectId, err := utils.Decode(c.Query("project_id"))
 	if err != nil {
-		response.WriteError(c, err)
+		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
 		return
 	}
 
-	rpcReq := &bizDto.GetProjectImageOriginalRequest{
+	rpcReq := &bizpb.GetProjectImageOriginalRequest{
 		UserId:    user.Id,
 		ProjectId: projectId,
 		ImageUuid: c.Query("image_uuid"),
 	}
-	rpcResp := &bizDto.GetProjectImageOriginalResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "ProjectAssetsService.GetProjectImageOriginal", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.GetProjectImageOriginalResponse{}
+	if err := project_assets.GetProjectImageOriginal(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
-	response.OK(c, project.NewGetProjectImageOriginalResponse(rpcResp))
+	response.OK(c, apiUtils.NewGetProjectImageOriginalResponse(rpcResp))
 }

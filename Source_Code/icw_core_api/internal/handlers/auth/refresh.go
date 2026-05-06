@@ -3,10 +3,11 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/internal/dto"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
 	"icw_core_api/internal/response"
-	bizDto "icw_core_biz/pkg/dto"
-	"icw_core_biz/pkg/rpc_err"
+	"icw_core_api/rpc/icw_core_biz/auth"
+	"icw_core_api/utils"
 )
 
 // Refresh 刷新 Token
@@ -16,11 +17,11 @@ func (h *Handler) Refresh(c *gin.Context) {
 	// Refresh Token 存在 HttpOnly Cookie 中
 	refreshToken, _ := c.Cookie(RefreshCookieName)
 
-	rpcReq := &bizDto.RefreshRequest{
+	rpcReq := &bizpb.RefreshRequest{
 		RefreshToken: refreshToken,
 	}
-	rpcResp := &bizDto.RefreshResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "AuthService.Refresh", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.RefreshResponse{}
+	if err := auth.Refresh(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		code, _, _ := rpc_err.Parse(err)
 		if code == rpc_err.CodeUnauthorized {
@@ -31,7 +32,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 	}
 
 	// 新 Refresh Token 写入 HttpOnly Cookie，旧 Refresh Token 失效
-	h.setRefreshCookie(c, rpcResp.RefreshToken, rpcResp.RefreshTokenExpiresIn)
+	h.setRefreshCookie(c, rpcResp.RefreshToken, int(rpcResp.RefreshTokenExpiresIn))
 
-	response.OK(c, dto.NewRefreshResponse(rpcResp))
+	response.OK(c, utils.NewRefreshResponse(rpcResp))
 }

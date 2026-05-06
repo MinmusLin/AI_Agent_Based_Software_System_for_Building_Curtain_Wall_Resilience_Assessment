@@ -6,10 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	"icw_core_api/internal/dto"
+	"icw_common/consts"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
+	"icw_common/utils"
 	"icw_core_api/internal/response"
-	bizDto "icw_core_biz/pkg/dto"
-	"icw_core_biz/utils"
+	"icw_core_api/rpc/icw_core_biz/socket"
 )
 
 // upgrader 从 HTTP 协议升级至 WebSocket 协议
@@ -26,17 +28,17 @@ func (h *Handler) SetupAssetsWebSocket(c *gin.Context) {
 	ticket := c.Query("ticket")
 	projectId, err := utils.Decode(projectCode)
 	if err != nil {
-		response.WriteError(c, err)
+		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
 		return
 	}
 
-	rpcReq := &bizDto.ValidateSocketTicketRequest{
+	rpcReq := &bizpb.ValidateSocketTicketRequest{
 		ProjectCode: projectCode,
-		SocketScope: dto.SocketScopeProjectAssets,
+		SocketScope: consts.SocketScopeProjectAssets,
 		Ticket:      ticket,
 	}
-	rpcResp := &bizDto.ValidateSocketTicketResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "SocketService.ValidateSocketTicket", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.ValidateSocketTicketResponse{}
+	if err := socket.ValidateSocketTicket(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}

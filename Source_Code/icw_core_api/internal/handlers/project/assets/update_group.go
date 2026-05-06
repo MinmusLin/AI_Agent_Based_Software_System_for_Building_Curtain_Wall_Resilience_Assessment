@@ -3,51 +3,53 @@ package assets
 import (
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/internal/dto/project"
+	"icw_common/gen/core/api"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
+	"icw_common/utils"
 	"icw_core_api/internal/response"
-	"icw_core_api/utils"
-	bizDto "icw_core_biz/pkg/dto/project"
-	bizUtils "icw_core_biz/utils"
+	"icw_core_api/rpc/icw_core_biz/project_assets"
+	apiUtils "icw_core_api/utils"
 )
 
 // UpdateProjectGroup 更新图像组
 // @router /project/assets/group/update [POST]
 func (h *Handler) UpdateProjectGroup(c *gin.Context) {
-	var req project.UpdateProjectGroupRequest
+	var req apipb.UpdateProjectGroupRequest
 	if !response.BindJSON(c, &req) {
 		return
 	}
 
 	// 从 Gin Context 中获取当前登录用户
-	user, err := utils.GetCurrentUser(c)
+	user, err := apiUtils.GetCurrentUser(c)
 	if err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
-	projectId, err := bizUtils.Decode(req.ProjectId)
+	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, err)
+		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
 		return
 	}
-	groupId, err := bizUtils.Decode(req.GroupId)
+	groupId, err := utils.Decode(req.GroupId)
 	if err != nil {
-		response.WriteError(c, err)
+		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
 		return
 	}
 
-	rpcReq := &bizDto.UpdateProjectGroupRequest{
+	rpcReq := &bizpb.UpdateProjectGroupRequest{
 		UserId:    user.Id,
 		ProjectId: projectId,
 		GroupId:   groupId,
 		Name:      req.Name,
 	}
-	rpcResp := &bizDto.UpdateProjectGroupResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "ProjectAssetsService.UpdateProjectGroup", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.UpdateProjectGroupResponse{}
+	if err := project_assets.UpdateProjectGroup(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
-	response.OK(c, project.NewUpdateProjectGroupResponse(rpcResp))
+	response.OK(c, apiUtils.NewUpdateProjectGroupResponse(rpcResp))
 }

@@ -3,57 +3,59 @@ package assets
 import (
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/internal/dto/project"
+	"icw_common/gen/core/api"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
+	"icw_common/utils"
 	"icw_core_api/internal/response"
-	"icw_core_api/utils"
-	bizDto "icw_core_biz/pkg/dto/project"
-	bizUtils "icw_core_biz/utils"
+	"icw_core_api/rpc/icw_core_biz/project_assets"
+	apiUtils "icw_core_api/utils"
 )
 
 // UploadProjectImage 上传图像
 // @router /project/assets/image/upload [POST]
 func (h *Handler) UploadProjectImage(c *gin.Context) {
-	var req project.UploadProjectImageRequest
+	var req apipb.UploadProjectImageRequest
 	if !response.BindJSON(c, &req) {
 		return
 	}
 
 	// 从 Gin Context 中获取当前登录用户
-	user, err := utils.GetCurrentUser(c)
+	user, err := apiUtils.GetCurrentUser(c)
 	if err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
-	projectId, err := bizUtils.Decode(req.ProjectId)
+	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, err)
+		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
 		return
 	}
-	groupId, err := bizUtils.Decode(req.GroupId)
+	groupId, err := utils.Decode(req.GroupId)
 	if err != nil {
-		response.WriteError(c, err)
+		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
 		return
 	}
 
-	rpcReq := &bizDto.UploadProjectImageRequest{
+	rpcReq := &bizpb.UploadProjectImageRequest{
 		UserId:    user.Id,
 		ProjectId: projectId,
 		GroupId:   groupId,
-		Images:    make([]*bizDto.UploadProjectImageItem, 0, len(req.Images)),
+		Images:    make([]*bizpb.UploadProjectImageItem, 0, len(req.Images)),
 	}
 	for _, image := range req.Images {
 		if image == nil {
 			continue
 		}
-		rpcReq.Images = append(rpcReq.Images, project.NewUploadProjectImageItem(image))
+		rpcReq.Images = append(rpcReq.Images, apiUtils.NewUploadProjectImageItem(image))
 	}
-	rpcResp := &bizDto.UploadProjectImageResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "ProjectAssetsService.UploadProjectImage", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.UploadProjectImageResponse{}
+	if err := project_assets.UploadProjectImage(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
-	response.OK(c, project.NewUploadProjectImageResponse(rpcResp))
+	response.OK(c, apiUtils.NewUploadProjectImageResponse(rpcResp))
 }

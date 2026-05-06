@@ -3,36 +3,38 @@ package profile
 import (
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/internal/dto/project"
+	"icw_common/gen/core/api"
+	"icw_common/gen/core/biz"
+	"icw_common/rpc_err"
+	"icw_common/utils"
 	"icw_core_api/internal/response"
-	"icw_core_api/utils"
-	bizDto "icw_core_biz/pkg/dto/project"
-	bizUtils "icw_core_biz/utils"
+	"icw_core_api/rpc/icw_core_biz/project_profile"
+	apiUtils "icw_core_api/utils"
 )
 
 // UpdateProjectProfile 更新项目基础信息
 // @router /project/profile/update [POST]
 func (h *Handler) UpdateProjectProfile(c *gin.Context) {
-	var req project.UpdateProjectProfileRequest
+	var req apipb.UpdateProjectProfileRequest
 	if !response.BindJSON(c, &req) {
 		return
 	}
 
 	// 从 Gin Context 中获取当前登录用户
-	user, err := utils.GetCurrentUser(c)
+	user, err := apiUtils.GetCurrentUser(c)
 	if err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
-	projectId, err := bizUtils.Decode(req.ProjectId)
+	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, err)
+		response.WriteError(c, rpc_err.BadRequestDefault("id is invalid"))
 		return
 	}
 
-	rpcReq := &bizDto.UpdateProjectProfileRequest{
+	rpcReq := &bizpb.UpdateProjectProfileRequest{
 		UserId:              user.Id,
 		ProjectId:           projectId,
 		Name:                req.Name,
@@ -43,11 +45,11 @@ func (h *Handler) UpdateProjectProfile(c *gin.Context) {
 		KnownIssues:         req.KnownIssues,
 		AssessmentGoal:      req.AssessmentGoal,
 	}
-	rpcResp := &bizDto.UpdateProjectProfileResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "ProjectProfileService.UpdateProjectProfile", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.UpdateProjectProfileResponse{}
+	if err := project_profile.UpdateProjectProfile(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
-	response.OK(c, project.NewUpdateProjectProfileResponse(rpcResp))
+	response.OK(c, apiUtils.NewUpdateProjectProfileResponse(rpcResp))
 }

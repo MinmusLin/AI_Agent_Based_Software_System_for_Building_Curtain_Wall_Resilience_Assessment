@@ -3,30 +3,32 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/internal/dto"
+	"icw_common/gen/core/api"
+	"icw_common/gen/core/biz"
 	"icw_core_api/internal/response"
-	bizDto "icw_core_biz/pkg/dto"
+	"icw_core_api/rpc/icw_core_biz/auth"
+	"icw_core_api/utils"
 )
 
 // Register 注册
 // @router /auth/register [POST]
 func (h *Handler) Register(c *gin.Context) {
-	var req dto.RegisterRequest
+	var req apipb.RegisterRequest
 	if !response.BindJSON(c, &req) {
 		return
 	}
 
-	rpcReq := &bizDto.RegisterRequest{
+	rpcReq := &bizpb.RegisterRequest{
 		Email:     req.Email,
 		EmailCode: req.EmailCode,
 		Password:  req.Password,
 		Name:      req.Name,
 	}
-	rpcResp := &bizDto.RegisterResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "AuthService.Register", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.RegisterResponse{}
+	if err := auth.Register(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
-	response.OK(c, dto.NewRegisterResponse(rpcResp))
+	response.OK(c, utils.NewRegisterResponse(rpcResp))
 }

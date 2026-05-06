@@ -3,10 +3,10 @@ package core
 import (
 	"github.com/gin-gonic/gin"
 
-	"icw_core_api/internal/dto/project"
+	"icw_common/gen/core/biz"
 	"icw_core_api/internal/response"
+	"icw_core_api/rpc/icw_core_biz/project_core"
 	"icw_core_api/utils"
-	bizDto "icw_core_biz/pkg/dto/project"
 )
 
 // ListProjects 获取项目列表
@@ -19,14 +19,14 @@ func (h *Handler) ListProjects(c *gin.Context) {
 		return
 	}
 
-	rpcReq := &bizDto.ListProjectsRequest{
+	rpcReq := &bizpb.ListProjectsRequest{
 		UserId: user.Id,
 	}
-	rpcResp := &bizDto.ListProjectsResponse{}
-	if err := h.CoreBizCall(c.Request.Context(), "ProjectCoreService.ListProjects", rpcReq, rpcResp); err != nil {
+	rpcResp := &bizpb.ListProjectsResponse{}
+	if err := project_core.ListProjects(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
 		return
 	}
 
-	response.OK(c, project.NewListProjectsResponse(rpcResp))
+	response.OK(c, utils.NewListProjectsResponse(rpcResp))
 }
