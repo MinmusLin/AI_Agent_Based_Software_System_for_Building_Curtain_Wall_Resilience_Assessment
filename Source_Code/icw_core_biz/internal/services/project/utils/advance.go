@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/repositories/mysql"
 )
 
@@ -31,7 +31,7 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 			return err
 		}
 		if groupCount == 0 {
-			return rpc_err.BadRequest(rpc_err.DetailProjectAtLeastOneGroupRequired, "project must keep at least one group")
+			return rpc_error.BadRequest(rpc_error.DetailProjectAtLeastOneGroupRequired, "project must keep at least one group")
 		}
 
 		stats, err := repo.GetProjectAssetsReadyStats(ctx, userId, projectId)
@@ -39,16 +39,16 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 			return err
 		}
 		if stats == nil {
-			return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+			return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 		}
 		if stats.UploadedImageCount == 0 {
-			return rpc_err.BadRequest(rpc_err.DetailProjectUploadedImageCountRequired, "project must keep at least one uploaded image")
+			return rpc_error.BadRequest(rpc_error.DetailProjectUploadedImageCountRequired, "project must keep at least one uploaded image")
 		}
 		if stats.EmptyGroupCount > 0 {
-			return rpc_err.BadRequest(rpc_err.DetailProjectEmptyGroupCountInvalid, "project must not have empty groups")
+			return rpc_error.BadRequest(rpc_error.DetailProjectEmptyGroupCountInvalid, "project must not have empty groups")
 		}
 		if stats.PendingImageCount > 0 || stats.FailedImageCount > 0 {
-			return rpc_err.BadRequest(rpc_err.DetailProjectPendingOrFailedImageCountInvalid, "project must not have pending or failed images")
+			return rpc_error.BadRequest(rpc_error.DetailProjectPendingOrFailedImageCountInvalid, "project must not have pending or failed images")
 		}
 		return nil
 	}
@@ -68,7 +68,7 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 		return nil
 	}
 
-	return rpc_err.BadRequestDefault("invalid from progress and to progress")
+	return rpc_error.BadRequestDefault("invalid from progress and to progress")
 }
 
 // AdvanceProject 项目进度流转扩展点
@@ -98,5 +98,5 @@ func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, project
 		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, nil)
 	}
 
-	return false, rpc_err.BadRequestDefault("invalid from progress and to progress")
+	return false, rpc_error.BadRequestDefault("invalid from progress and to progress")
 }

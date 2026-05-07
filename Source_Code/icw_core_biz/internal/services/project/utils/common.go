@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/redis"
@@ -35,22 +35,22 @@ func NormalizeProjectProfileFields(name, buildingName, buildingLocation, buildin
 		KnownIssues:         strings.TrimSpace(knownIssues),
 		AssessmentGoal:      strings.TrimSpace(assessmentGoal),
 	}
-	if err := validateStringMaxLength(fields.Name, consts.ProjectNameMaxLength, rpc_err.DetailProjectNameTooLong, "project name is too long"); err != nil {
+	if err := validateStringMaxLength(fields.Name, consts.ProjectNameMaxLength, rpc_error.DetailProjectNameTooLong, "project name is too long"); err != nil {
 		return nil, err
 	}
-	if err := validateStringMaxLength(fields.BuildingName, consts.ProjectBuildingNameMaxLength, rpc_err.DetailProjectBuildingNameTooLong, "project building name is too long"); err != nil {
+	if err := validateStringMaxLength(fields.BuildingName, consts.ProjectBuildingNameMaxLength, rpc_error.DetailProjectBuildingNameTooLong, "project building name is too long"); err != nil {
 		return nil, err
 	}
-	if err := validateStringMaxLength(fields.BuildingLocation, consts.ProjectBuildingLocationMaxLength, rpc_err.DetailProjectBuildingLocationTooLong, "project building location is too long"); err != nil {
+	if err := validateStringMaxLength(fields.BuildingLocation, consts.ProjectBuildingLocationMaxLength, rpc_error.DetailProjectBuildingLocationTooLong, "project building location is too long"); err != nil {
 		return nil, err
 	}
-	if err := validateStringMaxLength(fields.BuildingDescription, consts.ProjectBuildingDescriptionMaxLength, rpc_err.DetailProjectBuildingDescriptionTooLong, "project building description is too long"); err != nil {
+	if err := validateStringMaxLength(fields.BuildingDescription, consts.ProjectBuildingDescriptionMaxLength, rpc_error.DetailProjectBuildingDescriptionTooLong, "project building description is too long"); err != nil {
 		return nil, err
 	}
-	if err := validateStringMaxLength(fields.KnownIssues, consts.ProjectKnownIssuesMaxLength, rpc_err.DetailProjectKnownIssuesTooLong, "project known issues is too long"); err != nil {
+	if err := validateStringMaxLength(fields.KnownIssues, consts.ProjectKnownIssuesMaxLength, rpc_error.DetailProjectKnownIssuesTooLong, "project known issues is too long"); err != nil {
 		return nil, err
 	}
-	if err := validateStringMaxLength(fields.AssessmentGoal, consts.ProjectAssessmentGoalMaxLength, rpc_err.DetailProjectAssessmentGoalTooLong, "project assessment goal is too long"); err != nil {
+	if err := validateStringMaxLength(fields.AssessmentGoal, consts.ProjectAssessmentGoalMaxLength, rpc_error.DetailProjectAssessmentGoalTooLong, "project assessment goal is too long"); err != nil {
 		return nil, err
 	}
 	return fields, nil
@@ -60,9 +60,9 @@ func NormalizeProjectProfileFields(name, buildingName, buildingLocation, buildin
 func NormalizeProjectGroupName(name string) (string, error) {
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return "", rpc_err.BadRequest(rpc_err.DetailProjectGroupNameRequired, "project group name is required")
+		return "", rpc_error.BadRequest(rpc_error.DetailProjectGroupNameRequired, "project group name is required")
 	}
-	if err := validateStringMaxLength(name, consts.ProjectGroupNameMaxLength, rpc_err.DetailProjectGroupNameTooLong, "project group name is too long"); err != nil {
+	if err := validateStringMaxLength(name, consts.ProjectGroupNameMaxLength, rpc_error.DetailProjectGroupNameTooLong, "project group name is too long"); err != nil {
 		return "", err
 	}
 	return name, nil
@@ -76,7 +76,7 @@ func NormalizeProjectImageMetadata(metadata string) (string, error) {
 	}
 	var compacted bytes.Buffer
 	if err := json.Compact(&compacted, []byte(metadata)); err != nil {
-		return "", rpc_err.BadRequestDefault("project image metadata must be json formatted string")
+		return "", rpc_error.BadRequestDefault("project image metadata must be json formatted string")
 	}
 	return compacted.String(), nil
 }
@@ -91,11 +91,11 @@ func RemoveProjectImageObjects(ctx context.Context, minioRepo *minio.Repository,
 
 	originalKey, err := minio.GenProjectImageOriginalKey(projectId, imageUuid)
 	if err != nil {
-		return rpc_err.BadRequestDefault(err.Error())
+		return rpc_error.BadRequestDefault(err.Error())
 	}
 	thumbnailKey, err := minio.GenProjectImageThumbnailKey(projectId, imageUuid)
 	if err != nil {
-		return rpc_err.BadRequestDefault(err.Error())
+		return rpc_error.BadRequestDefault(err.Error())
 	}
 
 	var removeErr error
@@ -110,9 +110,9 @@ func RemoveProjectImageObjects(ctx context.Context, minioRepo *minio.Repository,
 }
 
 // validateStringMaxLength 校验字符串最大字符数
-func validateStringMaxLength(value string, maxLength int, detailCode rpc_err.DetailCode, message string) error {
+func validateStringMaxLength(value string, maxLength int, detailCode rpc_error.DetailCode, message string) error {
 	if utf8.RuneCountInString(value) > maxLength {
-		return rpc_err.BadRequest(detailCode, message)
+		return rpc_error.BadRequest(detailCode, message)
 	}
 	return nil
 }

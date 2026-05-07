@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/socket/utils"
 )
 
@@ -24,7 +24,7 @@ func (s *Service) validateSocketTicket(req *bizpb.ValidateSocketTicketRequest, _
 	projectCode := strings.TrimSpace(req.ProjectCode)
 	socketScope := strings.TrimSpace(req.SocketScope)
 	if ticket == "" || projectCode == "" || socketScope == "" {
-		return rpc_err.BadRequestDefault("socket ticket resource is required")
+		return rpc_error.BadRequestDefault("socket ticket resource is required")
 	}
 
 	// 消费 WebSocket 连接票据上下文
@@ -33,7 +33,7 @@ func (s *Service) validateSocketTicket(req *bizpb.ValidateSocketTicketRequest, _
 		return err
 	}
 	if rawContext == "" {
-		return rpc_err.BadRequestDefault("socket ticket is invalid")
+		return rpc_error.BadRequestDefault("socket ticket is invalid")
 	}
 
 	// 解析 WebSocket 连接票据上下文
@@ -42,7 +42,7 @@ func (s *Service) validateSocketTicket(req *bizpb.ValidateSocketTicketRequest, _
 		return err
 	}
 	if ticketContext.ProjectCode != projectCode || ticketContext.SocketScope != socketScope {
-		return rpc_err.BadRequestDefault("socket ticket is mismatched")
+		return rpc_error.BadRequestDefault("socket ticket is mismatched")
 	}
 
 	return nil

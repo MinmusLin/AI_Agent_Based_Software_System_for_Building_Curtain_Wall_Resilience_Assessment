@@ -8,7 +8,7 @@ import (
 
 	"icw_common/gen/core/biz"
 	"icw_common/rpc"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/socket/utils"
 )
 
@@ -23,12 +23,12 @@ func (s *Service) CreateSocketTicket(ctx context.Context, req *bizpb.CreateSocke
 
 func (s *Service) createSocketTicket(ctx context.Context, req *bizpb.CreateSocketTicketRequest, resp *bizpb.CreateSocketTicketResponse) error {
 	if req.UserId == 0 || req.ProjectId == 0 {
-		return rpc_err.BadRequestDefault("socket ticket resource is required")
+		return rpc_error.BadRequestDefault("socket ticket resource is required")
 	}
 	projectCode := strings.TrimSpace(req.ProjectCode)
 	socketScope := strings.TrimSpace(req.SocketScope)
 	if projectCode == "" || socketScope == "" {
-		return rpc_err.BadRequestDefault("socket ticket resource is required")
+		return rpc_error.BadRequestDefault("socket ticket resource is required")
 	}
 
 	// 生成 WebSocket 连接票据
