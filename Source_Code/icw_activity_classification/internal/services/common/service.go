@@ -3,10 +3,11 @@ package common
 import (
 	"context"
 
-	"icw_activity_classification/configs"
-	"icw_activity_classification/rpc/icw_core_biz"
 	"icw_common/rpc/error"
 	"icw_common/utils"
+
+	"icw_activity_classification/configs"
+	"icw_activity_classification/rpc/icw_core_biz"
 )
 
 // Deps RPC Service 的公共依赖集合

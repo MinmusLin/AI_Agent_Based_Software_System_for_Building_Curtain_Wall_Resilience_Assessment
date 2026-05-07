@@ -3,8 +3,9 @@ package classification
 import (
 	"context"
 
-	"icw_activity_classification/internal/services/common"
 	"icw_common/gen/activity/classification"
+
+	"icw_activity_classification/internal/services/common"
 )
 
 // Service 分类能力服务

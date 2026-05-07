@@ -6,13 +6,14 @@ import (
 
 	"google.golang.org/grpc"
 
+	"icw_common/consts"
+	"icw_common/env"
+	"icw_common/utils"
+
 	"icw_activity_classification/configs"
 	"icw_activity_classification/internal/services"
 	"icw_activity_classification/internal/services/common"
 	"icw_activity_classification/rpc/icw_core_biz"
-	"icw_common/consts"
-	"icw_common/env"
-	"icw_common/utils"
 )
 
 // main icw.activity.classification 服务入口

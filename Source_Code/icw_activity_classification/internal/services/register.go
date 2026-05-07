@@ -5,10 +5,11 @@ import (
 
 	"google.golang.org/grpc"
 
-	"icw_activity_classification/internal/services/classification"
-	"icw_activity_classification/internal/services/common"
 	"icw_common/gen/activity/classification"
 	"icw_common/rpc"
+
+	"icw_activity_classification/internal/services/classification"
+	"icw_activity_classification/internal/services/common"
 )
 
 // RegisterRPCServices 注册 gRPC 服务

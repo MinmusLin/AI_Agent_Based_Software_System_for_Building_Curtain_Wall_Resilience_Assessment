@@ -6,15 +6,16 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	classificationUtils "icw_activity_classification/internal/services/classification/utils"
-	"icw_activity_classification/internal/services/common"
-	"icw_activity_classification/rpc/icw_core_biz"
 	"icw_common/enum"
 	"icw_common/gen/activity"
 	"icw_common/gen/activity/classification"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc"
 	"icw_common/utils"
+
+	classificationUtils "icw_activity_classification/internal/services/classification/utils"
+	"icw_activity_classification/internal/services/common"
+	"icw_activity_classification/rpc/icw_core_biz"
 )
 
 // Start 启动分类任务
