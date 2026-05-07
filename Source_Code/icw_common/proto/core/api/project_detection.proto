@@ -4,6 +4,28 @@ package icw.core.api;
 
 option go_package = "icw_common/gen/core/api;apipb";
 
+import "core/common.proto";
+
+// GetProjectDetectionTasks 请求结构体
+message GetProjectDetectionTasksRequest {
+  string project_id = 1;
+}
+
+// GetProjectDetectionTasks 响应结构体
+message GetProjectDetectionTasksResponse {
+  repeated .icw.core.common.ProjectDetectionStatus tasks = 1;
+}
+
+// RetryProjectDetection 请求结构体
+message RetryProjectDetectionRequest {
+  string project_id = 1;
+}
+
+// RetryProjectDetection 响应结构体
+message RetryProjectDetectionResponse {
+  uint32 task_count = 1;
+}
+
 // StartProjectDetection 请求结构体
 message StartProjectDetectionRequest {
   string project_id = 1;
