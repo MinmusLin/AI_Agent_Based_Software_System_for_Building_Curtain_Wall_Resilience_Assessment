@@ -38,6 +38,8 @@ const (
 	LogScopeClassification = "CLS"
 	// LogScopeReasoning 检测能力日志域
 	LogScopeReasoning = "RSN"
+	// LogScopeSummary 总结能力日志域
+	LogScopeSummary = "SMR"
 	// LogScopeCallback 回调日志域
 	LogScopeCallback = "CBK"
 )
