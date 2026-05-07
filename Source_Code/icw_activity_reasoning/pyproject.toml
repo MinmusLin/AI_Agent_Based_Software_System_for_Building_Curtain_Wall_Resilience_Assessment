@@ -1,0 +1,15 @@
+[project]
+name = "icw.activity.reasoning"
+version = "1.0.0"
+requires-python = "==3.13.13"
+dependencies = [
+  "numpy",
+  "opencv-python",
+  "pillow",
+  "torch",
+  "torchvision",
+  "ultralytics",
+]
+
+[tool.uv]
+package = false

@@ -1,5 +1,6 @@
 APP_NAME := icw_activity_reasoning
 GO ?= go
+UV ?= uv
 MAIN := ./cmd/server
 PKGS := ./...
 BIN_DIR := bin
@@ -10,12 +11,14 @@ COVER_HTML := $(COVER_DIR)/coverage.html
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all verify fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-all build-linux-amd64 build-linux-arm64 run clean
+.PHONY: help all verify uv-sync python-check fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-all build-linux-amd64 build-linux-arm64 run clean
 
 help:
 	@echo "Targets:"
 	@echo "  make all                Run fmt, tidy, vet, test, and build"
 	@echo "  make verify             Run fmt-check, tidy-check, vet, and test"
+	@echo "  make uv-sync            Sync Python dependencies with uv"
+	@echo "  make python-check       Compile Python files with uv"
 	@echo "  make fmt                Format Go files"
 	@echo "  make fmt-check          Check Go formatting without modifying files"
 	@echo "  make tidy               Run go mod tidy"
@@ -38,6 +41,12 @@ help:
 all: fmt tidy vet test build
 
 verify: fmt-check tidy-check vet test
+
+uv-sync:
+	$(UV) sync
+
+python-check:
+	$(UV) run python -m compileall python
 
 fmt:
 	$(GO) fmt $(PKGS)
