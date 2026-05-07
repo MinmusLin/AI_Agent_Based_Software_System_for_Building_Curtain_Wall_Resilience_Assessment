@@ -3,8 +3,9 @@ package detection
 import (
 	"github.com/gin-gonic/gin"
 
+	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_common/utils"
 	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
@@ -14,6 +15,11 @@ import (
 
 // StartProjectDetection 启动项目智能检测
 func (h *Handler) StartProjectDetection(c *gin.Context) {
+	var req apipb.StartProjectDetectionRequest
+	if !response.BindJSON(c, &req) {
+		return
+	}
+
 	// 从 Gin Context 中获取当前登录用户
 	user, err := apiUtils.GetCurrentUser(c)
 	if err != nil {
@@ -22,9 +28,9 @@ func (h *Handler) StartProjectDetection(c *gin.Context) {
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
-	projectId, err := utils.Decode(c.Query("project_id"))
+	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, rpc_err.BadRequestDefault(err.Error()))
+		response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
 		return
 	}
 
