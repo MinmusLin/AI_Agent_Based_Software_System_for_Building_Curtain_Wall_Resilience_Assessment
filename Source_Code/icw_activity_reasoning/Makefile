@@ -14,7 +14,9 @@ COVER_HTML := $(COVER_DIR)/coverage.html
 .PHONY: help all verify uv-sync python-check fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-all build-linux-amd64 build-linux-arm64 run clean
 
 help:
-	@echo "Targets:"
+	@echo "Usage: make <COMMAND>"
+	@echo ""
+	@echo "Commands:"
 	@echo "  make all                Run fmt, tidy, vet, test, and build"
 	@echo "  make verify             Run fmt-check, tidy-check, vet, and test"
 	@echo "  make uv-sync            Sync Python dependencies with uv"

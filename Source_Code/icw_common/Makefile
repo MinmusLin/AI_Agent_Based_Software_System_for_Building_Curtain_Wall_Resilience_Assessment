@@ -10,7 +10,9 @@ COVER_HTML := $(COVER_DIR)/coverage.html
 .PHONY: help all verify gen fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open clean
 
 help:
-	@echo "Targets:"
+	@echo "Usage: make <COMMAND>"
+	@echo ""
+	@echo "Commands:"
 	@echo "  make all          Run gen, fmt, tidy, vet, and test"
 	@echo "  make verify       Run fmt-check, tidy-check, vet, and test"
 	@echo "  make gen          Generate Go code from proto files"
