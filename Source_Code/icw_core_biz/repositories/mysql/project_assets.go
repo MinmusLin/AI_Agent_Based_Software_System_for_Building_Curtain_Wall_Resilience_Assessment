@@ -21,6 +21,7 @@ func (r *Repository) ListProjectGroups(ctx context.Context, userId, projectId ui
 		WHERE user_id = ? AND project_id = ?
 		ORDER BY sort_order ASC, created_at ASC, id ASC
 	`, userId, projectId)
+
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +75,7 @@ func (r *Repository) ListProjectImages(ctx context.Context, userId, projectId ui
 		WHERE user_id = ? AND project_id = ?
 		ORDER BY created_at ASC, id ASC
 	`, userId, projectId)
+
 	if err != nil {
 		return nil, err
 	}
@@ -137,6 +139,7 @@ func (r *Repository) ListProjectImagesByGroupId(ctx context.Context, userId, pro
 		WHERE user_id = ? AND project_id = ? AND group_id = ?
 		ORDER BY created_at ASC, id ASC
 	`, userId, projectId, groupId)
+
 	if err != nil {
 		return nil, err
 	}
