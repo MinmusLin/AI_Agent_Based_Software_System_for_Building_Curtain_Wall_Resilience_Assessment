@@ -3,8 +3,9 @@ package reasoning
 import (
 	"context"
 
-	"icw_activity_reasoning/internal/services/common"
 	"icw_common/gen/activity/reasoning"
+
+	"icw_activity_reasoning/internal/services/common"
 )
 
 // Service 推理能力服务

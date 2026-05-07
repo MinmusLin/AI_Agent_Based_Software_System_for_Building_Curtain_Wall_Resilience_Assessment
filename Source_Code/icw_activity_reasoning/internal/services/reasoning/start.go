@@ -8,15 +8,16 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"icw_activity_reasoning/internal/services/common"
-	reasoningUtils "icw_activity_reasoning/internal/services/reasoning/utils"
-	"icw_activity_reasoning/rpc/icw_core_biz"
 	"icw_common/enum"
 	"icw_common/gen/activity"
 	"icw_common/gen/activity/reasoning"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc"
 	"icw_common/utils"
+
+	"icw_activity_reasoning/internal/services/common"
+	reasoningUtils "icw_activity_reasoning/internal/services/reasoning/utils"
+	"icw_activity_reasoning/rpc/icw_core_biz"
 )
 
 // Start 启动原子检测任务
@@ -75,7 +76,7 @@ func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.Start
 // executeDetection 执行原子检测任务
 func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRequest, callbackReq *bizpb.ReportReasoningResultRequest) (int, time.Duration, error) {
 	taskDir := filepath.Join(s.Config().ReasoningWorkDir, req.TaskCode, req.ImageUuid)
-	if err := os.RemoveAll(taskDir); err != nil { // ignore_security_alert
+	if err := os.RemoveAll(taskDir); err != nil {
 		return 0, 0, err
 	}
 	if err := os.MkdirAll(taskDir, 0o755); err != nil {

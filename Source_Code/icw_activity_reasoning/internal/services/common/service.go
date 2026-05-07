@@ -2,11 +2,13 @@ package common
 
 import (
 	"context"
+
+	"icw_common/rpc/error"
+	"icw_common/utils"
+
 	"icw_activity_reasoning/configs"
 	"icw_activity_reasoning/internal/detectors/common"
 	"icw_activity_reasoning/rpc/icw_core_biz"
-	"icw_common/rpc/error"
-	"icw_common/utils"
 )
 
 // Deps RPC Service 的公共依赖集合

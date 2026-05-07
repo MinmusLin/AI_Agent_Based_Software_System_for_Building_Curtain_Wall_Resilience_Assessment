@@ -5,10 +5,11 @@ import (
 
 	"google.golang.org/grpc"
 
-	"icw_activity_reasoning/internal/services/common"
-	"icw_activity_reasoning/internal/services/reasoning"
 	"icw_common/gen/activity/reasoning"
 	"icw_common/rpc"
+
+	"icw_activity_reasoning/internal/services/common"
+	"icw_activity_reasoning/internal/services/reasoning"
 )
 
 // RegisterRPCServices 注册 gRPC 服务

@@ -5,8 +5,9 @@ import (
 	"net/url"
 	"strings"
 
-	"icw_activity_reasoning/internal/detectors/common"
 	"icw_common/gen/activity/reasoning"
+
+	"icw_activity_reasoning/internal/detectors/common"
 )
 
 // ValidateRequest 校验启动原子检测任务请求
