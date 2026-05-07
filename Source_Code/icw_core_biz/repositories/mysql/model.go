@@ -377,9 +377,3 @@ type ProjectDetectionSpallingTaskRecord struct {
 type ProjectDetectionSummaryTaskRecord struct {
 	ProjectDetectionSubTaskRecord
 }
-
-// ProjectDetectionSubTaskRouteRecord 项目图像检测待调度子任务记录
-type ProjectDetectionSubTaskRouteRecord struct {
-	TaskCode string
-	Task     *ProjectDetectionSubTaskRecord
-}
