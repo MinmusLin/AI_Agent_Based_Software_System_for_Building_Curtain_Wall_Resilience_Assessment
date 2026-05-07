@@ -6,15 +6,16 @@ import (
 
 	"google.golang.org/grpc"
 
+	"icw_common/consts"
+	"icw_common/env"
+	"icw_common/utils"
+
 	"icw_activity_reasoning/configs"
 	"icw_activity_reasoning/internal/detectors"
 	detectorCommon "icw_activity_reasoning/internal/detectors/common"
 	"icw_activity_reasoning/internal/services"
 	"icw_activity_reasoning/internal/services/common"
 	"icw_activity_reasoning/rpc/icw_core_biz"
-	"icw_common/consts"
-	"icw_common/env"
-	"icw_common/utils"
 )
 
 // main icw.activity.reasoning 服务入口

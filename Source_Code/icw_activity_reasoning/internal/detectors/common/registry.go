@@ -3,7 +3,6 @@ package common
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"sort"
 
 	"icw_common/utils"
@@ -20,14 +19,13 @@ type Detector interface {
 type DetectorMeta struct {
 	Code        string
 	Description string
-	Path        string
 }
 
+// NewDetectorMeta 创建原子检测能力元数据
 func NewDetectorMeta(code, description string) *DetectorMeta {
 	return &DetectorMeta{
 		Code:        code,
 		Description: description,
-		Path:        filepath.Join("python/detectors", code),
 	}
 }
 
@@ -36,13 +34,14 @@ type Registry struct {
 	detectors map[string]Detector
 }
 
+// NewRegistry 创建原子检测能力注册表
 func NewRegistry(runtimeRoot string, metas []*DetectorMeta) *Registry {
 	items := make([]Detector, 0, len(metas))
 	for _, item := range metas {
 		if item == nil {
 			continue
 		}
-		items = append(items, NewPythonDetector(item.Code, item.Description, item.Path, runtimeRoot))
+		items = append(items, NewPythonDetector(item.Code, item.Description, runtimeRoot))
 	}
 	registry := &Registry{
 		detectors: make(map[string]Detector),
