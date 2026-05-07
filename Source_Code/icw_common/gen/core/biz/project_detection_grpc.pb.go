@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectDetectionService_StartProjectDetection_FullMethodName      = "/icw.core.biz.ProjectDetectionService/StartProjectDetection"
-	ProjectDetectionService_ReportClassificationResult_FullMethodName = "/icw.core.biz.ProjectDetectionService/ReportClassificationResult"
-	ProjectDetectionService_ReportReasoningResult_FullMethodName      = "/icw.core.biz.ProjectDetectionService/ReportReasoningResult"
+	ProjectDetectionService_StartProjectDetection_FullMethodName        = "/icw.core.biz.ProjectDetectionService/StartProjectDetection"
+	ProjectDetectionService_ReportClassificationResult_FullMethodName   = "/icw.core.biz.ProjectDetectionService/ReportClassificationResult"
+	ProjectDetectionService_ReportDetectionSummaryResult_FullMethodName = "/icw.core.biz.ProjectDetectionService/ReportDetectionSummaryResult"
+	ProjectDetectionService_ReportReasoningResult_FullMethodName        = "/icw.core.biz.ProjectDetectionService/ReportReasoningResult"
 )
 
 // ProjectDetectionServiceClient is the client API for ProjectDetectionService service.
@@ -34,6 +35,8 @@ type ProjectDetectionServiceClient interface {
 	StartProjectDetection(ctx context.Context, in *StartProjectDetectionRequest, opts ...grpc.CallOption) (*StartProjectDetectionResponse, error)
 	// 上报图像检测分类结果
 	ReportClassificationResult(ctx context.Context, in *ReportClassificationResultRequest, opts ...grpc.CallOption) (*ReportClassificationResultResponse, error)
+	// 上报图像检测总结结果
+	ReportDetectionSummaryResult(ctx context.Context, in *ReportDetectionSummaryResultRequest, opts ...grpc.CallOption) (*ReportDetectionSummaryResultResponse, error)
 	// 上报图像检测推理结果
 	ReportReasoningResult(ctx context.Context, in *ReportReasoningResultRequest, opts ...grpc.CallOption) (*ReportReasoningResultResponse, error)
 }
@@ -66,6 +69,16 @@ func (c *projectDetectionServiceClient) ReportClassificationResult(ctx context.C
 	return out, nil
 }
 
+func (c *projectDetectionServiceClient) ReportDetectionSummaryResult(ctx context.Context, in *ReportDetectionSummaryResultRequest, opts ...grpc.CallOption) (*ReportDetectionSummaryResultResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReportDetectionSummaryResultResponse)
+	err := c.cc.Invoke(ctx, ProjectDetectionService_ReportDetectionSummaryResult_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *projectDetectionServiceClient) ReportReasoningResult(ctx context.Context, in *ReportReasoningResultRequest, opts ...grpc.CallOption) (*ReportReasoningResultResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ReportReasoningResultResponse)
@@ -86,6 +99,8 @@ type ProjectDetectionServiceServer interface {
 	StartProjectDetection(context.Context, *StartProjectDetectionRequest) (*StartProjectDetectionResponse, error)
 	// 上报图像检测分类结果
 	ReportClassificationResult(context.Context, *ReportClassificationResultRequest) (*ReportClassificationResultResponse, error)
+	// 上报图像检测总结结果
+	ReportDetectionSummaryResult(context.Context, *ReportDetectionSummaryResultRequest) (*ReportDetectionSummaryResultResponse, error)
 	// 上报图像检测推理结果
 	ReportReasoningResult(context.Context, *ReportReasoningResultRequest) (*ReportReasoningResultResponse, error)
 	mustEmbedUnimplementedProjectDetectionServiceServer()
@@ -103,6 +118,9 @@ func (UnimplementedProjectDetectionServiceServer) StartProjectDetection(context.
 }
 func (UnimplementedProjectDetectionServiceServer) ReportClassificationResult(context.Context, *ReportClassificationResultRequest) (*ReportClassificationResultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReportClassificationResult not implemented")
+}
+func (UnimplementedProjectDetectionServiceServer) ReportDetectionSummaryResult(context.Context, *ReportDetectionSummaryResultRequest) (*ReportDetectionSummaryResultResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReportDetectionSummaryResult not implemented")
 }
 func (UnimplementedProjectDetectionServiceServer) ReportReasoningResult(context.Context, *ReportReasoningResultRequest) (*ReportReasoningResultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReportReasoningResult not implemented")
@@ -165,6 +183,24 @@ func _ProjectDetectionService_ReportClassificationResult_Handler(srv interface{}
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectDetectionService_ReportDetectionSummaryResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportDetectionSummaryResultRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectDetectionServiceServer).ReportDetectionSummaryResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectDetectionService_ReportDetectionSummaryResult_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectDetectionServiceServer).ReportDetectionSummaryResult(ctx, req.(*ReportDetectionSummaryResultRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ProjectDetectionService_ReportReasoningResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ReportReasoningResultRequest)
 	if err := dec(in); err != nil {
@@ -197,6 +233,10 @@ var ProjectDetectionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReportClassificationResult",
 			Handler:    _ProjectDetectionService_ReportClassificationResult_Handler,
+		},
+		{
+			MethodName: "ReportDetectionSummaryResult",
+			Handler:    _ProjectDetectionService_ReportDetectionSummaryResult_Handler,
 		},
 		{
 			MethodName: "ReportReasoningResult",

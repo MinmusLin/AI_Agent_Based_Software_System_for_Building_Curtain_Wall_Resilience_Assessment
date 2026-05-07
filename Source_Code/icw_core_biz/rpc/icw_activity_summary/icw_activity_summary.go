@@ -7,7 +7,12 @@ import (
 	"icw_common/rpc"
 )
 
-// Ping 总结能力服务探活
-func Ping(ctx context.Context, client *Client, req *summarypb.PingRequest, resp *summarypb.PingResponse) error {
-	return rpc.CallGRPC[summarypb.PingRequest, summarypb.PingResponse](ctx, client, req, resp, client.Ping)
+// StartDetectionSummary 启动图像检测总结任务
+func StartDetectionSummary(ctx context.Context, client *Client, req *summarypb.StartDetectionSummaryRequest, resp *summarypb.StartDetectionSummaryResponse) error {
+	return rpc.CallGRPC[summarypb.StartDetectionSummaryRequest, summarypb.StartDetectionSummaryResponse](ctx, client, req, resp, client.StartDetectionSummary)
+}
+
+// StartProjectSummary 启动项目总结任务
+func StartProjectSummary(ctx context.Context, client *Client, req *summarypb.StartProjectSummaryRequest, resp *summarypb.StartProjectSummaryResponse) error {
+	return rpc.CallGRPC[summarypb.StartProjectSummaryRequest, summarypb.StartProjectSummaryResponse](ctx, client, req, resp, client.StartProjectSummary)
 }

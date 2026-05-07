@@ -29,6 +29,18 @@ message ReportClassificationResultRequest {
 // ReportClassificationResult 响应结构体
 message ReportClassificationResultResponse {}
 
+// ReportDetectionSummaryResult 请求结构体
+message ReportDetectionSummaryResultRequest {
+  string task_uuid = 1;
+  string image_uuid = 2;
+  string status = 3;
+  string result_json = 4;
+  string error_message = 5;
+}
+
+// ReportDetectionSummaryResult 响应结构体
+message ReportDetectionSummaryResultResponse {}
+
 // ReportReasoningResult 请求结构体
 message ReportReasoningResultRequest {
   string task_code = 1;
@@ -49,6 +61,8 @@ service ProjectDetectionService {
   rpc StartProjectDetection(StartProjectDetectionRequest) returns (StartProjectDetectionResponse);
   // 上报图像检测分类结果
   rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);
+  // 上报图像检测总结结果
+  rpc ReportDetectionSummaryResult(ReportDetectionSummaryResultRequest) returns (ReportDetectionSummaryResultResponse);
   // 上报图像检测推理结果
   rpc ReportReasoningResult(ReportReasoningResultRequest) returns (ReportReasoningResultResponse);
 }

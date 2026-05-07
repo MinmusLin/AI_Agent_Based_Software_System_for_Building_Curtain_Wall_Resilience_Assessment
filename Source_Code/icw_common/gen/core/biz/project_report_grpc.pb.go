@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectReportService_Ping_FullMethodName = "/icw.core.biz.ProjectReportService/Ping"
+	ProjectReportService_ReportProjectSummaryResult_FullMethodName = "/icw.core.biz.ProjectReportService/ReportProjectSummaryResult"
 )
 
 // ProjectReportServiceClient is the client API for ProjectReportService service.
@@ -28,8 +28,8 @@ const (
 //
 // 评估报告 RPC 服务
 type ProjectReportServiceClient interface {
-	// 评估报告服务探活
-	Ping(ctx context.Context, in *PingReportRequest, opts ...grpc.CallOption) (*PingReportResponse, error)
+	// 上报项目总结结果
+	ReportProjectSummaryResult(ctx context.Context, in *ReportProjectSummaryResultRequest, opts ...grpc.CallOption) (*ReportProjectSummaryResultResponse, error)
 }
 
 type projectReportServiceClient struct {
@@ -40,10 +40,10 @@ func NewProjectReportServiceClient(cc grpc.ClientConnInterface) ProjectReportSer
 	return &projectReportServiceClient{cc}
 }
 
-func (c *projectReportServiceClient) Ping(ctx context.Context, in *PingReportRequest, opts ...grpc.CallOption) (*PingReportResponse, error) {
+func (c *projectReportServiceClient) ReportProjectSummaryResult(ctx context.Context, in *ReportProjectSummaryResultRequest, opts ...grpc.CallOption) (*ReportProjectSummaryResultResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PingReportResponse)
-	err := c.cc.Invoke(ctx, ProjectReportService_Ping_FullMethodName, in, out, cOpts...)
+	out := new(ReportProjectSummaryResultResponse)
+	err := c.cc.Invoke(ctx, ProjectReportService_ReportProjectSummaryResult_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +56,8 @@ func (c *projectReportServiceClient) Ping(ctx context.Context, in *PingReportReq
 //
 // 评估报告 RPC 服务
 type ProjectReportServiceServer interface {
-	// 评估报告服务探活
-	Ping(context.Context, *PingReportRequest) (*PingReportResponse, error)
+	// 上报项目总结结果
+	ReportProjectSummaryResult(context.Context, *ReportProjectSummaryResultRequest) (*ReportProjectSummaryResultResponse, error)
 	mustEmbedUnimplementedProjectReportServiceServer()
 }
 
@@ -68,8 +68,8 @@ type ProjectReportServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectReportServiceServer struct{}
 
-func (UnimplementedProjectReportServiceServer) Ping(context.Context, *PingReportRequest) (*PingReportResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
+func (UnimplementedProjectReportServiceServer) ReportProjectSummaryResult(context.Context, *ReportProjectSummaryResultRequest) (*ReportProjectSummaryResultResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReportProjectSummaryResult not implemented")
 }
 func (UnimplementedProjectReportServiceServer) mustEmbedUnimplementedProjectReportServiceServer() {}
 func (UnimplementedProjectReportServiceServer) testEmbeddedByValue()                              {}
@@ -92,20 +92,20 @@ func RegisterProjectReportServiceServer(s grpc.ServiceRegistrar, srv ProjectRepo
 	s.RegisterService(&ProjectReportService_ServiceDesc, srv)
 }
 
-func _ProjectReportService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PingReportRequest)
+func _ProjectReportService_ReportProjectSummaryResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportProjectSummaryResultRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProjectReportServiceServer).Ping(ctx, in)
+		return srv.(ProjectReportServiceServer).ReportProjectSummaryResult(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ProjectReportService_Ping_FullMethodName,
+		FullMethod: ProjectReportService_ReportProjectSummaryResult_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectReportServiceServer).Ping(ctx, req.(*PingReportRequest))
+		return srv.(ProjectReportServiceServer).ReportProjectSummaryResult(ctx, req.(*ReportProjectSummaryResultRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -118,8 +118,8 @@ var ProjectReportService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ProjectReportServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Ping",
-			Handler:    _ProjectReportService_Ping_Handler,
+			MethodName: "ReportProjectSummaryResult",
+			Handler:    _ProjectReportService_ReportProjectSummaryResult_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

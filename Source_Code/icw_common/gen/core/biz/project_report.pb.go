@@ -21,26 +21,31 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type PingReportRequest struct {
+// ReportProjectSummaryResult 请求结构体
+type ReportProjectSummaryResultRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     uint64                 `protobuf:"varint,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	ResultJson    string                 `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
+	ErrorMessage  string                 `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PingReportRequest) Reset() {
-	*x = PingReportRequest{}
+func (x *ReportProjectSummaryResultRequest) Reset() {
+	*x = ReportProjectSummaryResultRequest{}
 	mi := &file_core_biz_project_report_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PingReportRequest) String() string {
+func (x *ReportProjectSummaryResultRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PingReportRequest) ProtoMessage() {}
+func (*ReportProjectSummaryResultRequest) ProtoMessage() {}
 
-func (x *PingReportRequest) ProtoReflect() protoreflect.Message {
+func (x *ReportProjectSummaryResultRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_core_biz_project_report_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -52,31 +57,60 @@ func (x *PingReportRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PingReportRequest.ProtoReflect.Descriptor instead.
-func (*PingReportRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ReportProjectSummaryResultRequest.ProtoReflect.Descriptor instead.
+func (*ReportProjectSummaryResultRequest) Descriptor() ([]byte, []int) {
 	return file_core_biz_project_report_proto_rawDescGZIP(), []int{0}
 }
 
-type PingReportResponse struct {
+func (x *ReportProjectSummaryResultRequest) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
+func (x *ReportProjectSummaryResultRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ReportProjectSummaryResultRequest) GetResultJson() string {
+	if x != nil {
+		return x.ResultJson
+	}
+	return ""
+}
+
+func (x *ReportProjectSummaryResultRequest) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
+// ReportProjectSummaryResult 响应结构体
+type ReportProjectSummaryResultResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PingReportResponse) Reset() {
-	*x = PingReportResponse{}
+func (x *ReportProjectSummaryResultResponse) Reset() {
+	*x = ReportProjectSummaryResultResponse{}
 	mi := &file_core_biz_project_report_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PingReportResponse) String() string {
+func (x *ReportProjectSummaryResultResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PingReportResponse) ProtoMessage() {}
+func (*ReportProjectSummaryResultResponse) ProtoMessage() {}
 
-func (x *PingReportResponse) ProtoReflect() protoreflect.Message {
+func (x *ReportProjectSummaryResultResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_core_biz_project_report_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -88,8 +122,8 @@ func (x *PingReportResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PingReportResponse.ProtoReflect.Descriptor instead.
-func (*PingReportResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ReportProjectSummaryResultResponse.ProtoReflect.Descriptor instead.
+func (*ReportProjectSummaryResultResponse) Descriptor() ([]byte, []int) {
 	return file_core_biz_project_report_proto_rawDescGZIP(), []int{1}
 }
 
@@ -97,11 +131,17 @@ var File_core_biz_project_report_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_report_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcore/biz/project_report.proto\x12\ficw.core.biz\"\x13\n" +
-	"\x11PingReportRequest\"\x14\n" +
-	"\x12PingReportResponse2a\n" +
-	"\x14ProjectReportService\x12I\n" +
-	"\x04Ping\x12\x1f.icw.core.biz.PingReportRequest\x1a .icw.core.biz.PingReportResponseB\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
+	"\x1dcore/biz/project_report.proto\x12\ficw.core.biz\"\xa0\x01\n" +
+	"!ReportProjectSummaryResultRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\x04R\tprojectId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1f\n" +
+	"\vresult_json\x18\x03 \x01(\tR\n" +
+	"resultJson\x12#\n" +
+	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"$\n" +
+	"\"ReportProjectSummaryResultResponse2\x97\x01\n" +
+	"\x14ProjectReportService\x12\x7f\n" +
+	"\x1aReportProjectSummaryResult\x12/.icw.core.biz.ReportProjectSummaryResultRequest\x1a0.icw.core.biz.ReportProjectSummaryResultResponseB\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
 
 var (
 	file_core_biz_project_report_proto_rawDescOnce sync.Once
@@ -117,12 +157,12 @@ func file_core_biz_project_report_proto_rawDescGZIP() []byte {
 
 var file_core_biz_project_report_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_core_biz_project_report_proto_goTypes = []any{
-	(*PingReportRequest)(nil),  // 0: icw.core.biz.PingReportRequest
-	(*PingReportResponse)(nil), // 1: icw.core.biz.PingReportResponse
+	(*ReportProjectSummaryResultRequest)(nil),  // 0: icw.core.biz.ReportProjectSummaryResultRequest
+	(*ReportProjectSummaryResultResponse)(nil), // 1: icw.core.biz.ReportProjectSummaryResultResponse
 }
 var file_core_biz_project_report_proto_depIdxs = []int32{
-	0, // 0: icw.core.biz.ProjectReportService.Ping:input_type -> icw.core.biz.PingReportRequest
-	1, // 1: icw.core.biz.ProjectReportService.Ping:output_type -> icw.core.biz.PingReportResponse
+	0, // 0: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:input_type -> icw.core.biz.ReportProjectSummaryResultRequest
+	1, // 1: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:output_type -> icw.core.biz.ReportProjectSummaryResultResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

@@ -4,12 +4,19 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
-// 评估报告 RPC 服务
-service ProjectReportService {
-  // 评估报告服务探活
-  rpc Ping(PingReportRequest) returns (PingReportResponse);
+// ReportProjectSummaryResult 请求结构体
+message ReportProjectSummaryResultRequest {
+  uint64 project_id = 1;
+  string status = 2;
+  string result_json = 3;
+  string error_message = 4;
 }
 
-message PingReportRequest {}
+// ReportProjectSummaryResult 响应结构体
+message ReportProjectSummaryResultResponse {}
 
-message PingReportResponse {}
+// 评估报告 RPC 服务
+service ProjectReportService {
+  // 上报项目总结结果
+  rpc ReportProjectSummaryResult(ReportProjectSummaryResultRequest) returns (ReportProjectSummaryResultResponse);
+}

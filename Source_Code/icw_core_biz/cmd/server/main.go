@@ -12,6 +12,7 @@ import (
 	"icw_common/env"
 	"icw_common/rpc"
 	"icw_common/utils"
+
 	"icw_core_biz/configs"
 	"icw_core_biz/internal/cronjobs"
 	cronjobCommon "icw_core_biz/internal/cronjobs/common"
@@ -20,6 +21,7 @@ import (
 	"icw_core_biz/internal/workers"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
+	mysqlUtils "icw_core_biz/repositories/mysql/utils"
 	"icw_core_biz/repositories/redis"
 	"icw_core_biz/repositories/rocketmq"
 	"icw_core_biz/repositories/smtp"
@@ -45,7 +47,7 @@ func main() {
 	utils.LogInfo(consts.LogScopeInit, "", "Config initialized successfully:\n%s", env.FormatEnvConfig(cfg))
 
 	// 初始化 MySQL
-	dataMySQL, err := sql.Open("mysql", mysql.MySQLDSN(cfg))
+	dataMySQL, err := sql.Open("mysql", mysqlUtils.MySQLDSN(cfg))
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to connect to MySQL: %v", err)
 	}
@@ -132,7 +134,7 @@ func main() {
 	))
 
 	// 启动项目图像检测任务 Worker
-	detectionWorker := workers.NewDetectionWorker(cfg, mysqlRepo, minioRepo, rocketMQRepo, activityClassificationClient, activityReasoningClient)
+	detectionWorker := workers.NewDetectionWorker(cfg, mysqlRepo, minioRepo, activityClassificationClient, activityReasoningClient)
 	detectionWorker.Start(ctx)
 
 	// 注册 gRPC 服务
