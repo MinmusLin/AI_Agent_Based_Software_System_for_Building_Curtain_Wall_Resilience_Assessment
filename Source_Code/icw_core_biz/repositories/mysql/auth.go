@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"icw_core_biz/repositories/mysql/model"
 	"strings"
 	"time"
 
@@ -79,16 +80,16 @@ func (r *Repository) RotateRefreshToken(ctx context.Context, oldTokenId, newToke
 		return err
 	}
 	if affected == 0 {
-		return ErrRefreshTokenNotReplaceable
+		return model.ErrRefreshTokenNotReplaceable
 	}
 
 	return tx.Commit()
 }
 
 // FindRefreshToken 按 Token Id 和 Token Hash 查询 Refresh Token 及所属用户
-func (r *Repository) FindRefreshToken(ctx context.Context, tokenId, tokenHash string) (*RefreshTokenRecord, *UserRecord, error) {
-	token := &RefreshTokenRecord{}
-	user := &UserRecord{}
+func (r *Repository) FindRefreshToken(ctx context.Context, tokenId, tokenHash string) (*model.RefreshTokenRecord, *model.UserRecord, error) {
+	token := &model.RefreshTokenRecord{}
+	user := &model.UserRecord{}
 
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT

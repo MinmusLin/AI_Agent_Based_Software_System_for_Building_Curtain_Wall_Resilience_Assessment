@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"icw_core_biz/repositories/mysql/model"
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
 )
 
 // FindProjectByIdAndUserId 按用户 ID 和项目 ID 查询项目
-func (r *Repository) FindProjectByIdAndUserId(ctx context.Context, userId, projectId uint64) (*ProjectRecord, error) {
-	project := &ProjectRecord{}
+func (r *Repository) FindProjectByIdAndUserId(ctx context.Context, userId, projectId uint64) (*model.ProjectRecord, error) {
+	project := &model.ProjectRecord{}
 
 	var (
 		progress uint8
@@ -77,7 +78,7 @@ func (r *Repository) UpdateProjectProfile(
 	buildingDescription string,
 	knownIssues string,
 	assessmentGoal string,
-) (*ProjectRecord, error) {
+) (*model.ProjectRecord, error) {
 	var builtYearValue sql.NullInt64
 	if builtYear > 0 {
 		builtYearValue = sql.NullInt64{

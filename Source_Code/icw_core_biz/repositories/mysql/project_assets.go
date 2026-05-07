@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"icw_core_biz/repositories/mysql/model"
 	"time"
 
 	"icw_common/enum"
@@ -11,7 +12,7 @@ import (
 )
 
 // ListProjectGroups 按用户 ID 和项目 ID 查询图像组列表
-func (r *Repository) ListProjectGroups(ctx context.Context, userId, projectId uint64) ([]*ProjectGroupRecord, error) {
+func (r *Repository) ListProjectGroups(ctx context.Context, userId, projectId uint64) ([]*model.ProjectGroupRecord, error) {
 	rows, err := r.mysql.QueryContext(ctx, `
 		SELECT id, project_id, user_id, name, CAST(sort_order AS CHAR), created_at, updated_at
 		FROM project_groups
@@ -25,9 +26,9 @@ func (r *Repository) ListProjectGroups(ctx context.Context, userId, projectId ui
 		_ = rows.Close()
 	}()
 
-	groups := make([]*ProjectGroupRecord, 0)
+	groups := make([]*model.ProjectGroupRecord, 0)
 	for rows.Next() {
-		group := &ProjectGroupRecord{}
+		group := &model.ProjectGroupRecord{}
 		if err := rows.Scan(
 			&group.Id,
 			&group.ProjectId,
@@ -49,7 +50,7 @@ func (r *Repository) ListProjectGroups(ctx context.Context, userId, projectId ui
 }
 
 // ListProjectImages 按用户 ID 和项目 ID 查询图像列表
-func (r *Repository) ListProjectImages(ctx context.Context, userId, projectId uint64) ([]*ProjectImageRecord, error) {
+func (r *Repository) ListProjectImages(ctx context.Context, userId, projectId uint64) ([]*model.ProjectImageRecord, error) {
 	rows, err := r.mysql.QueryContext(ctx, `
 		SELECT
 			id,
@@ -78,9 +79,9 @@ func (r *Repository) ListProjectImages(ctx context.Context, userId, projectId ui
 		_ = rows.Close()
 	}()
 
-	images := make([]*ProjectImageRecord, 0)
+	images := make([]*model.ProjectImageRecord, 0)
 	for rows.Next() {
-		image := &ProjectImageRecord{}
+		image := &model.ProjectImageRecord{}
 		var status string
 		if err := rows.Scan(
 			&image.Id,
@@ -112,7 +113,7 @@ func (r *Repository) ListProjectImages(ctx context.Context, userId, projectId ui
 }
 
 // ListProjectImagesByGroupId 按用户 ID、项目 ID 和图像组 ID 查询图像列表
-func (r *Repository) ListProjectImagesByGroupId(ctx context.Context, userId, projectId, groupId uint64) ([]*ProjectImageRecord, error) {
+func (r *Repository) ListProjectImagesByGroupId(ctx context.Context, userId, projectId, groupId uint64) ([]*model.ProjectImageRecord, error) {
 	rows, err := r.mysql.QueryContext(ctx, `
 		SELECT
 			id,
@@ -141,9 +142,9 @@ func (r *Repository) ListProjectImagesByGroupId(ctx context.Context, userId, pro
 		_ = rows.Close()
 	}()
 
-	images := make([]*ProjectImageRecord, 0)
+	images := make([]*model.ProjectImageRecord, 0)
 	for rows.Next() {
-		image := &ProjectImageRecord{}
+		image := &model.ProjectImageRecord{}
 		var status string
 		if err := rows.Scan(
 			&image.Id,
@@ -175,8 +176,8 @@ func (r *Repository) ListProjectImagesByGroupId(ctx context.Context, userId, pro
 }
 
 // FindProjectGroupById 按用户 ID、项目 ID 和图像组 ID 查询图像组
-func (r *Repository) FindProjectGroupById(ctx context.Context, userId, projectId, groupId uint64) (*ProjectGroupRecord, error) {
-	group := &ProjectGroupRecord{}
+func (r *Repository) FindProjectGroupById(ctx context.Context, userId, projectId, groupId uint64) (*model.ProjectGroupRecord, error) {
+	group := &model.ProjectGroupRecord{}
 
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT id, project_id, user_id, name, CAST(sort_order AS CHAR), created_at, updated_at
@@ -204,8 +205,8 @@ func (r *Repository) FindProjectGroupById(ctx context.Context, userId, projectId
 }
 
 // FindProjectImageById 按用户 ID、项目 ID 和图像 ID 查询图像
-func (r *Repository) FindProjectImageById(ctx context.Context, userId, projectId, imageId uint64) (*ProjectImageRecord, error) {
-	image := &ProjectImageRecord{}
+func (r *Repository) FindProjectImageById(ctx context.Context, userId, projectId, imageId uint64) (*model.ProjectImageRecord, error) {
+	image := &model.ProjectImageRecord{}
 	var status string
 
 	err := r.mysql.QueryRowContext(ctx, `
@@ -259,8 +260,8 @@ func (r *Repository) FindProjectImageById(ctx context.Context, userId, projectId
 }
 
 // FindProjectImageByUuid 按用户 ID、项目 ID 和图像 UUID 查询图像
-func (r *Repository) FindProjectImageByUuid(ctx context.Context, userId, projectId uint64, imageUuid string) (*ProjectImageRecord, error) {
-	image := &ProjectImageRecord{}
+func (r *Repository) FindProjectImageByUuid(ctx context.Context, userId, projectId uint64, imageUuid string) (*model.ProjectImageRecord, error) {
+	image := &model.ProjectImageRecord{}
 	var status string
 
 	err := r.mysql.QueryRowContext(ctx, `
@@ -314,7 +315,7 @@ func (r *Repository) FindProjectImageByUuid(ctx context.Context, userId, project
 }
 
 // CreateProjectGroup 按用户 ID 和项目 ID 创建图像组
-func (r *Repository) CreateProjectGroup(ctx context.Context, userId, projectId uint64, name string) (*ProjectGroupRecord, error) {
+func (r *Repository) CreateProjectGroup(ctx context.Context, userId, projectId uint64, name string) (*model.ProjectGroupRecord, error) {
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -383,9 +384,9 @@ func (r *Repository) CreateProjectGroup(ctx context.Context, userId, projectId u
 }
 
 // CreateProjectImages 按用户 ID、项目 ID 和图像组 ID 批量创建图像
-func (r *Repository) CreateProjectImages(ctx context.Context, userId, projectId, groupId uint64, images []*ProjectImageCreateRecord) ([]*ProjectImageRecord, error) {
+func (r *Repository) CreateProjectImages(ctx context.Context, userId, projectId, groupId uint64, images []*model.ProjectImageCreateRecord) ([]*model.ProjectImageRecord, error) {
 	if len(images) == 0 {
-		return make([]*ProjectImageRecord, 0), nil
+		return make([]*model.ProjectImageRecord, 0), nil
 	}
 
 	tx, err := r.mysql.BeginTx(ctx, nil)
@@ -447,7 +448,7 @@ func (r *Repository) CreateProjectImages(ctx context.Context, userId, projectId,
 		return nil, err
 	}
 
-	records := make([]*ProjectImageRecord, 0, len(imageIds))
+	records := make([]*model.ProjectImageRecord, 0, len(imageIds))
 	for _, imageId := range imageIds {
 		image, err := r.FindProjectImageById(ctx, userId, projectId, imageId)
 		if err != nil {
@@ -511,7 +512,7 @@ func (r *Repository) DeleteProjectGroup(ctx context.Context, userId, projectId, 
 		return false, nil
 	}
 	if groupCount <= 1 {
-		return false, ErrProjectGroupCannotDeleteLast
+		return false, model.ErrProjectGroupCannotDeleteLast
 	}
 
 	if _, err := tx.ExecContext(ctx, `
@@ -606,7 +607,7 @@ func (r *Repository) DeleteProjectImages(ctx context.Context, userId, projectId 
 }
 
 // MoveProjectGroup 按用户 ID、项目 ID 和图像组 ID 移动图像组
-func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, groupId, previousGroupId, nextGroupId uint64, moveToFirst, moveToLast bool) (*ProjectGroupRecord, error) {
+func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, groupId, previousGroupId, nextGroupId uint64, moveToFirst, moveToLast bool) (*model.ProjectGroupRecord, error) {
 	if moveToFirst && moveToLast {
 		return nil, errors.New("move to first and move to last cannot both be true")
 	}
@@ -718,7 +719,7 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 		return nil, err
 	}
 
-	if _, err = result.RowsAffected(); err != nil {
+	if _, err := result.RowsAffected(); err != nil {
 		return nil, err
 	}
 
@@ -730,7 +731,7 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 }
 
 // MoveProjectImages 按用户 ID、项目 ID 和图像 UUID 列表批量移动图像
-func (r *Repository) MoveProjectImages(ctx context.Context, userId, projectId uint64, imageUuids []string, targetGroupId uint64) ([]*ProjectImageRecord, error) {
+func (r *Repository) MoveProjectImages(ctx context.Context, userId, projectId uint64, imageUuids []string, targetGroupId uint64) ([]*model.ProjectImageRecord, error) {
 	if len(imageUuids) == 0 {
 		return nil, nil
 	}
@@ -793,7 +794,7 @@ func (r *Repository) MoveProjectImages(ctx context.Context, userId, projectId ui
 		return nil, err
 	}
 
-	images := make([]*ProjectImageRecord, 0, len(imageUuids))
+	images := make([]*model.ProjectImageRecord, 0, len(imageUuids))
 	for _, imageUuid := range imageUuids {
 		image, err := r.FindProjectImageByUuid(ctx, userId, projectId, imageUuid)
 		if err != nil || image == nil {
@@ -809,7 +810,7 @@ func (r *Repository) MoveProjectImages(ctx context.Context, userId, projectId ui
 }
 
 // UpdateProjectGroupName 按用户 ID、项目 ID 和图像组 ID 更新图像组名称
-func (r *Repository) UpdateProjectGroupName(ctx context.Context, userId, projectId, groupId uint64, name string) (*ProjectGroupRecord, error) {
+func (r *Repository) UpdateProjectGroupName(ctx context.Context, userId, projectId, groupId uint64, name string) (*model.ProjectGroupRecord, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_groups
 		SET name = ?
@@ -827,7 +828,7 @@ func (r *Repository) UpdateProjectGroupName(ctx context.Context, userId, project
 }
 
 // UpdateProjectImageStatus 按用户 ID、项目 ID 和图像 UUID 更新图像状态
-func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, projectId uint64, imageUuid string, status bizpb.ProjectImageStatus_Value) (*ProjectImageRecord, error) {
+func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, projectId uint64, imageUuid string, status bizpb.ProjectImageStatus_Value) (*model.ProjectImageRecord, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_group_images
 		SET status = ?,
@@ -850,7 +851,7 @@ func (r *Repository) UpdateProjectImageStatus(ctx context.Context, userId, proje
 		return nil, err
 	}
 
-	if _, err = result.RowsAffected(); err != nil {
+	if _, err := result.RowsAffected(); err != nil {
 		return nil, err
 	}
 
@@ -871,8 +872,8 @@ func (r *Repository) CountProjectGroups(ctx context.Context, userId, projectId u
 }
 
 // GetProjectAssetsReadyStats 按用户 ID 和项目 ID 统计项目图像状态校验
-func (r *Repository) GetProjectAssetsReadyStats(ctx context.Context, userId, projectId uint64) (*ProjectAssetsReadyStats, error) {
-	stats := &ProjectAssetsReadyStats{}
+func (r *Repository) GetProjectAssetsReadyStats(ctx context.Context, userId, projectId uint64) (*model.ProjectAssetsReadyStats, error) {
+	stats := &model.ProjectAssetsReadyStats{}
 
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT
@@ -900,7 +901,7 @@ func (r *Repository) GetProjectAssetsReadyStats(ctx context.Context, userId, pro
 }
 
 // FailTimeoutPendingProjectImages 将超时的上传中项目图像状态更新为上传失败
-func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeout time.Duration) ([]*ProjectImageRecord, error) {
+func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeout time.Duration) ([]*model.ProjectImageRecord, error) {
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -935,9 +936,9 @@ func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeou
 		return nil, err
 	}
 
-	images := make([]*ProjectImageRecord, 0)
+	images := make([]*model.ProjectImageRecord, 0)
 	for rows.Next() {
-		image := &ProjectImageRecord{}
+		image := &model.ProjectImageRecord{}
 		var status string
 		if err := rows.Scan(
 			&image.Id,

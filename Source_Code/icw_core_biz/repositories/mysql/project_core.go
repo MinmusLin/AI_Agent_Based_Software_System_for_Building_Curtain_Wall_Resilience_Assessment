@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"icw_core_biz/repositories/mysql/model"
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
@@ -53,7 +54,7 @@ func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint6
 }
 
 // CreateProject 按用户 ID 和项目名称创建项目，并返回最新记录
-func (r *Repository) CreateProject(ctx context.Context, userId uint64, name string) (*ProjectRecord, error) {
+func (r *Repository) CreateProject(ctx context.Context, userId uint64, name string) (*model.ProjectRecord, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		INSERT INTO projects(user_id, name, building_name, building_location, building_description, known_issues, assessment_goal)
 		VALUES (?, ?, '', '', '', '', '')
@@ -90,7 +91,7 @@ func (r *Repository) DeleteProject(ctx context.Context, userId, projectId uint64
 }
 
 // ListProjects 按用户 ID 查询项目列表
-func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*ProjectRecord, []*ProjectRecord, error) {
+func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*model.ProjectRecord, []*model.ProjectRecord, error) {
 	rows, err := r.mysql.QueryContext(ctx, `
 		SELECT
 			id,
@@ -118,11 +119,11 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*Projec
 		_ = rows.Close()
 	}()
 
-	activeProjects := make([]*ProjectRecord, 0)
-	completedProjects := make([]*ProjectRecord, 0)
+	activeProjects := make([]*model.ProjectRecord, 0)
+	completedProjects := make([]*model.ProjectRecord, 0)
 
 	for rows.Next() {
-		project := &ProjectRecord{}
+		project := &model.ProjectRecord{}
 		var (
 			progress uint8
 			status   string
