@@ -11,7 +11,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 
 	"icw_common/enum"
-	activitypb "icw_common/gen/activity"
+	"icw_common/gen/activity"
 
 	"icw_core_biz/configs"
 	"icw_core_biz/repositories/mysql/model"
