@@ -32,12 +32,14 @@ func FindProjectDetectionSummaryTaskByUuidTx(ctx context.Context, tx *sql.Tx, ta
 		WHERE uuid = ?
 		FOR UPDATE
 	`, taskUuid))
+
 	if err != nil {
 		return nil, err
 	}
 	if subTask == nil {
 		return nil, nil
 	}
+
 	return &model.ProjectDetectionSummaryTaskRecord{
 		ProjectDetectionSubTaskRecord: *subTask,
 	}, nil

@@ -26,8 +26,8 @@ func FindProjectDetectionSubTaskByIdFromTableTx(ctx context.Context, tx *sql.Tx,
 	`, table), taskId))
 }
 
-// FindProjectDetectionSubTaskStatusByIdTx 按子任务代码和子任务 ID 查询项目图像检测子任务状态
-func FindProjectDetectionSubTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, taskCode string, taskId uint64) (bizpb.ProjectDetectionSubTaskStatus_Value, error) {
+// findProjectDetectionSubTaskStatusByIdTx 按子任务代码和子任务 ID 查询项目图像检测子任务状态
+func findProjectDetectionSubTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, taskCode string, taskId uint64) (bizpb.ProjectDetectionSubTaskStatus_Value, error) {
 	schema, err := projectDetectionSubTaskSchemaByCode(taskCode)
 	if err != nil {
 		return bizpb.ProjectDetectionSubTaskStatus_Unknown, err
@@ -45,7 +45,7 @@ func FindProjectDetectionSubTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, ta
 	return enum.ParseProjectDetectionSubTaskStatus(status), nil
 }
 
-// updateProjectDetectionSubTaskStatusByTableTx 按子任务表名更新项目图像检测子任务状态
+// updateProjectDetectionSubTaskStatusByTableTx 按子任务表名和子任务 UUID 更新项目图像检测子任务状态
 func updateProjectDetectionSubTaskStatusByTableTx(ctx context.Context, tx *sql.Tx, table, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, startTime, finishTime bool, invalidStatusErr error) error {
 	statusText := enum.ProjectDetectionSubTaskStatusString(status)
 	if statusText == "" {
@@ -63,20 +63,11 @@ func updateProjectDetectionSubTaskStatusByTableTx(ctx context.Context, tx *sql.T
 
 // FindProjectDetectionSubTaskByIdTx 按子任务代码和子任务 ID 查询项目图像检测子任务记录
 func FindProjectDetectionSubTaskByIdTx(ctx context.Context, tx *sql.Tx, taskCode string, taskId uint64) (*model.ProjectDetectionSubTaskRecord, error) {
-	switch enum.ParseDetectionTaskCode(taskCode) {
-	case activitypb.DetectionTaskCode_Corrosion:
-		return FindProjectDetectionSubTaskByIdFromTableTx(ctx, tx, "project_detection_corrosion_tasks", taskId)
-	case activitypb.DetectionTaskCode_Crack:
-		return FindProjectDetectionSubTaskByIdFromTableTx(ctx, tx, "project_detection_crack_tasks", taskId)
-	case activitypb.DetectionTaskCode_Stain:
-		return FindProjectDetectionSubTaskByIdFromTableTx(ctx, tx, "project_detection_stain_tasks", taskId)
-	case activitypb.DetectionTaskCode_Flatness:
-		return FindProjectDetectionSubTaskByIdFromTableTx(ctx, tx, "project_detection_flatness_tasks", taskId)
-	case activitypb.DetectionTaskCode_Spalling:
-		return FindProjectDetectionSubTaskByIdFromTableTx(ctx, tx, "project_detection_spalling_tasks", taskId)
-	default:
-		return nil, model.ErrUnsupportedDetectionTaskCode
+	schema, err := projectDetectionSubTaskSchemaByCode(taskCode)
+	if err != nil {
+		return nil, err
 	}
+	return FindProjectDetectionSubTaskByIdFromTableTx(ctx, tx, schema.table, taskId)
 }
 
 // FindProjectDetectionSubTaskByUuidTx 按子任务代码和子任务 UUID 查询项目图像检测子任务记录

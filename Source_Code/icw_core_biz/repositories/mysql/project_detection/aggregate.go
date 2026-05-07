@@ -57,7 +57,7 @@ func ProjectDetectionSubTaskAggregateStatusTx(ctx context.Context, tx *sql.Tx, m
 		if !check.taskId.Valid {
 			continue
 		}
-		status, err := FindProjectDetectionSubTaskStatusByIdTx(ctx, tx, check.taskCode, uint64(check.taskId.Int64))
+		status, err := findProjectDetectionSubTaskStatusByIdTx(ctx, tx, check.taskCode, uint64(check.taskId.Int64))
 		if err != nil {
 			return false, false, err
 		}
