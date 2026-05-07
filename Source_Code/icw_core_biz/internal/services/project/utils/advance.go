@@ -2,11 +2,14 @@ package utils
 
 import (
 	"context"
+	"database/sql"
 
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 
+	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/utils"
 )
 
 // ProjectAlreadyAdvanced 判断项目进度是否被并发请求流转
@@ -76,7 +79,7 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, projectId uint64, fromProgress, toProgress bizpb.ProjectProgress_Value, nextStatus bizpb.ProjectStatus_Value) (bool, error) {
 	// 项目基础信息阶段 -> 图像资产构建阶段
 	if fromProgress == bizpb.ProjectProgress_InitializationFinished && toProgress == bizpb.ProjectProgress_ProfileFinished {
-		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, mysql.PostAdvanceProjectProfileToAssets)
+		return repo.AdvanceProject(ctx, userId, projectId, fromProgress, toProgress, nextStatus, postAdvanceProjectProfileToAssets)
 	}
 
 	// 图像资产构建阶段 -> Agent 智能检测阶段
@@ -100,4 +103,20 @@ func AdvanceProject(ctx context.Context, repo *mysql.Repository, userId, project
 	}
 
 	return false, rpc_error.BadRequestDefault("invalid from progress and to progress")
+}
+
+// postAdvanceProjectProfileToAssets 项目进度流转后置扩展点：项目基础信息阶段 -> 图像资产构建阶段
+func postAdvanceProjectProfileToAssets(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error {
+	_, err := tx.ExecContext(ctx, `
+		INSERT INTO project_groups(project_id, user_id, name, sort_order)
+		SELECT ?, ?, ?, COALESCE(MAX(sort_order), -1) + 1
+		FROM project_groups
+		WHERE user_id = ? AND project_id = ?
+	`, projectId, userId, consts.DefaultProjectGroupName, userId, projectId)
+
+	if utils.IsDuplicateEntryError(err) {
+		return nil
+	}
+
+	return err
 }
