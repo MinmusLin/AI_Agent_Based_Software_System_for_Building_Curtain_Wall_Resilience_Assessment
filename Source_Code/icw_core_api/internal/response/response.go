@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 )
 
 // OKEnvelope HTTP 标准成功响应
@@ -41,7 +41,7 @@ func Error(c *gin.Context, status int, code, message string) {
 // BindJSON 绑定 JSON 请求体
 func BindJSON(c *gin.Context, out interface{}) bool {
 	if err := c.ShouldBindJSON(out); err != nil {
-		Error(c, http.StatusBadRequest, string(rpc_err.DetailBadRequest), errorMessage(rpc_err.DetailBadRequest))
+		Error(c, http.StatusBadRequest, string(rpc_error.DetailBadRequest), errorMessage(rpc_error.DetailBadRequest))
 		return false
 	}
 	return true
