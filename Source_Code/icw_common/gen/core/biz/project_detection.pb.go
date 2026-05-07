@@ -9,6 +9,7 @@ package bizpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -21,8 +22,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// StartProjectDetection 请求结构体
-type StartProjectDetectionRequest struct {
+// ListProjectDetectionTasks 请求结构体
+type ListProjectDetectionTasksRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
@@ -30,20 +31,20 @@ type StartProjectDetectionRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *StartProjectDetectionRequest) Reset() {
-	*x = StartProjectDetectionRequest{}
+func (x *ListProjectDetectionTasksRequest) Reset() {
+	*x = ListProjectDetectionTasksRequest{}
 	mi := &file_core_biz_project_detection_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *StartProjectDetectionRequest) String() string {
+func (x *ListProjectDetectionTasksRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StartProjectDetectionRequest) ProtoMessage() {}
+func (*ListProjectDetectionTasksRequest) ProtoMessage() {}
 
-func (x *StartProjectDetectionRequest) ProtoReflect() protoreflect.Message {
+func (x *ListProjectDetectionTasksRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_core_biz_project_detection_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -55,47 +56,47 @@ func (x *StartProjectDetectionRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StartProjectDetectionRequest.ProtoReflect.Descriptor instead.
-func (*StartProjectDetectionRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListProjectDetectionTasksRequest.ProtoReflect.Descriptor instead.
+func (*ListProjectDetectionTasksRequest) Descriptor() ([]byte, []int) {
 	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *StartProjectDetectionRequest) GetUserId() uint64 {
+func (x *ListProjectDetectionTasksRequest) GetUserId() uint64 {
 	if x != nil {
 		return x.UserId
 	}
 	return 0
 }
 
-func (x *StartProjectDetectionRequest) GetProjectId() uint64 {
+func (x *ListProjectDetectionTasksRequest) GetProjectId() uint64 {
 	if x != nil {
 		return x.ProjectId
 	}
 	return 0
 }
 
-// StartProjectDetection 响应结构体
-type StartProjectDetectionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TaskCount     uint32                 `protobuf:"varint,1,opt,name=task_count,json=taskCount,proto3" json:"task_count,omitempty"`
+// ListProjectDetectionTasks 响应结构体
+type ListProjectDetectionTasksResponse struct {
+	state         protoimpl.MessageState           `protogen:"open.v1"`
+	Tasks         []*common.ProjectDetectionStatus `protobuf:"bytes,1,rep,name=tasks,proto3" json:"tasks,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *StartProjectDetectionResponse) Reset() {
-	*x = StartProjectDetectionResponse{}
+func (x *ListProjectDetectionTasksResponse) Reset() {
+	*x = ListProjectDetectionTasksResponse{}
 	mi := &file_core_biz_project_detection_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *StartProjectDetectionResponse) String() string {
+func (x *ListProjectDetectionTasksResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StartProjectDetectionResponse) ProtoMessage() {}
+func (*ListProjectDetectionTasksResponse) ProtoMessage() {}
 
-func (x *StartProjectDetectionResponse) ProtoReflect() protoreflect.Message {
+func (x *ListProjectDetectionTasksResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_core_biz_project_detection_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -107,16 +108,16 @@ func (x *StartProjectDetectionResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StartProjectDetectionResponse.ProtoReflect.Descriptor instead.
-func (*StartProjectDetectionResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListProjectDetectionTasksResponse.ProtoReflect.Descriptor instead.
+func (*ListProjectDetectionTasksResponse) Descriptor() ([]byte, []int) {
 	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *StartProjectDetectionResponse) GetTaskCount() uint32 {
+func (x *ListProjectDetectionTasksResponse) GetTasks() []*common.ProjectDetectionStatus {
 	if x != nil {
-		return x.TaskCount
+		return x.Tasks
 	}
-	return 0
+	return nil
 }
 
 // ReportClassificationResult 请求结构体
@@ -477,18 +478,213 @@ func (*ReportReasoningResultResponse) Descriptor() ([]byte, []int) {
 	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{7}
 }
 
+// RetryProjectDetection 请求结构体
+type RetryProjectDetectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetryProjectDetectionRequest) Reset() {
+	*x = RetryProjectDetectionRequest{}
+	mi := &file_core_biz_project_detection_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetryProjectDetectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetryProjectDetectionRequest) ProtoMessage() {}
+
+func (x *RetryProjectDetectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_detection_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetryProjectDetectionRequest.ProtoReflect.Descriptor instead.
+func (*RetryProjectDetectionRequest) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RetryProjectDetectionRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *RetryProjectDetectionRequest) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
+// RetryProjectDetection 响应结构体
+type RetryProjectDetectionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskCount     uint32                 `protobuf:"varint,1,opt,name=task_count,json=taskCount,proto3" json:"task_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetryProjectDetectionResponse) Reset() {
+	*x = RetryProjectDetectionResponse{}
+	mi := &file_core_biz_project_detection_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetryProjectDetectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetryProjectDetectionResponse) ProtoMessage() {}
+
+func (x *RetryProjectDetectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_detection_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetryProjectDetectionResponse.ProtoReflect.Descriptor instead.
+func (*RetryProjectDetectionResponse) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RetryProjectDetectionResponse) GetTaskCount() uint32 {
+	if x != nil {
+		return x.TaskCount
+	}
+	return 0
+}
+
+// StartProjectDetection 请求结构体
+type StartProjectDetectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartProjectDetectionRequest) Reset() {
+	*x = StartProjectDetectionRequest{}
+	mi := &file_core_biz_project_detection_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartProjectDetectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartProjectDetectionRequest) ProtoMessage() {}
+
+func (x *StartProjectDetectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_detection_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartProjectDetectionRequest.ProtoReflect.Descriptor instead.
+func (*StartProjectDetectionRequest) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *StartProjectDetectionRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *StartProjectDetectionRequest) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
+// StartProjectDetection 响应结构体
+type StartProjectDetectionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskCount     uint32                 `protobuf:"varint,1,opt,name=task_count,json=taskCount,proto3" json:"task_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartProjectDetectionResponse) Reset() {
+	*x = StartProjectDetectionResponse{}
+	mi := &file_core_biz_project_detection_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartProjectDetectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartProjectDetectionResponse) ProtoMessage() {}
+
+func (x *StartProjectDetectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_detection_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartProjectDetectionResponse.ProtoReflect.Descriptor instead.
+func (*StartProjectDetectionResponse) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *StartProjectDetectionResponse) GetTaskCount() uint32 {
+	if x != nil {
+		return x.TaskCount
+	}
+	return 0
+}
+
 var File_core_biz_project_detection_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_detection_proto_rawDesc = "" +
 	"\n" +
-	" core/biz/project_detection.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"V\n" +
-	"\x1cStartProjectDetectionRequest\x12\x17\n" +
+	" core/biz/project_detection.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"Z\n" +
+	" ListProjectDetectionTasksRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\x04R\tprojectId\">\n" +
-	"\x1dStartProjectDetectionResponse\x12\x1d\n" +
-	"\n" +
-	"task_count\x18\x01 \x01(\rR\ttaskCount\"\xbb\x01\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\"b\n" +
+	"!ListProjectDetectionTasksResponse\x12=\n" +
+	"\x05tasks\x18\x01 \x03(\v2'.icw.core.common.ProjectDetectionStatusR\x05tasks\"\xbb\x01\n" +
 	"!ReportClassificationResultRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
@@ -517,12 +713,28 @@ const file_core_biz_project_detection_proto_rawDesc = "" +
 	"resultJson\x12I\n" +
 	"\tartifacts\x18\x06 \x03(\v2+.icw.core.biz.ReasoningArtifactUploadResultR\tartifacts\x12#\n" +
 	"\rerror_message\x18\a \x01(\tR\ferrorMessage\"\x1f\n" +
-	"\x1dReportReasoningResultResponse2\x86\x04\n" +
-	"\x17ProjectDetectionService\x12p\n" +
-	"\x15StartProjectDetection\x12*.icw.core.biz.StartProjectDetectionRequest\x1a+.icw.core.biz.StartProjectDetectionResponse\x12\x7f\n" +
+	"\x1dReportReasoningResultResponse\"V\n" +
+	"\x1cRetryProjectDetectionRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\">\n" +
+	"\x1dRetryProjectDetectionResponse\x12\x1d\n" +
+	"\n" +
+	"task_count\x18\x01 \x01(\rR\ttaskCount\"V\n" +
+	"\x1cStartProjectDetectionRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\">\n" +
+	"\x1dStartProjectDetectionResponse\x12\x1d\n" +
+	"\n" +
+	"task_count\x18\x01 \x01(\rR\ttaskCount2\xf6\x05\n" +
+	"\x17ProjectDetectionService\x12|\n" +
+	"\x19ListProjectDetectionTasks\x12..icw.core.biz.ListProjectDetectionTasksRequest\x1a/.icw.core.biz.ListProjectDetectionTasksResponse\x12\x7f\n" +
 	"\x1aReportClassificationResult\x12/.icw.core.biz.ReportClassificationResultRequest\x1a0.icw.core.biz.ReportClassificationResultResponse\x12\x85\x01\n" +
 	"\x1cReportDetectionSummaryResult\x121.icw.core.biz.ReportDetectionSummaryResultRequest\x1a2.icw.core.biz.ReportDetectionSummaryResultResponse\x12p\n" +
-	"\x15ReportReasoningResult\x12*.icw.core.biz.ReportReasoningResultRequest\x1a+.icw.core.biz.ReportReasoningResultResponseB\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
+	"\x15ReportReasoningResult\x12*.icw.core.biz.ReportReasoningResultRequest\x1a+.icw.core.biz.ReportReasoningResultResponse\x12p\n" +
+	"\x15RetryProjectDetection\x12*.icw.core.biz.RetryProjectDetectionRequest\x1a+.icw.core.biz.RetryProjectDetectionResponse\x12p\n" +
+	"\x15StartProjectDetection\x12*.icw.core.biz.StartProjectDetectionRequest\x1a+.icw.core.biz.StartProjectDetectionResponseB\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
 
 var (
 	file_core_biz_project_detection_proto_rawDescOnce sync.Once
@@ -536,33 +748,43 @@ func file_core_biz_project_detection_proto_rawDescGZIP() []byte {
 	return file_core_biz_project_detection_proto_rawDescData
 }
 
-var file_core_biz_project_detection_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_core_biz_project_detection_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_core_biz_project_detection_proto_goTypes = []any{
-	(*StartProjectDetectionRequest)(nil),         // 0: icw.core.biz.StartProjectDetectionRequest
-	(*StartProjectDetectionResponse)(nil),        // 1: icw.core.biz.StartProjectDetectionResponse
+	(*ListProjectDetectionTasksRequest)(nil),     // 0: icw.core.biz.ListProjectDetectionTasksRequest
+	(*ListProjectDetectionTasksResponse)(nil),    // 1: icw.core.biz.ListProjectDetectionTasksResponse
 	(*ReportClassificationResultRequest)(nil),    // 2: icw.core.biz.ReportClassificationResultRequest
 	(*ReportClassificationResultResponse)(nil),   // 3: icw.core.biz.ReportClassificationResultResponse
 	(*ReportDetectionSummaryResultRequest)(nil),  // 4: icw.core.biz.ReportDetectionSummaryResultRequest
 	(*ReportDetectionSummaryResultResponse)(nil), // 5: icw.core.biz.ReportDetectionSummaryResultResponse
 	(*ReportReasoningResultRequest)(nil),         // 6: icw.core.biz.ReportReasoningResultRequest
 	(*ReportReasoningResultResponse)(nil),        // 7: icw.core.biz.ReportReasoningResultResponse
-	(*ReasoningArtifactUploadResult)(nil),        // 8: icw.core.biz.ReasoningArtifactUploadResult
+	(*RetryProjectDetectionRequest)(nil),         // 8: icw.core.biz.RetryProjectDetectionRequest
+	(*RetryProjectDetectionResponse)(nil),        // 9: icw.core.biz.RetryProjectDetectionResponse
+	(*StartProjectDetectionRequest)(nil),         // 10: icw.core.biz.StartProjectDetectionRequest
+	(*StartProjectDetectionResponse)(nil),        // 11: icw.core.biz.StartProjectDetectionResponse
+	(*common.ProjectDetectionStatus)(nil),        // 12: icw.core.common.ProjectDetectionStatus
+	(*ReasoningArtifactUploadResult)(nil),        // 13: icw.core.biz.ReasoningArtifactUploadResult
 }
 var file_core_biz_project_detection_proto_depIdxs = []int32{
-	8, // 0: icw.core.biz.ReportReasoningResultRequest.artifacts:type_name -> icw.core.biz.ReasoningArtifactUploadResult
-	0, // 1: icw.core.biz.ProjectDetectionService.StartProjectDetection:input_type -> icw.core.biz.StartProjectDetectionRequest
-	2, // 2: icw.core.biz.ProjectDetectionService.ReportClassificationResult:input_type -> icw.core.biz.ReportClassificationResultRequest
-	4, // 3: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:input_type -> icw.core.biz.ReportDetectionSummaryResultRequest
-	6, // 4: icw.core.biz.ProjectDetectionService.ReportReasoningResult:input_type -> icw.core.biz.ReportReasoningResultRequest
-	1, // 5: icw.core.biz.ProjectDetectionService.StartProjectDetection:output_type -> icw.core.biz.StartProjectDetectionResponse
-	3, // 6: icw.core.biz.ProjectDetectionService.ReportClassificationResult:output_type -> icw.core.biz.ReportClassificationResultResponse
-	5, // 7: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:output_type -> icw.core.biz.ReportDetectionSummaryResultResponse
-	7, // 8: icw.core.biz.ProjectDetectionService.ReportReasoningResult:output_type -> icw.core.biz.ReportReasoningResultResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	12, // 0: icw.core.biz.ListProjectDetectionTasksResponse.tasks:type_name -> icw.core.common.ProjectDetectionStatus
+	13, // 1: icw.core.biz.ReportReasoningResultRequest.artifacts:type_name -> icw.core.biz.ReasoningArtifactUploadResult
+	0,  // 2: icw.core.biz.ProjectDetectionService.ListProjectDetectionTasks:input_type -> icw.core.biz.ListProjectDetectionTasksRequest
+	2,  // 3: icw.core.biz.ProjectDetectionService.ReportClassificationResult:input_type -> icw.core.biz.ReportClassificationResultRequest
+	4,  // 4: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:input_type -> icw.core.biz.ReportDetectionSummaryResultRequest
+	6,  // 5: icw.core.biz.ProjectDetectionService.ReportReasoningResult:input_type -> icw.core.biz.ReportReasoningResultRequest
+	8,  // 6: icw.core.biz.ProjectDetectionService.RetryProjectDetection:input_type -> icw.core.biz.RetryProjectDetectionRequest
+	10, // 7: icw.core.biz.ProjectDetectionService.StartProjectDetection:input_type -> icw.core.biz.StartProjectDetectionRequest
+	1,  // 8: icw.core.biz.ProjectDetectionService.ListProjectDetectionTasks:output_type -> icw.core.biz.ListProjectDetectionTasksResponse
+	3,  // 9: icw.core.biz.ProjectDetectionService.ReportClassificationResult:output_type -> icw.core.biz.ReportClassificationResultResponse
+	5,  // 10: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:output_type -> icw.core.biz.ReportDetectionSummaryResultResponse
+	7,  // 11: icw.core.biz.ProjectDetectionService.ReportReasoningResult:output_type -> icw.core.biz.ReportReasoningResultResponse
+	9,  // 12: icw.core.biz.ProjectDetectionService.RetryProjectDetection:output_type -> icw.core.biz.RetryProjectDetectionResponse
+	11, // 13: icw.core.biz.ProjectDetectionService.StartProjectDetection:output_type -> icw.core.biz.StartProjectDetectionResponse
+	8,  // [8:14] is the sub-list for method output_type
+	2,  // [2:8] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_project_detection_proto_init() }
@@ -577,7 +799,7 @@ func file_core_biz_project_detection_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_project_detection_proto_rawDesc), len(file_core_biz_project_detection_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

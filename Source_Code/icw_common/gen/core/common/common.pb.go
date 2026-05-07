@@ -268,6 +268,136 @@ func (x *UploadProjectImageResult) GetThumbnailUploadUrl() string {
 	return ""
 }
 
+// 项目图像检测节点状态结构体
+type ProjectDetectionNodeStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeCode      string                 `protobuf:"bytes,1,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
+	SubTaskId     string                 `protobuf:"bytes,2,opt,name=sub_task_id,json=subTaskId,proto3" json:"sub_task_id,omitempty"`
+	SubStatus     string                 `protobuf:"bytes,3,opt,name=sub_status,json=subStatus,proto3" json:"sub_status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionNodeStatus) Reset() {
+	*x = ProjectDetectionNodeStatus{}
+	mi := &file_core_common_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionNodeStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionNodeStatus) ProtoMessage() {}
+
+func (x *ProjectDetectionNodeStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionNodeStatus.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionNodeStatus) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ProjectDetectionNodeStatus) GetNodeCode() string {
+	if x != nil {
+		return x.NodeCode
+	}
+	return ""
+}
+
+func (x *ProjectDetectionNodeStatus) GetSubTaskId() string {
+	if x != nil {
+		return x.SubTaskId
+	}
+	return ""
+}
+
+func (x *ProjectDetectionNodeStatus) GetSubStatus() string {
+	if x != nil {
+		return x.SubStatus
+	}
+	return ""
+}
+
+// 项目图像检测任务状态结构体
+type ProjectDetectionStatus struct {
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	ImageUuid     string                        `protobuf:"bytes,1,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	MainTaskId    string                        `protobuf:"bytes,2,opt,name=main_task_id,json=mainTaskId,proto3" json:"main_task_id,omitempty"`
+	MainStatus    string                        `protobuf:"bytes,3,opt,name=main_status,json=mainStatus,proto3" json:"main_status,omitempty"`
+	Nodes         []*ProjectDetectionNodeStatus `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionStatus) Reset() {
+	*x = ProjectDetectionStatus{}
+	mi := &file_core_common_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionStatus) ProtoMessage() {}
+
+func (x *ProjectDetectionStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionStatus.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionStatus) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ProjectDetectionStatus) GetImageUuid() string {
+	if x != nil {
+		return x.ImageUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionStatus) GetMainTaskId() string {
+	if x != nil {
+		return x.MainTaskId
+	}
+	return ""
+}
+
+func (x *ProjectDetectionStatus) GetMainStatus() string {
+	if x != nil {
+		return x.MainStatus
+	}
+	return ""
+}
+
+func (x *ProjectDetectionStatus) GetNodes() []*ProjectDetectionNodeStatus {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
 var File_core_common_proto protoreflect.FileDescriptor
 
 const file_core_common_proto_rawDesc = "" +
@@ -296,7 +426,20 @@ const file_core_common_proto_rawDesc = "" +
 	"\x18UploadProjectImageResult\x123\n" +
 	"\x05image\x18\x01 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\x12.\n" +
 	"\x13original_upload_url\x18\x02 \x01(\tR\x11originalUploadUrl\x120\n" +
-	"\x14thumbnail_upload_url\x18\x03 \x01(\tR\x12thumbnailUploadUrlB%Z#icw_common/gen/core/common;commonpbb\x06proto3"
+	"\x14thumbnail_upload_url\x18\x03 \x01(\tR\x12thumbnailUploadUrl\"x\n" +
+	"\x1aProjectDetectionNodeStatus\x12\x1b\n" +
+	"\tnode_code\x18\x01 \x01(\tR\bnodeCode\x12\x1e\n" +
+	"\vsub_task_id\x18\x02 \x01(\tR\tsubTaskId\x12\x1d\n" +
+	"\n" +
+	"sub_status\x18\x03 \x01(\tR\tsubStatus\"\xbd\x01\n" +
+	"\x16ProjectDetectionStatus\x12\x1d\n" +
+	"\n" +
+	"image_uuid\x18\x01 \x01(\tR\timageUuid\x12 \n" +
+	"\fmain_task_id\x18\x02 \x01(\tR\n" +
+	"mainTaskId\x12\x1f\n" +
+	"\vmain_status\x18\x03 \x01(\tR\n" +
+	"mainStatus\x12A\n" +
+	"\x05nodes\x18\x04 \x03(\v2+.icw.core.common.ProjectDetectionNodeStatusR\x05nodesB%Z#icw_common/gen/core/common;commonpbb\x06proto3"
 
 var (
 	file_core_common_proto_rawDescOnce sync.Once
@@ -310,19 +453,22 @@ func file_core_common_proto_rawDescGZIP() []byte {
 	return file_core_common_proto_rawDescData
 }
 
-var file_core_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_core_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_core_common_proto_goTypes = []any{
-	(*User)(nil),                     // 0: icw.core.common.User
-	(*ProjectImage)(nil),             // 1: icw.core.common.ProjectImage
-	(*UploadProjectImageResult)(nil), // 2: icw.core.common.UploadProjectImageResult
+	(*User)(nil),                       // 0: icw.core.common.User
+	(*ProjectImage)(nil),               // 1: icw.core.common.ProjectImage
+	(*UploadProjectImageResult)(nil),   // 2: icw.core.common.UploadProjectImageResult
+	(*ProjectDetectionNodeStatus)(nil), // 3: icw.core.common.ProjectDetectionNodeStatus
+	(*ProjectDetectionStatus)(nil),     // 4: icw.core.common.ProjectDetectionStatus
 }
 var file_core_common_proto_depIdxs = []int32{
 	1, // 0: icw.core.common.UploadProjectImageResult.image:type_name -> icw.core.common.ProjectImage
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	3, // 1: icw.core.common.ProjectDetectionStatus.nodes:type_name -> icw.core.common.ProjectDetectionNodeStatus
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_core_common_proto_init() }
@@ -336,7 +482,7 @@ func file_core_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_common_proto_rawDesc), len(file_core_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

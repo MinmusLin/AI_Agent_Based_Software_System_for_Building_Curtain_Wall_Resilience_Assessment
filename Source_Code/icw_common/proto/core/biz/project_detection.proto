@@ -79,7 +79,7 @@ message StartProjectDetectionResponse {
 
 // 智能检测 RPC 服务
 service ProjectDetectionService {
-  // 获取项目智能检测任务列表
+  // 获取项目检测任务列表
   rpc ListProjectDetectionTasks(ListProjectDetectionTasksRequest) returns (ListProjectDetectionTasksResponse);
   // 上报图像检测分类结果
   rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);

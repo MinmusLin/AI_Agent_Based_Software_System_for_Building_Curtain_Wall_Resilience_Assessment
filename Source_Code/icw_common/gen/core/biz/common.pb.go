@@ -27,6 +27,8 @@ const (
 type User = common.User
 type ProjectImage = common.ProjectImage
 type UploadProjectImageResult = common.UploadProjectImageResult
+type ProjectDetectionNodeStatus = common.ProjectDetectionNodeStatus
+type ProjectDetectionStatus = common.ProjectDetectionStatus
 
 // 项目信息结构体
 type Project struct {

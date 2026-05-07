@@ -41,7 +41,7 @@ message ProjectDetectionNodeStatus {
 }
 
 // 项目图像检测任务状态结构体
-message ProjectDetectionTask {
+message ProjectDetectionStatus {
   string image_uuid = 1;
   string main_task_id = 2;
   string main_status = 3;
