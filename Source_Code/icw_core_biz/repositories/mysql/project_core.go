@@ -6,8 +6,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-
-	projectConsts "icw_core_biz/internal/services/project/consts"
+	"icw_core_biz/internal/services/project/consts"
 )
 
 type advanceProjectTxFunc func(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error
@@ -169,7 +168,7 @@ func PostAdvanceProjectProfileToAssets(ctx context.Context, tx *sql.Tx, userId, 
 		SELECT ?, ?, ?, COALESCE(MAX(sort_order), -1) + 1
 		FROM project_groups
 		WHERE user_id = ? AND project_id = ?
-	`, projectId, userId, projectConsts.DefaultProjectGroupName, userId, projectId)
+	`, projectId, userId, consts.DefaultProjectGroupName, userId, projectId)
 
 	if IsDuplicateEntryError(err) {
 		return nil
