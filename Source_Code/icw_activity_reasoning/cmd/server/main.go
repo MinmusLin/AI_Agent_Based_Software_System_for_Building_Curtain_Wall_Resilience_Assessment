@@ -14,7 +14,6 @@ import (
 	"icw_activity_reasoning/rpc/icw_core_biz"
 	"icw_common/consts"
 	"icw_common/env"
-	"icw_common/rpc"
 	"icw_common/utils"
 )
 
@@ -49,7 +48,7 @@ func main() {
 	utils.LogInfo(consts.LogScopeInit, "", "Python detectors registered, waiting for calls:\n%s", detectorCommon.FormatRegistryTable(detectorsRegistry))
 
 	// 注册 gRPC 服务
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(rpc.UnaryServerInterceptor(consts.LogScopeRPC)))
+	grpcServer := grpc.NewServer()
 	services.RegisterRPCServices(ctx, common.NewDeps(cfg, detectorsRegistry, coreBizClient), grpcServer)
 
 	// 运行 icw.activity.reasoning 服务

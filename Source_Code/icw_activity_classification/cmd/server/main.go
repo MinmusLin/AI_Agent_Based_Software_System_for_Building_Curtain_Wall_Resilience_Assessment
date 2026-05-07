@@ -12,7 +12,6 @@ import (
 	"icw_activity_classification/rpc/icw_core_biz"
 	"icw_common/consts"
 	"icw_common/env"
-	"icw_common/rpc"
 	"icw_common/utils"
 )
 
@@ -43,7 +42,7 @@ func main() {
 	}()
 
 	// 注册 gRPC 服务
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(rpc.UnaryServerInterceptor(consts.LogScopeRPC)))
+	grpcServer := grpc.NewServer()
 	services.RegisterRPCServices(ctx, common.NewDeps(cfg, coreBizClient), grpcServer)
 
 	// 运行 icw.activity.classification 服务
