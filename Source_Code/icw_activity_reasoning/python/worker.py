@@ -13,10 +13,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DETECTOR_CACHE: dict[str, ModuleType] = {}
 
 
+# 校验路径片段是否安全可用
 def is_safe_path_part(value: str) -> bool:
     return bool(value) and value not in {'.', '..'} and '/' not in value and '\\' not in value
 
 
+# 懒加载并缓存指定原子检测模块
 def load_detector(task_code: str) -> ModuleType:
     if task_code in DETECTOR_CACHE:
         return DETECTOR_CACHE[task_code]
@@ -33,6 +35,7 @@ def load_detector(task_code: str) -> ModuleType:
     return module
 
 
+# 执行原子检测任务
 def run_detector(request: dict[str, Any]) -> None:
     task_code = str(request.get('task_code', '')).strip()
     image_uuid = str(request.get('image_uuid', '')).strip()
@@ -52,11 +55,13 @@ def run_detector(request: dict[str, Any]) -> None:
         detect(image_path)
 
 
+# 向 Go 进程写入 JSON 执行结果
 def write_response(response: dict[str, Any]) -> None:
     sys.stdout.write(json.dumps(response, ensure_ascii=False, separators=(',', ':')) + '\n')
     sys.stdout.flush()
 
 
+# 持续读取标准输入中的检测请求
 def main() -> int:
     for line in sys.stdin:
         try:
@@ -69,5 +74,6 @@ def main() -> int:
     return 0
 
 
+# 执行主流程
 if __name__ == '__main__':
     raise SystemExit(main())
