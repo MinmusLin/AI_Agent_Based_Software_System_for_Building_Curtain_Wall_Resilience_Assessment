@@ -9,7 +9,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/auth/consts"
 	"icw_core_biz/internal/services/auth/utils"
 )
@@ -27,14 +27,14 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {
-		return rpc_err.BadRequest(rpc_err.DetailInvalidEmailAddress, err.Error())
+		return rpc_error.BadRequest(rpc_error.DetailInvalidEmailAddress, err.Error())
 	}
 	emailHash := utils.HashEmailAddress(email)
 
 	// 获取登录方式枚举
 	scene := enum.ParseLoginScene(req.Scene)
 	if scene == bizpb.LoginScene_Unknown {
-		return rpc_err.BadRequestDefault("invalid login scene")
+		return rpc_error.BadRequestDefault("invalid login scene")
 	}
 
 	// 账号锁定（登录失败次数达上限）时不进行登录操作
@@ -43,7 +43,7 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 		return err
 	}
 	if locked {
-		return rpc_err.AccountLockedDefault(fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
+		return rpc_error.AccountLockedDefault(fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
 	}
 
 	// 按邮箱查询用户
@@ -56,7 +56,7 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 		if err := s.Redis().RecordLoginFailure(s.Ctx(), enum.LoginSceneString(scene), emailHash, s.Config().LoginFailTTL); err != nil {
 			return err
 		}
-		return rpc_err.BadRequest(rpc_err.DetailInvalidCredentials, "user not found")
+		return rpc_error.BadRequest(rpc_error.DetailInvalidCredentials, "user not found")
 	}
 
 	switch scene {
@@ -66,7 +66,7 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 			if err := s.Redis().RecordLoginFailure(s.Ctx(), enum.LoginSceneString(scene), emailHash, s.Config().LoginFailTTL); err != nil {
 				return err
 			}
-			return rpc_err.BadRequest(rpc_err.DetailInvalidCredentials, err.Error())
+			return rpc_error.BadRequest(rpc_error.DetailInvalidCredentials, err.Error())
 		}
 	case bizpb.LoginScene_Email:
 		// 邮箱验证码登录
@@ -77,10 +77,10 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 			if err := s.Redis().RecordLoginFailure(s.Ctx(), enum.LoginSceneString(scene), emailHash, s.Config().LoginFailTTL); err != nil {
 				return err
 			}
-			return rpc_err.BadRequest(rpc_err.DetailIncorrectEmailCode, err.Error())
+			return rpc_error.BadRequest(rpc_error.DetailIncorrectEmailCode, err.Error())
 		}
 	default:
-		return rpc_err.BadRequestDefault("invalid login scene")
+		return rpc_error.BadRequestDefault("invalid login scene")
 	}
 
 	// 登录成功后清除登录失败计数

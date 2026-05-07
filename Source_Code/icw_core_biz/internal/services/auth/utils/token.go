@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/configs"
 	"icw_core_biz/repositories/mysql"
 )
@@ -163,7 +163,7 @@ func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Rep
 	// 刷新时签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
 	if err := repo.RotateRefreshToken(ctx, oldTokenId, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
 		if errors.Is(err, mysql.ErrRefreshTokenNotReplaceable) {
-			return rpc_err.UnauthorizedDefault(err.Error())
+			return rpc_error.UnauthorizedDefault(err.Error())
 		}
 		return err
 	}

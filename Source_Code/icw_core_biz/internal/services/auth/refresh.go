@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/internal/services/common"
 )
@@ -25,7 +25,7 @@ func (s *Service) refresh(req *bizpb.RefreshRequest, resp *bizpb.RefreshResponse
 	refreshToken := strings.TrimSpace(req.RefreshToken)
 	tokenId := utils.ParseRefreshTokenId(refreshToken)
 	if tokenId == "" {
-		return rpc_err.UnauthorizedDefault("invalid refresh token")
+		return rpc_error.UnauthorizedDefault("invalid refresh token")
 	}
 
 	// 防止同一个 Refresh Token 被多个请求同时刷新
@@ -34,7 +34,7 @@ func (s *Service) refresh(req *bizpb.RefreshRequest, resp *bizpb.RefreshResponse
 		return err
 	}
 	if !ok {
-		return rpc_err.UnauthorizedDefault("refresh in progress")
+		return rpc_error.UnauthorizedDefault("refresh in progress")
 	}
 	defer func() {
 		if err := s.Redis().ClearRefreshReuseLock(s.Ctx(), tokenId); err != nil {
@@ -48,15 +48,15 @@ func (s *Service) refresh(req *bizpb.RefreshRequest, resp *bizpb.RefreshResponse
 		return err
 	}
 	if token == nil || user == nil {
-		return rpc_err.UnauthorizedDefault("refresh token not found")
+		return rpc_error.UnauthorizedDefault("refresh token not found")
 	}
 
 	// 检查 Refresh Token 是否已吊销或已过期
 	if token.RevokedAt.Valid {
-		return rpc_err.UnauthorizedDefault("refresh token revoked")
+		return rpc_error.UnauthorizedDefault("refresh token revoked")
 	}
 	if time.Now().After(token.ExpiresAt) {
-		return rpc_err.UnauthorizedDefault("refresh token expired")
+		return rpc_error.UnauthorizedDefault("refresh token expired")
 	}
 
 	// 签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
@@ -65,7 +65,7 @@ func (s *Service) refresh(req *bizpb.RefreshRequest, resp *bizpb.RefreshResponse
 	}
 	newTokenId := utils.ParseRefreshTokenId(resp.RefreshToken)
 	if newTokenId == "" {
-		return rpc_err.UnauthorizedDefault("invalid new refresh token")
+		return rpc_error.UnauthorizedDefault("invalid new refresh token")
 	}
 
 	return nil

@@ -8,7 +8,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/repositories/mysql"
 )
@@ -26,7 +26,7 @@ func (s *Service) register(req *bizpb.RegisterRequest, _ *bizpb.RegisterResponse
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {
-		return rpc_err.BadRequest(rpc_err.DetailInvalidEmailAddress, err.Error())
+		return rpc_error.BadRequest(rpc_error.DetailInvalidEmailAddress, err.Error())
 	}
 	emailHash := utils.HashEmailAddress(email)
 
@@ -34,9 +34,9 @@ func (s *Service) register(req *bizpb.RegisterRequest, _ *bizpb.RegisterResponse
 	name, err := utils.ValidateName(req.Name)
 	if err != nil {
 		if errors.Is(err, utils.ErrNameIsEmpty) {
-			return rpc_err.BadRequest(rpc_err.DetailNameRequired, err.Error())
+			return rpc_error.BadRequest(rpc_error.DetailNameRequired, err.Error())
 		} else if errors.Is(err, utils.ErrNameTooLong) {
-			return rpc_err.BadRequest(rpc_err.DetailNameTooLong, err.Error())
+			return rpc_error.BadRequest(rpc_error.DetailNameTooLong, err.Error())
 		}
 		return err
 	}
@@ -45,9 +45,9 @@ func (s *Service) register(req *bizpb.RegisterRequest, _ *bizpb.RegisterResponse
 	password, err := utils.ValidatePassword(req.Password)
 	if err != nil {
 		if errors.Is(err, utils.ErrPasswordTooShortOrTooLong) {
-			return rpc_err.BadRequest(rpc_err.DetailPasswordTooShortOrTooLong, err.Error())
+			return rpc_error.BadRequest(rpc_error.DetailPasswordTooShortOrTooLong, err.Error())
 		} else if errors.Is(err, utils.ErrPasswordTooWeak) {
-			return rpc_err.BadRequest(rpc_err.DetailPasswordTooWeak, err.Error())
+			return rpc_error.BadRequest(rpc_error.DetailPasswordTooWeak, err.Error())
 		}
 		return err
 	}
@@ -57,7 +57,7 @@ func (s *Service) register(req *bizpb.RegisterRequest, _ *bizpb.RegisterResponse
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}
-		return rpc_err.BadRequest(rpc_err.DetailIncorrectEmailCode, err.Error())
+		return rpc_error.BadRequest(rpc_error.DetailIncorrectEmailCode, err.Error())
 	}
 
 	// 生成密码哈希
@@ -69,7 +69,7 @@ func (s *Service) register(req *bizpb.RegisterRequest, _ *bizpb.RegisterResponse
 	// 创建用户
 	if err := s.MySQL().CreateUser(s.Ctx(), email, string(passwordHash), name); err != nil {
 		if mysql.IsDuplicateEntryError(err) {
-			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "email already registered")
+			return rpc_error.BadRequest(rpc_error.DetailEmailAlreadyRegistered, "email already registered")
 		}
 		return err
 	}

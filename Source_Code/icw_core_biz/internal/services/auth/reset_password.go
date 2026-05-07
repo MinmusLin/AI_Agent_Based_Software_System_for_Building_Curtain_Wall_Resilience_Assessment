@@ -8,7 +8,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/internal/services/common"
 )
@@ -26,7 +26,7 @@ func (s *Service) resetPassword(req *bizpb.ResetPasswordRequest, _ *bizpb.ResetP
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {
-		return rpc_err.BadRequest(rpc_err.DetailInvalidEmailAddress, err.Error())
+		return rpc_error.BadRequest(rpc_error.DetailInvalidEmailAddress, err.Error())
 	}
 	emailHash := utils.HashEmailAddress(email)
 
@@ -34,9 +34,9 @@ func (s *Service) resetPassword(req *bizpb.ResetPasswordRequest, _ *bizpb.ResetP
 	password, err := utils.ValidatePassword(req.NewPassword)
 	if err != nil {
 		if errors.Is(err, utils.ErrPasswordTooShortOrTooLong) {
-			return rpc_err.BadRequest(rpc_err.DetailPasswordTooShortOrTooLong, err.Error())
+			return rpc_error.BadRequest(rpc_error.DetailPasswordTooShortOrTooLong, err.Error())
 		} else if errors.Is(err, utils.ErrPasswordTooWeak) {
-			return rpc_err.BadRequest(rpc_err.DetailPasswordTooWeak, err.Error())
+			return rpc_error.BadRequest(rpc_error.DetailPasswordTooWeak, err.Error())
 		}
 		return err
 	}
@@ -46,7 +46,7 @@ func (s *Service) resetPassword(req *bizpb.ResetPasswordRequest, _ *bizpb.ResetP
 		if !utils.IsEmailCodeBusinessError(err) {
 			return err
 		}
-		return rpc_err.BadRequest(rpc_err.DetailIncorrectEmailCode, err.Error())
+		return rpc_error.BadRequest(rpc_error.DetailIncorrectEmailCode, err.Error())
 	}
 
 	// 生成密码哈希

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/repositories/mysql"
 )
 
@@ -21,7 +21,7 @@ func (s *Service) me(req *bizpb.MeRequest, resp *bizpb.MeResponse) error {
 	// 校验 Access Token 的签名、过期时间和签名算法
 	claims, err := s.tokens.Verify(req.AccessToken)
 	if err != nil {
-		return rpc_err.UnauthorizedDefault(err.Error())
+		return rpc_error.UnauthorizedDefault(err.Error())
 	}
 
 	// 检查 Access Token 是否已被黑名单禁用
@@ -31,7 +31,7 @@ func (s *Service) me(req *bizpb.MeRequest, resp *bizpb.MeResponse) error {
 			return err
 		}
 		if blacklisted {
-			return rpc_err.UnauthorizedDefault("token is blacklisted")
+			return rpc_error.UnauthorizedDefault("token is blacklisted")
 		}
 	}
 
@@ -41,7 +41,7 @@ func (s *Service) me(req *bizpb.MeRequest, resp *bizpb.MeResponse) error {
 		return err
 	}
 	if user == nil || user.Id == 0 {
-		return rpc_err.UnauthorizedDefault("user not found")
+		return rpc_error.UnauthorizedDefault("user not found")
 	}
 
 	resp.User = mysql.UserRecordToDTO(user)

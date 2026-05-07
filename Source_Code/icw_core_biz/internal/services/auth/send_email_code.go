@@ -7,7 +7,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/auth/consts"
 	"icw_core_biz/internal/services/auth/utils"
 	"icw_core_biz/internal/services/common"
@@ -26,14 +26,14 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 	// 标准化邮箱地址
 	email, err := utils.NormalizeEmailAddress(req.Email)
 	if err != nil {
-		return rpc_err.BadRequest(rpc_err.DetailInvalidEmailAddress, err.Error())
+		return rpc_error.BadRequest(rpc_error.DetailInvalidEmailAddress, err.Error())
 	}
 	emailHash := utils.HashEmailAddress(email)
 
 	// 获取邮箱验证码业务场景枚举
 	scene := enum.ParseEmailCodeScene(req.Scene)
 	if scene == bizpb.EmailCodeScene_Unknown {
-		return rpc_err.BadRequestDefault("invalid email code scene")
+		return rpc_error.BadRequestDefault("invalid email code scene")
 	}
 	sceneValue := enum.EmailCodeSceneString(scene)
 
@@ -44,7 +44,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 			return err
 		}
 		if user != nil && user.Id != 0 {
-			return rpc_err.BadRequest(rpc_err.DetailEmailAlreadyRegistered, "email already registered")
+			return rpc_error.BadRequest(rpc_error.DetailEmailAlreadyRegistered, "email already registered")
 		}
 	}
 
@@ -55,7 +55,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 			return err
 		}
 		if user == nil || user.Id == 0 {
-			return rpc_err.BadRequest(rpc_err.DetailEmailNotRegistered, "email not registered")
+			return rpc_error.BadRequest(rpc_error.DetailEmailNotRegistered, "email not registered")
 		}
 	}
 
@@ -66,7 +66,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 			return err
 		}
 		if locked {
-			return rpc_err.AccountLockedDefault(fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
+			return rpc_error.AccountLockedDefault(fmt.Sprintf("login retry after %s", ttl.Round(time.Second)))
 		}
 	}
 
@@ -76,7 +76,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 		return err
 	}
 	if exists {
-		return rpc_err.BadRequest(rpc_err.DetailEmailCodeSentTooFrequently, "email code sent too frequently")
+		return rpc_error.BadRequest(rpc_error.DetailEmailCodeSentTooFrequently, "email code sent too frequently")
 	}
 
 	// 生成 6 位数字邮箱验证码
@@ -94,7 +94,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 		if err := s.Redis().ClearEmailCode(s.Ctx(), sceneValue, emailHash); err != nil {
 			common.RpcWarn("Clear email code failed, scene: %s, email: %s, err: %v", sceneValue, email, err)
 		}
-		return rpc_err.InternalError(rpc_err.DetailSendEmailCodeFailed, err.Error())
+		return rpc_error.InternalError(rpc_error.DetailSendEmailCodeFailed, err.Error())
 	}
 	s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, bizpb.EmailSendStatus_Success, "")
 
