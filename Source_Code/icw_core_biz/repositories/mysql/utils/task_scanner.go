@@ -6,10 +6,12 @@ import (
 	"icw_core_biz/repositories/mysql/model"
 )
 
+// sqlScanner 抽象 QueryRow 和 Rows 的 Scan 能力
 type sqlScanner interface {
 	Scan(dest ...interface{}) error
 }
 
+// ScanProjectDetectionTask 扫描项目图像检测主任务记录
 func ScanProjectDetectionTask(scanner sqlScanner) (*model.ProjectDetectionTaskRecord, error) {
 	task := &model.ProjectDetectionTaskRecord{}
 	var status string
@@ -44,6 +46,7 @@ func ScanProjectDetectionTask(scanner sqlScanner) (*model.ProjectDetectionTaskRe
 	return task, nil
 }
 
+// ScanProjectDetectionSubTask 扫描项目图像检测子任务记录
 func ScanProjectDetectionSubTask(scanner sqlScanner) (*model.ProjectDetectionSubTaskRecord, error) {
 	record := &model.ProjectDetectionSubTaskRecord{}
 	var status string
