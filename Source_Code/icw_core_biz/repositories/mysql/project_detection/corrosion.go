@@ -5,16 +5,17 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"icw_core_biz/repositories/mysql"
 
 	"github.com/google/uuid"
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
+
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // createProjectDetectionCorrosionTaskTx 创建项目图像金属锈蚀检测子任务记录
-func createProjectDetectionCorrosionTaskTx(ctx context.Context, tx *sql.Tx, task *mysql.ProjectDetectionTaskRecord) (*mysql.ProjectDetectionSubTaskRecord, error) {
+func createProjectDetectionCorrosionTaskTx(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*model.ProjectDetectionSubTaskRecord, error) {
 	taskUuid := uuid.NewString()
 
 	result, err := tx.ExecContext(ctx, `
@@ -35,11 +36,11 @@ func createProjectDetectionCorrosionTaskTx(ctx context.Context, tx *sql.Tx, task
 		SET corrosion_should_execute = 1, corrosion_task_id = ?, status = ?
 		WHERE id = ?
 	`, subTaskId, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Detecting), task.Id)
-	if err := checkRowsAffected(result, err); err != nil {
+	if err := CheckRowsAffected(result, err); err != nil {
 		return nil, err
 	}
 
-	return &mysql.ProjectDetectionSubTaskRecord{
+	return &model.ProjectDetectionSubTaskRecord{
 		Id:         uint64(subTaskId),
 		Uuid:       taskUuid,
 		MainTaskId: task.Id,
@@ -51,7 +52,7 @@ func createProjectDetectionCorrosionTaskTx(ctx context.Context, tx *sql.Tx, task
 }
 
 // findProjectDetectionCorrosionTaskByUuidTx 按子任务 UUID 查询项目图像金属锈蚀检测子任务记录
-func findProjectDetectionCorrosionTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*mysql.ProjectDetectionSubTaskRecord, error) {
+func findProjectDetectionCorrosionTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*model.ProjectDetectionSubTaskRecord, error) {
 	record, err := scanProjectDetectionSubTask(tx.QueryRowContext(ctx, `
 		SELECT id, uuid, main_task_id, user_id, project_id, image_id, status, started_at, finished_at, created_at, updated_at
 		FROM project_detection_corrosion_tasks
@@ -64,8 +65,8 @@ func findProjectDetectionCorrosionTaskByUuidTx(ctx context.Context, tx *sql.Tx, 
 	return record, err
 }
 
-// findProjectDetectionCorrosionTaskStatusByIdTx 按子任务 ID 查询项目图像金属锈蚀检测子任务状态
-func findProjectDetectionCorrosionTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, taskId uint64) (bizpb.ProjectDetectionSubTaskStatus_Value, error) {
+// FindProjectDetectionCorrosionTaskStatusByIdTx 按子任务 ID 查询项目图像金属锈蚀检测子任务状态
+func FindProjectDetectionCorrosionTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, taskId uint64) (bizpb.ProjectDetectionSubTaskStatus_Value, error) {
 	var status string
 	if err := tx.QueryRowContext(ctx, `
 		SELECT status
@@ -90,7 +91,7 @@ func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx
 			WHERE uuid = ?
 		`, statusText, taskUuid)
 
-		return checkRowsAffected(result, err)
+		return CheckRowsAffected(result, err)
 	}
 
 	// 检测成功时，更新任务状态、开始时间、完成时间和检测报告
@@ -124,5 +125,5 @@ func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx
 		WHERE uuid = ?
 	`, statusText, report.HasCorrosion, report.CorrosionCount, report.MaxConfidence, report.AverageConfidence, report.CorrosionPixels, report.CorrosionRatio, jsonOrEmptyArray(report.Regions), report.RuntimeSeconds, report.RuntimeSeconds, taskUuid)
 
-	return checkRowsAffected(result, err)
+	return CheckRowsAffected(result, err)
 }

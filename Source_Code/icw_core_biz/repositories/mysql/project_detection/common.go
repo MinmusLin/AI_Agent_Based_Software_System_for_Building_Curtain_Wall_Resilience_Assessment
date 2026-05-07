@@ -3,19 +3,15 @@ package project_detection
 import (
 	"context"
 	"database/sql"
-	"errors"
+
 	"icw_common/enum"
 	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
-	"icw_core_biz/repositories/mysql"
+
+	"icw_core_biz/repositories/mysql/model"
 )
 
-var (
-	// ErrUnsupportedDetectionTaskCode 不支持的原子检测能力代码
-	ErrUnsupportedDetectionTaskCode = errors.New("unsupported detection task code")
-)
-
-func createProjectDetectionSubTaskTx(ctx context.Context, tx *sql.Tx, task *mysql.ProjectDetectionTaskRecord, taskCode string) (*mysql.ProjectDetectionSubTaskRecord, error) {
+func CreateProjectDetectionSubTaskTx(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord, taskCode string) (*model.ProjectDetectionSubTaskRecord, error) {
 	switch enum.ParseDetectionTaskCode(taskCode) {
 	case activitypb.DetectionTaskCode_Corrosion:
 		return createProjectDetectionCorrosionTaskTx(ctx, tx, task)
@@ -28,11 +24,11 @@ func createProjectDetectionSubTaskTx(ctx context.Context, tx *sql.Tx, task *mysq
 	case activitypb.DetectionTaskCode_Spalling:
 		return createProjectDetectionSpallingTaskTx(ctx, tx, task)
 	default:
-		return nil, ErrUnsupportedDetectionTaskCode
+		return nil, model.ErrUnsupportedDetectionTaskCode
 	}
 }
 
-func updateProjectDetectionSubTaskResultTx(ctx context.Context, tx *sql.Tx, taskCode, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+func UpdateProjectDetectionSubTaskResultTx(ctx context.Context, tx *sql.Tx, taskCode, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
 	switch enum.ParseDetectionTaskCode(taskCode) {
 	case activitypb.DetectionTaskCode_Corrosion:
 		return updateProjectDetectionCorrosionTaskResultTx(ctx, tx, taskUuid, status, resultJSON)
@@ -45,11 +41,11 @@ func updateProjectDetectionSubTaskResultTx(ctx context.Context, tx *sql.Tx, task
 	case activitypb.DetectionTaskCode_Spalling:
 		return updateProjectDetectionSpallingTaskResultTx(ctx, tx, taskUuid, status, resultJSON)
 	default:
-		return ErrUnsupportedDetectionTaskCode
+		return model.ErrUnsupportedDetectionTaskCode
 	}
 }
 
-func findProjectDetectionSubTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskCode, taskUuid string) (*mysql.ProjectDetectionSubTaskRecord, error) {
+func FindProjectDetectionSubTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskCode, taskUuid string) (*model.ProjectDetectionSubTaskRecord, error) {
 	switch enum.ParseDetectionTaskCode(taskCode) {
 	case activitypb.DetectionTaskCode_Corrosion:
 		return findProjectDetectionCorrosionTaskByUuidTx(ctx, tx, taskUuid)
@@ -62,6 +58,6 @@ func findProjectDetectionSubTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskCo
 	case activitypb.DetectionTaskCode_Spalling:
 		return findProjectDetectionSpallingTaskByUuidTx(ctx, tx, taskUuid)
 	default:
-		return nil, ErrUnsupportedDetectionTaskCode
+		return nil, model.ErrUnsupportedDetectionTaskCode
 	}
 }

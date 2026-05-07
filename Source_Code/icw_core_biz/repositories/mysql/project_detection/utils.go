@@ -3,8 +3,10 @@ package project_detection
 import (
 	"database/sql"
 	"encoding/json"
+
 	"icw_common/enum"
-	"icw_core_biz/repositories/mysql"
+
+	"icw_core_biz/repositories/mysql/model"
 )
 
 func jsonOrEmptyArray(raw json.RawMessage) string {
@@ -14,7 +16,7 @@ func jsonOrEmptyArray(raw json.RawMessage) string {
 	return string(raw)
 }
 
-func checkRowsAffected(result sql.Result, err error) error {
+func CheckRowsAffected(result sql.Result, err error) error {
 	if err != nil {
 		return err
 	}
@@ -32,8 +34,8 @@ type sqlScanner interface {
 	Scan(dest ...interface{}) error
 }
 
-func scanProjectDetectionTask(scanner sqlScanner) (*mysql.ProjectDetectionTaskRecord, error) {
-	task := &mysql.ProjectDetectionTaskRecord{}
+func ScanProjectDetectionTask(scanner sqlScanner) (*model.ProjectDetectionTaskRecord, error) {
+	task := &model.ProjectDetectionTaskRecord{}
 	var status string
 	if err := scanner.Scan(
 		&task.Id,
@@ -66,8 +68,8 @@ func scanProjectDetectionTask(scanner sqlScanner) (*mysql.ProjectDetectionTaskRe
 	return task, nil
 }
 
-func scanProjectDetectionSubTask(scanner sqlScanner) (*mysql.ProjectDetectionSubTaskRecord, error) {
-	record := &mysql.ProjectDetectionSubTaskRecord{}
+func scanProjectDetectionSubTask(scanner sqlScanner) (*model.ProjectDetectionSubTaskRecord, error) {
+	record := &model.ProjectDetectionSubTaskRecord{}
 	var status string
 	if err := scanner.Scan(
 		&record.Id,
