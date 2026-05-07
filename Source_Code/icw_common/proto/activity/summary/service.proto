@@ -4,11 +4,33 @@ package icw.activity.summary;
 
 option go_package = "icw_common/gen/activity/summary;summarypb";
 
-// 总结能力 RPC 服务
-service SummaryService {
-  rpc Ping(PingRequest) returns (PingResponse);
+// StartDetectionSummary 请求结构体
+message StartDetectionSummaryRequest {
+  string task_uuid = 1;
+  string image_uuid = 2;
+  string report_json = 3;
 }
 
-message PingRequest {}
+// StartDetectionSummary 响应结构体
+message StartDetectionSummaryResponse {
+  string result = 1;
+}
 
-message PingResponse {}
+// StartProjectSummary 请求结构体
+message StartProjectSummaryRequest {
+  string project_id = 1;
+  string report_json = 2;
+}
+
+// StartProjectSummary 响应结构体
+message StartProjectSummaryResponse {
+  string result = 1;
+}
+
+// 总结能力 RPC 服务
+service SummaryService {
+  // 启动图像检测总结任务
+  rpc StartDetectionSummary(StartDetectionSummaryRequest) returns (StartDetectionSummaryResponse);
+  // 启动项目总结任务
+  rpc StartProjectSummary(StartProjectSummaryRequest) returns (StartProjectSummaryResponse);
+}

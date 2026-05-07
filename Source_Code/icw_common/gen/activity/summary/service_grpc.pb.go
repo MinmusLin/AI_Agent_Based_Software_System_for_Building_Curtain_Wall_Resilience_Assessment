@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SummaryService_Ping_FullMethodName = "/icw.activity.summary.SummaryService/Ping"
+	SummaryService_StartDetectionSummary_FullMethodName = "/icw.activity.summary.SummaryService/StartDetectionSummary"
+	SummaryService_StartProjectSummary_FullMethodName   = "/icw.activity.summary.SummaryService/StartProjectSummary"
 )
 
 // SummaryServiceClient is the client API for SummaryService service.
@@ -28,7 +29,10 @@ const (
 //
 // 总结能力 RPC 服务
 type SummaryServiceClient interface {
-	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
+	// 启动图像检测总结任务
+	StartDetectionSummary(ctx context.Context, in *StartDetectionSummaryRequest, opts ...grpc.CallOption) (*StartDetectionSummaryResponse, error)
+	// 启动项目总结任务
+	StartProjectSummary(ctx context.Context, in *StartProjectSummaryRequest, opts ...grpc.CallOption) (*StartProjectSummaryResponse, error)
 }
 
 type summaryServiceClient struct {
@@ -39,10 +43,20 @@ func NewSummaryServiceClient(cc grpc.ClientConnInterface) SummaryServiceClient {
 	return &summaryServiceClient{cc}
 }
 
-func (c *summaryServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+func (c *summaryServiceClient) StartDetectionSummary(ctx context.Context, in *StartDetectionSummaryRequest, opts ...grpc.CallOption) (*StartDetectionSummaryResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PingResponse)
-	err := c.cc.Invoke(ctx, SummaryService_Ping_FullMethodName, in, out, cOpts...)
+	out := new(StartDetectionSummaryResponse)
+	err := c.cc.Invoke(ctx, SummaryService_StartDetectionSummary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *summaryServiceClient) StartProjectSummary(ctx context.Context, in *StartProjectSummaryRequest, opts ...grpc.CallOption) (*StartProjectSummaryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StartProjectSummaryResponse)
+	err := c.cc.Invoke(ctx, SummaryService_StartProjectSummary_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +69,10 @@ func (c *summaryServiceClient) Ping(ctx context.Context, in *PingRequest, opts .
 //
 // 总结能力 RPC 服务
 type SummaryServiceServer interface {
-	Ping(context.Context, *PingRequest) (*PingResponse, error)
+	// 启动图像检测总结任务
+	StartDetectionSummary(context.Context, *StartDetectionSummaryRequest) (*StartDetectionSummaryResponse, error)
+	// 启动项目总结任务
+	StartProjectSummary(context.Context, *StartProjectSummaryRequest) (*StartProjectSummaryResponse, error)
 	mustEmbedUnimplementedSummaryServiceServer()
 }
 
@@ -66,8 +83,11 @@ type SummaryServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSummaryServiceServer struct{}
 
-func (UnimplementedSummaryServiceServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
+func (UnimplementedSummaryServiceServer) StartDetectionSummary(context.Context, *StartDetectionSummaryRequest) (*StartDetectionSummaryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartDetectionSummary not implemented")
+}
+func (UnimplementedSummaryServiceServer) StartProjectSummary(context.Context, *StartProjectSummaryRequest) (*StartProjectSummaryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartProjectSummary not implemented")
 }
 func (UnimplementedSummaryServiceServer) mustEmbedUnimplementedSummaryServiceServer() {}
 func (UnimplementedSummaryServiceServer) testEmbeddedByValue()                        {}
@@ -90,20 +110,38 @@ func RegisterSummaryServiceServer(s grpc.ServiceRegistrar, srv SummaryServiceSer
 	s.RegisterService(&SummaryService_ServiceDesc, srv)
 }
 
-func _SummaryService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PingRequest)
+func _SummaryService_StartDetectionSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartDetectionSummaryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SummaryServiceServer).Ping(ctx, in)
+		return srv.(SummaryServiceServer).StartDetectionSummary(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SummaryService_Ping_FullMethodName,
+		FullMethod: SummaryService_StartDetectionSummary_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SummaryServiceServer).Ping(ctx, req.(*PingRequest))
+		return srv.(SummaryServiceServer).StartDetectionSummary(ctx, req.(*StartDetectionSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SummaryService_StartProjectSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartProjectSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SummaryServiceServer).StartProjectSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SummaryService_StartProjectSummary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SummaryServiceServer).StartProjectSummary(ctx, req.(*StartProjectSummaryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -116,8 +154,12 @@ var SummaryService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SummaryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Ping",
-			Handler:    _SummaryService_Ping_Handler,
+			MethodName: "StartDetectionSummary",
+			Handler:    _SummaryService_StartDetectionSummary_Handler,
+		},
+		{
+			MethodName: "StartProjectSummary",
+			Handler:    _SummaryService_StartProjectSummary_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

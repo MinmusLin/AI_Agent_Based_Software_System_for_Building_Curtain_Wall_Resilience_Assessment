@@ -21,26 +21,30 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type PingRequest struct {
+// StartDetectionSummary 请求结构体
+type StartDetectionSummaryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskUuid      string                 `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	ImageUuid     string                 `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	ReportJson    string                 `protobuf:"bytes,3,opt,name=report_json,json=reportJson,proto3" json:"report_json,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PingRequest) Reset() {
-	*x = PingRequest{}
+func (x *StartDetectionSummaryRequest) Reset() {
+	*x = StartDetectionSummaryRequest{}
 	mi := &file_activity_summary_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PingRequest) String() string {
+func (x *StartDetectionSummaryRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PingRequest) ProtoMessage() {}
+func (*StartDetectionSummaryRequest) ProtoMessage() {}
 
-func (x *PingRequest) ProtoReflect() protoreflect.Message {
+func (x *StartDetectionSummaryRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_activity_summary_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -52,31 +56,54 @@ func (x *PingRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
-func (*PingRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use StartDetectionSummaryRequest.ProtoReflect.Descriptor instead.
+func (*StartDetectionSummaryRequest) Descriptor() ([]byte, []int) {
 	return file_activity_summary_service_proto_rawDescGZIP(), []int{0}
 }
 
-type PingResponse struct {
+func (x *StartDetectionSummaryRequest) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *StartDetectionSummaryRequest) GetImageUuid() string {
+	if x != nil {
+		return x.ImageUuid
+	}
+	return ""
+}
+
+func (x *StartDetectionSummaryRequest) GetReportJson() string {
+	if x != nil {
+		return x.ReportJson
+	}
+	return ""
+}
+
+// StartDetectionSummary 响应结构体
+type StartDetectionSummaryResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PingResponse) Reset() {
-	*x = PingResponse{}
+func (x *StartDetectionSummaryResponse) Reset() {
+	*x = StartDetectionSummaryResponse{}
 	mi := &file_activity_summary_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PingResponse) String() string {
+func (x *StartDetectionSummaryResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PingResponse) ProtoMessage() {}
+func (*StartDetectionSummaryResponse) ProtoMessage() {}
 
-func (x *PingResponse) ProtoReflect() protoreflect.Message {
+func (x *StartDetectionSummaryResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_activity_summary_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -88,20 +115,139 @@ func (x *PingResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PingResponse.ProtoReflect.Descriptor instead.
-func (*PingResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use StartDetectionSummaryResponse.ProtoReflect.Descriptor instead.
+func (*StartDetectionSummaryResponse) Descriptor() ([]byte, []int) {
 	return file_activity_summary_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *StartDetectionSummaryResponse) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+// StartProjectSummary 请求结构体
+type StartProjectSummaryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ReportJson    string                 `protobuf:"bytes,2,opt,name=report_json,json=reportJson,proto3" json:"report_json,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartProjectSummaryRequest) Reset() {
+	*x = StartProjectSummaryRequest{}
+	mi := &file_activity_summary_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartProjectSummaryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartProjectSummaryRequest) ProtoMessage() {}
+
+func (x *StartProjectSummaryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_activity_summary_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartProjectSummaryRequest.ProtoReflect.Descriptor instead.
+func (*StartProjectSummaryRequest) Descriptor() ([]byte, []int) {
+	return file_activity_summary_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *StartProjectSummaryRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *StartProjectSummaryRequest) GetReportJson() string {
+	if x != nil {
+		return x.ReportJson
+	}
+	return ""
+}
+
+// StartProjectSummary 响应结构体
+type StartProjectSummaryResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartProjectSummaryResponse) Reset() {
+	*x = StartProjectSummaryResponse{}
+	mi := &file_activity_summary_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartProjectSummaryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartProjectSummaryResponse) ProtoMessage() {}
+
+func (x *StartProjectSummaryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_activity_summary_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartProjectSummaryResponse.ProtoReflect.Descriptor instead.
+func (*StartProjectSummaryResponse) Descriptor() ([]byte, []int) {
+	return file_activity_summary_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *StartProjectSummaryResponse) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
 }
 
 var File_activity_summary_service_proto protoreflect.FileDescriptor
 
 const file_activity_summary_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1eactivity/summary/service.proto\x12\x14icw.activity.summary\"\r\n" +
-	"\vPingRequest\"\x0e\n" +
-	"\fPingResponse2_\n" +
-	"\x0eSummaryService\x12M\n" +
-	"\x04Ping\x12!.icw.activity.summary.PingRequest\x1a\".icw.activity.summary.PingResponseB+Z)icw_common/gen/activity/summary;summarypbb\x06proto3"
+	"\x1eactivity/summary/service.proto\x12\x14icw.activity.summary\"{\n" +
+	"\x1cStartDetectionSummaryRequest\x12\x1b\n" +
+	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
+	"\n" +
+	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12\x1f\n" +
+	"\vreport_json\x18\x03 \x01(\tR\n" +
+	"reportJson\"7\n" +
+	"\x1dStartDetectionSummaryResponse\x12\x16\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result\"\\\n" +
+	"\x1aStartProjectSummaryRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1f\n" +
+	"\vreport_json\x18\x02 \x01(\tR\n" +
+	"reportJson\"5\n" +
+	"\x1bStartProjectSummaryResponse\x12\x16\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result2\x8f\x02\n" +
+	"\x0eSummaryService\x12\x80\x01\n" +
+	"\x15StartDetectionSummary\x122.icw.activity.summary.StartDetectionSummaryRequest\x1a3.icw.activity.summary.StartDetectionSummaryResponse\x12z\n" +
+	"\x13StartProjectSummary\x120.icw.activity.summary.StartProjectSummaryRequest\x1a1.icw.activity.summary.StartProjectSummaryResponseB+Z)icw_common/gen/activity/summary;summarypbb\x06proto3"
 
 var (
 	file_activity_summary_service_proto_rawDescOnce sync.Once
@@ -115,16 +261,20 @@ func file_activity_summary_service_proto_rawDescGZIP() []byte {
 	return file_activity_summary_service_proto_rawDescData
 }
 
-var file_activity_summary_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_activity_summary_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_activity_summary_service_proto_goTypes = []any{
-	(*PingRequest)(nil),  // 0: icw.activity.summary.PingRequest
-	(*PingResponse)(nil), // 1: icw.activity.summary.PingResponse
+	(*StartDetectionSummaryRequest)(nil),  // 0: icw.activity.summary.StartDetectionSummaryRequest
+	(*StartDetectionSummaryResponse)(nil), // 1: icw.activity.summary.StartDetectionSummaryResponse
+	(*StartProjectSummaryRequest)(nil),    // 2: icw.activity.summary.StartProjectSummaryRequest
+	(*StartProjectSummaryResponse)(nil),   // 3: icw.activity.summary.StartProjectSummaryResponse
 }
 var file_activity_summary_service_proto_depIdxs = []int32{
-	0, // 0: icw.activity.summary.SummaryService.Ping:input_type -> icw.activity.summary.PingRequest
-	1, // 1: icw.activity.summary.SummaryService.Ping:output_type -> icw.activity.summary.PingResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	0, // 0: icw.activity.summary.SummaryService.StartDetectionSummary:input_type -> icw.activity.summary.StartDetectionSummaryRequest
+	2, // 1: icw.activity.summary.SummaryService.StartProjectSummary:input_type -> icw.activity.summary.StartProjectSummaryRequest
+	1, // 2: icw.activity.summary.SummaryService.StartDetectionSummary:output_type -> icw.activity.summary.StartDetectionSummaryResponse
+	3, // 3: icw.activity.summary.SummaryService.StartProjectSummary:output_type -> icw.activity.summary.StartProjectSummaryResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -141,7 +291,7 @@ func file_activity_summary_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_activity_summary_service_proto_rawDesc), len(file_activity_summary_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
