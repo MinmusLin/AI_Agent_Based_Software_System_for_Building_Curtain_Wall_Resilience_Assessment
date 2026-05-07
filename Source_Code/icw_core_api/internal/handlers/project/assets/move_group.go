@@ -5,7 +5,7 @@ import (
 
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_common/utils"
 	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
@@ -31,19 +31,19 @@ func (h *Handler) MoveProjectGroup(c *gin.Context) {
 	// 将 Sqids 字符串解码为数字 ID
 	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, rpc_err.BadRequestDefault(err.Error()))
+		response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
 		return
 	}
 	groupId, err := utils.Decode(req.GroupId)
 	if err != nil {
-		response.WriteError(c, rpc_err.BadRequestDefault(err.Error()))
+		response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
 		return
 	}
 	var previousGroupId uint64
 	if req.PreviousGroupId != "" {
 		previousGroupId, err = utils.Decode(req.PreviousGroupId)
 		if err != nil {
-			response.WriteError(c, rpc_err.BadRequestDefault(err.Error()))
+			response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
 			return
 		}
 	}
@@ -51,7 +51,7 @@ func (h *Handler) MoveProjectGroup(c *gin.Context) {
 	if req.NextGroupId != "" {
 		nextGroupId, err = utils.Decode(req.NextGroupId)
 		if err != nil {
-			response.WriteError(c, rpc_err.BadRequestDefault(err.Error()))
+			response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
 			return
 		}
 	}

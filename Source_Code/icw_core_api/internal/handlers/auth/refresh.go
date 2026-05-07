@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_api/internal/dto"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/auth"
@@ -23,8 +23,8 @@ func (h *Handler) Refresh(c *gin.Context) {
 	rpcResp := &bizpb.RefreshResponse{}
 	if err := auth.Refresh(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
 		response.WriteError(c, err)
-		code, _, _ := rpc_err.Parse(err)
-		if code == rpc_err.CodeUnauthorized {
+		code, _, _ := rpc_error.Parse(err)
+		if code == rpc_error.CodeUnauthorized {
 			// 旧 Refresh Token 失效
 			h.clearRefreshCookie(c)
 		}
