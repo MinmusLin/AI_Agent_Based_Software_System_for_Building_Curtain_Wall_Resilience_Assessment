@@ -277,3 +277,34 @@ type ProjectAssetsReadyStats struct {
 	FailedImageCount   uint64
 	EmptyGroupCount    uint64
 }
+
+// ProjectDetectionTaskRecord 项目图像检测主任务记录
+type ProjectDetectionTaskRecord struct {
+	Id         uint64
+	Uuid       string
+	UserId     uint64
+	ProjectId  uint64
+	ImageId    uint64
+	ImageUuid  string
+	Status     bizpb.ProjectDetectionTaskStatus_Value
+	StartedAt  sql.NullTime
+	FinishedAt sql.NullTime
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
+// ProjectDetectionSubTaskRecord 项目图像检测子任务记录
+type ProjectDetectionSubTaskRecord struct {
+	Id         uint64
+	Uuid       string
+	MainTaskId uint64
+	UserId     uint64
+	ProjectId  uint64
+	ImageId    uint64
+	TaskCode   string
+	Status     bizpb.ProjectDetectionSubTaskStatus_Value
+	StartedAt  sql.NullTime
+	FinishedAt sql.NullTime
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
