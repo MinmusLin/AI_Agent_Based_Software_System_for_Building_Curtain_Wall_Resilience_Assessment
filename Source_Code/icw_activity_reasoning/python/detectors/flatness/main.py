@@ -19,6 +19,7 @@ MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 INPUT_SIZE = 416
 MASK_THRESHOLD = 200
 MIN_SEGMENT_AREA = 200
+DETECTOR: 'FlatnessDetector | None' = None
 
 
 class LambdaBase(nn.Sequential):
@@ -1282,42 +1283,61 @@ def build_report(glass_reports: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+class FlatnessDetector:
+    def __init__(self) -> None:
+        self.device = get_device()
+        self.model = load_model(MODEL_PATH, self.device)
+
+    # 执行玻璃平整度检测
+    def detect(self, input_path: Path) -> None:
+        start_time = time.time()
+        input_path = input_path.expanduser().resolve()
+        output_dir = input_path.parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+        image = read_image(input_path)
+        binary_mask = predict_mask(self.model, image, self.device)
+        original_image = np.array(image)
+        contours = extract_white_regions(binary_mask)
+        segments = segment_from_original_image(original_image, contours)
+        glass_reports = []
+        for segment in segments:
+            region_id = sum(1 for item in glass_reports if not item['is_flat']) + 1
+            analysis = detect_glass_flatness(segment['image'], region_id, output_dir)
+            bbox = segment['bbox']
+            glass_reports.append(
+                {
+                    'bbox': bbox,
+                    'bbox_xyxy': [bbox['x'], bbox['y'], bbox['x'] + bbox['width'], bbox['y'] + bbox['height']],
+                    **analysis,
+                }
+            )
+        report = build_report(glass_reports)
+        save_mask(binary_mask, output_dir)
+        save_overlay(image, glass_reports, output_dir)
+        report_path = output_dir / 'report.json'
+        report['runtime_seconds'] = round(time.time() - start_time, 3)
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+# 获取可复用的玻璃平整度检测器
+def get_detector() -> FlatnessDetector:
+    global DETECTOR
+    if DETECTOR is None:
+        DETECTOR = FlatnessDetector()
+    return DETECTOR
+
+
+# 执行玻璃平整度检测
+def detect(input_path: Path) -> None:
+    get_detector().detect(input_path)
+
+
 # 执行玻璃平整度检测
 def main() -> int:
     args = parse_args()
-    start_time = time.time()
-    input_path = Path(args.input).expanduser().resolve()
-    output_dir = input_path.parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    device = get_device()
-    image = read_image(input_path)
-    model = load_model(MODEL_PATH, device)
-    binary_mask = predict_mask(model, image, device)
-    original_image = np.array(image)
-    contours = extract_white_regions(binary_mask)
-    segments = segment_from_original_image(original_image, contours)
-
-    glass_reports = []
-    for segment in segments:
-        region_id = sum(1 for item in glass_reports if not item['is_flat']) + 1
-        analysis = detect_glass_flatness(segment['image'], region_id, output_dir)
-        bbox = segment['bbox']
-        glass_reports.append(
-            {
-                'bbox': bbox,
-                'bbox_xyxy': [bbox['x'], bbox['y'], bbox['x'] + bbox['width'], bbox['y'] + bbox['height']],
-                **analysis,
-            }
-        )
-
-    report = build_report(glass_reports)
-    save_mask(binary_mask, output_dir)
-    save_overlay(image, glass_reports, output_dir)
-    report_path = output_dir / 'report.json'
-    report['runtime_seconds'] = round(time.time() - start_time, 3)
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    detect(Path(args.input))
     return 0
 
 
-raise SystemExit(main())
+if __name__ == '__main__':
+    raise SystemExit(main())

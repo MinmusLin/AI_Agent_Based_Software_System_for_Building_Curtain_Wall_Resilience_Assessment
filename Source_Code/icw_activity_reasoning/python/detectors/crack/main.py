@@ -18,6 +18,7 @@ MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 INPUT_SIZE = 1024
 MIN_REGION_AREA = 20
 NUM_CLASSES = 2
+DETECTOR: 'CrackDetector | None' = None
 
 
 class Gelu(nn.Module):
@@ -499,24 +500,45 @@ def save_outputs(image: Image.Image, cleaned_mask: np.ndarray, output_dir: Path)
     cv2.imwrite(str(overlay_path), cv2.cvtColor(overlay_image, cv2.COLOR_RGB2BGR))
 
 
+class CrackDetector:
+    def __init__(self) -> None:
+        self.device = get_device()
+        self.model = load_model(MODEL_PATH, self.device)
+
+    # 执行石材裂缝检测
+    def detect(self, input_path: Path) -> None:
+        start_time = time.time()
+        input_path = input_path.expanduser().resolve()
+        image = read_image(input_path)
+        raw_mask = predict_mask(self.model, image, self.device)
+        cleaned_mask, regions = extract_regions(raw_mask)
+        report = build_report(cleaned_mask, regions)
+        report['runtime_seconds'] = round(time.time() - start_time, 3)
+        run_dir = input_path.parent
+        save_outputs(image, cleaned_mask, run_dir)
+        report_path = run_dir / 'report.json'
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+# 获取可复用的石材裂缝检测器
+def get_detector() -> CrackDetector:
+    global DETECTOR
+    if DETECTOR is None:
+        DETECTOR = CrackDetector()
+    return DETECTOR
+
+
+# 执行石材裂缝检测
+def detect(input_path: Path) -> None:
+    get_detector().detect(input_path)
+
+
 # 执行石材裂缝检测
 def main() -> int:
     args = parse_args()
-    start_time = time.time()
-    input_path = Path(args.input).expanduser().resolve()
-    device = get_device()
-    image = read_image(input_path)
-    model = load_model(MODEL_PATH, device)
-    raw_mask = predict_mask(model, image, device)
-    cleaned_mask, regions = extract_regions(raw_mask)
-    report = build_report(cleaned_mask, regions)
-    report['runtime_seconds'] = round(time.time() - start_time, 3)
-
-    run_dir = input_path.parent
-    save_outputs(image, cleaned_mask, run_dir)
-    report_path = run_dir / 'report.json'
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    detect(Path(args.input))
     return 0
 
 
-raise SystemExit(main())
+if __name__ == '__main__':
+    raise SystemExit(main())

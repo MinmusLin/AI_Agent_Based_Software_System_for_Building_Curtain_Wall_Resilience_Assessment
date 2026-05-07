@@ -21,6 +21,7 @@ MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 IMAGE_SIZE = 640
 CONFIDENCE_THRESHOLD = 0.3
 IOU_THRESHOLD = 0.45
+DETECTOR: 'StainDetector | None' = None
 
 
 # 解析命令行输入参数
@@ -254,23 +255,43 @@ def build_outputs(image: np.ndarray, results: Any, output_dir: Path) -> dict[str
     }
 
 
+class StainDetector:
+    def __init__(self) -> None:
+        self.model = YOLO(str(MODEL_PATH))
+
+    # 执行石材污渍检测
+    def detect(self, input_path: Path) -> None:
+        start_time = time.time()
+        input_path = input_path.expanduser().resolve()
+        image = read_image(input_path)
+        raw_results = predict(self.model, input_path)
+        output_dir = input_path.parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+        report = build_outputs(image, raw_results, output_dir)
+        report_path = output_dir / 'report.json'
+        report['runtime_seconds'] = round(time.time() - start_time, 3)
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+# 获取可复用的石材污渍检测器
+def get_detector() -> StainDetector:
+    global DETECTOR
+    if DETECTOR is None:
+        DETECTOR = StainDetector()
+    return DETECTOR
+
+
+# 执行石材污渍检测
+def detect(input_path: Path) -> None:
+    get_detector().detect(input_path)
+
+
 # 执行石材污渍检测
 def main() -> int:
     args = parse_args()
-    start_time = time.time()
-    input_path = Path(args.input).expanduser().resolve()
-
-    image = read_image(input_path)
-    model = YOLO(str(MODEL_PATH))
-    raw_results = predict(model, input_path)
-
-    output_dir = input_path.parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    report = build_outputs(image, raw_results, output_dir)
-    report_path = output_dir / 'report.json'
-    report['runtime_seconds'] = round(time.time() - start_time, 3)
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    detect(Path(args.input))
     return 0
 
 
-raise SystemExit(main())
+if __name__ == '__main__':
+    raise SystemExit(main())

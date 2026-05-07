@@ -14,6 +14,7 @@ APP_ROOT = Path(__file__).resolve().parent
 MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 INPUT_SIZE = 224
 CLASS_NAMES = ['defect', 'undefect']
+DETECTOR: 'SpallingDetector | None' = None
 
 
 # 解析命令行输入参数
@@ -91,23 +92,44 @@ def build_report(prediction: dict[str, float | bool]) -> dict[str, float | bool]
     }
 
 
+class SpallingDetector:
+    def __init__(self) -> None:
+        self.device = get_device()
+        self.model = load_model(MODEL_PATH, self.device)
+
+    # 执行玻璃爆裂检测
+    def detect(self, input_path: Path) -> None:
+        start_time = time.time()
+        input_path = input_path.expanduser().resolve()
+        image = read_image(input_path)
+        prediction = predict(self.model, image, self.device)
+        report = build_report(prediction)
+        report['runtime_seconds'] = round(time.time() - start_time, 3)
+        run_dir = input_path.parent
+        run_dir.mkdir(parents=True, exist_ok=True)
+        report_path = run_dir / 'report.json'
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+# 获取可复用的玻璃爆裂检测器
+def get_detector() -> SpallingDetector:
+    global DETECTOR
+    if DETECTOR is None:
+        DETECTOR = SpallingDetector()
+    return DETECTOR
+
+
+# 执行玻璃爆裂检测
+def detect(input_path: Path) -> None:
+    get_detector().detect(input_path)
+
+
 # 执行玻璃爆裂检测
 def main() -> int:
     args = parse_args()
-    start_time = time.time()
-    input_path = Path(args.input).expanduser().resolve()
-    device = get_device()
-    image = read_image(input_path)
-    model = load_model(MODEL_PATH, device)
-    prediction = predict(model, image, device)
-    report = build_report(prediction)
-    report['runtime_seconds'] = round(time.time() - start_time, 3)
-
-    run_dir = input_path.parent
-    run_dir.mkdir(parents=True, exist_ok=True)
-    report_path = run_dir / 'report.json'
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    detect(Path(args.input))
     return 0
 
 
-raise SystemExit(main())
+if __name__ == '__main__':
+    raise SystemExit(main())

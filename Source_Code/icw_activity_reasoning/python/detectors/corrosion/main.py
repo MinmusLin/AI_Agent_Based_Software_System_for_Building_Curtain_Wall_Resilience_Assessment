@@ -14,6 +14,7 @@ MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 IMAGE_SIZE = 640
 CONFIDENCE_THRESHOLD = 0.25
 IOU_THRESHOLD = 0.45
+DETECTOR: 'CorrosionDetector | None' = None
 
 
 # 解析命令行输入参数
@@ -124,24 +125,45 @@ def build_report(image: np.ndarray, detections: list[dict[str, Any]]) -> dict[st
     }
 
 
+class CorrosionDetector:
+    def __init__(self) -> None:
+        self.model = YOLO(str(MODEL_PATH))
+
+    # 执行金属锈蚀检测
+    def detect(self, input_path: Path) -> None:
+        start_time = time.time()
+        input_path = input_path.expanduser().resolve()
+        image = read_image(input_path)
+        raw_results = predict(self.model, image)
+        result = raw_results[0] if raw_results and len(raw_results) > 0 else None
+        detections = extract_detections(result, image.shape) if result is not None else []
+        output_dir = input_path.parent
+        save_annotated_image(image, result, output_dir)
+        report = build_report(image, detections)
+        report_path = output_dir / 'report.json'
+        report['runtime_seconds'] = round(time.time() - start_time, 3)
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+# 获取可复用的金属锈蚀检测器
+def get_detector() -> CorrosionDetector:
+    global DETECTOR
+    if DETECTOR is None:
+        DETECTOR = CorrosionDetector()
+    return DETECTOR
+
+
+# 执行金属锈蚀检测
+def detect(input_path: Path) -> None:
+    get_detector().detect(input_path)
+
+
 # 执行金属锈蚀检测
 def main() -> int:
     args = parse_args()
-    start_time = time.time()
-    input_path = Path(args.input).expanduser().resolve()
-
-    image = read_image(input_path)
-    model = YOLO(str(MODEL_PATH))
-    raw_results = predict(model, image)
-    result = raw_results[0] if raw_results and len(raw_results) > 0 else None
-    detections = extract_detections(result, image.shape) if result is not None else []
-    output_dir = input_path.parent
-    save_annotated_image(image, result, output_dir)
-    report = build_report(image, detections)
-    report_path = output_dir / 'report.json'
-    report['runtime_seconds'] = round(time.time() - start_time, 3)
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    detect(Path(args.input))
     return 0
 
 
-raise SystemExit(main())
+if __name__ == '__main__':
+    raise SystemExit(main())
