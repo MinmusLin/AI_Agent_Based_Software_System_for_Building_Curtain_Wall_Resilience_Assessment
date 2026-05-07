@@ -15,7 +15,6 @@ require (
 	github.com/minio/minio-go/v7 v7.1.0
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/sqids/sqids-go v0.4.1
 	golang.org/x/crypto v0.46.0
 	google.golang.org/grpc v1.76.0
 )
@@ -42,6 +41,7 @@ require (
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/sirupsen/logrus v1.4.0 // indirect
+	github.com/sqids/sqids-go v0.4.1 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/tidwall/gjson v1.13.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

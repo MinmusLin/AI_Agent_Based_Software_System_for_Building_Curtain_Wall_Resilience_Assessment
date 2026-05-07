@@ -9,4 +9,8 @@ const (
 	EventTypeProjectDetectionTaskStatusChanged = "project_detection_task_status_changed"
 	// EventTagProjectDetectionTaskStatusChanged 项目图像检测任务状态变化事件 Tag
 	EventTagProjectDetectionTaskStatusChanged = "PROJECT_DETECTION_TASK_STATUS_CHANGED"
+	// EventTypeProjectReportStatusChanged 项目报告状态变化事件类型
+	EventTypeProjectReportStatusChanged = "project_report_status_changed"
+	// EventTagProjectReportStatusChanged 项目报告状态变化事件 Tag
+	EventTagProjectReportStatusChanged = "PROJECT_REPORT_STATUS_CHANGED"
 )
