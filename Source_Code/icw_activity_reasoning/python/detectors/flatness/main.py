@@ -1,4 +1,3 @@
-import argparse
 import json
 import time
 from functools import reduce
@@ -1054,13 +1053,6 @@ class GDNet(nn.Module):
         return torch.sigmoid(h_predict), torch.sigmoid(l_predict), torch.sigmoid(final_predict)
 
 
-# 解析命令行输入参数
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input', required=True)
-    return parser.parse_args()
-
-
 # 获取当前可用的推理设备
 def get_device() -> torch.device:
     return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -1330,14 +1322,3 @@ def get_detector() -> FlatnessDetector:
 # 执行玻璃平整度检测
 def detect(input_path: Path) -> None:
     get_detector().detect(input_path)
-
-
-# 执行玻璃平整度检测
-def main() -> int:
-    args = parse_args()
-    detect(Path(args.input))
-    return 0
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())

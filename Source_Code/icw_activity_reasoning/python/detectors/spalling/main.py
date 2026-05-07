@@ -1,4 +1,3 @@
-import argparse
 import json
 import time
 from pathlib import Path
@@ -15,13 +14,6 @@ MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
 INPUT_SIZE = 224
 CLASS_NAMES = ['defect', 'undefect']
 DETECTOR: 'SpallingDetector | None' = None
-
-
-# 解析命令行输入参数
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input', required=True)
-    return parser.parse_args()
 
 
 # 获取当前可用的推理设备
@@ -122,14 +114,3 @@ def get_detector() -> SpallingDetector:
 # 执行玻璃爆裂检测
 def detect(input_path: Path) -> None:
     get_detector().detect(input_path)
-
-
-# 执行玻璃爆裂检测
-def main() -> int:
-    args = parse_args()
-    detect(Path(args.input))
-    return 0
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())

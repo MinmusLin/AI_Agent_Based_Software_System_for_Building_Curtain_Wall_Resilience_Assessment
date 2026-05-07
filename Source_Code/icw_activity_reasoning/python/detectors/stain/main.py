@@ -1,4 +1,3 @@
-import argparse
 import json
 import os
 import time
@@ -22,13 +21,6 @@ IMAGE_SIZE = 640
 CONFIDENCE_THRESHOLD = 0.3
 IOU_THRESHOLD = 0.45
 DETECTOR: 'StainDetector | None' = None
-
-
-# 解析命令行输入参数
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input', required=True)
-    return parser.parse_args()
 
 
 # 读取并校验输入图像
@@ -284,14 +276,3 @@ def get_detector() -> StainDetector:
 # 执行石材污渍检测
 def detect(input_path: Path) -> None:
     get_detector().detect(input_path)
-
-
-# 执行石材污渍检测
-def main() -> int:
-    args = parse_args()
-    detect(Path(args.input))
-    return 0
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())
