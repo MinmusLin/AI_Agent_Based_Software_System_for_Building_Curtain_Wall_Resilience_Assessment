@@ -62,6 +62,23 @@ func (r *Repository) RemoveObject(ctx context.Context, key string) error {
 	return r.client.RemoveObject(ctx, r.bucket, key, minio.RemoveObjectOptions{})
 }
 
+// RemoveObjectsByPrefix 按对象 Key 前缀删除对象
+func (r *Repository) RemoveObjectsByPrefix(ctx context.Context, prefix string) error {
+	objects := r.client.ListObjects(ctx, r.bucket, minio.ListObjectsOptions{
+		Prefix:    prefix,
+		Recursive: true,
+	})
+	for object := range objects {
+		if object.Err != nil {
+			return object.Err
+		}
+		if err := r.RemoveObject(ctx, object.Key); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // PresignGetObject 生成对象下载预签名 URL
 func (r *Repository) PresignGetObject(ctx context.Context, key string, ttl time.Duration) (string, error) {
 	presignedURL, err := r.client.PresignedGetObject(ctx, r.bucket, key, ttl, nil)
