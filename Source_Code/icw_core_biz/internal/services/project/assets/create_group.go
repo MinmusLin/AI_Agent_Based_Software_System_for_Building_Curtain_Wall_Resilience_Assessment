@@ -11,7 +11,7 @@ import (
 
 	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/repositories/mysql/model"
-	mysqlUtils "icw_core_biz/repositories/mysql/utils"
+	"icw_core_biz/repositories/mysql/utils"
 )
 
 const (
@@ -52,7 +52,7 @@ func (s *Service) createProjectGroup(req *bizpb.CreateProjectGroupRequest, resp 
 		}
 
 		groupRecord, err := s.MySQL().CreateProjectGroup(s.Ctx(), req.UserId, req.ProjectId, name)
-		if mysqlUtils.IsDuplicateEntryError(err) {
+		if utils.IsDuplicateEntryError(err) {
 			continue
 		}
 		if err != nil {
