@@ -131,6 +131,8 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		projectDetectionRouter := projectRouter.Group("/detection")
 		projectDetectionRoutes := common.NewRouteGroup(projectDetectionRouter, routeDescriptions)
 		{
+			projectDetectionRoutes.GET("/list", "获取项目检测任务列表", projectAccessible, projectDetectionHandler.GetProjectDetectionTasks)
+			projectDetectionRoutes.POST("/retry", "重试项目智能检测", projectDetectionEditable, projectDetectionHandler.RetryProjectDetection)
 			projectDetectionRoutes.POST("/start", "启动项目智能检测", projectDetectionEditable, projectDetectionHandler.StartProjectDetection)
 		}
 

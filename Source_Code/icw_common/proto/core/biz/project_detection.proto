@@ -6,14 +6,14 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 import "core/biz/common.proto";
 
-// ListProjectDetectionTasks 请求结构体
-message ListProjectDetectionTasksRequest {
+// GetProjectDetectionTasks 请求结构体
+message GetProjectDetectionTasksRequest {
   uint64 user_id = 1;
   uint64 project_id = 2;
 }
 
-// ListProjectDetectionTasks 响应结构体
-message ListProjectDetectionTasksResponse {
+// GetProjectDetectionTasks 响应结构体
+message GetProjectDetectionTasksResponse {
   repeated .icw.core.common.ProjectDetectionStatus tasks = 1;
 }
 
@@ -80,7 +80,7 @@ message StartProjectDetectionResponse {
 // 智能检测 RPC 服务
 service ProjectDetectionService {
   // 获取项目检测任务列表
-  rpc ListProjectDetectionTasks(ListProjectDetectionTasksRequest) returns (ListProjectDetectionTasksResponse);
+  rpc GetProjectDetectionTasks(GetProjectDetectionTasksRequest) returns (GetProjectDetectionTasksResponse);
   // 上报图像检测分类结果
   rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);
   // 上报图像检测总结结果

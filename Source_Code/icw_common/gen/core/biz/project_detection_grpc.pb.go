@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectDetectionService_ListProjectDetectionTasks_FullMethodName    = "/icw.core.biz.ProjectDetectionService/ListProjectDetectionTasks"
+	ProjectDetectionService_GetProjectDetectionTasks_FullMethodName     = "/icw.core.biz.ProjectDetectionService/GetProjectDetectionTasks"
 	ProjectDetectionService_ReportClassificationResult_FullMethodName   = "/icw.core.biz.ProjectDetectionService/ReportClassificationResult"
 	ProjectDetectionService_ReportDetectionSummaryResult_FullMethodName = "/icw.core.biz.ProjectDetectionService/ReportDetectionSummaryResult"
 	ProjectDetectionService_ReportReasoningResult_FullMethodName        = "/icw.core.biz.ProjectDetectionService/ReportReasoningResult"
@@ -34,7 +34,7 @@ const (
 // 智能检测 RPC 服务
 type ProjectDetectionServiceClient interface {
 	// 获取项目检测任务列表
-	ListProjectDetectionTasks(ctx context.Context, in *ListProjectDetectionTasksRequest, opts ...grpc.CallOption) (*ListProjectDetectionTasksResponse, error)
+	GetProjectDetectionTasks(ctx context.Context, in *GetProjectDetectionTasksRequest, opts ...grpc.CallOption) (*GetProjectDetectionTasksResponse, error)
 	// 上报图像检测分类结果
 	ReportClassificationResult(ctx context.Context, in *ReportClassificationResultRequest, opts ...grpc.CallOption) (*ReportClassificationResultResponse, error)
 	// 上报图像检测总结结果
@@ -55,10 +55,10 @@ func NewProjectDetectionServiceClient(cc grpc.ClientConnInterface) ProjectDetect
 	return &projectDetectionServiceClient{cc}
 }
 
-func (c *projectDetectionServiceClient) ListProjectDetectionTasks(ctx context.Context, in *ListProjectDetectionTasksRequest, opts ...grpc.CallOption) (*ListProjectDetectionTasksResponse, error) {
+func (c *projectDetectionServiceClient) GetProjectDetectionTasks(ctx context.Context, in *GetProjectDetectionTasksRequest, opts ...grpc.CallOption) (*GetProjectDetectionTasksResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListProjectDetectionTasksResponse)
-	err := c.cc.Invoke(ctx, ProjectDetectionService_ListProjectDetectionTasks_FullMethodName, in, out, cOpts...)
+	out := new(GetProjectDetectionTasksResponse)
+	err := c.cc.Invoke(ctx, ProjectDetectionService_GetProjectDetectionTasks_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (c *projectDetectionServiceClient) StartProjectDetection(ctx context.Contex
 // 智能检测 RPC 服务
 type ProjectDetectionServiceServer interface {
 	// 获取项目检测任务列表
-	ListProjectDetectionTasks(context.Context, *ListProjectDetectionTasksRequest) (*ListProjectDetectionTasksResponse, error)
+	GetProjectDetectionTasks(context.Context, *GetProjectDetectionTasksRequest) (*GetProjectDetectionTasksResponse, error)
 	// 上报图像检测分类结果
 	ReportClassificationResult(context.Context, *ReportClassificationResultRequest) (*ReportClassificationResultResponse, error)
 	// 上报图像检测总结结果
@@ -143,8 +143,8 @@ type ProjectDetectionServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectDetectionServiceServer struct{}
 
-func (UnimplementedProjectDetectionServiceServer) ListProjectDetectionTasks(context.Context, *ListProjectDetectionTasksRequest) (*ListProjectDetectionTasksResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListProjectDetectionTasks not implemented")
+func (UnimplementedProjectDetectionServiceServer) GetProjectDetectionTasks(context.Context, *GetProjectDetectionTasksRequest) (*GetProjectDetectionTasksResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProjectDetectionTasks not implemented")
 }
 func (UnimplementedProjectDetectionServiceServer) ReportClassificationResult(context.Context, *ReportClassificationResultRequest) (*ReportClassificationResultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReportClassificationResult not implemented")
@@ -183,20 +183,20 @@ func RegisterProjectDetectionServiceServer(s grpc.ServiceRegistrar, srv ProjectD
 	s.RegisterService(&ProjectDetectionService_ServiceDesc, srv)
 }
 
-func _ProjectDetectionService_ListProjectDetectionTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListProjectDetectionTasksRequest)
+func _ProjectDetectionService_GetProjectDetectionTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProjectDetectionTasksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProjectDetectionServiceServer).ListProjectDetectionTasks(ctx, in)
+		return srv.(ProjectDetectionServiceServer).GetProjectDetectionTasks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ProjectDetectionService_ListProjectDetectionTasks_FullMethodName,
+		FullMethod: ProjectDetectionService_GetProjectDetectionTasks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectDetectionServiceServer).ListProjectDetectionTasks(ctx, req.(*ListProjectDetectionTasksRequest))
+		return srv.(ProjectDetectionServiceServer).GetProjectDetectionTasks(ctx, req.(*GetProjectDetectionTasksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -299,8 +299,8 @@ var ProjectDetectionService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ProjectDetectionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListProjectDetectionTasks",
-			Handler:    _ProjectDetectionService_ListProjectDetectionTasks_Handler,
+			MethodName: "GetProjectDetectionTasks",
+			Handler:    _ProjectDetectionService_GetProjectDetectionTasks_Handler,
 		},
 		{
 			MethodName: "ReportClassificationResult",
