@@ -16,18 +16,19 @@ import (
 type PythonDetector struct {
 	code        string
 	description string
-	pythonBin   string
+	projectRoot string
 	runner      string
 	path        string
 	runtimeRoot string
 }
 
 // NewPythonDetector 创建 Python 原子检测能力执行器
-func NewPythonDetector(code, description, pythonBin, detectorPath, runtimeRoot string) *PythonDetector {
+func NewPythonDetector(code, description, detectorPath, runtimeRoot string) *PythonDetector {
+	projectRoot := utils.AbsPath(".")
 	return &PythonDetector{
 		code:        strings.TrimSpace(code),
 		description: strings.TrimSpace(description),
-		pythonBin:   strings.TrimSpace(pythonBin),
+		projectRoot: projectRoot,
 		runner:      utils.AbsPath("python/runner.py"),
 		path:        utils.AbsPath(detectorPath),
 		runtimeRoot: utils.AbsPath(runtimeRoot),
@@ -63,6 +64,9 @@ func (d *PythonDetector) Detect(ctx context.Context, imageUuid string) error {
 	}
 	_ = os.Remove(errorPath)
 	args := []string{
+		"run",
+		"--project", d.projectRoot,
+		"python",
 		d.runner,
 		"--task-code", d.code,
 		"--detector-path", d.path,
@@ -71,10 +75,10 @@ func (d *PythonDetector) Detect(ctx context.Context, imageUuid string) error {
 	}
 	cmd := exec.CommandContext(
 		ctx,
-		d.pythonBin,
+		"uv",
 		args...,
 	)
-	cmd.Dir = filepath.Dir(d.runner)
+	cmd.Dir = d.projectRoot
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		errorBytes, readErr := os.ReadFile(errorPath)
