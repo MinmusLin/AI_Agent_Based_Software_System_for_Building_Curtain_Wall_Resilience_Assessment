@@ -21,38 +21,41 @@ type pythonWorkerRequest struct {
 	RuntimeRoot string `json:"runtime_root"`
 }
 
-// pythonWorkerResponse Python Worker 相应结构体
+// pythonWorkerResponse Python Worker 响应结构体
 type pythonWorkerResponse struct {
 	OK    bool   `json:"ok"`
-	Error string `json:"error,omitempty"`
+	Error string `json:"error"`
 }
 
+// pythonWorkerReadResult Python Worker 标准输出读取结果
 type pythonWorkerReadResult struct {
 	line string
 	err  error
 }
 
+// pythonWorker 单个原子检测能力的常驻 Python 进程
 type pythonWorker struct {
 	code        string
 	projectRoot string
 	workerPath  string
 	runtimeRoot string
-
-	mu     sync.Mutex
-	cmd    *exec.Cmd
-	stdin  io.WriteCloser
-	stdout *bufio.Reader
+	mu          sync.Mutex
+	cmd         *exec.Cmd
+	stdin       io.WriteCloser
+	stdout      *bufio.Reader
 }
 
+// newPythonWorker 创建单个原子检测能力的常驻 Python 进程
 func newPythonWorker(code, runtimeRoot string) *pythonWorker {
 	return &pythonWorker{
-		code:        strings.TrimSpace(code),
+		code:        code,
 		projectRoot: absPath("."),
 		workerPath:  absPath("python/worker.py"),
 		runtimeRoot: absPath(runtimeRoot),
 	}
 }
 
+// Run 向 Python Worker 投递检测任务
 func (w *pythonWorker) Run(ctx context.Context, imageUuid string) error {
 	if w == nil {
 		return errors.New("python worker is nil")
@@ -60,6 +63,7 @@ func (w *pythonWorker) Run(ctx context.Context, imageUuid string) error {
 	if ctx == nil {
 		ctx = context.Background()
 	}
+
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
@@ -72,7 +76,7 @@ func (w *pythonWorker) Run(ctx context.Context, imageUuid string) error {
 
 	req := &pythonWorkerRequest{
 		TaskCode:    w.code,
-		ImageUuid:   strings.TrimSpace(imageUuid),
+		ImageUuid:   imageUuid,
 		RuntimeRoot: w.runtimeRoot,
 	}
 	payload, err := json.Marshal(req)
@@ -92,6 +96,7 @@ func (w *pythonWorker) Run(ctx context.Context, imageUuid string) error {
 			err:  err,
 		}
 	}()
+
 	var result pythonWorkerReadResult
 	select {
 	case <-ctx.Done():
@@ -99,41 +104,42 @@ func (w *pythonWorker) Run(ctx context.Context, imageUuid string) error {
 		return ctx.Err()
 	case result = <-readResult:
 	}
+
 	if result.err != nil {
 		w.resetLocked()
 		return result.err
 	}
+
 	var resp pythonWorkerResponse
 	if err := json.Unmarshal([]byte(result.line), &resp); err != nil {
 		w.resetLocked()
 		return err
 	}
+
 	if !resp.OK {
 		if strings.TrimSpace(resp.Error) == "" {
 			return fmt.Errorf("run python detector %s failed", w.code)
 		}
 		return fmt.Errorf("run python detector %s failed: %s", w.code, strings.TrimSpace(resp.Error))
 	}
+
 	return nil
 }
 
+// startLocked 启动 Python Worker 进程
 func (w *pythonWorker) startLocked() error {
 	if w.cmd != nil && w.stdin != nil && w.stdout != nil {
 		return nil
 	}
-	cmd := exec.Command(
-		uvBinary(),
-		"run",
-		"--project",
-		w.projectRoot,
-		"python",
-		w.workerPath,
-	)
+
+	cmd := exec.Command(uvBinary(), "run", "--project", w.projectRoot, "python", w.workerPath)
 	cmd.Dir = w.projectRoot
+
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
+
 	stdoutPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		_ = stdin.Close()
@@ -143,15 +149,19 @@ func (w *pythonWorker) startLocked() error {
 		_ = stdin.Close()
 		return err
 	}
+
 	w.cmd = cmd
 	w.stdin = stdin
 	w.stdout = bufio.NewReader(stdoutPipe)
+
 	go func() {
 		_ = cmd.Wait()
 	}()
+
 	return nil
 }
 
+// uvBinary 获取 uv 可执行文件路径
 func uvBinary() string {
 	if path, err := exec.LookPath("uv"); err == nil {
 		return path
@@ -167,6 +177,7 @@ func uvBinary() string {
 	return "uv"
 }
 
+// resetLocked 关闭并清理 Python Worker 进程
 func (w *pythonWorker) resetLocked() {
 	if w.stdin != nil {
 		_ = w.stdin.Close()
