@@ -9,7 +9,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_common/utils"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz"
@@ -69,14 +69,14 @@ func projectAccessRequired(coreBizClient *icw_core_biz.Client, progressCondition
 
 		// 根据项目进度按需校验项目阶段编辑权限
 		if progressCondition != nil && !progressCondition(enum.ParseProjectProgress(uint8(rpcResp.Progress))) {
-			response.WriteError(c, rpc_err.BadRequestDefault("project progress condition is not satisfied"))
+			response.WriteError(c, rpc_error.BadRequestDefault("project progress condition is not satisfied"))
 			c.Abort()
 			return
 		}
 
 		// 根据项目状态按需校验项目阶段编辑权限
 		if statusCondition != nil && !statusCondition(enum.ParseProjectStatus(rpcResp.Status)) {
-			response.WriteError(c, rpc_err.BadRequestDefault("project status condition is not satisfied"))
+			response.WriteError(c, rpc_error.BadRequestDefault("project status condition is not satisfied"))
 			c.Abort()
 			return
 		}
@@ -92,14 +92,14 @@ func parseProjectIdFromRequest(c *gin.Context) (uint64, error) {
 	if projectCode != "" {
 		projectId, err := utils.Decode(projectCode)
 		if err != nil {
-			return 0, rpc_err.BadRequestDefault(err.Error())
+			return 0, rpc_error.BadRequestDefault(err.Error())
 		}
 		return projectId, nil
 	}
 
 	// 从 JSON Body 中解析项目 ID
 	if c.Request.Body == nil {
-		return 0, rpc_err.BadRequestDefault("project id is required")
+		return 0, rpc_error.BadRequestDefault("project id is required")
 	}
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -110,15 +110,15 @@ func parseProjectIdFromRequest(c *gin.Context) (uint64, error) {
 		ProjectId string `json:"project_id"`
 	}
 	if err := json.Unmarshal(body, &req); err != nil {
-		return 0, rpc_err.BadRequestDefault(err.Error())
+		return 0, rpc_error.BadRequestDefault(err.Error())
 	}
 	projectCode = req.ProjectId
 	if projectCode == "" {
-		return 0, rpc_err.BadRequestDefault("project id is required")
+		return 0, rpc_error.BadRequestDefault("project id is required")
 	}
 	projectId, err := utils.Decode(projectCode)
 	if err != nil {
-		return 0, rpc_err.BadRequestDefault(err.Error())
+		return 0, rpc_error.BadRequestDefault(err.Error())
 	}
 
 	return projectId, nil
