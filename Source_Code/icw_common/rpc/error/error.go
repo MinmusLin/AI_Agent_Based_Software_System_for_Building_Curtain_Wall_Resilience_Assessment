@@ -1,4 +1,4 @@
-package rpc_err
+package rpc_error
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package rpc_err
+package rpc_error
 
 // Code 错误状态代码
 type Code string
