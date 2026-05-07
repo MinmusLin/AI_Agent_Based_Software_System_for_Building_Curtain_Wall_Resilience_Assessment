@@ -6,8 +6,7 @@ import (
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
-
-	projectUtils "icw_core_biz/internal/services/project/utils"
+	"icw_core_biz/internal/services/project/utils"
 )
 
 // AdvanceProject 项目进度流转
@@ -36,7 +35,7 @@ func (s *Service) advanceProject(req *bizpb.AdvanceProjectRequest, _ *bizpb.Adva
 	}
 
 	// 如果项目进度已被并发请求流转，请求视为成功
-	alreadyAdvanced, err := projectUtils.ProjectAlreadyAdvanced(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, toProgress, nextStatus)
+	alreadyAdvanced, err := utils.ProjectAlreadyAdvanced(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, toProgress, nextStatus)
 	if err != nil {
 		return err
 	}
@@ -45,18 +44,18 @@ func (s *Service) advanceProject(req *bizpb.AdvanceProjectRequest, _ *bizpb.Adva
 	}
 
 	// 执行项目进度流转前置扩展点
-	if err := projectUtils.BeforeAdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
+	if err := utils.BeforeAdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress); err != nil {
 		return err
 	}
 
 	// 执行项目进度流转扩展点
-	advanced, err := projectUtils.AdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress, nextStatus)
+	advanced, err := utils.AdvanceProject(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, fromProgress, toProgress, nextStatus)
 	if err != nil {
 		return err
 	}
 	if !advanced {
 		// 如果项目进度已被并发请求流转，请求视为成功
-		alreadyAdvanced, err := projectUtils.ProjectAlreadyAdvanced(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, toProgress, nextStatus)
+		alreadyAdvanced, err := utils.ProjectAlreadyAdvanced(s.Ctx(), s.MySQL(), req.UserId, req.ProjectId, toProgress, nextStatus)
 		if err != nil {
 			return err
 		}
