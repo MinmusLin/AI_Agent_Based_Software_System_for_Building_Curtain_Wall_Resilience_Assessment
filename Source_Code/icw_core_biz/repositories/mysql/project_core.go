@@ -3,17 +3,15 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"icw_core_biz/repositories/mysql/model"
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_core_biz/internal/services/project/consts"
+
+	"icw_core_biz/repositories/mysql/model"
 )
 
-type advanceProjectTxFunc func(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error
-
 // AdvanceProject 按用户 ID 和项目 ID 流转项目进度
-func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress bizpb.ProjectProgress_Value, status bizpb.ProjectStatus_Value, fn advanceProjectTxFunc) (bool, error) {
+func (r *Repository) AdvanceProject(ctx context.Context, userId, projectId uint64, fromProgress, toProgress bizpb.ProjectProgress_Value, status bizpb.ProjectStatus_Value, fn func(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error) (bool, error) {
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return false, err
@@ -160,20 +158,4 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*model.
 	}
 
 	return activeProjects, completedProjects, nil
-}
-
-// PostAdvanceProjectProfileToAssets 项目进度流转后置扩展点：项目基础信息阶段 -> 图像资产构建阶段
-func PostAdvanceProjectProfileToAssets(ctx context.Context, tx *sql.Tx, userId, projectId uint64) error {
-	_, err := tx.ExecContext(ctx, `
-		INSERT INTO project_groups(project_id, user_id, name, sort_order)
-		SELECT ?, ?, ?, COALESCE(MAX(sort_order), -1) + 1
-		FROM project_groups
-		WHERE user_id = ? AND project_id = ?
-	`, projectId, userId, consts.DefaultProjectGroupName, userId, projectId)
-
-	if IsDuplicateEntryError(err) {
-		return nil
-	}
-
-	return err
 }

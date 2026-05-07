@@ -3,7 +3,7 @@ package jobs
 import (
 	"icw_core_biz/internal/cronjobs/common"
 	"icw_core_biz/internal/services/project/events"
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // PendingImageTimeoutJob 上传中图像超时失败任务
@@ -36,7 +36,7 @@ func (j *PendingImageTimeoutJob) Start() (interface{}, error) {
 	}
 
 	for _, imageRecord := range imageRecords {
-		image, err := mysql.ProjectImageRecordToDTO(j.Ctx(), j.MinIO(), j.Redis(), imageRecord, j.Config().ProjectImageGetTTL)
+		image, err := model.ProjectImageRecordToDTO(j.Ctx(), j.MinIO(), j.Redis(), imageRecord, j.Config().ProjectImageGetTTL)
 		if err != nil {
 			common.CronWarn("Convert timeout pending image failed, image_uuid: %s, err: %v", imageRecord.Uuid, err)
 			continue
