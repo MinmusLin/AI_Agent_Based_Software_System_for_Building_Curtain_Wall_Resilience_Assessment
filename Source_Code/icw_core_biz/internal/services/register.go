@@ -103,9 +103,11 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []rpc.ServiceMeta {
 				bizpb.RegisterProjectDetectionServiceServer(server, service.(*detection.Service))
 			},
 			Methods: []rpc.MethodMeta{
+				{Name: "GetProjectDetectionTasks", Description: "获取项目检测任务列表"},
 				{Name: "ReportClassificationResult", Description: "上报图像检测分类结果"},
 				{Name: "ReportDetectionSummaryResult", Description: "上报图像检测总结结果"},
 				{Name: "ReportReasoningResult", Description: "上报图像检测推理结果"},
+				{Name: "RetryProjectDetection", Description: "重试项目智能检测"},
 				{Name: "StartProjectDetection", Description: "启动项目智能检测"},
 			},
 		},
