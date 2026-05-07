@@ -1,9 +1,10 @@
 package detectors
 
 import (
-	"icw_activity_reasoning/internal/detectors/common"
 	"icw_common/enum"
 	"icw_common/gen/activity"
+
+	"icw_activity_reasoning/internal/detectors/common"
 )
 
 // RegisterDetectors 注册 Python 原子检测能力
