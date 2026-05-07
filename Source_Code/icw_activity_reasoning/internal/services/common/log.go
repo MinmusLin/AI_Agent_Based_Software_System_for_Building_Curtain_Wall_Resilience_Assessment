@@ -13,7 +13,7 @@ import (
 // ReasoningInfo 输出标准原子检测能力日志
 func ReasoningInfo(requestId, taskCode, taskUuid, imageUuid string, artifactCount int, cost time.Duration) {
 	utils.LogInfo(consts.LogScopeReasoning, consts.LogColorBoldPurple, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s artifacts=%d",
-		requestId,
+		utils.If[string](requestId == "", "-", requestId),
 		consts.LogColorBoldBlackOnWhite, cost, consts.LogColorReset,
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
@@ -25,7 +25,7 @@ func ReasoningInfo(requestId, taskCode, taskUuid, imageUuid string, artifactCoun
 // ReasoningError 输出失败原子检测能力日志
 func ReasoningError(requestId, taskCode, taskUuid, imageUuid string, artifactCount int, cost time.Duration, err error) {
 	utils.LogError(consts.LogScopeReasoning, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s artifacts=%d err=%s",
-		requestId,
+		utils.If[string](requestId == "", "-", requestId),
 		consts.LogColorBoldBlackOnWhite, cost, consts.LogColorReset,
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
@@ -38,7 +38,7 @@ func ReasoningError(requestId, taskCode, taskUuid, imageUuid string, artifactCou
 // CallbackInfo 输出标准回调日志
 func CallbackInfo(requestId, taskCode, taskUuid, imageUuid, status string, start time.Time) {
 	utils.LogInfo(consts.LogScopeCallback, consts.LogColorBoldBlue, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s status=%s%s%s",
-		requestId,
+		utils.If[string](requestId == "", "-", requestId),
 		consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
@@ -50,7 +50,7 @@ func CallbackInfo(requestId, taskCode, taskUuid, imageUuid, status string, start
 // CallbackError 输出失败回调日志
 func CallbackError(requestId, taskCode, taskUuid, imageUuid, status string, start time.Time, err error) {
 	utils.LogError(consts.LogScopeCallback, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s status=%s%s%s err=%s",
-		requestId,
+		utils.If[string](requestId == "", "-", requestId),
 		consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
