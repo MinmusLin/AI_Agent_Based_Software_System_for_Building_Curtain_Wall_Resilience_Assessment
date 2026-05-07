@@ -6,15 +6,15 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 import "core/biz/common.proto";
 
-// StartProjectDetection 请求结构体
-message StartProjectDetectionRequest {
+// ListProjectDetectionTasks 请求结构体
+message ListProjectDetectionTasksRequest {
   uint64 user_id = 1;
   uint64 project_id = 2;
 }
 
-// StartProjectDetection 响应结构体
-message StartProjectDetectionResponse {
-  uint32 task_count = 1;
+// ListProjectDetectionTasks 响应结构体
+message ListProjectDetectionTasksResponse {
+  repeated .icw.core.common.ProjectDetectionStatus tasks = 1;
 }
 
 // ReportClassificationResult 请求结构体
@@ -55,14 +55,40 @@ message ReportReasoningResultRequest {
 // ReportReasoningResult 响应结构体
 message ReportReasoningResultResponse {}
 
+// RetryProjectDetection 请求结构体
+message RetryProjectDetectionRequest {
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+}
+
+// RetryProjectDetection 响应结构体
+message RetryProjectDetectionResponse {
+  uint32 task_count = 1;
+}
+
+// StartProjectDetection 请求结构体
+message StartProjectDetectionRequest {
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+}
+
+// StartProjectDetection 响应结构体
+message StartProjectDetectionResponse {
+  uint32 task_count = 1;
+}
+
 // 智能检测 RPC 服务
 service ProjectDetectionService {
-  // 启动项目智能检测
-  rpc StartProjectDetection(StartProjectDetectionRequest) returns (StartProjectDetectionResponse);
+  // 获取项目智能检测任务列表
+  rpc ListProjectDetectionTasks(ListProjectDetectionTasksRequest) returns (ListProjectDetectionTasksResponse);
   // 上报图像检测分类结果
   rpc ReportClassificationResult(ReportClassificationResultRequest) returns (ReportClassificationResultResponse);
   // 上报图像检测总结结果
   rpc ReportDetectionSummaryResult(ReportDetectionSummaryResultRequest) returns (ReportDetectionSummaryResultResponse);
   // 上报图像检测推理结果
   rpc ReportReasoningResult(ReportReasoningResultRequest) returns (ReportReasoningResultResponse);
+  // 重试项目智能检测
+  rpc RetryProjectDetection(RetryProjectDetectionRequest) returns (RetryProjectDetectionResponse);
+  // 启动项目智能检测
+  rpc StartProjectDetection(StartProjectDetectionRequest) returns (StartProjectDetectionResponse);
 }
