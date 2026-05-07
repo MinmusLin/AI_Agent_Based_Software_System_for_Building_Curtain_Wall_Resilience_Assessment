@@ -321,8 +321,6 @@ type ProjectDetectionSubTaskRecord struct {
 	UpdatedAt  time.Time
 }
 
-// 项目图像检测子任务记录
-
 // ProjectDetectionCorrosionTaskRecord 项目图像金属锈蚀检测子任务记录
 type ProjectDetectionCorrosionTaskRecord struct {
 	ProjectDetectionSubTaskRecord
