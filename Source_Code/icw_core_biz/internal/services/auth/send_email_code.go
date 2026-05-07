@@ -90,13 +90,13 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 
 	// 发送邮箱验证码
 	if err := s.SMTP().SendEmailCode(email, sceneValue, code); err != nil {
-		s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, bizpb.EmailSendStatus_Failed, err.Error())
+		s.recordEmailSendLog(s.Ctx(), email, scene, code, bizpb.EmailSendStatus_Failed, err.Error())
 		if err := s.Redis().ClearEmailCode(s.Ctx(), sceneValue, emailHash); err != nil {
 			common.RpcWarn("Clear email code failed, scene: %s, email: %s, err: %v", sceneValue, email, err)
 		}
 		return rpc_error.InternalError(rpc_error.DetailSendEmailCodeFailed, err.Error())
 	}
-	s.recordEmailSendLog(s.Ctx(), email, sceneValue, code, bizpb.EmailSendStatus_Success, "")
+	s.recordEmailSendLog(s.Ctx(), email, scene, code, bizpb.EmailSendStatus_Success, "")
 
 	// 邮箱验证码发送成功，返回验证码有效期
 	resp.ExpiresInSeconds = int32(s.Config().EmailCodeTTL.Seconds())
@@ -105,8 +105,8 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 }
 
 // recordEmailSendLog 记录邮件发送日志
-func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail, scene, emailCode string, status bizpb.EmailSendStatus_Value, errorMessage string) {
+func (s *Service) recordEmailSendLog(ctx context.Context, receiverEmail string, scene bizpb.EmailCodeScene_Value, emailCode string, status bizpb.EmailSendStatus_Value, errorMessage string) {
 	if err := s.MySQL().CreateEmailSendLog(ctx, receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, status, errorMessage); err != nil {
-		common.RpcWarn("Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %s", receiverEmail, s.Config().SMTPFromEmail, scene, emailCode, enum.EmailSendStatusString(status), err.Error())
+		common.RpcWarn("Record email send log failed, receiver_email: %s, sender_email: %s, scene: %s, email_code: %s, status: %s, error_message: %s", receiverEmail, s.Config().SMTPFromEmail, enum.EmailCodeSceneString(scene), emailCode, enum.EmailSendStatusString(status), err.Error())
 	}
 }

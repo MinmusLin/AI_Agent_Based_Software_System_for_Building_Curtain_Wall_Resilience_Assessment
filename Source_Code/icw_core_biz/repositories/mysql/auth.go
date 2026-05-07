@@ -179,7 +179,7 @@ func (r *Repository) RevokeRefreshTokensByEmail(ctx context.Context, email strin
 }
 
 // CreateEmailSendLog 创建邮件发送记录
-func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail, senderEmail, scene, emailCode string, status bizpb.EmailSendStatus_Value, errorMessage string) error {
+func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail, senderEmail string, scene bizpb.EmailCodeScene_Value, emailCode string, status bizpb.EmailSendStatus_Value, errorMessage string) error {
 	var nullErrorMessage sql.NullString
 	if strings.TrimSpace(errorMessage) != "" {
 		nullErrorMessage = sql.NullString{
@@ -191,7 +191,7 @@ func (r *Repository) CreateEmailSendLog(ctx context.Context, receiverEmail, send
 	_, err := r.mysql.ExecContext(ctx, `
 		INSERT INTO email_send_logs(receiver_email, sender_email, scene, email_code, status, error_message)
 		VALUES (?, ?, ?, ?, ?, ?)
-	`, receiverEmail, senderEmail, scene, emailCode, enum.EmailSendStatusString(status), nullErrorMessage)
+	`, receiverEmail, senderEmail, enum.EmailCodeSceneString(scene), emailCode, enum.EmailSendStatusString(status), nullErrorMessage)
 
 	return err
 }
