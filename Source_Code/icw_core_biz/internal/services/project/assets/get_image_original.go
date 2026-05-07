@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/repositories/minio"
 )
 
@@ -21,7 +21,7 @@ func (s *Service) GetProjectImageOriginal(ctx context.Context, req *bizpb.GetPro
 func (s *Service) getProjectImageOriginal(req *bizpb.GetProjectImageOriginalRequest, resp *bizpb.GetProjectImageOriginalResponse) error {
 	imageUuid := strings.TrimSpace(req.ImageUuid)
 	if imageUuid == "" {
-		return rpc_err.BadRequestDefault("image uuid is required")
+		return rpc_error.BadRequestDefault("image uuid is required")
 	}
 
 	imageRecord, err := s.MySQL().FindProjectImageByUuid(s.Ctx(), req.UserId, req.ProjectId, imageUuid)
@@ -29,10 +29,10 @@ func (s *Service) getProjectImageOriginal(req *bizpb.GetProjectImageOriginalRequ
 		return err
 	}
 	if imageRecord == nil {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 	if imageRecord.Status != bizpb.ProjectImageStatus_Uploaded {
-		return rpc_err.BadRequestDefault("project image status is not uploaded")
+		return rpc_error.BadRequestDefault("project image status is not uploaded")
 	}
 
 	// 获取项目图像原图下载预签名 URL
@@ -41,7 +41,7 @@ func (s *Service) getProjectImageOriginal(req *bizpb.GetProjectImageOriginalRequ
 		return err
 	}
 	if originalURL == "" {
-		return rpc_err.BadRequest(rpc_err.DetailProjectImageExpired, "project image original object not found")
+		return rpc_error.BadRequest(rpc_error.DetailProjectImageExpired, "project image original object not found")
 	}
 	resp.OriginalUrl = originalURL
 

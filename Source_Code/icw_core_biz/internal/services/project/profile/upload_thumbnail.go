@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/repositories/minio"
 )
@@ -20,13 +20,13 @@ func (s *Service) UploadProjectThumbnail(ctx context.Context, req *bizpb.UploadP
 
 func (s *Service) uploadProjectThumbnail(req *bizpb.UploadProjectThumbnailRequest, resp *bizpb.UploadProjectThumbnailResponse) error {
 	if req.ContentType != consts.ThumbnailContentType {
-		return rpc_err.BadRequest(rpc_err.DetailInvalidImageContentType, "image content type must be image/png")
+		return rpc_error.BadRequest(rpc_error.DetailInvalidImageContentType, "image content type must be image/png")
 	}
 
 	// 生成项目缩略图对象 Key
 	thumbnailKey, err := minio.GenProjectThumbnailKey(req.ProjectId)
 	if err != nil {
-		return rpc_err.BadRequestDefault(err.Error())
+		return rpc_error.BadRequestDefault(err.Error())
 	}
 
 	// 返回用户自定义头像上传预签名 URL

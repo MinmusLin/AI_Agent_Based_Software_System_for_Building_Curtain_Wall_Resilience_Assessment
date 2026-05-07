@@ -5,7 +5,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	projectUtils "icw_core_biz/internal/services/project/utils"
 )
 
@@ -22,10 +22,10 @@ func (s *Service) advanceProject(req *bizpb.AdvanceProjectRequest, _ *bizpb.Adva
 	// 校验项目进度推进合法
 	maxProgress := uint32(enum.ProjectProgressUint8(bizpb.ProjectProgress_ReportFinished))
 	if req.FromProgress >= maxProgress || req.ToProgress > maxProgress {
-		return rpc_err.BadRequestDefault("project progress is out of range")
+		return rpc_error.BadRequestDefault("project progress is out of range")
 	}
 	if req.ToProgress != req.FromProgress+1 {
-		return rpc_err.BadRequestDefault("project progress can only advance one step")
+		return rpc_error.BadRequestDefault("project progress can only advance one step")
 	}
 	fromProgress := enum.ParseProjectProgress(uint8(req.FromProgress))
 	toProgress := enum.ParseProjectProgress(uint8(req.ToProgress))
@@ -62,7 +62,7 @@ func (s *Service) advanceProject(req *bizpb.AdvanceProjectRequest, _ *bizpb.Adva
 		if alreadyAdvanced {
 			return nil
 		}
-		return rpc_err.BadRequestDefault("project status or progress has changed")
+		return rpc_error.BadRequestDefault("project status or progress has changed")
 	}
 
 	return nil

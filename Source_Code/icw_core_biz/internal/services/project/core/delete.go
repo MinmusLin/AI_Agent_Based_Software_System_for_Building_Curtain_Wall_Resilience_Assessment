@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/repositories/mysql"
 )
 
@@ -23,7 +23,7 @@ func (s *Service) deleteProject(req *bizpb.DeleteProjectRequest, resp *bizpb.Del
 		return err
 	}
 	if !deleted {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project is not accessible")
 	}
 
 	activeProjects, completedProjects, err := s.MySQL().ListProjects(s.Ctx(), req.UserId)

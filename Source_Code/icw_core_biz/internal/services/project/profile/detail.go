@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/repositories/mysql"
 )
 
@@ -23,7 +23,7 @@ func (s *Service) getProjectProfile(req *bizpb.GetProjectProfileRequest, resp *b
 		return err
 	}
 	if projectRecord == nil {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project is not accessible")
 	}
 
 	// 获取项目缩略图

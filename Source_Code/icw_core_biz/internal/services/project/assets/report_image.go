@@ -6,7 +6,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/project/events"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/mysql"
@@ -24,11 +24,11 @@ func (s *Service) ReportProjectImage(ctx context.Context, req *bizpb.ReportProje
 func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bizpb.ReportProjectImageResponse) error {
 	imageUuid := strings.TrimSpace(req.ImageUuid)
 	if imageUuid == "" {
-		return rpc_err.BadRequestDefault("image uuid is required")
+		return rpc_error.BadRequestDefault("image uuid is required")
 	}
 	status := enum.ParseProjectImageStatus(req.Status)
 	if status != bizpb.ProjectImageStatus_Uploaded && status != bizpb.ProjectImageStatus_Failed {
-		return rpc_err.BadRequestDefault("project image status is invalid")
+		return rpc_error.BadRequestDefault("project image status is invalid")
 	}
 
 	imageRecord, err := s.MySQL().FindProjectImageByUuid(s.Ctx(), req.UserId, req.ProjectId, imageUuid)
@@ -36,17 +36,17 @@ func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bi
 		return err
 	}
 	if imageRecord == nil {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	if status == bizpb.ProjectImageStatus_Uploaded {
 		originalKey, err := minio.GenProjectImageOriginalKey(req.ProjectId, imageUuid)
 		if err != nil {
-			return rpc_err.BadRequestDefault(err.Error())
+			return rpc_error.BadRequestDefault(err.Error())
 		}
 		thumbnailKey, err := minio.GenProjectImageThumbnailKey(req.ProjectId, imageUuid)
 		if err != nil {
-			return rpc_err.BadRequestDefault(err.Error())
+			return rpc_error.BadRequestDefault(err.Error())
 		}
 		originalExists, err := s.MinIO().StatObject(s.Ctx(), originalKey)
 		if err != nil {
@@ -57,7 +57,7 @@ func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bi
 			return err
 		}
 		if !originalExists || !thumbnailExists {
-			return rpc_err.BadRequestDefault("project image objects are not uploaded")
+			return rpc_error.BadRequestDefault("project image objects are not uploaded")
 		}
 	}
 
@@ -66,7 +66,7 @@ func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bi
 		return err
 	}
 	if imageRecord == nil {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	image, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)

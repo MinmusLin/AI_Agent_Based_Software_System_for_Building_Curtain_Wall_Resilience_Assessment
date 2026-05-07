@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/repositories/mysql"
 )
 
@@ -19,24 +19,24 @@ func (s *Service) MoveProjectGroup(ctx context.Context, req *bizpb.MoveProjectGr
 
 func (s *Service) moveProjectGroup(req *bizpb.MoveProjectGroupRequest, resp *bizpb.MoveProjectGroupResponse) error {
 	if req.PreviousGroupId == req.NextGroupId || req.GroupId == req.PreviousGroupId || req.GroupId == req.NextGroupId {
-		return rpc_err.BadRequestDefault("project group move target is invalid")
+		return rpc_error.BadRequestDefault("project group move target is invalid")
 	}
 	if req.MoveToFirst && req.MoveToLast {
-		return rpc_err.BadRequestDefault("move to first and move to last cannot both be true")
+		return rpc_error.BadRequestDefault("move to first and move to last cannot both be true")
 	}
 	if !req.MoveToFirst && !req.MoveToLast {
 		if req.PreviousGroupId == 0 || req.NextGroupId == 0 {
-			return rpc_err.BadRequestDefault("previous group id and next group id are required")
+			return rpc_error.BadRequestDefault("previous group id and next group id are required")
 		}
 	}
 	if req.MoveToFirst && !req.MoveToLast {
 		if req.NextGroupId == 0 {
-			return rpc_err.BadRequestDefault("next group id is required")
+			return rpc_error.BadRequestDefault("next group id is required")
 		}
 	}
 	if !req.MoveToFirst && req.MoveToLast {
 		if req.PreviousGroupId == 0 {
-			return rpc_err.BadRequestDefault("previous group id is required")
+			return rpc_error.BadRequestDefault("previous group id is required")
 		}
 	}
 
@@ -45,7 +45,7 @@ func (s *Service) moveProjectGroup(req *bizpb.MoveProjectGroupRequest, resp *biz
 		return err
 	}
 	if groupRecord == nil {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	groupRecord, err = s.MySQL().MoveProjectGroup(s.Ctx(), req.UserId, req.ProjectId, req.GroupId, req.PreviousGroupId, req.NextGroupId, req.MoveToFirst, req.MoveToLast)
@@ -53,7 +53,7 @@ func (s *Service) moveProjectGroup(req *bizpb.MoveProjectGroupRequest, resp *biz
 		return err
 	}
 	if groupRecord == nil {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	resp.Group, err = mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, nil, s.Config().ProjectImageGetTTL)

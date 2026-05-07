@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/redis"
 )
@@ -22,7 +22,7 @@ func (s *Service) deleteProjectThumbnail(req *bizpb.DeleteProjectThumbnailReques
 	// 生成项目缩略图对象 Key
 	thumbnailKey, err := minio.GenProjectThumbnailKey(req.ProjectId)
 	if err != nil {
-		return rpc_err.BadRequestDefault(err.Error())
+		return rpc_error.BadRequestDefault(err.Error())
 	}
 
 	if s.Redis() != nil {

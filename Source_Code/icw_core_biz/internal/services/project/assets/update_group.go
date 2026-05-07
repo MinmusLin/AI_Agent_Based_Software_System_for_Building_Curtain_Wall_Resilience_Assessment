@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/repositories/mysql"
 )
@@ -27,13 +27,13 @@ func (s *Service) updateProjectGroup(req *bizpb.UpdateProjectGroupRequest, resp 
 
 	groupRecord, err := s.MySQL().UpdateProjectGroupName(s.Ctx(), req.UserId, req.ProjectId, req.GroupId, name)
 	if mysql.IsDuplicateEntryError(err) {
-		return rpc_err.BadRequest(rpc_err.DetailProjectGroupNameDuplicated, "project group name already exists")
+		return rpc_error.BadRequest(rpc_error.DetailProjectGroupNameDuplicated, "project group name already exists")
 	}
 	if err != nil {
 		return err
 	}
 	if groupRecord == nil {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	resp.Group, err = mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, nil, s.Config().ProjectImageGetTTL)

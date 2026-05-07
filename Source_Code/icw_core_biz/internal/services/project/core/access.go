@@ -5,7 +5,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 )
 
 // CheckProjectAccess 校验项目访问权限
@@ -23,7 +23,7 @@ func (s *Service) checkProjectAccess(req *bizpb.CheckProjectAccessRequest, resp 
 		return err
 	}
 	if projectRecord == nil || (projectRecord.Status != bizpb.ProjectStatus_Active && projectRecord.Status != bizpb.ProjectStatus_Completed) {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project is not accessible")
 	}
 
 	resp.ProjectId = projectRecord.Id

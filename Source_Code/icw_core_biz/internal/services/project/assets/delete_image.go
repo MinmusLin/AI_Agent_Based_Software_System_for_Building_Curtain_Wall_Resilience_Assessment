@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/common"
 	"icw_core_biz/internal/services/project/utils"
 )
@@ -21,7 +21,7 @@ func (s *Service) DeleteProjectImage(ctx context.Context, req *bizpb.DeleteProje
 
 func (s *Service) deleteProjectImage(req *bizpb.DeleteProjectImageRequest, _ *bizpb.DeleteProjectImageResponse) error {
 	if len(req.ImageUuids) == 0 {
-		return rpc_err.BadRequestDefault("image uuids are required")
+		return rpc_error.BadRequestDefault("image uuids are required")
 	}
 
 	imageUuids := make([]string, 0, len(req.ImageUuids))
@@ -29,10 +29,10 @@ func (s *Service) deleteProjectImage(req *bizpb.DeleteProjectImageRequest, _ *bi
 	for _, rawImageUuid := range req.ImageUuids {
 		imageUuid := strings.TrimSpace(rawImageUuid)
 		if imageUuid == "" {
-			return rpc_err.BadRequestDefault("image uuid is required")
+			return rpc_error.BadRequestDefault("image uuid is required")
 		}
 		if _, ok := imageUuidSet[imageUuid]; ok {
-			return rpc_err.BadRequestDefault("image uuid is duplicated")
+			return rpc_error.BadRequestDefault("image uuid is duplicated")
 		}
 		imageUuidSet[imageUuid] = struct{}{}
 		imageUuids = append(imageUuids, imageUuid)
@@ -43,7 +43,7 @@ func (s *Service) deleteProjectImage(req *bizpb.DeleteProjectImageRequest, _ *bi
 		return err
 	}
 	if !deleted {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	for _, imageUuid := range imageUuids {

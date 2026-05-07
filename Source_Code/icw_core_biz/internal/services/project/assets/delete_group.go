@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/common"
 	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/repositories/mysql"
@@ -28,13 +28,13 @@ func (s *Service) deleteProjectGroup(req *bizpb.DeleteProjectGroupRequest, _ *bi
 
 	deleted, err := s.MySQL().DeleteProjectGroup(s.Ctx(), req.UserId, req.ProjectId, req.GroupId)
 	if errors.Is(err, mysql.ErrProjectGroupCannotDeleteLast) {
-		return rpc_err.BadRequest(rpc_err.DetailProjectAtLeastOneGroupRequired, "project must keep at least one group")
+		return rpc_error.BadRequest(rpc_error.DetailProjectAtLeastOneGroupRequired, "project must keep at least one group")
 	}
 	if err != nil {
 		return err
 	}
 	if !deleted {
-		return rpc_err.BadRequest(rpc_err.DetailProjectNotAccessible, "project group is not accessible")
+		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
 	for _, imageRecord := range images {
