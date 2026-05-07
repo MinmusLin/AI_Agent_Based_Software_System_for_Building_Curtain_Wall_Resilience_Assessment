@@ -12,7 +12,36 @@ import (
 	"icw_common/gen/core/biz"
 
 	"icw_core_biz/repositories/mysql/model"
+	"icw_core_biz/repositories/mysql/utils"
 )
+
+// FindProjectDetectionSpallingTaskStatusByIdTx 按子任务 ID 查询项目图像玻璃爆裂检测子任务状态
+func FindProjectDetectionSpallingTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, taskId uint64) (bizpb.ProjectDetectionSubTaskStatus_Value, error) {
+	var status string
+	if err := tx.QueryRowContext(ctx, `
+		SELECT status
+		FROM project_detection_spalling_tasks
+		WHERE id = ?
+		LIMIT 1
+	`, taskId).Scan(&status); err != nil {
+		return bizpb.ProjectDetectionSubTaskStatus_Unknown, err
+	}
+	return enum.ParseProjectDetectionSubTaskStatus(status), nil
+}
+
+// findProjectDetectionSpallingTaskByUuidTx 按子任务 UUID 查询项目图像玻璃爆裂检测子任务记录
+func findProjectDetectionSpallingTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*model.ProjectDetectionSubTaskRecord, error) {
+	record, err := utils.ScanProjectDetectionSubTask(tx.QueryRowContext(ctx, `
+		SELECT id, uuid, main_task_id, user_id, project_id, image_id, status, started_at, finished_at, created_at, updated_at
+		FROM project_detection_spalling_tasks
+		WHERE uuid = ?
+		FOR UPDATE
+	`, taskUuid))
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	return record, err
+}
 
 // createProjectDetectionSpallingTaskTx 创建项目图像玻璃爆裂检测子任务记录
 func createProjectDetectionSpallingTaskTx(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*model.ProjectDetectionSubTaskRecord, error) {
@@ -36,7 +65,7 @@ func createProjectDetectionSpallingTaskTx(ctx context.Context, tx *sql.Tx, task 
 		SET spalling_should_execute = 1, spalling_task_id = ?, status = ?
 		WHERE id = ?
 	`, subTaskId, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Detecting), task.Id)
-	if err := CheckRowsAffected(result, err); err != nil {
+	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return nil, err
 	}
 
@@ -51,34 +80,6 @@ func createProjectDetectionSpallingTaskTx(ctx context.Context, tx *sql.Tx, task 
 	}, nil
 }
 
-// findProjectDetectionSpallingTaskByUuidTx 按子任务 UUID 查询项目图像玻璃爆裂检测子任务记录
-func findProjectDetectionSpallingTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*model.ProjectDetectionSubTaskRecord, error) {
-	record, err := scanProjectDetectionSubTask(tx.QueryRowContext(ctx, `
-		SELECT id, uuid, main_task_id, user_id, project_id, image_id, status, started_at, finished_at, created_at, updated_at
-		FROM project_detection_spalling_tasks
-		WHERE uuid = ?
-		FOR UPDATE
-	`, taskUuid))
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil
-	}
-	return record, err
-}
-
-// FindProjectDetectionSpallingTaskStatusByIdTx 按子任务 ID 查询项目图像玻璃爆裂检测子任务状态
-func FindProjectDetectionSpallingTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, taskId uint64) (bizpb.ProjectDetectionSubTaskStatus_Value, error) {
-	var status string
-	if err := tx.QueryRowContext(ctx, `
-		SELECT status
-		FROM project_detection_spalling_tasks
-		WHERE id = ?
-		LIMIT 1
-	`, taskId).Scan(&status); err != nil {
-		return bizpb.ProjectDetectionSubTaskStatus_Unknown, err
-	}
-	return enum.ParseProjectDetectionSubTaskStatus(status), nil
-}
-
 // updateProjectDetectionSpallingTaskResultTx 更新项目图像玻璃爆裂检测子任务报告与状态
 func updateProjectDetectionSpallingTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
 	statusText := enum.ProjectDetectionSubTaskStatusString(status)
@@ -91,7 +92,7 @@ func updateProjectDetectionSpallingTaskResultTx(ctx context.Context, tx *sql.Tx,
 			WHERE uuid = ?
 		`, statusText, taskUuid)
 
-		return CheckRowsAffected(result, err)
+		return utils.CheckRowsAffected(result, err)
 	}
 
 	// 检测成功时，更新任务状态、开始时间、完成时间和检测报告
@@ -115,5 +116,5 @@ func updateProjectDetectionSpallingTaskResultTx(ctx context.Context, tx *sql.Tx,
 		WHERE uuid = ?
 	`, statusText, report.HasSpalling, report.Confidence, report.RuntimeSeconds, report.RuntimeSeconds, taskUuid)
 
-	return CheckRowsAffected(result, err)
+	return utils.CheckRowsAffected(result, err)
 }

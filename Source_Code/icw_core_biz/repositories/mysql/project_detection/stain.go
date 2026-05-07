@@ -12,7 +12,36 @@ import (
 	"icw_common/gen/core/biz"
 
 	"icw_core_biz/repositories/mysql/model"
+	"icw_core_biz/repositories/mysql/utils"
 )
+
+// FindProjectDetectionStainTaskStatusByIdTx 按子任务 ID 查询项目图像石材污渍检测子任务状态
+func FindProjectDetectionStainTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, taskId uint64) (bizpb.ProjectDetectionSubTaskStatus_Value, error) {
+	var status string
+	if err := tx.QueryRowContext(ctx, `
+		SELECT status
+		FROM project_detection_stain_tasks
+		WHERE id = ?
+		LIMIT 1
+	`, taskId).Scan(&status); err != nil {
+		return bizpb.ProjectDetectionSubTaskStatus_Unknown, err
+	}
+	return enum.ParseProjectDetectionSubTaskStatus(status), nil
+}
+
+// findProjectDetectionStainTaskByUuidTx 按子任务 UUID 查询项目图像石材污渍检测子任务记录
+func findProjectDetectionStainTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*model.ProjectDetectionSubTaskRecord, error) {
+	record, err := utils.ScanProjectDetectionSubTask(tx.QueryRowContext(ctx, `
+		SELECT id, uuid, main_task_id, user_id, project_id, image_id, status, started_at, finished_at, created_at, updated_at
+		FROM project_detection_stain_tasks
+		WHERE uuid = ?
+		FOR UPDATE
+	`, taskUuid))
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	return record, err
+}
 
 // createProjectDetectionStainTaskTx 创建项目图像石材污渍检测子任务记录
 func createProjectDetectionStainTaskTx(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*model.ProjectDetectionSubTaskRecord, error) {
@@ -36,7 +65,7 @@ func createProjectDetectionStainTaskTx(ctx context.Context, tx *sql.Tx, task *mo
 		SET stain_should_execute = 1, stain_task_id = ?, status = ?
 		WHERE id = ?
 	`, subTaskId, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Detecting), task.Id)
-	if err := CheckRowsAffected(result, err); err != nil {
+	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return nil, err
 	}
 
@@ -51,34 +80,6 @@ func createProjectDetectionStainTaskTx(ctx context.Context, tx *sql.Tx, task *mo
 	}, nil
 }
 
-// findProjectDetectionStainTaskByUuidTx 按子任务 UUID 查询项目图像石材污渍检测子任务记录
-func findProjectDetectionStainTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*model.ProjectDetectionSubTaskRecord, error) {
-	record, err := scanProjectDetectionSubTask(tx.QueryRowContext(ctx, `
-		SELECT id, uuid, main_task_id, user_id, project_id, image_id, status, started_at, finished_at, created_at, updated_at
-		FROM project_detection_stain_tasks
-		WHERE uuid = ?
-		FOR UPDATE
-	`, taskUuid))
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil
-	}
-	return record, err
-}
-
-// FindProjectDetectionStainTaskStatusByIdTx 按子任务 ID 查询项目图像石材污渍检测子任务状态
-func FindProjectDetectionStainTaskStatusByIdTx(ctx context.Context, tx *sql.Tx, taskId uint64) (bizpb.ProjectDetectionSubTaskStatus_Value, error) {
-	var status string
-	if err := tx.QueryRowContext(ctx, `
-		SELECT status
-		FROM project_detection_stain_tasks
-		WHERE id = ?
-		LIMIT 1
-	`, taskId).Scan(&status); err != nil {
-		return bizpb.ProjectDetectionSubTaskStatus_Unknown, err
-	}
-	return enum.ParseProjectDetectionSubTaskStatus(status), nil
-}
-
 // updateProjectDetectionStainTaskResultTx 更新项目图像石材污渍检测子任务报告与状态
 func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
 	statusText := enum.ProjectDetectionSubTaskStatusString(status)
@@ -91,7 +92,7 @@ func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 			WHERE uuid = ?
 		`, statusText, taskUuid)
 
-		return CheckRowsAffected(result, err)
+		return utils.CheckRowsAffected(result, err)
 	}
 
 	// 检测成功时，更新任务状态、开始时间、完成时间和检测报告
@@ -119,7 +120,7 @@ func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 			started_at = TIMESTAMPADD(MICROSECOND, -CAST(? * 1000000 AS SIGNED), NOW(3)),
 			finished_at = NOW(3)
 		WHERE uuid = ?
-	`, statusText, report.HasStain, report.StainCount, report.AverageStainRatio, report.MaxStainRatio, jsonOrEmptyArray(report.Regions), report.RuntimeSeconds, report.RuntimeSeconds, taskUuid)
+	`, statusText, report.HasStain, report.StainCount, report.AverageStainRatio, report.MaxStainRatio, utils.JsonOrEmptyArray(report.Regions), report.RuntimeSeconds, report.RuntimeSeconds, taskUuid)
 
-	return CheckRowsAffected(result, err)
+	return utils.CheckRowsAffected(result, err)
 }

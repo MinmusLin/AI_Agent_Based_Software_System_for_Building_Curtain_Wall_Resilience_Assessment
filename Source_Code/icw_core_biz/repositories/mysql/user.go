@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // CreateUser 创建用户
@@ -16,8 +18,8 @@ func (r *Repository) CreateUser(ctx context.Context, email, passwordHash, name s
 }
 
 // FindUserById 按用户 ID 查询用户
-func (r *Repository) FindUserById(ctx context.Context, id uint64) (*UserRecord, error) {
-	user := &UserRecord{}
+func (r *Repository) FindUserById(ctx context.Context, id uint64) (*model.UserRecord, error) {
+	user := &model.UserRecord{}
 
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT id, email, password_hash, name, last_login_at, created_at, updated_at
@@ -37,8 +39,8 @@ func (r *Repository) FindUserById(ctx context.Context, id uint64) (*UserRecord, 
 }
 
 // FindUserByEmail 按邮箱查询用户
-func (r *Repository) FindUserByEmail(ctx context.Context, email string) (*UserRecord, error) {
-	user := &UserRecord{}
+func (r *Repository) FindUserByEmail(ctx context.Context, email string) (*model.UserRecord, error) {
+	user := &model.UserRecord{}
 
 	err := r.mysql.QueryRowContext(ctx, `
 		SELECT id, email, password_hash, name, last_login_at, created_at, updated_at

@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"icw_core_biz/repositories/mysql/model"
 	"time"
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
+
+	"icw_core_biz/repositories/mysql/model"
+	"icw_core_biz/repositories/mysql/utils"
 )
 
 // ListProjectGroups 按用户 ID 和项目 ID 查询图像组列表
@@ -324,7 +326,7 @@ func (r *Repository) CreateProjectGroup(ctx context.Context, userId, projectId u
 		_ = tx.Rollback()
 	}()
 
-	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	projectExists, err := utils.LockProjectForUpdate(ctx, tx, userId, projectId)
 	if err != nil || !projectExists {
 		return nil, err
 	}
@@ -473,7 +475,7 @@ func (r *Repository) DeleteProjectGroup(ctx context.Context, userId, projectId, 
 		_ = tx.Rollback()
 	}()
 
-	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	projectExists, err := utils.LockProjectForUpdate(ctx, tx, userId, projectId)
 	if err != nil || !projectExists {
 		return false, err
 	}
@@ -559,7 +561,7 @@ func (r *Repository) DeleteProjectImages(ctx context.Context, userId, projectId 
 		_ = tx.Rollback()
 	}()
 
-	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	projectExists, err := utils.LockProjectForUpdate(ctx, tx, userId, projectId)
 	if err != nil || !projectExists {
 		return false, err
 	}
@@ -609,7 +611,7 @@ func (r *Repository) DeleteProjectImages(ctx context.Context, userId, projectId 
 // MoveProjectGroup 按用户 ID、项目 ID 和图像组 ID 移动图像组
 func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, groupId, previousGroupId, nextGroupId uint64, moveToFirst, moveToLast bool) (*model.ProjectGroupRecord, error) {
 	if moveToFirst && moveToLast {
-		return nil, errors.New("move to first and move to last cannot both be true")
+		return nil, model.ErrMoveProjectGroupDirectionConflict
 	}
 
 	tx, err := r.mysql.BeginTx(ctx, nil)
@@ -620,7 +622,7 @@ func (r *Repository) MoveProjectGroup(ctx context.Context, userId, projectId, gr
 		_ = tx.Rollback()
 	}()
 
-	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	projectExists, err := utils.LockProjectForUpdate(ctx, tx, userId, projectId)
 	if err != nil || !projectExists {
 		return nil, err
 	}
@@ -744,7 +746,7 @@ func (r *Repository) MoveProjectImages(ctx context.Context, userId, projectId ui
 		_ = tx.Rollback()
 	}()
 
-	projectExists, err := lockProjectForUpdate(ctx, tx, userId, projectId)
+	projectExists, err := utils.LockProjectForUpdate(ctx, tx, userId, projectId)
 	if err != nil || !projectExists {
 		return nil, err
 	}

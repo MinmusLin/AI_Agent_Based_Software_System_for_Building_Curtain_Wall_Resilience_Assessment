@@ -10,7 +10,6 @@ import (
 	"icw_common/utils"
 
 	"icw_core_biz/repositories/minio"
-	mysqlUtils "icw_core_biz/repositories/mysql/utils"
 	"icw_core_biz/repositories/redis"
 )
 
@@ -70,8 +69,8 @@ func ProjectRecordToDTO(record *ProjectRecord) *bizpb.Project {
 		AssessmentGoal:      record.AssessmentGoal.String,
 		ThumbnailUrl:        "",
 		Progress:            uint32(enum.ProjectProgressUint8(record.Progress)),
-		CreatedAt:           mysqlUtils.TimeToString(record.CreatedAt),
-		UpdatedAt:           mysqlUtils.TimeToString(record.UpdatedAt),
+		CreatedAt:           record.CreatedAt.Format(time.DateTime),
+		UpdatedAt:           record.UpdatedAt.Format(time.DateTime),
 	}
 }
 
@@ -106,7 +105,7 @@ func ProjectRecordsToListItemsDTO(records []*ProjectRecord) []*bizpb.ProjectList
 			BuildingLocation: record.BuildingLocation,
 			ThumbnailUrl:     "",
 			Progress:         uint32(enum.ProjectProgressUint8(record.Progress)),
-			CreatedAt:        mysqlUtils.TimeToString(record.CreatedAt),
+			CreatedAt:        record.CreatedAt.Format(time.DateTime),
 		})
 	}
 	return items
@@ -205,8 +204,8 @@ func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, r
 		Height:      record.Height,
 		Metadata:    record.Metadata,
 		Status:      enum.ProjectImageStatusString(record.Status),
-		UploadedAt:  mysqlUtils.TimeToString(record.UploadedAt.Time),
-		CreatedAt:   mysqlUtils.TimeToString(record.CreatedAt),
+		UploadedAt:  record.UploadedAt.Time.Format(time.DateTime),
+		CreatedAt:   record.CreatedAt.Format(time.DateTime),
 	}
 	if record.Status != bizpb.ProjectImageStatus_Uploaded {
 		return item, nil
