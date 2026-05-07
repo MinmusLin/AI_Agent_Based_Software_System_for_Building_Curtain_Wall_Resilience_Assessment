@@ -1,10 +1,11 @@
-package mysql
+package project_detection
 
 import (
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"icw_core_biz/repositories/mysql"
 
 	"github.com/google/uuid"
 
@@ -13,7 +14,7 @@ import (
 )
 
 // createProjectDetectionFlatnessTaskTx 创建项目图像玻璃平整度检测子任务记录
-func createProjectDetectionFlatnessTaskTx(ctx context.Context, tx *sql.Tx, task *ProjectDetectionTaskRecord) (*ProjectDetectionSubTaskRecord, error) {
+func createProjectDetectionFlatnessTaskTx(ctx context.Context, tx *sql.Tx, task *mysql.ProjectDetectionTaskRecord) (*mysql.ProjectDetectionSubTaskRecord, error) {
 	taskUuid := uuid.NewString()
 
 	result, err := tx.ExecContext(ctx, `
@@ -38,7 +39,7 @@ func createProjectDetectionFlatnessTaskTx(ctx context.Context, tx *sql.Tx, task 
 		return nil, err
 	}
 
-	return &ProjectDetectionSubTaskRecord{
+	return &mysql.ProjectDetectionSubTaskRecord{
 		Id:         uint64(subTaskId),
 		Uuid:       taskUuid,
 		MainTaskId: task.Id,
@@ -50,7 +51,7 @@ func createProjectDetectionFlatnessTaskTx(ctx context.Context, tx *sql.Tx, task 
 }
 
 // findProjectDetectionFlatnessTaskByUuidTx 按子任务 UUID 查询项目图像玻璃平整度检测子任务记录
-func findProjectDetectionFlatnessTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*ProjectDetectionSubTaskRecord, error) {
+func findProjectDetectionFlatnessTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*mysql.ProjectDetectionSubTaskRecord, error) {
 	record, err := scanProjectDetectionSubTask(tx.QueryRowContext(ctx, `
 		SELECT id, uuid, main_task_id, user_id, project_id, image_id, status, started_at, finished_at, created_at, updated_at
 		FROM project_detection_flatness_tasks
