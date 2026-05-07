@@ -2,7 +2,8 @@ package common
 
 import (
 	"context"
-	"icw_common/rpc_err"
+
+	"icw_common/rpc/error"
 	"icw_common/utils"
 	"icw_core_biz/configs"
 	"icw_core_biz/internal/workers"
@@ -83,7 +84,7 @@ func (s *BaseService) CallRPC(ctx context.Context, req interface{}, fn func() er
 		ctx = context.Background()
 	}
 	if utils.IsNil(req) {
-		return rpc_err.BadRequestDefault("request is nil")
+		return rpc_error.BadRequestDefault("request is nil")
 	}
 	if fn == nil {
 		return nil

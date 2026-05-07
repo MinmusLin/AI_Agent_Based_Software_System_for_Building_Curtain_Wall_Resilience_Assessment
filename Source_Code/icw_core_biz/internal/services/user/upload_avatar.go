@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_core_biz/internal/services/user/consts"
 	"icw_core_biz/internal/services/user/utils"
 	"icw_core_biz/repositories/minio"
@@ -21,7 +21,7 @@ func (s *Service) UploadAvatar(ctx context.Context, req *bizpb.UploadAvatarReque
 
 func (s *Service) uploadAvatar(req *bizpb.UploadAvatarRequest, resp *bizpb.UploadAvatarResponse) error {
 	if req.ContentType != consts.CustomAvatarContentType {
-		return rpc_err.BadRequest(rpc_err.DetailInvalidImageContentType, "image content type must be image/png")
+		return rpc_error.BadRequest(rpc_error.DetailInvalidImageContentType, "image content type must be image/png")
 	}
 
 	// 对标准化邮箱地址做 SHA-256 哈希
