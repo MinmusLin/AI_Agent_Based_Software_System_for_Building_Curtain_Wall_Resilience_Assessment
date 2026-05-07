@@ -79,6 +79,20 @@ func findProjectDetectionCorrosionTaskStatusByIdTx(ctx context.Context, tx *sql.
 
 // updateProjectDetectionCorrosionTaskResultTx 更新项目图像金属锈蚀检测子任务报告与状态
 func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+	statusText := enum.ProjectDetectionSubTaskStatusString(status)
+
+	// 检测失败时，只更新任务状态
+	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
+		result, err := tx.ExecContext(ctx, `
+			UPDATE project_detection_corrosion_tasks
+			SET status = ?
+			WHERE uuid = ?
+		`, statusText, taskUuid)
+
+		return checkRowsAffected(result, err)
+	}
+
+	// 检测成功时，更新任务状态、开始时间、完成时间和检测报告
 	report := struct {
 		HasCorrosion      bool            `json:"has_corrosion"`
 		CorrosionCount    uint64          `json:"corrosion_count"`
@@ -93,22 +107,6 @@ func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx
 		return err
 	}
 
-	statusText := enum.ProjectDetectionSubTaskStatusString(status)
-
-	// 检测失败时，更新任务状态、开始时间、完成时间
-	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
-		result, err := tx.ExecContext(ctx, `
-			UPDATE project_detection_corrosion_tasks
-			SET status = ?,
-				started_at = TIMESTAMPADD(MICROSECOND, -CAST(? * 1000000 AS SIGNED), NOW(3)),
-				finished_at = NOW(3)
-			WHERE uuid = ?
-		`, statusText, report.RuntimeSeconds, taskUuid)
-
-		return checkRowsAffected(result, err)
-	}
-
-	// 检测成功时，更新任务状态、开始时间、完成时间、检测报告
 	result, err := tx.ExecContext(ctx, `
 		UPDATE project_detection_corrosion_tasks
 		SET status = ?,
