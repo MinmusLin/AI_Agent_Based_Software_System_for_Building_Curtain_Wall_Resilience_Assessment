@@ -5,33 +5,24 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
-
-	"icw_activity_reasoning/internal/detectors/utils"
 )
 
 // PythonDetector Python 原子检测能力执行器
 type PythonDetector struct {
 	code        string
 	description string
-	projectRoot string
-	runner      string
-	path        string
 	runtimeRoot string
+	worker      *pythonWorker
 }
 
 // NewPythonDetector 创建 Python 原子检测能力执行器
-func NewPythonDetector(code, description, detectorPath, runtimeRoot string) *PythonDetector {
-	projectRoot := utils.AbsPath(".")
+func NewPythonDetector(code, description, runtimeRoot string) *PythonDetector {
 	return &PythonDetector{
-		code:        strings.TrimSpace(code),
-		description: strings.TrimSpace(description),
-		projectRoot: projectRoot,
-		runner:      utils.AbsPath("python/runner.py"),
-		path:        utils.AbsPath(detectorPath),
-		runtimeRoot: utils.AbsPath(runtimeRoot),
+		code:        code,
+		description: description,
+		runtimeRoot: runtimeRoot,
+		worker:      newPythonWorker(code, runtimeRoot),
 	}
 }
 
@@ -58,41 +49,8 @@ func (d *PythonDetector) Detect(ctx context.Context, imageUuid string) error {
 	}
 	taskDir := filepath.Join(d.runtimeRoot, d.code, imageUuid)
 	imagePath := filepath.Join(taskDir, "original.png")
-	errorPath := filepath.Join(taskDir, "error.log")
 	if info, err := os.Stat(imagePath); err != nil || info.IsDir() {
 		return fmt.Errorf("original image not found: %s", imagePath)
 	}
-	_ = os.Remove(errorPath)
-	args := []string{
-		"run",
-		"--project", d.projectRoot,
-		"python",
-		d.runner,
-		"--task-code", d.code,
-		"--detector-path", d.path,
-		"--image-uuid", imageUuid,
-		"--runtime-root", d.runtimeRoot,
-	}
-	cmd := exec.CommandContext(
-		ctx,
-		"uv",
-		args...,
-	)
-	cmd.Dir = d.projectRoot
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		errorBytes, readErr := os.ReadFile(errorPath)
-		message := ""
-		if readErr == nil {
-			message = strings.TrimSpace(string(errorBytes))
-		}
-		if message == "" {
-			message = strings.TrimSpace(string(output))
-		}
-		if message != "" {
-			return fmt.Errorf("run python detector %s failed, err: %v, message: %s", d.code, err, message)
-		}
-		return fmt.Errorf("run python detector %s failed: %v", d.code, err)
-	}
-	return nil
+	return d.worker.Run(ctx, imageUuid)
 }
