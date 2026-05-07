@@ -8,7 +8,7 @@ import (
 
 	"icw_common/consts"
 	"icw_common/gen/core/biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_common/utils"
 	"icw_core_api/internal/response"
 	"icw_core_api/rpc/icw_core_biz/socket"
@@ -38,7 +38,7 @@ func (h *Handler) setupProjectWebSocket(c *gin.Context, socketScope string) {
 	ticket := c.Query("ticket")
 	projectId, err := utils.Decode(projectCode)
 	if err != nil {
-		response.WriteError(c, rpc_err.BadRequestDefault(err.Error()))
+		response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
 		return
 	}
 
