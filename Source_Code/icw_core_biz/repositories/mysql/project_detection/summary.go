@@ -82,24 +82,6 @@ func CreateProjectDetectionSummaryTaskTx(ctx context.Context, tx *sql.Tx, task *
 }
 
 // UpdateProjectDetectionSummaryTaskStatusTx 更新图像检测总结任务状态
-func UpdateProjectDetectionSummaryTaskStatusTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, runtimeSeconds float64) error {
-	statusText := enum.ProjectDetectionSubTaskStatusString(status)
-	if statusText == "" {
-		return model.ErrProjectDetectionSummaryTaskStatusInvalid
-	}
-	result, err := tx.ExecContext(ctx, `
-		UPDATE project_detection_summary_tasks
-		SET status = ?,
-			finished_at = CASE WHEN ? = ? THEN NOW(3) ELSE finished_at END,
-			started_at = CASE WHEN ? = ? AND ? > 0 THEN TIMESTAMPADD(MICROSECOND, -CAST(? * 1000000 AS SIGNED), NOW(3)) ELSE started_at END
-		WHERE uuid = ?
-	`, statusText,
-		statusText,
-		enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded),
-		statusText,
-		enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded),
-		runtimeSeconds,
-		runtimeSeconds,
-		taskUuid)
-	return utils.CheckRowsAffected(result, err)
+func UpdateProjectDetectionSummaryTaskStatusTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, startTime, finishTime bool) error {
+	return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_summary_tasks", taskUuid, status, startTime, finishTime, model.ErrProjectDetectionSummaryTaskStatusInvalid)
 }
