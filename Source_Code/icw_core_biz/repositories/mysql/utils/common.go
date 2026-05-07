@@ -5,11 +5,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
 
+	"icw_common/enum"
+	activitypb "icw_common/gen/activity"
+
 	"icw_core_biz/configs"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // MySQLDSN 根据配置生成 MySQL 连接 DSN
@@ -73,4 +78,25 @@ func CheckRowsAffected(result sql.Result, err error) error {
 		return sql.ErrNoRows
 	}
 	return nil
+}
+
+// NormalizeDetectionTaskCodes 标准化图像检测子任务代码
+func NormalizeDetectionTaskCodes(taskCodes []string) ([]string, error) {
+	normalized := make([]string, 0, len(taskCodes))
+	seen := map[activitypb.DetectionTaskCode_Value]bool{}
+	for _, taskCode := range taskCodes {
+		if strings.TrimSpace(taskCode) == "" {
+			continue
+		}
+		code := enum.ParseDetectionTaskCode(taskCode)
+		if code == activitypb.DetectionTaskCode_Unknown {
+			return nil, model.ErrUnsupportedDetectionTaskCode
+		}
+		if seen[code] {
+			continue
+		}
+		normalized = append(normalized, enum.DetectionTaskCodeString(code))
+		seen[code] = true
+	}
+	return normalized, nil
 }
