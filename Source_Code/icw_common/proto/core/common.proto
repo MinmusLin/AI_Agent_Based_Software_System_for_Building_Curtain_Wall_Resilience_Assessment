@@ -32,3 +32,18 @@ message UploadProjectImageResult {
   string original_upload_url = 2;
   string thumbnail_upload_url = 3;
 }
+
+// 项目图像检测节点状态结构体
+message ProjectDetectionNodeStatus {
+  string node_code = 1;
+  string sub_task_id = 2;
+  string sub_status = 3;
+}
+
+// 项目图像检测任务状态结构体
+message ProjectDetectionTask {
+  string image_uuid = 1;
+  string main_task_id = 2;
+  string main_status = 3;
+  repeated ProjectDetectionNodeStatus nodes = 4;
+}
