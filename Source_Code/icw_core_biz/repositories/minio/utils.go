@@ -87,3 +87,16 @@ func GenProjectDetectionArtifactKey(projectId uint64, imageUuid, taskCode, artif
 	}
 	return fmt.Sprintf("projects/%s/detections/%s/%s/%s", projectCode, imageUuid, taskCode, artifactName), nil
 }
+
+// GenProjectDetectionArtifactPrefix 生成项目检测产物对象 Key 前缀
+func GenProjectDetectionArtifactPrefix(projectId uint64, imageUuid string) (string, error) {
+	projectCode := utils.Encode(projectId)
+	if projectCode == "" {
+		return "", errors.New("project id is invalid")
+	}
+	imageUuid = strings.TrimSpace(imageUuid)
+	if imageUuid == "" {
+		return "", errors.New("image uuid is invalid")
+	}
+	return fmt.Sprintf("projects/%s/detections/%s/", projectCode, imageUuid), nil
+}
