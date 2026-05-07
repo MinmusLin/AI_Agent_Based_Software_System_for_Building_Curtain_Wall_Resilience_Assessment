@@ -938,6 +938,7 @@ func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeou
 	images := make([]*ProjectImageRecord, 0)
 	for rows.Next() {
 		image := &ProjectImageRecord{}
+		var status string
 		if err := rows.Scan(
 			&image.Id,
 			&image.GroupId,
@@ -950,7 +951,7 @@ func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeou
 			&image.Width,
 			&image.Height,
 			&image.Metadata,
-			&image.Status,
+			&status,
 			&image.UploadedAt,
 			&image.CreatedAt,
 			&image.UpdatedAt,
@@ -958,6 +959,7 @@ func (r *Repository) FailTimeoutPendingProjectImages(ctx context.Context, timeou
 			_ = rows.Close()
 			return nil, err
 		}
+		image.Status = enum.ParseProjectImageStatus(status)
 		images = append(images, image)
 	}
 	if err := rows.Err(); err != nil {
