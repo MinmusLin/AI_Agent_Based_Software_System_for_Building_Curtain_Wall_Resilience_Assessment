@@ -23,16 +23,3 @@ func NewService(ctx context.Context, deps *common.Deps) *Service {
 		BaseService: common.NewBaseService(ctx, deps),
 	}
 }
-
-// Ping .
-func (s *Service) Ping(ctx context.Context, req *bizpb.PingReportRequest) (*bizpb.PingReportResponse, error) {
-	resp := &bizpb.PingReportResponse{}
-	err := s.CallRPC(ctx, req, func() error {
-		return s.ping(req, resp)
-	})
-	return resp, err
-}
-
-func (s *Service) ping(_ *bizpb.PingReportRequest, _ *bizpb.PingReportResponse) error {
-	return nil
-}

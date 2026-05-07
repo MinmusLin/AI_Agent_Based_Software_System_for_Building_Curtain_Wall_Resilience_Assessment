@@ -4,9 +4,6 @@ import sys
 from pathlib import Path
 
 
-ERROR_FILE_NAME = 'error.log'
-
-
 # 解析命令行输入参数
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -45,13 +42,6 @@ def run_detector(task_code: str, detector_path: Path, image_path: Path, task_run
     return report_path
 
 
-# 写入捕获的错误信息
-def write_error(task_runtime_dir: Path, err: Exception) -> None:
-    task_runtime_dir.mkdir(parents=True, exist_ok=True)
-    message = str(err).strip() or err.__class__.__name__
-    (task_runtime_dir / ERROR_FILE_NAME).write_text(message, encoding='utf-8')
-
-
 # 校验路径片段是否安全可用
 def safe_path_part(value: str, name: str) -> str:
     value = value.strip()
@@ -69,22 +59,15 @@ def main() -> int:
     runtime_root = Path(args.runtime_root).expanduser().resolve()
     task_runtime_dir = runtime_root / task_code / image_uuid
     task_runtime_dir.mkdir(parents=True, exist_ok=True)
-    error_path = task_runtime_dir / ERROR_FILE_NAME
-    if error_path.exists():
-        error_path.unlink()
     image_path = task_runtime_dir / 'original.png'
     if not image_path.is_file():
         raise FileNotFoundError(f'original image not found: {image_path}')
 
-    try:
-        run_detector(task_code, detector_path, image_path, task_runtime_dir)
-    except Exception as err:
-        write_error(task_runtime_dir, err)
-        return 1
+    run_detector(task_code, detector_path, image_path, task_runtime_dir)
     return 0
 
 
-# 执行主流程并兜底异常
+# 执行主流程
 def run() -> int:
     try:
         return main()
