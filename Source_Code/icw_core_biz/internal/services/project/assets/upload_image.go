@@ -13,7 +13,7 @@ import (
 	"icw_core_biz/internal/services/project/consts"
 	"icw_core_biz/internal/services/project/utils"
 	"icw_core_biz/repositories/minio"
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // UploadProjectImage 上传图像
@@ -96,7 +96,7 @@ func (s *Service) uploadProjectImage(req *bizpb.UploadProjectImageRequest, resp 
 		return rpc_error.BadRequestDefault("project images are required")
 	}
 
-	createRecords := make([]*mysql.ProjectImageCreateRecord, 0, len(uploadItems))
+	createRecords := make([]*model.ProjectImageCreateRecord, 0, len(uploadItems))
 	for _, item := range uploadItems {
 		// 生成项目图像原图上传预签名 URL
 		originalUploadURL, err := s.MinIO().PresignPutObject(s.Ctx(), item.OriginalKey, s.Config().ProjectImageUploadTTL)
@@ -112,7 +112,7 @@ func (s *Service) uploadProjectImage(req *bizpb.UploadProjectImageRequest, resp 
 		item.OriginalUploadUrl = originalUploadURL
 		item.ThumbnailUploadUrl = thumbnailUploadURL
 
-		createRecords = append(createRecords, &mysql.ProjectImageCreateRecord{
+		createRecords = append(createRecords, &model.ProjectImageCreateRecord{
 			ImageUuid:   item.ImageUuid,
 			FileName:    item.FileName,
 			ContentType: item.ContentType,
@@ -133,7 +133,7 @@ func (s *Service) uploadProjectImage(req *bizpb.UploadProjectImageRequest, resp 
 
 	resp.Images = make([]*bizpb.UploadProjectImageResult, 0, len(uploadItems))
 	for index, item := range uploadItems {
-		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecords[index], s.Config().ProjectImageGetTTL)
+		projectImage, err := model.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecords[index], s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}

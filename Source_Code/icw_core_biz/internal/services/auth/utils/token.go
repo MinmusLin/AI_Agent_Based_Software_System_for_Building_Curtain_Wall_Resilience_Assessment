@@ -13,6 +13,7 @@ import (
 
 	"icw_core_biz/configs"
 	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // TokenMetadata Token 元数据
@@ -26,8 +27,8 @@ type TokenMetadata struct {
 }
 
 // NewTokenMetadata 创建 Token 元数据
-func NewTokenMetadata(cfg configs.Config, tokens *TokenManager, user *mysql.UserRecord) (*TokenMetadata, error) {
-	userDTO := mysql.UserRecordToDTO(user)
+func NewTokenMetadata(cfg configs.Config, tokens *TokenManager, user *model.UserRecord) (*TokenMetadata, error) {
+	userDTO := model.UserRecordToDTO(user)
 	if userDTO == nil {
 		return nil, errors.New("user is nil")
 	}
@@ -131,7 +132,7 @@ func (m *TokenManager) ParseAny(raw string) (*AccessClaims, error) {
 }
 
 // IssueTokens 登录场景下，签发 Access Token 和 Refresh Token，并更新用户最近登录时间
-func IssueTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, user *mysql.UserRecord, resp *bizpb.LoginResponse) error {
+func IssueTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, user *model.UserRecord, resp *bizpb.LoginResponse) error {
 	pair, err := NewTokenMetadata(cfg, tokens, user)
 	if err != nil {
 		return err
@@ -152,7 +153,7 @@ func IssueTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository
 }
 
 // IssueRotatedTokens 刷新场景下，签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
-func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, oldTokenId string, user *mysql.UserRecord, resp *bizpb.RefreshResponse) error {
+func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Repository, tokens *TokenManager, oldTokenId string, user *model.UserRecord, resp *bizpb.RefreshResponse) error {
 	if resp == nil {
 		return errors.New("response is nil")
 	}
@@ -163,7 +164,7 @@ func IssueRotatedTokens(ctx context.Context, cfg configs.Config, repo *mysql.Rep
 
 	// 刷新时签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token
 	if err := repo.RotateRefreshToken(ctx, oldTokenId, pair.TokenId, user.Id, pair.TokenHash, pair.ExpiresAt); err != nil {
-		if errors.Is(err, mysql.ErrRefreshTokenNotReplaceable) {
+		if errors.Is(err, model.ErrRefreshTokenNotReplaceable) {
 			return rpc_error.UnauthorizedDefault(err.Error())
 		}
 		return err

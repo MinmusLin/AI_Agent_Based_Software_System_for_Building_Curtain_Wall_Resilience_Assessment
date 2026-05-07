@@ -5,7 +5,7 @@ import (
 
 	"icw_common/gen/core/biz"
 
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // GetProjectAssets 获取项目图像列表
@@ -27,7 +27,7 @@ func (s *Service) getProjectAssets(req *bizpb.GetProjectAssetsRequest, resp *biz
 		return err
 	}
 
-	imageMap := make(map[uint64][]*mysql.ProjectImageRecord, len(groups))
+	imageMap := make(map[uint64][]*model.ProjectImageRecord, len(groups))
 	for _, imageRecord := range images {
 		if imageRecord == nil {
 			continue
@@ -37,7 +37,7 @@ func (s *Service) getProjectAssets(req *bizpb.GetProjectAssetsRequest, resp *biz
 
 	resp.Groups = make([]*bizpb.ProjectGroup, 0, len(groups))
 	for _, groupRecord := range groups {
-		group, err := mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, imageMap[groupRecord.Id], s.Config().ProjectImageGetTTL)
+		group, err := model.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, imageMap[groupRecord.Id], s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}

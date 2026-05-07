@@ -10,7 +10,7 @@ import (
 
 	"icw_core_biz/internal/services/project/events"
 	"icw_core_biz/repositories/minio"
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // ReportProjectImage 上报图像
@@ -70,7 +70,7 @@ func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bi
 		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	image, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
+	image, err := model.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

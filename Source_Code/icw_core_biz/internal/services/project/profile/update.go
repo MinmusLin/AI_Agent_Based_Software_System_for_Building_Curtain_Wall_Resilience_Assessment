@@ -7,7 +7,7 @@ import (
 	"icw_common/rpc/error"
 
 	"icw_core_biz/internal/services/project/utils"
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // UpdateProjectProfile 更新项目基础信息
@@ -52,7 +52,7 @@ func (s *Service) updateProjectProfile(req *bizpb.UpdateProjectProfileRequest, r
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), projectRecord, s.Config().ProjectImageGetTTL)
+	resp.Project, err = model.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), projectRecord, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

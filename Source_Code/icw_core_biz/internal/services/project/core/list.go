@@ -5,7 +5,7 @@ import (
 
 	"icw_common/gen/core/biz"
 
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // ListProjects 获取项目列表
@@ -24,11 +24,11 @@ func (s *Service) listProjects(req *bizpb.ListProjectsRequest, resp *bizpb.ListP
 	}
 
 	// 获取项目缩略图
-	resp.ActiveProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), activeProjects, s.Config().ProjectImageGetTTL)
+	resp.ActiveProjects, err = model.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), activeProjects, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}
-	resp.CompletedProjects, err = mysql.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), completedProjects, s.Config().ProjectImageGetTTL)
+	resp.CompletedProjects, err = model.ProjectRecordsToListItemsDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), completedProjects, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

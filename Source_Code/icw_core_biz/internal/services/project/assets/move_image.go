@@ -7,7 +7,7 @@ import (
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // MoveProjectImage 移动图像
@@ -51,7 +51,7 @@ func (s *Service) moveProjectImage(req *bizpb.MoveProjectImageRequest, resp *biz
 
 	resp.Images = make([]*bizpb.ProjectImage, 0, len(imageRecords))
 	for _, imageRecord := range imageRecords {
-		projectImage, err := mysql.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
+		projectImage, err := model.ProjectImageRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), imageRecord, s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}

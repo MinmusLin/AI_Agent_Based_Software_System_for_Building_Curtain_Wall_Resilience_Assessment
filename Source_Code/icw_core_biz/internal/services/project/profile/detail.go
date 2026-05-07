@@ -6,7 +6,7 @@ import (
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // GetProjectProfile 获取项目基础信息
@@ -28,7 +28,7 @@ func (s *Service) getProjectProfile(req *bizpb.GetProjectProfileRequest, resp *b
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), projectRecord, s.Config().ProjectImageGetTTL)
+	resp.Project, err = model.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), projectRecord, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

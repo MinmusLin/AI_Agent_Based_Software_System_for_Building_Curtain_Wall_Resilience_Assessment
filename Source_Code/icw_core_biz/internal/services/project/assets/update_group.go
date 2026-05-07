@@ -7,7 +7,8 @@ import (
 	"icw_common/rpc/error"
 
 	"icw_core_biz/internal/services/project/utils"
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
+	mysqlUtils "icw_core_biz/repositories/mysql/utils"
 )
 
 // UpdateProjectGroup 更新图像组
@@ -27,7 +28,7 @@ func (s *Service) updateProjectGroup(req *bizpb.UpdateProjectGroupRequest, resp 
 	}
 
 	groupRecord, err := s.MySQL().UpdateProjectGroupName(s.Ctx(), req.UserId, req.ProjectId, req.GroupId, name)
-	if mysql.IsDuplicateEntryError(err) {
+	if mysqlUtils.IsDuplicateEntryError(err) {
 		return rpc_error.BadRequest(rpc_error.DetailProjectGroupNameDuplicated, "project group name already exists")
 	}
 	if err != nil {
@@ -37,7 +38,7 @@ func (s *Service) updateProjectGroup(req *bizpb.UpdateProjectGroupRequest, resp 
 		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	resp.Group, err = mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, nil, s.Config().ProjectImageGetTTL)
+	resp.Group, err = model.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, nil, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

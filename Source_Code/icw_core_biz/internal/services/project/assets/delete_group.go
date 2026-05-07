@@ -9,7 +9,7 @@ import (
 
 	"icw_core_biz/internal/services/common"
 	"icw_core_biz/internal/services/project/utils"
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // DeleteProjectGroup 删除图像组
@@ -28,7 +28,7 @@ func (s *Service) deleteProjectGroup(req *bizpb.DeleteProjectGroupRequest, _ *bi
 	}
 
 	deleted, err := s.MySQL().DeleteProjectGroup(s.Ctx(), req.UserId, req.ProjectId, req.GroupId)
-	if errors.Is(err, mysql.ErrProjectGroupCannotDeleteLast) {
+	if errors.Is(err, model.ErrProjectGroupCannotDeleteLast) {
 		return rpc_error.BadRequest(rpc_error.DetailProjectAtLeastOneGroupRequired, "project must keep at least one group")
 	}
 	if err != nil {

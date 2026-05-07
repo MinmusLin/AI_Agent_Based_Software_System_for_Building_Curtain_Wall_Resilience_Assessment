@@ -6,7 +6,7 @@ import (
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // MoveProjectGroup 移动图像组
@@ -57,7 +57,7 @@ func (s *Service) moveProjectGroup(req *bizpb.MoveProjectGroupRequest, resp *biz
 		return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 	}
 
-	resp.Group, err = mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, nil, s.Config().ProjectImageGetTTL)
+	resp.Group, err = model.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, nil, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

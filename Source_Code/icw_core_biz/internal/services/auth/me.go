@@ -6,7 +6,7 @@ import (
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // Me 获取用户信息
@@ -45,7 +45,7 @@ func (s *Service) me(req *bizpb.MeRequest, resp *bizpb.MeResponse) error {
 		return rpc_error.UnauthorizedDefault("user not found")
 	}
 
-	resp.User = mysql.UserRecordToDTO(user)
+	resp.User = model.UserRecordToDTO(user)
 
 	return nil
 }

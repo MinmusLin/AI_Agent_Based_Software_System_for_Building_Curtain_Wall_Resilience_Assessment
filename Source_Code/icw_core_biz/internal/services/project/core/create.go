@@ -6,7 +6,7 @@ import (
 	"icw_common/gen/core/biz"
 
 	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
 )
 
 // CreateProject 创建项目
@@ -25,7 +25,7 @@ func (s *Service) createProject(req *bizpb.CreateProjectRequest, resp *bizpb.Cre
 	}
 
 	// 获取项目缩略图
-	resp.Project, err = mysql.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), projectRecord, s.Config().ProjectImageGetTTL)
+	resp.Project, err = model.ProjectRecordToDTOWithThumbnail(s.Ctx(), s.MinIO(), s.Redis(), projectRecord, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

@@ -10,7 +10,8 @@ import (
 	"icw_common/rpc/error"
 
 	"icw_core_biz/internal/services/project/consts"
-	"icw_core_biz/repositories/mysql"
+	"icw_core_biz/repositories/mysql/model"
+	mysqlUtils "icw_core_biz/repositories/mysql/utils"
 )
 
 const (
@@ -51,7 +52,7 @@ func (s *Service) createProjectGroup(req *bizpb.CreateProjectGroupRequest, resp 
 		}
 
 		groupRecord, err := s.MySQL().CreateProjectGroup(s.Ctx(), req.UserId, req.ProjectId, name)
-		if mysql.IsDuplicateEntryError(err) {
+		if mysqlUtils.IsDuplicateEntryError(err) {
 			continue
 		}
 		if err != nil {
@@ -61,7 +62,7 @@ func (s *Service) createProjectGroup(req *bizpb.CreateProjectGroupRequest, resp 
 			return rpc_error.BadRequest(rpc_error.DetailProjectNotAccessible, "project group is not accessible")
 		}
 
-		resp.Group, err = mysql.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, nil, s.Config().ProjectImageGetTTL)
+		resp.Group, err = model.ProjectGroupRecordToDTO(s.Ctx(), s.MinIO(), s.Redis(), groupRecord, nil, s.Config().ProjectImageGetTTL)
 		if err != nil {
 			return err
 		}
