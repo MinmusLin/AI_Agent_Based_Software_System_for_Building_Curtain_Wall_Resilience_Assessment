@@ -1,5 +1,6 @@
 APP_NAME := icw_activity_reasoning
 GO ?= go
+GOIMPORTS_REVISER ?= goimports-reviser
 UV ?= uv
 MAIN := ./cmd/server
 PKGS := ./...
@@ -52,9 +53,11 @@ python-check:
 
 fmt:
 	$(GO) fmt $(PKGS)
+	$(GOIMPORTS_REVISER) -rm-unused -format -recursive -imports-order std,general,company,project -company-prefixes icw_common,icw_core_api,icw_core_biz,icw_activity_classification,icw_activity_reasoning,icw_activity_summary .
 
 fmt-check:
 	@test -z "$$(gofmt -l .)" || (echo "Go files need formatting:" && gofmt -l . && exit 1)
+	$(GOIMPORTS_REVISER) -list-diff -set-exit-status -recursive -imports-order std,general,company,project -company-prefixes icw_common,icw_core_api,icw_core_biz,icw_activity_classification,icw_activity_reasoning,icw_activity_summary .
 
 tidy:
 	$(GO) mod tidy
