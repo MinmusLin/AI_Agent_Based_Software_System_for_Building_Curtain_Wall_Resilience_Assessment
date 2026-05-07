@@ -13,6 +13,14 @@ import (
 	"icw_core_biz/repositories/redis"
 )
 
+// ProjectAssetsReadyStats 项目图像状态校验
+type ProjectAssetsReadyStats struct {
+	PendingImageCount  uint64
+	UploadedImageCount uint64
+	FailedImageCount   uint64
+	EmptyGroupCount    uint64
+}
+
 // ProjectRecord 项目记录
 type ProjectRecord struct {
 	Id                  uint64
