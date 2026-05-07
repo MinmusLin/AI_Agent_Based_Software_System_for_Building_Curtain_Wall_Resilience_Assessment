@@ -5,7 +5,7 @@ import (
 	"icw_activity_reasoning/configs"
 	"icw_activity_reasoning/internal/detectors/common"
 	"icw_activity_reasoning/rpc/icw_core_biz"
-	"icw_common/rpc_err"
+	"icw_common/rpc/error"
 	"icw_common/utils"
 )
 
@@ -53,7 +53,7 @@ func (s *BaseService) CallRPC(ctx context.Context, req interface{}, fn func() er
 		ctx = context.Background()
 	}
 	if utils.IsNil(req) {
-		return rpc_err.BadRequestDefault("request is nil")
+		return rpc_error.BadRequestDefault("request is nil")
 	}
 	if fn == nil {
 		return nil
