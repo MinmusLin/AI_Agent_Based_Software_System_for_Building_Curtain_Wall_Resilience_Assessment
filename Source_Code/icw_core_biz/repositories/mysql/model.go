@@ -9,6 +9,7 @@ import (
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/utils"
+
 	"icw_core_biz/repositories/minio"
 	"icw_core_biz/repositories/redis"
 )
@@ -280,17 +281,29 @@ type ProjectAssetsReadyStats struct {
 
 // ProjectDetectionTaskRecord 项目图像检测主任务记录
 type ProjectDetectionTaskRecord struct {
-	Id         uint64
-	Uuid       string
-	UserId     uint64
-	ProjectId  uint64
-	ImageId    uint64
-	ImageUuid  string
-	Status     bizpb.ProjectDetectionTaskStatus_Value
-	StartedAt  sql.NullTime
-	FinishedAt sql.NullTime
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	Id                     uint64
+	Uuid                   string
+	UserId                 uint64
+	ProjectId              uint64
+	ImageId                uint64
+	ImageUuid              string
+	Status                 bizpb.ProjectDetectionTaskStatus_Value
+	CorrosionShouldExecute bool
+	CorrosionTaskId        sql.NullInt64
+	CrackShouldExecute     bool
+	CrackTaskId            sql.NullInt64
+	StainShouldExecute     bool
+	StainTaskId            sql.NullInt64
+	FlatnessShouldExecute  bool
+	FlatnessTaskId         sql.NullInt64
+	SpallingShouldExecute  bool
+	SpallingTaskId         sql.NullInt64
+	SummaryShouldExecute   bool
+	SummaryTaskId          sql.NullInt64
+	StartedAt              sql.NullTime
+	FinishedAt             sql.NullTime
+	CreatedAt              time.Time
+	UpdatedAt              time.Time
 }
 
 // ProjectDetectionSubTaskRecord 项目图像检测子任务记录
@@ -301,10 +314,74 @@ type ProjectDetectionSubTaskRecord struct {
 	UserId     uint64
 	ProjectId  uint64
 	ImageId    uint64
-	TaskCode   string
 	Status     bizpb.ProjectDetectionSubTaskStatus_Value
 	StartedAt  sql.NullTime
 	FinishedAt sql.NullTime
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+}
+
+// 项目图像检测子任务记录
+
+// ProjectDetectionCorrosionTaskRecord 项目图像金属锈蚀检测子任务记录
+type ProjectDetectionCorrosionTaskRecord struct {
+	ProjectDetectionSubTaskRecord
+	HasCorrosion      sql.NullBool
+	CorrosionCount    sql.NullInt64
+	MaxConfidence     sql.NullFloat64
+	AverageConfidence sql.NullFloat64
+	CorrosionPixels   sql.NullInt64
+	CorrosionRatio    sql.NullFloat64
+	Regions           sql.NullString
+	RuntimeSeconds    sql.NullFloat64
+}
+
+// ProjectDetectionCrackTaskRecord 项目图像石材裂缝检测子任务记录
+type ProjectDetectionCrackTaskRecord struct {
+	ProjectDetectionSubTaskRecord
+	HasCrack       sql.NullBool
+	CrackCount     sql.NullInt64
+	CrackPixels    sql.NullInt64
+	CrackRatio     sql.NullFloat64
+	Regions        sql.NullString
+	RuntimeSeconds sql.NullFloat64
+}
+
+// ProjectDetectionStainTaskRecord 项目图像石材污渍检测子任务记录
+type ProjectDetectionStainTaskRecord struct {
+	ProjectDetectionSubTaskRecord
+	HasStain          sql.NullBool
+	StainCount        sql.NullInt64
+	AverageStainRatio sql.NullFloat64
+	MaxStainRatio     sql.NullFloat64
+	Regions           sql.NullString
+	RuntimeSeconds    sql.NullFloat64
+}
+
+// ProjectDetectionFlatnessTaskRecord 项目图像玻璃平整度检测子任务记录
+type ProjectDetectionFlatnessTaskRecord struct {
+	ProjectDetectionSubTaskRecord
+	Result         sql.NullString
+	UnevenCount    sql.NullInt64
+	Regions        sql.NullString
+	RuntimeSeconds sql.NullFloat64
+}
+
+// ProjectDetectionSpallingTaskRecord 项目图像玻璃爆裂检测子任务记录
+type ProjectDetectionSpallingTaskRecord struct {
+	ProjectDetectionSubTaskRecord
+	HasSpalling    sql.NullBool
+	Confidence     sql.NullFloat64
+	RuntimeSeconds sql.NullFloat64
+}
+
+// ProjectDetectionSummaryTaskRecord 项目图像检测总结任务记录
+type ProjectDetectionSummaryTaskRecord struct {
+	ProjectDetectionSubTaskRecord
+}
+
+// ProjectDetectionSubTaskRouteRecord 项目图像检测待调度子任务记录
+type ProjectDetectionSubTaskRouteRecord struct {
+	TaskCode string
+	Task     *ProjectDetectionSubTaskRecord
 }
