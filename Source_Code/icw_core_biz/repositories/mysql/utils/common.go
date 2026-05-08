@@ -12,6 +12,7 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/activity"
+	"icw_common/gen/core/biz"
 
 	"icw_core_biz/configs"
 	"icw_core_biz/repositories/mysql/model"
@@ -58,8 +59,8 @@ func LockProjectForUpdate(ctx context.Context, tx *sql.Tx, userId, projectId uin
 }
 
 // JsonOrEmptyArray 将空 JSON 数组字段兜底为 "[]"
-func JsonOrEmptyArray(raw json.RawMessage) (string, error) {
-	data, err := json.Marshal(raw)
+func JsonOrEmptyArray(value interface{}) (string, error) {
+	data, err := json.Marshal(value)
 	if err != nil {
 		return "[]", err
 	}
@@ -112,4 +113,28 @@ func NormalizeDetectionTaskCodes(taskCodes []string) ([]string, error) {
 		seen[code] = true
 	}
 	return normalized, nil
+}
+
+// ClassificationNodeStatus 根据图像检测主任务状态推导图像检测分类任务状态
+func ClassificationNodeStatus(task *model.ProjectDetectionTaskRecord) string {
+	switch task.Status {
+	case bizpb.ProjectDetectionTaskStatus_Classifying:
+		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Pending)
+	case bizpb.ProjectDetectionTaskStatus_Detecting,
+		bizpb.ProjectDetectionTaskStatus_Summarizing,
+		bizpb.ProjectDetectionTaskStatus_Succeeded:
+		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded)
+	case bizpb.ProjectDetectionTaskStatus_Failed:
+		if !task.CorrosionShouldExecute &&
+			!task.CrackShouldExecute &&
+			!task.StainShouldExecute &&
+			!task.FlatnessShouldExecute &&
+			!task.SpallingShouldExecute &&
+			!task.SummaryShouldExecute {
+			return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Failed)
+		}
+		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded)
+	default:
+		return ""
+	}
 }
