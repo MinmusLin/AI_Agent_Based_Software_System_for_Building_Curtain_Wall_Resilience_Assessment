@@ -65,6 +65,15 @@ func JsonOrEmptyArray(raw json.RawMessage) string {
 	return string(raw)
 }
 
+// JsonStringOrEmptyObject 将空 JSON 对象字符串兜底为 "{}"
+func JsonStringOrEmptyObject(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "{}"
+	}
+	return value
+}
+
 // CheckRowsAffected 检查 SQL 执行结果是否至少影响一行
 func CheckRowsAffected(result sql.Result, err error) error {
 	if err != nil {
