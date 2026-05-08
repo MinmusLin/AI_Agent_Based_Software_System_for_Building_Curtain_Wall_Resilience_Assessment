@@ -64,7 +64,7 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 			return err
 		}
 		if !allSucceeded {
-			return rpc_error.BadRequestDefault("project detection tasks must all succeed")
+			return rpc_error.BadRequest(rpc_error.DetailProjectDetectionTasksNotSucceeded, "project detection tasks must all succeed")
 		}
 		return nil
 	}

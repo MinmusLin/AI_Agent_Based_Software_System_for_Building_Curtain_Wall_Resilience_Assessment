@@ -62,6 +62,7 @@ const (
 	DetailProjectUploadedImageCountRequired       DetailCode = "PROJECT_UPLOADED_IMAGE_COUNT_REQUIRED"
 	DetailProjectEmptyGroupCountInvalid           DetailCode = "PROJECT_EMPTY_GROUP_COUNT_INVALID"
 	DetailProjectPendingOrFailedImageCountInvalid DetailCode = "PROJECT_PENDING_OR_FAILED_IMAGE_COUNT_INVALID"
+	DetailProjectDetectionTasksNotSucceeded       DetailCode = "PROJECT_DETECTION_TASKS_NOT_SUCCEEDED"
 )
 
 // IsDetailCode 判断是否为已定义错误业务代码
@@ -99,7 +100,8 @@ func IsDetailCode(detailCode DetailCode) bool {
 		DetailProjectImageExpired,
 		DetailProjectUploadedImageCountRequired,
 		DetailProjectEmptyGroupCountInvalid,
-		DetailProjectPendingOrFailedImageCountInvalid:
+		DetailProjectPendingOrFailedImageCountInvalid,
+		DetailProjectDetectionTasksNotSucceeded:
 		return true
 	default:
 		return false

@@ -41,6 +41,7 @@ var rpcErrorMessages = map[rpc_error.DetailCode]string{
 	rpc_error.DetailProjectUploadedImageCountRequired:       "项目应至少存在一张已上传图像",
 	rpc_error.DetailProjectEmptyGroupCountInvalid:           "项目中不能存在空图像组",
 	rpc_error.DetailProjectPendingOrFailedImageCountInvalid: "项目中不能存在上传中或上传失败的图像",
+	rpc_error.DetailProjectDetectionTasksNotSucceeded:       "项目图像检测任务尚未全部完成",
 }
 
 // errorStatus 获取错误状态码
