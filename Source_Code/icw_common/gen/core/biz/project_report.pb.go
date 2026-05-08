@@ -9,6 +9,7 @@ package bizpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	activity "icw_common/gen/activity"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -23,11 +24,11 @@ const (
 
 // ReportProjectSummaryResult 请求结构体
 type ReportProjectSummaryResultRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     uint64                 `protobuf:"varint,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	ResultJson    string                 `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	ProjectId     uint64                         `protobuf:"varint,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Status        activity.DetectionStatus_Value `protobuf:"varint,2,opt,name=status,proto3,enum=icw.activity.DetectionStatus_Value" json:"status,omitempty"`
+	ResultJson    string                         `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
+	ErrorMessage  string                         `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -69,11 +70,11 @@ func (x *ReportProjectSummaryResultRequest) GetProjectId() uint64 {
 	return 0
 }
 
-func (x *ReportProjectSummaryResultRequest) GetStatus() string {
+func (x *ReportProjectSummaryResultRequest) GetStatus() activity.DetectionStatus_Value {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return activity.DetectionStatus_Value(0)
 }
 
 func (x *ReportProjectSummaryResultRequest) GetResultJson() string {
@@ -131,11 +132,11 @@ var File_core_biz_project_report_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_report_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcore/biz/project_report.proto\x12\ficw.core.biz\"\xa0\x01\n" +
+	"\x1dcore/biz/project_report.proto\x12\ficw.core.biz\x1a\x15activity/common.proto\"\xc5\x01\n" +
 	"!ReportProjectSummaryResultRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\x04R\tprojectId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1f\n" +
+	"project_id\x18\x01 \x01(\x04R\tprojectId\x12;\n" +
+	"\x06status\x18\x02 \x01(\x0e2#.icw.activity.DetectionStatus.ValueR\x06status\x12\x1f\n" +
 	"\vresult_json\x18\x03 \x01(\tR\n" +
 	"resultJson\x12#\n" +
 	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"$\n" +
@@ -159,15 +160,17 @@ var file_core_biz_project_report_proto_msgTypes = make([]protoimpl.MessageInfo, 
 var file_core_biz_project_report_proto_goTypes = []any{
 	(*ReportProjectSummaryResultRequest)(nil),  // 0: icw.core.biz.ReportProjectSummaryResultRequest
 	(*ReportProjectSummaryResultResponse)(nil), // 1: icw.core.biz.ReportProjectSummaryResultResponse
+	(activity.DetectionStatus_Value)(0),        // 2: icw.activity.DetectionStatus.Value
 }
 var file_core_biz_project_report_proto_depIdxs = []int32{
-	0, // 0: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:input_type -> icw.core.biz.ReportProjectSummaryResultRequest
-	1, // 1: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:output_type -> icw.core.biz.ReportProjectSummaryResultResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2, // 0: icw.core.biz.ReportProjectSummaryResultRequest.status:type_name -> icw.activity.DetectionStatus.Value
+	0, // 1: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:input_type -> icw.core.biz.ReportProjectSummaryResultRequest
+	1, // 2: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:output_type -> icw.core.biz.ReportProjectSummaryResultResponse
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_project_report_proto_init() }

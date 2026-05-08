@@ -9,6 +9,7 @@ package bizpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	activity "icw_common/gen/activity"
 	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
@@ -89,7 +90,7 @@ type GetImageDetectionResultResponse struct {
 	Image           *common.ProjectImage                    `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
 	OriginalUrl     string                                  `protobuf:"bytes,2,opt,name=original_url,json=originalUrl,proto3" json:"original_url,omitempty"`
 	Status          *common.ProjectDetectionStatus          `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	TaskCodes       []string                                `protobuf:"bytes,4,rep,name=task_codes,json=taskCodes,proto3" json:"task_codes,omitempty"`
+	TaskCodes       []activity.DetectionTaskCode_Value      `protobuf:"varint,4,rep,packed,name=task_codes,json=taskCodes,proto3,enum=icw.activity.DetectionTaskCode_Value" json:"task_codes,omitempty"`
 	CorrosionResult *common.ProjectDetectionCorrosionResult `protobuf:"bytes,5,opt,name=corrosion_result,json=corrosionResult,proto3" json:"corrosion_result,omitempty"`
 	CrackResult     *common.ProjectDetectionCrackResult     `protobuf:"bytes,6,opt,name=crack_result,json=crackResult,proto3" json:"crack_result,omitempty"`
 	StainResult     *common.ProjectDetectionStainResult     `protobuf:"bytes,7,opt,name=stain_result,json=stainResult,proto3" json:"stain_result,omitempty"`
@@ -151,7 +152,7 @@ func (x *GetImageDetectionResultResponse) GetStatus() *common.ProjectDetectionSt
 	return nil
 }
 
-func (x *GetImageDetectionResultResponse) GetTaskCodes() []string {
+func (x *GetImageDetectionResultResponse) GetTaskCodes() []activity.DetectionTaskCode_Value {
 	if x != nil {
 		return x.TaskCodes
 	}
@@ -300,12 +301,12 @@ func (x *GetProjectDetectionTasksResponse) GetTasks() []*common.ProjectDetection
 
 // ReportClassificationResult 请求结构体
 type ReportClassificationResultRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TaskUuid      string                 `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
-	ImageUuid     string                 `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	TaskCodes     []string               `protobuf:"bytes,4,rep,name=task_codes,json=taskCodes,proto3" json:"task_codes,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,5,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	state         protoimpl.MessageState             `protogen:"open.v1"`
+	TaskUuid      string                             `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	ImageUuid     string                             `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	Status        activity.DetectionStatus_Value     `protobuf:"varint,3,opt,name=status,proto3,enum=icw.activity.DetectionStatus_Value" json:"status,omitempty"`
+	TaskCodes     []activity.DetectionTaskCode_Value `protobuf:"varint,4,rep,packed,name=task_codes,json=taskCodes,proto3,enum=icw.activity.DetectionTaskCode_Value" json:"task_codes,omitempty"`
+	ErrorMessage  string                             `protobuf:"bytes,5,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -354,14 +355,14 @@ func (x *ReportClassificationResultRequest) GetImageUuid() string {
 	return ""
 }
 
-func (x *ReportClassificationResultRequest) GetStatus() string {
+func (x *ReportClassificationResultRequest) GetStatus() activity.DetectionStatus_Value {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return activity.DetectionStatus_Value(0)
 }
 
-func (x *ReportClassificationResultRequest) GetTaskCodes() []string {
+func (x *ReportClassificationResultRequest) GetTaskCodes() []activity.DetectionTaskCode_Value {
 	if x != nil {
 		return x.TaskCodes
 	}
@@ -414,12 +415,12 @@ func (*ReportClassificationResultResponse) Descriptor() ([]byte, []int) {
 
 // ReportDetectionSummaryResult 请求结构体
 type ReportDetectionSummaryResultRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TaskUuid      string                 `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
-	ImageUuid     string                 `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	ResultJson    string                 `protobuf:"bytes,4,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,5,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	TaskUuid      string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	ImageUuid     string                         `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	Status        activity.DetectionStatus_Value `protobuf:"varint,3,opt,name=status,proto3,enum=icw.activity.DetectionStatus_Value" json:"status,omitempty"`
+	ResultJson    string                         `protobuf:"bytes,4,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
+	ErrorMessage  string                         `protobuf:"bytes,5,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -468,11 +469,11 @@ func (x *ReportDetectionSummaryResultRequest) GetImageUuid() string {
 	return ""
 }
 
-func (x *ReportDetectionSummaryResultRequest) GetStatus() string {
+func (x *ReportDetectionSummaryResultRequest) GetStatus() activity.DetectionStatus_Value {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return activity.DetectionStatus_Value(0)
 }
 
 func (x *ReportDetectionSummaryResultRequest) GetResultJson() string {
@@ -529,10 +530,10 @@ func (*ReportDetectionSummaryResultResponse) Descriptor() ([]byte, []int) {
 // ReportReasoningResult 请求结构体
 type ReportReasoningResultRequest struct {
 	state         protoimpl.MessageState           `protogen:"open.v1"`
-	TaskCode      string                           `protobuf:"bytes,1,opt,name=task_code,json=taskCode,proto3" json:"task_code,omitempty"`
+	TaskCode      activity.DetectionTaskCode_Value `protobuf:"varint,1,opt,name=task_code,json=taskCode,proto3,enum=icw.activity.DetectionTaskCode_Value" json:"task_code,omitempty"`
 	TaskUuid      string                           `protobuf:"bytes,2,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
 	ImageUuid     string                           `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	Status        string                           `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Status        activity.DetectionStatus_Value   `protobuf:"varint,4,opt,name=status,proto3,enum=icw.activity.DetectionStatus_Value" json:"status,omitempty"`
 	ResultJson    string                           `protobuf:"bytes,5,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
 	Artifacts     []*ReasoningArtifactUploadResult `protobuf:"bytes,6,rep,name=artifacts,proto3" json:"artifacts,omitempty"`
 	ErrorMessage  string                           `protobuf:"bytes,7,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
@@ -570,11 +571,11 @@ func (*ReportReasoningResultRequest) Descriptor() ([]byte, []int) {
 	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ReportReasoningResultRequest) GetTaskCode() string {
+func (x *ReportReasoningResultRequest) GetTaskCode() activity.DetectionTaskCode_Value {
 	if x != nil {
 		return x.TaskCode
 	}
-	return ""
+	return activity.DetectionTaskCode_Value(0)
 }
 
 func (x *ReportReasoningResultRequest) GetTaskUuid() string {
@@ -591,11 +592,11 @@ func (x *ReportReasoningResultRequest) GetImageUuid() string {
 	return ""
 }
 
-func (x *ReportReasoningResultRequest) GetStatus() string {
+func (x *ReportReasoningResultRequest) GetStatus() activity.DetectionStatus_Value {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return activity.DetectionStatus_Value(0)
 }
 
 func (x *ReportReasoningResultRequest) GetResultJson() string {
@@ -856,19 +857,19 @@ var File_core_biz_project_detection_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_detection_proto_rawDesc = "" +
 	"\n" +
-	" core/biz/project_detection.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"w\n" +
+	" core/biz/project_detection.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\x1a\x15activity/common.proto\x1a\x11core/common.proto\"w\n" +
 	"\x1eGetImageDetectionResultRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x03 \x01(\tR\timageUuid\"\xe3\x05\n" +
+	"image_uuid\x18\x03 \x01(\tR\timageUuid\"\x8a\x06\n" +
 	"\x1fGetImageDetectionResultResponse\x123\n" +
 	"\x05image\x18\x01 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\x12!\n" +
 	"\foriginal_url\x18\x02 \x01(\tR\voriginalUrl\x12?\n" +
-	"\x06status\x18\x03 \x01(\v2'.icw.core.common.ProjectDetectionStatusR\x06status\x12\x1d\n" +
+	"\x06status\x18\x03 \x01(\v2'.icw.core.common.ProjectDetectionStatusR\x06status\x12D\n" +
 	"\n" +
-	"task_codes\x18\x04 \x03(\tR\ttaskCodes\x12[\n" +
+	"task_codes\x18\x04 \x03(\x0e2%.icw.activity.DetectionTaskCode.ValueR\ttaskCodes\x12[\n" +
 	"\x10corrosion_result\x18\x05 \x01(\v20.icw.core.common.ProjectDetectionCorrosionResultR\x0fcorrosionResult\x12O\n" +
 	"\fcrack_result\x18\x06 \x01(\v2,.icw.core.common.ProjectDetectionCrackResultR\vcrackResult\x12O\n" +
 	"\fstain_result\x18\a \x01(\v2,.icw.core.common.ProjectDetectionStainResultR\vstainResult\x12X\n" +
@@ -881,31 +882,31 @@ const file_core_biz_project_detection_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\"a\n" +
 	" GetProjectDetectionTasksResponse\x12=\n" +
-	"\x05tasks\x18\x01 \x03(\v2'.icw.core.common.ProjectDetectionStatusR\x05tasks\"\xbb\x01\n" +
+	"\x05tasks\x18\x01 \x03(\v2'.icw.core.common.ProjectDetectionStatusR\x05tasks\"\x87\x02\n" +
 	"!ReportClassificationResultRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1d\n" +
+	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12;\n" +
+	"\x06status\x18\x03 \x01(\x0e2#.icw.activity.DetectionStatus.ValueR\x06status\x12D\n" +
 	"\n" +
-	"task_codes\x18\x04 \x03(\tR\ttaskCodes\x12#\n" +
+	"task_codes\x18\x04 \x03(\x0e2%.icw.activity.DetectionTaskCode.ValueR\ttaskCodes\x12#\n" +
 	"\rerror_message\x18\x05 \x01(\tR\ferrorMessage\"$\n" +
-	"\"ReportClassificationResultResponse\"\xbf\x01\n" +
+	"\"ReportClassificationResultResponse\"\xe4\x01\n" +
 	"#ReportDetectionSummaryResultRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1f\n" +
+	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12;\n" +
+	"\x06status\x18\x03 \x01(\x0e2#.icw.activity.DetectionStatus.ValueR\x06status\x12\x1f\n" +
 	"\vresult_json\x18\x04 \x01(\tR\n" +
 	"resultJson\x12#\n" +
 	"\rerror_message\x18\x05 \x01(\tR\ferrorMessage\"&\n" +
-	"$ReportDetectionSummaryResultResponse\"\xa0\x02\n" +
-	"\x1cReportReasoningResultRequest\x12\x1b\n" +
-	"\ttask_code\x18\x01 \x01(\tR\btaskCode\x12\x1b\n" +
+	"$ReportDetectionSummaryResultResponse\"\xec\x02\n" +
+	"\x1cReportReasoningResultRequest\x12B\n" +
+	"\ttask_code\x18\x01 \x01(\x0e2%.icw.activity.DetectionTaskCode.ValueR\btaskCode\x12\x1b\n" +
 	"\ttask_uuid\x18\x02 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\tR\x06status\x12\x1f\n" +
+	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12;\n" +
+	"\x06status\x18\x04 \x01(\x0e2#.icw.activity.DetectionStatus.ValueR\x06status\x12\x1f\n" +
 	"\vresult_json\x18\x05 \x01(\tR\n" +
 	"resultJson\x12I\n" +
 	"\tartifacts\x18\x06 \x03(\v2+.icw.core.biz.ReasoningArtifactUploadResultR\tartifacts\x12#\n" +
@@ -964,44 +965,52 @@ var file_core_biz_project_detection_proto_goTypes = []any{
 	(*StartProjectDetectionResponse)(nil),          // 13: icw.core.biz.StartProjectDetectionResponse
 	(*common.ProjectImage)(nil),                    // 14: icw.core.common.ProjectImage
 	(*common.ProjectDetectionStatus)(nil),          // 15: icw.core.common.ProjectDetectionStatus
-	(*common.ProjectDetectionCorrosionResult)(nil), // 16: icw.core.common.ProjectDetectionCorrosionResult
-	(*common.ProjectDetectionCrackResult)(nil),     // 17: icw.core.common.ProjectDetectionCrackResult
-	(*common.ProjectDetectionStainResult)(nil),     // 18: icw.core.common.ProjectDetectionStainResult
-	(*common.ProjectDetectionFlatnessResult)(nil),  // 19: icw.core.common.ProjectDetectionFlatnessResult
-	(*common.ProjectDetectionSpallingResult)(nil),  // 20: icw.core.common.ProjectDetectionSpallingResult
-	(*common.ProjectDetectionSummaryResult)(nil),   // 21: icw.core.common.ProjectDetectionSummaryResult
-	(*ReasoningArtifactUploadResult)(nil),          // 22: icw.core.biz.ReasoningArtifactUploadResult
+	(activity.DetectionTaskCode_Value)(0),          // 16: icw.activity.DetectionTaskCode.Value
+	(*common.ProjectDetectionCorrosionResult)(nil), // 17: icw.core.common.ProjectDetectionCorrosionResult
+	(*common.ProjectDetectionCrackResult)(nil),     // 18: icw.core.common.ProjectDetectionCrackResult
+	(*common.ProjectDetectionStainResult)(nil),     // 19: icw.core.common.ProjectDetectionStainResult
+	(*common.ProjectDetectionFlatnessResult)(nil),  // 20: icw.core.common.ProjectDetectionFlatnessResult
+	(*common.ProjectDetectionSpallingResult)(nil),  // 21: icw.core.common.ProjectDetectionSpallingResult
+	(*common.ProjectDetectionSummaryResult)(nil),   // 22: icw.core.common.ProjectDetectionSummaryResult
+	(activity.DetectionStatus_Value)(0),            // 23: icw.activity.DetectionStatus.Value
+	(*ReasoningArtifactUploadResult)(nil),          // 24: icw.core.biz.ReasoningArtifactUploadResult
 }
 var file_core_biz_project_detection_proto_depIdxs = []int32{
 	14, // 0: icw.core.biz.GetImageDetectionResultResponse.image:type_name -> icw.core.common.ProjectImage
 	15, // 1: icw.core.biz.GetImageDetectionResultResponse.status:type_name -> icw.core.common.ProjectDetectionStatus
-	16, // 2: icw.core.biz.GetImageDetectionResultResponse.corrosion_result:type_name -> icw.core.common.ProjectDetectionCorrosionResult
-	17, // 3: icw.core.biz.GetImageDetectionResultResponse.crack_result:type_name -> icw.core.common.ProjectDetectionCrackResult
-	18, // 4: icw.core.biz.GetImageDetectionResultResponse.stain_result:type_name -> icw.core.common.ProjectDetectionStainResult
-	19, // 5: icw.core.biz.GetImageDetectionResultResponse.flatness_result:type_name -> icw.core.common.ProjectDetectionFlatnessResult
-	20, // 6: icw.core.biz.GetImageDetectionResultResponse.spalling_result:type_name -> icw.core.common.ProjectDetectionSpallingResult
-	21, // 7: icw.core.biz.GetImageDetectionResultResponse.summary_result:type_name -> icw.core.common.ProjectDetectionSummaryResult
-	15, // 8: icw.core.biz.GetProjectDetectionTasksResponse.tasks:type_name -> icw.core.common.ProjectDetectionStatus
-	22, // 9: icw.core.biz.ReportReasoningResultRequest.artifacts:type_name -> icw.core.biz.ReasoningArtifactUploadResult
-	0,  // 10: icw.core.biz.ProjectDetectionService.GetImageDetectionResult:input_type -> icw.core.biz.GetImageDetectionResultRequest
-	2,  // 11: icw.core.biz.ProjectDetectionService.GetProjectDetectionTasks:input_type -> icw.core.biz.GetProjectDetectionTasksRequest
-	4,  // 12: icw.core.biz.ProjectDetectionService.ReportClassificationResult:input_type -> icw.core.biz.ReportClassificationResultRequest
-	6,  // 13: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:input_type -> icw.core.biz.ReportDetectionSummaryResultRequest
-	8,  // 14: icw.core.biz.ProjectDetectionService.ReportReasoningResult:input_type -> icw.core.biz.ReportReasoningResultRequest
-	10, // 15: icw.core.biz.ProjectDetectionService.RetryProjectDetection:input_type -> icw.core.biz.RetryProjectDetectionRequest
-	12, // 16: icw.core.biz.ProjectDetectionService.StartProjectDetection:input_type -> icw.core.biz.StartProjectDetectionRequest
-	1,  // 17: icw.core.biz.ProjectDetectionService.GetImageDetectionResult:output_type -> icw.core.biz.GetImageDetectionResultResponse
-	3,  // 18: icw.core.biz.ProjectDetectionService.GetProjectDetectionTasks:output_type -> icw.core.biz.GetProjectDetectionTasksResponse
-	5,  // 19: icw.core.biz.ProjectDetectionService.ReportClassificationResult:output_type -> icw.core.biz.ReportClassificationResultResponse
-	7,  // 20: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:output_type -> icw.core.biz.ReportDetectionSummaryResultResponse
-	9,  // 21: icw.core.biz.ProjectDetectionService.ReportReasoningResult:output_type -> icw.core.biz.ReportReasoningResultResponse
-	11, // 22: icw.core.biz.ProjectDetectionService.RetryProjectDetection:output_type -> icw.core.biz.RetryProjectDetectionResponse
-	13, // 23: icw.core.biz.ProjectDetectionService.StartProjectDetection:output_type -> icw.core.biz.StartProjectDetectionResponse
-	17, // [17:24] is the sub-list for method output_type
-	10, // [10:17] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	16, // 2: icw.core.biz.GetImageDetectionResultResponse.task_codes:type_name -> icw.activity.DetectionTaskCode.Value
+	17, // 3: icw.core.biz.GetImageDetectionResultResponse.corrosion_result:type_name -> icw.core.common.ProjectDetectionCorrosionResult
+	18, // 4: icw.core.biz.GetImageDetectionResultResponse.crack_result:type_name -> icw.core.common.ProjectDetectionCrackResult
+	19, // 5: icw.core.biz.GetImageDetectionResultResponse.stain_result:type_name -> icw.core.common.ProjectDetectionStainResult
+	20, // 6: icw.core.biz.GetImageDetectionResultResponse.flatness_result:type_name -> icw.core.common.ProjectDetectionFlatnessResult
+	21, // 7: icw.core.biz.GetImageDetectionResultResponse.spalling_result:type_name -> icw.core.common.ProjectDetectionSpallingResult
+	22, // 8: icw.core.biz.GetImageDetectionResultResponse.summary_result:type_name -> icw.core.common.ProjectDetectionSummaryResult
+	15, // 9: icw.core.biz.GetProjectDetectionTasksResponse.tasks:type_name -> icw.core.common.ProjectDetectionStatus
+	23, // 10: icw.core.biz.ReportClassificationResultRequest.status:type_name -> icw.activity.DetectionStatus.Value
+	16, // 11: icw.core.biz.ReportClassificationResultRequest.task_codes:type_name -> icw.activity.DetectionTaskCode.Value
+	23, // 12: icw.core.biz.ReportDetectionSummaryResultRequest.status:type_name -> icw.activity.DetectionStatus.Value
+	16, // 13: icw.core.biz.ReportReasoningResultRequest.task_code:type_name -> icw.activity.DetectionTaskCode.Value
+	23, // 14: icw.core.biz.ReportReasoningResultRequest.status:type_name -> icw.activity.DetectionStatus.Value
+	24, // 15: icw.core.biz.ReportReasoningResultRequest.artifacts:type_name -> icw.core.biz.ReasoningArtifactUploadResult
+	0,  // 16: icw.core.biz.ProjectDetectionService.GetImageDetectionResult:input_type -> icw.core.biz.GetImageDetectionResultRequest
+	2,  // 17: icw.core.biz.ProjectDetectionService.GetProjectDetectionTasks:input_type -> icw.core.biz.GetProjectDetectionTasksRequest
+	4,  // 18: icw.core.biz.ProjectDetectionService.ReportClassificationResult:input_type -> icw.core.biz.ReportClassificationResultRequest
+	6,  // 19: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:input_type -> icw.core.biz.ReportDetectionSummaryResultRequest
+	8,  // 20: icw.core.biz.ProjectDetectionService.ReportReasoningResult:input_type -> icw.core.biz.ReportReasoningResultRequest
+	10, // 21: icw.core.biz.ProjectDetectionService.RetryProjectDetection:input_type -> icw.core.biz.RetryProjectDetectionRequest
+	12, // 22: icw.core.biz.ProjectDetectionService.StartProjectDetection:input_type -> icw.core.biz.StartProjectDetectionRequest
+	1,  // 23: icw.core.biz.ProjectDetectionService.GetImageDetectionResult:output_type -> icw.core.biz.GetImageDetectionResultResponse
+	3,  // 24: icw.core.biz.ProjectDetectionService.GetProjectDetectionTasks:output_type -> icw.core.biz.GetProjectDetectionTasksResponse
+	5,  // 25: icw.core.biz.ProjectDetectionService.ReportClassificationResult:output_type -> icw.core.biz.ReportClassificationResultResponse
+	7,  // 26: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:output_type -> icw.core.biz.ReportDetectionSummaryResultResponse
+	9,  // 27: icw.core.biz.ProjectDetectionService.ReportReasoningResult:output_type -> icw.core.biz.ReportReasoningResultResponse
+	11, // 28: icw.core.biz.ProjectDetectionService.RetryProjectDetection:output_type -> icw.core.biz.RetryProjectDetectionResponse
+	13, // 29: icw.core.biz.ProjectDetectionService.StartProjectDetection:output_type -> icw.core.biz.StartProjectDetectionResponse
+	23, // [23:30] is the sub-list for method output_type
+	16, // [16:23] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_project_detection_proto_init() }

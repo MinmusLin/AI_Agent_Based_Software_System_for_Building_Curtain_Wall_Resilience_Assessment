@@ -9,7 +9,7 @@ import "core/biz/common.proto";
 // Login 请求结构体
 message LoginRequest {
   string email = 1;
-  string scene = 2;
+  LoginScene.Value scene = 2;
   string code = 3;
 }
 
@@ -79,7 +79,7 @@ message ResetPasswordResponse {}
 // SendEmailCode 请求结构体
 message SendEmailCodeRequest {
   string email = 1;
-  string scene = 2;
+  EmailCodeScene.Value scene = 2;
 }
 
 // SendEmailCode 响应结构体

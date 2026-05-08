@@ -26,7 +26,7 @@ const (
 type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`
+	Scene         LoginScene_Value       `protobuf:"varint,2,opt,name=scene,proto3,enum=icw.core.biz.LoginScene_Value" json:"scene,omitempty"`
 	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -69,11 +69,11 @@ func (x *LoginRequest) GetEmail() string {
 	return ""
 }
 
-func (x *LoginRequest) GetScene() string {
+func (x *LoginRequest) GetScene() LoginScene_Value {
 	if x != nil {
 		return x.Scene
 	}
-	return ""
+	return LoginScene_Unknown
 }
 
 func (x *LoginRequest) GetCode() string {
@@ -670,7 +670,7 @@ func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
 type SendEmailCodeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`
+	Scene         EmailCodeScene_Value   `protobuf:"varint,2,opt,name=scene,proto3,enum=icw.core.biz.EmailCodeScene_Value" json:"scene,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -712,11 +712,11 @@ func (x *SendEmailCodeRequest) GetEmail() string {
 	return ""
 }
 
-func (x *SendEmailCodeRequest) GetScene() string {
+func (x *SendEmailCodeRequest) GetScene() EmailCodeScene_Value {
 	if x != nil {
 		return x.Scene
 	}
-	return ""
+	return EmailCodeScene_Unknown
 }
 
 // SendEmailCode 响应结构体
@@ -768,10 +768,10 @@ var File_core_biz_auth_proto protoreflect.FileDescriptor
 
 const file_core_biz_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x13core/biz/auth.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"N\n" +
+	"\x13core/biz/auth.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"n\n" +
 	"\fLoginRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x14\n" +
-	"\x05scene\x18\x02 \x01(\tR\x05scene\x12\x12\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x124\n" +
+	"\x05scene\x18\x02 \x01(\x0e2\x1e.icw.core.biz.LoginScene.ValueR\x05scene\x12\x12\n" +
 	"\x04code\x18\x03 \x01(\tR\x04code\"\xf2\x01\n" +
 	"\rLoginResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x125\n" +
@@ -808,10 +808,10 @@ const file_core_biz_auth_proto_rawDesc = "" +
 	"\n" +
 	"email_code\x18\x02 \x01(\tR\temailCode\x12!\n" +
 	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"\x17\n" +
-	"\x15ResetPasswordResponse\"B\n" +
+	"\x15ResetPasswordResponse\"f\n" +
 	"\x14SendEmailCodeRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x14\n" +
-	"\x05scene\x18\x02 \x01(\tR\x05scene\"E\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x128\n" +
+	"\x05scene\x18\x02 \x01(\x0e2\".icw.core.biz.EmailCodeScene.ValueR\x05scene\"E\n" +
 	"\x15SendEmailCodeResponse\x12,\n" +
 	"\x12expires_in_seconds\x18\x01 \x01(\x05R\x10expiresInSeconds2\x94\x04\n" +
 	"\vAuthService\x12@\n" +
@@ -851,31 +851,35 @@ var file_core_biz_auth_proto_goTypes = []any{
 	(*ResetPasswordResponse)(nil), // 11: icw.core.biz.ResetPasswordResponse
 	(*SendEmailCodeRequest)(nil),  // 12: icw.core.biz.SendEmailCodeRequest
 	(*SendEmailCodeResponse)(nil), // 13: icw.core.biz.SendEmailCodeResponse
-	(*common.User)(nil),           // 14: icw.core.common.User
+	(LoginScene_Value)(0),         // 14: icw.core.biz.LoginScene.Value
+	(*common.User)(nil),           // 15: icw.core.common.User
+	(EmailCodeScene_Value)(0),     // 16: icw.core.biz.EmailCodeScene.Value
 }
 var file_core_biz_auth_proto_depIdxs = []int32{
-	14, // 0: icw.core.biz.LoginResponse.user:type_name -> icw.core.common.User
-	14, // 1: icw.core.biz.MeResponse.user:type_name -> icw.core.common.User
-	14, // 2: icw.core.biz.RefreshResponse.user:type_name -> icw.core.common.User
-	0,  // 3: icw.core.biz.AuthService.Login:input_type -> icw.core.biz.LoginRequest
-	2,  // 4: icw.core.biz.AuthService.Logout:input_type -> icw.core.biz.LogoutRequest
-	4,  // 5: icw.core.biz.AuthService.Me:input_type -> icw.core.biz.MeRequest
-	6,  // 6: icw.core.biz.AuthService.Refresh:input_type -> icw.core.biz.RefreshRequest
-	8,  // 7: icw.core.biz.AuthService.Register:input_type -> icw.core.biz.RegisterRequest
-	10, // 8: icw.core.biz.AuthService.ResetPassword:input_type -> icw.core.biz.ResetPasswordRequest
-	12, // 9: icw.core.biz.AuthService.SendEmailCode:input_type -> icw.core.biz.SendEmailCodeRequest
-	1,  // 10: icw.core.biz.AuthService.Login:output_type -> icw.core.biz.LoginResponse
-	3,  // 11: icw.core.biz.AuthService.Logout:output_type -> icw.core.biz.LogoutResponse
-	5,  // 12: icw.core.biz.AuthService.Me:output_type -> icw.core.biz.MeResponse
-	7,  // 13: icw.core.biz.AuthService.Refresh:output_type -> icw.core.biz.RefreshResponse
-	9,  // 14: icw.core.biz.AuthService.Register:output_type -> icw.core.biz.RegisterResponse
-	11, // 15: icw.core.biz.AuthService.ResetPassword:output_type -> icw.core.biz.ResetPasswordResponse
-	13, // 16: icw.core.biz.AuthService.SendEmailCode:output_type -> icw.core.biz.SendEmailCodeResponse
-	10, // [10:17] is the sub-list for method output_type
-	3,  // [3:10] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	14, // 0: icw.core.biz.LoginRequest.scene:type_name -> icw.core.biz.LoginScene.Value
+	15, // 1: icw.core.biz.LoginResponse.user:type_name -> icw.core.common.User
+	15, // 2: icw.core.biz.MeResponse.user:type_name -> icw.core.common.User
+	15, // 3: icw.core.biz.RefreshResponse.user:type_name -> icw.core.common.User
+	16, // 4: icw.core.biz.SendEmailCodeRequest.scene:type_name -> icw.core.biz.EmailCodeScene.Value
+	0,  // 5: icw.core.biz.AuthService.Login:input_type -> icw.core.biz.LoginRequest
+	2,  // 6: icw.core.biz.AuthService.Logout:input_type -> icw.core.biz.LogoutRequest
+	4,  // 7: icw.core.biz.AuthService.Me:input_type -> icw.core.biz.MeRequest
+	6,  // 8: icw.core.biz.AuthService.Refresh:input_type -> icw.core.biz.RefreshRequest
+	8,  // 9: icw.core.biz.AuthService.Register:input_type -> icw.core.biz.RegisterRequest
+	10, // 10: icw.core.biz.AuthService.ResetPassword:input_type -> icw.core.biz.ResetPasswordRequest
+	12, // 11: icw.core.biz.AuthService.SendEmailCode:input_type -> icw.core.biz.SendEmailCodeRequest
+	1,  // 12: icw.core.biz.AuthService.Login:output_type -> icw.core.biz.LoginResponse
+	3,  // 13: icw.core.biz.AuthService.Logout:output_type -> icw.core.biz.LogoutResponse
+	5,  // 14: icw.core.biz.AuthService.Me:output_type -> icw.core.biz.MeResponse
+	7,  // 15: icw.core.biz.AuthService.Refresh:output_type -> icw.core.biz.RefreshResponse
+	9,  // 16: icw.core.biz.AuthService.Register:output_type -> icw.core.biz.RegisterResponse
+	11, // 17: icw.core.biz.AuthService.ResetPassword:output_type -> icw.core.biz.ResetPasswordResponse
+	13, // 18: icw.core.biz.AuthService.SendEmailCode:output_type -> icw.core.biz.SendEmailCodeResponse
+	12, // [12:19] is the sub-list for method output_type
+	5,  // [5:12] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_auth_proto_init() }

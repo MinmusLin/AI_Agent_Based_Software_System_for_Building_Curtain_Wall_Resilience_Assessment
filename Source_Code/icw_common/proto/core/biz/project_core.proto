@@ -5,13 +5,14 @@ package icw.core.biz;
 option go_package = "icw_common/gen/core/biz;bizpb";
 
 import "core/biz/common.proto";
+import "core/common.proto";
 
 // AdvanceProject 请求结构体
 message AdvanceProjectRequest {
   uint64 user_id = 1;
   uint64 project_id = 2;
-  uint32 from_progress = 3;
-  uint32 to_progress = 4;
+  .icw.core.common.ProjectProgress.Value from_progress = 3;
+  .icw.core.common.ProjectProgress.Value to_progress = 4;
 }
 
 // AdvanceProject 响应结构体
@@ -26,8 +27,8 @@ message CheckProjectAccessRequest {
 // CheckProjectAccess 响应结构体
 message CheckProjectAccessResponse {
   uint64 project_id = 1;
-  uint32 progress = 2;
-  string status = 3;
+  .icw.core.common.ProjectProgress.Value progress = 2;
+  .icw.core.common.ProjectStatus.Value status = 3;
 }
 
 // CreateProject 请求结构体

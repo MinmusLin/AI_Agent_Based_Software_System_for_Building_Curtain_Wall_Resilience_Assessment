@@ -4,6 +4,86 @@ package icw.core.common;
 
 option go_package = "icw_common/gen/core/common;commonpb";
 
+// 项目状态
+message ProjectStatus {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 进行中
+    Active = 1;
+    // 已完成
+    Completed = 2;
+    // 已删除
+    Deleted = 3;
+  }
+}
+
+// 项目进度
+message ProjectProgress {
+  enum Value {
+    // 项目初始化完成，当前项目基础信息阶段
+    InitializationFinished = 0;
+    // 项目基础信息完成，当前图像资产构建阶段
+    ProfileFinished = 1;
+    // 图像资产构建完成，当前 Agent 智能检测阶段
+    AssetsFinished = 2;
+    // Agent 智能检测完成，当前人工复核确认阶段
+    DetectionFinished = 3;
+    // 人工复核确认完成，当前评估报告生成阶段
+    ReviewFinished = 4;
+    // 评估报告生成完成，当前项目已完成
+    ReportFinished = 5;
+  }
+}
+
+// 项目图像状态
+message ProjectImageStatus {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 上传中
+    Pending = 1;
+    // 上传成功
+    Uploaded = 2;
+    // 上传失败
+    Failed = 3;
+  }
+}
+
+// 项目图像检测主任务状态
+message ProjectDetectionTaskStatus {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 等待中
+    Pending = 1;
+    // 分类中
+    Classifying = 2;
+    // 检测中
+    Detecting = 3;
+    // 总结中
+    Summarizing = 4;
+    // 成功
+    Succeeded = 5;
+    // 失败
+    Failed = 6;
+  }
+}
+
+// 项目图像检测子任务状态
+message ProjectDetectionSubTaskStatus {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 等待中
+    Pending = 1;
+    // 成功
+    Succeeded = 2;
+    // 失败
+    Failed = 3;
+  }
+}
+
 // 用户信息结构体
 message User {
   uint64 id = 1;
@@ -20,7 +100,7 @@ message ProjectImage {
   uint32 width = 5;
   uint32 height = 6;
   string metadata = 7;
-  string status = 8;
+  ProjectImageStatus.Value status = 8;
   string thumbnail_url = 9;
   string uploaded_at = 10;
   string created_at = 11;
@@ -37,14 +117,14 @@ message UploadProjectImageResult {
 message ProjectDetectionNodeStatus {
   string node_code = 1;
   string sub_task_uuid = 2;
-  string sub_status = 3;
+  ProjectDetectionSubTaskStatus.Value sub_status = 3;
 }
 
 // 项目图像检测任务状态结构体
 message ProjectDetectionStatus {
   string image_uuid = 1;
   string main_task_uuid = 2;
-  string main_status = 3;
+  ProjectDetectionTaskStatus.Value main_status = 3;
   repeated ProjectDetectionNodeStatus nodes = 4;
 }
 
@@ -60,7 +140,7 @@ message ProjectDetectionCorrosionRegion {
 // 项目图像金属锈蚀检测结果结构体
 message ProjectDetectionCorrosionResult {
   string task_uuid = 1;
-  string status = 2;
+  ProjectDetectionSubTaskStatus.Value status = 2;
   bool has_corrosion = 3;
   uint32 corrosion_count = 4;
   double max_confidence = 5;
@@ -83,7 +163,7 @@ message ProjectDetectionCrackRegion {
 // 项目图像石材裂缝检测结果结构体
 message ProjectDetectionCrackResult {
   string task_uuid = 1;
-  string status = 2;
+  ProjectDetectionSubTaskStatus.Value status = 2;
   bool has_crack = 3;
   uint32 crack_count = 4;
   uint64 crack_pixels = 5;
@@ -107,7 +187,7 @@ message ProjectDetectionStainRegion {
 // 项目图像石材污渍检测结果结构体
 message ProjectDetectionStainResult {
   string task_uuid = 1;
-  string status = 2;
+  ProjectDetectionSubTaskStatus.Value status = 2;
   bool has_stain = 3;
   uint32 stain_count = 4;
   double average_stain_ratio = 5;
@@ -138,7 +218,7 @@ message ProjectDetectionFlatnessRegion {
 // 项目图像玻璃平整度检测结果结构体
 message ProjectDetectionFlatnessResult {
   string task_uuid = 1;
-  string status = 2;
+  ProjectDetectionSubTaskStatus.Value status = 2;
   string result = 3;
   uint32 uneven_count = 4;
   repeated ProjectDetectionFlatnessRegion regions = 5;
@@ -149,7 +229,7 @@ message ProjectDetectionFlatnessResult {
 // 项目图像玻璃爆裂检测结果结构体
 message ProjectDetectionSpallingResult {
   string task_uuid = 1;
-  string status = 2;
+  ProjectDetectionSubTaskStatus.Value status = 2;
   bool has_spalling = 3;
   double confidence = 4;
   double runtime_seconds = 5;
@@ -159,6 +239,6 @@ message ProjectDetectionSpallingResult {
 // 项目图像检测总结结果结构体
 message ProjectDetectionSummaryResult {
   string task_uuid = 1;
-  string status = 2;
+  ProjectDetectionSubTaskStatus.Value status = 2;
   string result_json = 3;
 }

@@ -718,10 +718,10 @@ func (x *MoveProjectImageResponse) GetImages() []*common.ProjectImage {
 
 // ReportProjectImage 请求结构体
 type ReportProjectImageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ImageUuid     string                 `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	ProjectId     string                          `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ImageUuid     string                          `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	Status        common.ProjectImageStatus_Value `protobuf:"varint,3,opt,name=status,proto3,enum=icw.core.common.ProjectImageStatus_Value" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -770,11 +770,11 @@ func (x *ReportProjectImageRequest) GetImageUuid() string {
 	return ""
 }
 
-func (x *ReportProjectImageRequest) GetStatus() string {
+func (x *ReportProjectImageRequest) GetStatus() common.ProjectImageStatus_Value {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return common.ProjectImageStatus_Value(0)
 }
 
 // ReportProjectImage 响应结构体
@@ -1030,7 +1030,7 @@ var File_core_api_project_assets_proto protoreflect.FileDescriptor
 
 const file_core_api_project_assets_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcore/api/project_assets.proto\x12\ficw.core.api\x1a\x15core/api/common.proto\":\n" +
+	"\x1dcore/api/project_assets.proto\x12\ficw.core.api\x1a\x15core/api/common.proto\x1a\x11core/common.proto\":\n" +
 	"\x19CreateProjectGroupRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\"N\n" +
@@ -1077,13 +1077,13 @@ const file_core_api_project_assets_proto_rawDesc = "" +
 	"imageUuids\x12&\n" +
 	"\x0ftarget_group_id\x18\x03 \x01(\tR\rtargetGroupId\"Q\n" +
 	"\x18MoveProjectImageResponse\x125\n" +
-	"\x06images\x18\x01 \x03(\v2\x1d.icw.core.common.ProjectImageR\x06images\"q\n" +
+	"\x06images\x18\x01 \x03(\v2\x1d.icw.core.common.ProjectImageR\x06images\"\x9c\x01\n" +
 	"\x19ReportProjectImageRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"\x1c\n" +
+	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12A\n" +
+	"\x06status\x18\x03 \x01(\x0e2).icw.core.common.ProjectImageStatus.ValueR\x06status\"\x1c\n" +
 	"\x1aReportProjectImageResponse\"i\n" +
 	"\x19UpdateProjectGroupRequest\x12\x1d\n" +
 	"\n" +
@@ -1136,22 +1136,24 @@ var file_core_api_project_assets_proto_goTypes = []any{
 	(*UploadProjectImageResponse)(nil),      // 19: icw.core.api.UploadProjectImageResponse
 	(*ProjectGroup)(nil),                    // 20: icw.core.api.ProjectGroup
 	(*common.ProjectImage)(nil),             // 21: icw.core.common.ProjectImage
-	(*UploadProjectImageItem)(nil),          // 22: icw.core.api.UploadProjectImageItem
-	(*common.UploadProjectImageResult)(nil), // 23: icw.core.common.UploadProjectImageResult
+	(common.ProjectImageStatus_Value)(0),    // 22: icw.core.common.ProjectImageStatus.Value
+	(*UploadProjectImageItem)(nil),          // 23: icw.core.api.UploadProjectImageItem
+	(*common.UploadProjectImageResult)(nil), // 24: icw.core.common.UploadProjectImageResult
 }
 var file_core_api_project_assets_proto_depIdxs = []int32{
 	20, // 0: icw.core.api.CreateProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
 	20, // 1: icw.core.api.GetProjectAssetsResponse.groups:type_name -> icw.core.api.ProjectGroup
 	20, // 2: icw.core.api.MoveProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
 	21, // 3: icw.core.api.MoveProjectImageResponse.images:type_name -> icw.core.common.ProjectImage
-	20, // 4: icw.core.api.UpdateProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
-	22, // 5: icw.core.api.UploadProjectImageRequest.images:type_name -> icw.core.api.UploadProjectImageItem
-	23, // 6: icw.core.api.UploadProjectImageResponse.images:type_name -> icw.core.common.UploadProjectImageResult
-	7,  // [7:7] is the sub-list for method output_type
-	7,  // [7:7] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	22, // 4: icw.core.api.ReportProjectImageRequest.status:type_name -> icw.core.common.ProjectImageStatus.Value
+	20, // 5: icw.core.api.UpdateProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
+	23, // 6: icw.core.api.UploadProjectImageRequest.images:type_name -> icw.core.api.UploadProjectImageItem
+	24, // 7: icw.core.api.UploadProjectImageResponse.images:type_name -> icw.core.common.UploadProjectImageResult
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_core_api_project_assets_proto_init() }

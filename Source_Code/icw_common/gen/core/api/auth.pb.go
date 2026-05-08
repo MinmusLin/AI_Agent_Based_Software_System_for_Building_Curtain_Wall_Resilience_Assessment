@@ -9,6 +9,7 @@ package apipb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	biz "icw_common/gen/core/biz"
 	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
@@ -26,7 +27,7 @@ const (
 type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`
+	Scene         biz.LoginScene_Value   `protobuf:"varint,2,opt,name=scene,proto3,enum=icw.core.biz.LoginScene_Value" json:"scene,omitempty"`
 	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -69,11 +70,11 @@ func (x *LoginRequest) GetEmail() string {
 	return ""
 }
 
-func (x *LoginRequest) GetScene() string {
+func (x *LoginRequest) GetScene() biz.LoginScene_Value {
 	if x != nil {
 		return x.Scene
 	}
-	return ""
+	return biz.LoginScene_Value(0)
 }
 
 func (x *LoginRequest) GetCode() string {
@@ -493,9 +494,9 @@ func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
 
 // SendEmailCode 请求结构体
 type SendEmailCodeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Email         string                   `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Scene         biz.EmailCodeScene_Value `protobuf:"varint,2,opt,name=scene,proto3,enum=icw.core.biz.EmailCodeScene_Value" json:"scene,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -537,11 +538,11 @@ func (x *SendEmailCodeRequest) GetEmail() string {
 	return ""
 }
 
-func (x *SendEmailCodeRequest) GetScene() string {
+func (x *SendEmailCodeRequest) GetScene() biz.EmailCodeScene_Value {
 	if x != nil {
 		return x.Scene
 	}
-	return ""
+	return biz.EmailCodeScene_Value(0)
 }
 
 // SendEmailCode 响应结构体
@@ -593,10 +594,10 @@ var File_core_api_auth_proto protoreflect.FileDescriptor
 
 const file_core_api_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x13core/api/auth.proto\x12\ficw.core.api\x1a\x15core/api/common.proto\"N\n" +
+	"\x13core/api/auth.proto\x12\ficw.core.api\x1a\x15core/api/common.proto\x1a\x15core/biz/common.proto\"n\n" +
 	"\fLoginRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x14\n" +
-	"\x05scene\x18\x02 \x01(\tR\x05scene\x12\x12\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x124\n" +
+	"\x05scene\x18\x02 \x01(\x0e2\x1e.icw.core.biz.LoginScene.ValueR\x05scene\x12\x12\n" +
 	"\x04code\x18\x03 \x01(\tR\x04code\"|\n" +
 	"\rLoginResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1d\n" +
@@ -624,10 +625,10 @@ const file_core_api_auth_proto_rawDesc = "" +
 	"\n" +
 	"email_code\x18\x02 \x01(\tR\temailCode\x12!\n" +
 	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"\x17\n" +
-	"\x15ResetPasswordResponse\"B\n" +
+	"\x15ResetPasswordResponse\"f\n" +
 	"\x14SendEmailCodeRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x14\n" +
-	"\x05scene\x18\x02 \x01(\tR\x05scene\"6\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x128\n" +
+	"\x05scene\x18\x02 \x01(\x0e2\".icw.core.biz.EmailCodeScene.ValueR\x05scene\"6\n" +
 	"\x15SendEmailCodeResponse\x12\x1d\n" +
 	"\n" +
 	"expires_in\x18\x01 \x01(\x05R\texpiresInB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
@@ -657,17 +658,21 @@ var file_core_api_auth_proto_goTypes = []any{
 	(*ResetPasswordResponse)(nil), // 8: icw.core.api.ResetPasswordResponse
 	(*SendEmailCodeRequest)(nil),  // 9: icw.core.api.SendEmailCodeRequest
 	(*SendEmailCodeResponse)(nil), // 10: icw.core.api.SendEmailCodeResponse
-	(*common.User)(nil),           // 11: icw.core.common.User
+	(biz.LoginScene_Value)(0),     // 11: icw.core.biz.LoginScene.Value
+	(*common.User)(nil),           // 12: icw.core.common.User
+	(biz.EmailCodeScene_Value)(0), // 13: icw.core.biz.EmailCodeScene.Value
 }
 var file_core_api_auth_proto_depIdxs = []int32{
-	11, // 0: icw.core.api.LoginResponse.user:type_name -> icw.core.common.User
-	11, // 1: icw.core.api.MeResponse.user:type_name -> icw.core.common.User
-	11, // 2: icw.core.api.RefreshResponse.user:type_name -> icw.core.common.User
-	3,  // [3:3] is the sub-list for method output_type
-	3,  // [3:3] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	11, // 0: icw.core.api.LoginRequest.scene:type_name -> icw.core.biz.LoginScene.Value
+	12, // 1: icw.core.api.LoginResponse.user:type_name -> icw.core.common.User
+	12, // 2: icw.core.api.MeResponse.user:type_name -> icw.core.common.User
+	12, // 3: icw.core.api.RefreshResponse.user:type_name -> icw.core.common.User
+	13, // 4: icw.core.api.SendEmailCodeRequest.scene:type_name -> icw.core.biz.EmailCodeScene.Value
+	5,  // [5:5] is the sub-list for method output_type
+	5,  // [5:5] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_core_api_auth_proto_init() }

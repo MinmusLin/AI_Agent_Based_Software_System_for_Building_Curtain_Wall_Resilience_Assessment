@@ -9,6 +9,7 @@ package apipb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -23,10 +24,10 @@ const (
 
 // AdvanceProject 请求结构体
 type AdvanceProjectRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	FromProgress  uint32                 `protobuf:"varint,2,opt,name=from_progress,json=fromProgress,proto3" json:"from_progress,omitempty"`
-	ToProgress    uint32                 `protobuf:"varint,3,opt,name=to_progress,json=toProgress,proto3" json:"to_progress,omitempty"`
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	ProjectId     string                       `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	FromProgress  common.ProjectProgress_Value `protobuf:"varint,2,opt,name=from_progress,json=fromProgress,proto3,enum=icw.core.common.ProjectProgress_Value" json:"from_progress,omitempty"`
+	ToProgress    common.ProjectProgress_Value `protobuf:"varint,3,opt,name=to_progress,json=toProgress,proto3,enum=icw.core.common.ProjectProgress_Value" json:"to_progress,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -68,18 +69,18 @@ func (x *AdvanceProjectRequest) GetProjectId() string {
 	return ""
 }
 
-func (x *AdvanceProjectRequest) GetFromProgress() uint32 {
+func (x *AdvanceProjectRequest) GetFromProgress() common.ProjectProgress_Value {
 	if x != nil {
 		return x.FromProgress
 	}
-	return 0
+	return common.ProjectProgress_Value(0)
 }
 
-func (x *AdvanceProjectRequest) GetToProgress() uint32 {
+func (x *AdvanceProjectRequest) GetToProgress() common.ProjectProgress_Value {
 	if x != nil {
 		return x.ToProgress
 	}
-	return 0
+	return common.ProjectProgress_Value(0)
 }
 
 // AdvanceProject 响应结构体
@@ -319,12 +320,12 @@ var File_core_api_project_core_proto protoreflect.FileDescriptor
 
 const file_core_api_project_core_proto_rawDesc = "" +
 	"\n" +
-	"\x1bcore/api/project_core.proto\x12\ficw.core.api\x1a\x15core/api/common.proto\"|\n" +
+	"\x1bcore/api/project_core.proto\x12\ficw.core.api\x1a\x15core/api/common.proto\x1a\x11core/common.proto\"\xcc\x01\n" +
 	"\x15AdvanceProjectRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\x12#\n" +
-	"\rfrom_progress\x18\x02 \x01(\rR\ffromProgress\x12\x1f\n" +
-	"\vto_progress\x18\x03 \x01(\rR\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12K\n" +
+	"\rfrom_progress\x18\x02 \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\ffromProgress\x12G\n" +
+	"\vto_progress\x18\x03 \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\n" +
 	"toProgress\"\x18\n" +
 	"\x16AdvanceProjectResponse\"H\n" +
 	"\x15CreateProjectResponse\x12/\n" +
@@ -353,26 +354,29 @@ func file_core_api_project_core_proto_rawDescGZIP() []byte {
 
 var file_core_api_project_core_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_core_api_project_core_proto_goTypes = []any{
-	(*AdvanceProjectRequest)(nil),  // 0: icw.core.api.AdvanceProjectRequest
-	(*AdvanceProjectResponse)(nil), // 1: icw.core.api.AdvanceProjectResponse
-	(*CreateProjectResponse)(nil),  // 2: icw.core.api.CreateProjectResponse
-	(*DeleteProjectRequest)(nil),   // 3: icw.core.api.DeleteProjectRequest
-	(*DeleteProjectResponse)(nil),  // 4: icw.core.api.DeleteProjectResponse
-	(*ListProjectsResponse)(nil),   // 5: icw.core.api.ListProjectsResponse
-	(*Project)(nil),                // 6: icw.core.api.Project
-	(*ProjectListItem)(nil),        // 7: icw.core.api.ProjectListItem
+	(*AdvanceProjectRequest)(nil),     // 0: icw.core.api.AdvanceProjectRequest
+	(*AdvanceProjectResponse)(nil),    // 1: icw.core.api.AdvanceProjectResponse
+	(*CreateProjectResponse)(nil),     // 2: icw.core.api.CreateProjectResponse
+	(*DeleteProjectRequest)(nil),      // 3: icw.core.api.DeleteProjectRequest
+	(*DeleteProjectResponse)(nil),     // 4: icw.core.api.DeleteProjectResponse
+	(*ListProjectsResponse)(nil),      // 5: icw.core.api.ListProjectsResponse
+	(common.ProjectProgress_Value)(0), // 6: icw.core.common.ProjectProgress.Value
+	(*Project)(nil),                   // 7: icw.core.api.Project
+	(*ProjectListItem)(nil),           // 8: icw.core.api.ProjectListItem
 }
 var file_core_api_project_core_proto_depIdxs = []int32{
-	6, // 0: icw.core.api.CreateProjectResponse.project:type_name -> icw.core.api.Project
-	7, // 1: icw.core.api.DeleteProjectResponse.active_projects:type_name -> icw.core.api.ProjectListItem
-	7, // 2: icw.core.api.DeleteProjectResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
-	7, // 3: icw.core.api.ListProjectsResponse.active_projects:type_name -> icw.core.api.ProjectListItem
-	7, // 4: icw.core.api.ListProjectsResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	6, // 0: icw.core.api.AdvanceProjectRequest.from_progress:type_name -> icw.core.common.ProjectProgress.Value
+	6, // 1: icw.core.api.AdvanceProjectRequest.to_progress:type_name -> icw.core.common.ProjectProgress.Value
+	7, // 2: icw.core.api.CreateProjectResponse.project:type_name -> icw.core.api.Project
+	8, // 3: icw.core.api.DeleteProjectResponse.active_projects:type_name -> icw.core.api.ProjectListItem
+	8, // 4: icw.core.api.DeleteProjectResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
+	8, // 5: icw.core.api.ListProjectsResponse.active_projects:type_name -> icw.core.api.ProjectListItem
+	8, // 6: icw.core.api.ListProjectsResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_core_api_project_core_proto_init() }

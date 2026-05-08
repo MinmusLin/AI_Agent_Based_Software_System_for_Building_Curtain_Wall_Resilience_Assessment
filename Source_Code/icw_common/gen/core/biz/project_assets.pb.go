@@ -774,11 +774,11 @@ func (x *MoveProjectImageResponse) GetImages() []*common.ProjectImage {
 
 // ReportProjectImage 请求结构体
 type ReportProjectImageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ImageUuid     string                 `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	UserId        uint64                          `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                          `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ImageUuid     string                          `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	Status        common.ProjectImageStatus_Value `protobuf:"varint,4,opt,name=status,proto3,enum=icw.core.common.ProjectImageStatus_Value" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -834,11 +834,11 @@ func (x *ReportProjectImageRequest) GetImageUuid() string {
 	return ""
 }
 
-func (x *ReportProjectImageRequest) GetStatus() string {
+func (x *ReportProjectImageRequest) GetStatus() common.ProjectImageStatus_Value {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return common.ProjectImageStatus_Value(0)
 }
 
 // ReportProjectImage 响应结构体
@@ -1110,7 +1110,7 @@ var File_core_biz_project_assets_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_assets_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcore/biz/project_assets.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"S\n" +
+	"\x1dcore/biz/project_assets.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\x1a\x11core/common.proto\"S\n" +
 	"\x19CreateProjectGroupRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
@@ -1164,14 +1164,14 @@ const file_core_biz_project_assets_proto_rawDesc = "" +
 	"imageUuids\x12&\n" +
 	"\x0ftarget_group_id\x18\x04 \x01(\x04R\rtargetGroupId\"Q\n" +
 	"\x18MoveProjectImageResponse\x125\n" +
-	"\x06images\x18\x01 \x03(\v2\x1d.icw.core.common.ProjectImageR\x06images\"\x8a\x01\n" +
+	"\x06images\x18\x01 \x03(\v2\x1d.icw.core.common.ProjectImageR\x06images\"\xb5\x01\n" +
 	"\x19ReportProjectImageRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\tR\x06status\"\x1c\n" +
+	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12A\n" +
+	"\x06status\x18\x04 \x01(\x0e2).icw.core.common.ProjectImageStatus.ValueR\x06status\"\x1c\n" +
 	"\x1aReportProjectImageResponse\"\x82\x01\n" +
 	"\x19UpdateProjectGroupRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
@@ -1237,42 +1237,44 @@ var file_core_biz_project_assets_proto_goTypes = []any{
 	(*UploadProjectImageResponse)(nil),      // 19: icw.core.biz.UploadProjectImageResponse
 	(*ProjectGroup)(nil),                    // 20: icw.core.biz.ProjectGroup
 	(*common.ProjectImage)(nil),             // 21: icw.core.common.ProjectImage
-	(*UploadProjectImageItem)(nil),          // 22: icw.core.biz.UploadProjectImageItem
-	(*common.UploadProjectImageResult)(nil), // 23: icw.core.common.UploadProjectImageResult
+	(common.ProjectImageStatus_Value)(0),    // 22: icw.core.common.ProjectImageStatus.Value
+	(*UploadProjectImageItem)(nil),          // 23: icw.core.biz.UploadProjectImageItem
+	(*common.UploadProjectImageResult)(nil), // 24: icw.core.common.UploadProjectImageResult
 }
 var file_core_biz_project_assets_proto_depIdxs = []int32{
 	20, // 0: icw.core.biz.CreateProjectGroupResponse.group:type_name -> icw.core.biz.ProjectGroup
 	20, // 1: icw.core.biz.GetProjectAssetsResponse.groups:type_name -> icw.core.biz.ProjectGroup
 	20, // 2: icw.core.biz.MoveProjectGroupResponse.group:type_name -> icw.core.biz.ProjectGroup
 	21, // 3: icw.core.biz.MoveProjectImageResponse.images:type_name -> icw.core.common.ProjectImage
-	20, // 4: icw.core.biz.UpdateProjectGroupResponse.group:type_name -> icw.core.biz.ProjectGroup
-	22, // 5: icw.core.biz.UploadProjectImageRequest.images:type_name -> icw.core.biz.UploadProjectImageItem
-	23, // 6: icw.core.biz.UploadProjectImageResponse.images:type_name -> icw.core.common.UploadProjectImageResult
-	0,  // 7: icw.core.biz.ProjectAssetsService.CreateProjectGroup:input_type -> icw.core.biz.CreateProjectGroupRequest
-	2,  // 8: icw.core.biz.ProjectAssetsService.DeleteProjectGroup:input_type -> icw.core.biz.DeleteProjectGroupRequest
-	4,  // 9: icw.core.biz.ProjectAssetsService.DeleteProjectImage:input_type -> icw.core.biz.DeleteProjectImageRequest
-	6,  // 10: icw.core.biz.ProjectAssetsService.GetProjectAssets:input_type -> icw.core.biz.GetProjectAssetsRequest
-	8,  // 11: icw.core.biz.ProjectAssetsService.GetProjectImageOriginal:input_type -> icw.core.biz.GetProjectImageOriginalRequest
-	10, // 12: icw.core.biz.ProjectAssetsService.MoveProjectGroup:input_type -> icw.core.biz.MoveProjectGroupRequest
-	12, // 13: icw.core.biz.ProjectAssetsService.MoveProjectImage:input_type -> icw.core.biz.MoveProjectImageRequest
-	14, // 14: icw.core.biz.ProjectAssetsService.ReportProjectImage:input_type -> icw.core.biz.ReportProjectImageRequest
-	16, // 15: icw.core.biz.ProjectAssetsService.UpdateProjectGroup:input_type -> icw.core.biz.UpdateProjectGroupRequest
-	18, // 16: icw.core.biz.ProjectAssetsService.UploadProjectImage:input_type -> icw.core.biz.UploadProjectImageRequest
-	1,  // 17: icw.core.biz.ProjectAssetsService.CreateProjectGroup:output_type -> icw.core.biz.CreateProjectGroupResponse
-	3,  // 18: icw.core.biz.ProjectAssetsService.DeleteProjectGroup:output_type -> icw.core.biz.DeleteProjectGroupResponse
-	5,  // 19: icw.core.biz.ProjectAssetsService.DeleteProjectImage:output_type -> icw.core.biz.DeleteProjectImageResponse
-	7,  // 20: icw.core.biz.ProjectAssetsService.GetProjectAssets:output_type -> icw.core.biz.GetProjectAssetsResponse
-	9,  // 21: icw.core.biz.ProjectAssetsService.GetProjectImageOriginal:output_type -> icw.core.biz.GetProjectImageOriginalResponse
-	11, // 22: icw.core.biz.ProjectAssetsService.MoveProjectGroup:output_type -> icw.core.biz.MoveProjectGroupResponse
-	13, // 23: icw.core.biz.ProjectAssetsService.MoveProjectImage:output_type -> icw.core.biz.MoveProjectImageResponse
-	15, // 24: icw.core.biz.ProjectAssetsService.ReportProjectImage:output_type -> icw.core.biz.ReportProjectImageResponse
-	17, // 25: icw.core.biz.ProjectAssetsService.UpdateProjectGroup:output_type -> icw.core.biz.UpdateProjectGroupResponse
-	19, // 26: icw.core.biz.ProjectAssetsService.UploadProjectImage:output_type -> icw.core.biz.UploadProjectImageResponse
-	17, // [17:27] is the sub-list for method output_type
-	7,  // [7:17] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	22, // 4: icw.core.biz.ReportProjectImageRequest.status:type_name -> icw.core.common.ProjectImageStatus.Value
+	20, // 5: icw.core.biz.UpdateProjectGroupResponse.group:type_name -> icw.core.biz.ProjectGroup
+	23, // 6: icw.core.biz.UploadProjectImageRequest.images:type_name -> icw.core.biz.UploadProjectImageItem
+	24, // 7: icw.core.biz.UploadProjectImageResponse.images:type_name -> icw.core.common.UploadProjectImageResult
+	0,  // 8: icw.core.biz.ProjectAssetsService.CreateProjectGroup:input_type -> icw.core.biz.CreateProjectGroupRequest
+	2,  // 9: icw.core.biz.ProjectAssetsService.DeleteProjectGroup:input_type -> icw.core.biz.DeleteProjectGroupRequest
+	4,  // 10: icw.core.biz.ProjectAssetsService.DeleteProjectImage:input_type -> icw.core.biz.DeleteProjectImageRequest
+	6,  // 11: icw.core.biz.ProjectAssetsService.GetProjectAssets:input_type -> icw.core.biz.GetProjectAssetsRequest
+	8,  // 12: icw.core.biz.ProjectAssetsService.GetProjectImageOriginal:input_type -> icw.core.biz.GetProjectImageOriginalRequest
+	10, // 13: icw.core.biz.ProjectAssetsService.MoveProjectGroup:input_type -> icw.core.biz.MoveProjectGroupRequest
+	12, // 14: icw.core.biz.ProjectAssetsService.MoveProjectImage:input_type -> icw.core.biz.MoveProjectImageRequest
+	14, // 15: icw.core.biz.ProjectAssetsService.ReportProjectImage:input_type -> icw.core.biz.ReportProjectImageRequest
+	16, // 16: icw.core.biz.ProjectAssetsService.UpdateProjectGroup:input_type -> icw.core.biz.UpdateProjectGroupRequest
+	18, // 17: icw.core.biz.ProjectAssetsService.UploadProjectImage:input_type -> icw.core.biz.UploadProjectImageRequest
+	1,  // 18: icw.core.biz.ProjectAssetsService.CreateProjectGroup:output_type -> icw.core.biz.CreateProjectGroupResponse
+	3,  // 19: icw.core.biz.ProjectAssetsService.DeleteProjectGroup:output_type -> icw.core.biz.DeleteProjectGroupResponse
+	5,  // 20: icw.core.biz.ProjectAssetsService.DeleteProjectImage:output_type -> icw.core.biz.DeleteProjectImageResponse
+	7,  // 21: icw.core.biz.ProjectAssetsService.GetProjectAssets:output_type -> icw.core.biz.GetProjectAssetsResponse
+	9,  // 22: icw.core.biz.ProjectAssetsService.GetProjectImageOriginal:output_type -> icw.core.biz.GetProjectImageOriginalResponse
+	11, // 23: icw.core.biz.ProjectAssetsService.MoveProjectGroup:output_type -> icw.core.biz.MoveProjectGroupResponse
+	13, // 24: icw.core.biz.ProjectAssetsService.MoveProjectImage:output_type -> icw.core.biz.MoveProjectImageResponse
+	15, // 25: icw.core.biz.ProjectAssetsService.ReportProjectImage:output_type -> icw.core.biz.ReportProjectImageResponse
+	17, // 26: icw.core.biz.ProjectAssetsService.UpdateProjectGroup:output_type -> icw.core.biz.UpdateProjectGroupResponse
+	19, // 27: icw.core.biz.ProjectAssetsService.UploadProjectImage:output_type -> icw.core.biz.UploadProjectImageResponse
+	18, // [18:28] is the sub-list for method output_type
+	8,  // [8:18] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_project_assets_proto_init() }

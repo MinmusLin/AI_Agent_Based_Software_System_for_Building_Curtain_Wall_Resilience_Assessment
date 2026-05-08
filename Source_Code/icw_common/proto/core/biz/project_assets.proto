@@ -5,6 +5,7 @@ package icw.core.biz;
 option go_package = "icw_common/gen/core/biz;bizpb";
 
 import "core/biz/common.proto";
+import "core/common.proto";
 
 // CreateProjectGroup 请求结构体
 message CreateProjectGroupRequest {
@@ -94,7 +95,7 @@ message ReportProjectImageRequest {
   uint64 user_id = 1;
   uint64 project_id = 2;
   string image_uuid = 3;
-  string status = 4;
+  .icw.core.common.ProjectImageStatus.Value status = 4;
 }
 
 // ReportProjectImage 响应结构体

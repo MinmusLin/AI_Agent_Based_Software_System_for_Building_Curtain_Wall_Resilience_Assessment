@@ -17,7 +17,7 @@ message Project {
   string known_issues = 7;
   string assessment_goal = 8;
   string thumbnail_url = 9;
-  uint32 progress = 10;
+  .icw.core.common.ProjectProgress.Value progress = 10;
   string created_at = 11;
   string updated_at = 12;
 }
@@ -29,7 +29,7 @@ message ProjectListItem {
   string building_name = 3;
   string building_location = 4;
   string thumbnail_url = 5;
-  uint32 progress = 6;
+  .icw.core.common.ProjectProgress.Value progress = 6;
   string created_at = 7;
 }
 
@@ -65,8 +65,8 @@ message ProjectDetectionTaskStatusChangedMessage {
   string image_uuid = 3;
   string node_code = 4;
   string main_task_uuid = 5;
-  string main_status = 6;
+  .icw.core.common.ProjectDetectionTaskStatus.Value main_status = 6;
   string sub_task_uuid = 7;
-  string sub_status = 8;
+  .icw.core.common.ProjectDetectionSubTaskStatus.Value sub_status = 8;
   string occurred_at = 9;
 }

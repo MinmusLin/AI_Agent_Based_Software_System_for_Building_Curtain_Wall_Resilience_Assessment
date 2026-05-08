@@ -24,6 +24,66 @@ const (
 
 // Symbols defined in public import of core/common.proto.
 
+type ProjectStatus_Value = common.ProjectStatus_Value
+
+const ProjectStatus_Unknown = common.ProjectStatus_Unknown
+const ProjectStatus_Active = common.ProjectStatus_Active
+const ProjectStatus_Completed = common.ProjectStatus_Completed
+const ProjectStatus_Deleted = common.ProjectStatus_Deleted
+
+var ProjectStatus_Value_name = common.ProjectStatus_Value_name
+var ProjectStatus_Value_value = common.ProjectStatus_Value_value
+
+type ProjectProgress_Value = common.ProjectProgress_Value
+
+const ProjectProgress_InitializationFinished = common.ProjectProgress_InitializationFinished
+const ProjectProgress_ProfileFinished = common.ProjectProgress_ProfileFinished
+const ProjectProgress_AssetsFinished = common.ProjectProgress_AssetsFinished
+const ProjectProgress_DetectionFinished = common.ProjectProgress_DetectionFinished
+const ProjectProgress_ReviewFinished = common.ProjectProgress_ReviewFinished
+const ProjectProgress_ReportFinished = common.ProjectProgress_ReportFinished
+
+var ProjectProgress_Value_name = common.ProjectProgress_Value_name
+var ProjectProgress_Value_value = common.ProjectProgress_Value_value
+
+type ProjectImageStatus_Value = common.ProjectImageStatus_Value
+
+const ProjectImageStatus_Unknown = common.ProjectImageStatus_Unknown
+const ProjectImageStatus_Pending = common.ProjectImageStatus_Pending
+const ProjectImageStatus_Uploaded = common.ProjectImageStatus_Uploaded
+const ProjectImageStatus_Failed = common.ProjectImageStatus_Failed
+
+var ProjectImageStatus_Value_name = common.ProjectImageStatus_Value_name
+var ProjectImageStatus_Value_value = common.ProjectImageStatus_Value_value
+
+type ProjectDetectionTaskStatus_Value = common.ProjectDetectionTaskStatus_Value
+
+const ProjectDetectionTaskStatus_Unknown = common.ProjectDetectionTaskStatus_Unknown
+const ProjectDetectionTaskStatus_Pending = common.ProjectDetectionTaskStatus_Pending
+const ProjectDetectionTaskStatus_Classifying = common.ProjectDetectionTaskStatus_Classifying
+const ProjectDetectionTaskStatus_Detecting = common.ProjectDetectionTaskStatus_Detecting
+const ProjectDetectionTaskStatus_Summarizing = common.ProjectDetectionTaskStatus_Summarizing
+const ProjectDetectionTaskStatus_Succeeded = common.ProjectDetectionTaskStatus_Succeeded
+const ProjectDetectionTaskStatus_Failed = common.ProjectDetectionTaskStatus_Failed
+
+var ProjectDetectionTaskStatus_Value_name = common.ProjectDetectionTaskStatus_Value_name
+var ProjectDetectionTaskStatus_Value_value = common.ProjectDetectionTaskStatus_Value_value
+
+type ProjectDetectionSubTaskStatus_Value = common.ProjectDetectionSubTaskStatus_Value
+
+const ProjectDetectionSubTaskStatus_Unknown = common.ProjectDetectionSubTaskStatus_Unknown
+const ProjectDetectionSubTaskStatus_Pending = common.ProjectDetectionSubTaskStatus_Pending
+const ProjectDetectionSubTaskStatus_Succeeded = common.ProjectDetectionSubTaskStatus_Succeeded
+const ProjectDetectionSubTaskStatus_Failed = common.ProjectDetectionSubTaskStatus_Failed
+
+var ProjectDetectionSubTaskStatus_Value_name = common.ProjectDetectionSubTaskStatus_Value_name
+var ProjectDetectionSubTaskStatus_Value_value = common.ProjectDetectionSubTaskStatus_Value_value
+
+type ProjectStatus = common.ProjectStatus
+type ProjectProgress = common.ProjectProgress
+type ProjectImageStatus = common.ProjectImageStatus
+type ProjectDetectionTaskStatus = common.ProjectDetectionTaskStatus
+type ProjectDetectionSubTaskStatus = common.ProjectDetectionSubTaskStatus
 type User = common.User
 type ProjectImage = common.ProjectImage
 type UploadProjectImageResult = common.UploadProjectImageResult
@@ -42,19 +102,19 @@ type ProjectDetectionSummaryResult = common.ProjectDetectionSummaryResult
 
 // 项目信息结构体
 type Project struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Id                  string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name                string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	BuildingName        string                 `protobuf:"bytes,3,opt,name=building_name,json=buildingName,proto3" json:"building_name,omitempty"`
-	BuildingLocation    string                 `protobuf:"bytes,4,opt,name=building_location,json=buildingLocation,proto3" json:"building_location,omitempty"`
-	BuiltYear           uint32                 `protobuf:"varint,5,opt,name=built_year,json=builtYear,proto3" json:"built_year,omitempty"`
-	BuildingDescription string                 `protobuf:"bytes,6,opt,name=building_description,json=buildingDescription,proto3" json:"building_description,omitempty"`
-	KnownIssues         string                 `protobuf:"bytes,7,opt,name=known_issues,json=knownIssues,proto3" json:"known_issues,omitempty"`
-	AssessmentGoal      string                 `protobuf:"bytes,8,opt,name=assessment_goal,json=assessmentGoal,proto3" json:"assessment_goal,omitempty"`
-	ThumbnailUrl        string                 `protobuf:"bytes,9,opt,name=thumbnail_url,json=thumbnailUrl,proto3" json:"thumbnail_url,omitempty"`
-	Progress            uint32                 `protobuf:"varint,10,opt,name=progress,proto3" json:"progress,omitempty"`
-	CreatedAt           string                 `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt           string                 `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	state               protoimpl.MessageState       `protogen:"open.v1"`
+	Id                  string                       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                string                       `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	BuildingName        string                       `protobuf:"bytes,3,opt,name=building_name,json=buildingName,proto3" json:"building_name,omitempty"`
+	BuildingLocation    string                       `protobuf:"bytes,4,opt,name=building_location,json=buildingLocation,proto3" json:"building_location,omitempty"`
+	BuiltYear           uint32                       `protobuf:"varint,5,opt,name=built_year,json=builtYear,proto3" json:"built_year,omitempty"`
+	BuildingDescription string                       `protobuf:"bytes,6,opt,name=building_description,json=buildingDescription,proto3" json:"building_description,omitempty"`
+	KnownIssues         string                       `protobuf:"bytes,7,opt,name=known_issues,json=knownIssues,proto3" json:"known_issues,omitempty"`
+	AssessmentGoal      string                       `protobuf:"bytes,8,opt,name=assessment_goal,json=assessmentGoal,proto3" json:"assessment_goal,omitempty"`
+	ThumbnailUrl        string                       `protobuf:"bytes,9,opt,name=thumbnail_url,json=thumbnailUrl,proto3" json:"thumbnail_url,omitempty"`
+	Progress            common.ProjectProgress_Value `protobuf:"varint,10,opt,name=progress,proto3,enum=icw.core.common.ProjectProgress_Value" json:"progress,omitempty"`
+	CreatedAt           string                       `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt           string                       `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -152,11 +212,11 @@ func (x *Project) GetThumbnailUrl() string {
 	return ""
 }
 
-func (x *Project) GetProgress() uint32 {
+func (x *Project) GetProgress() common.ProjectProgress_Value {
 	if x != nil {
 		return x.Progress
 	}
-	return 0
+	return common.ProjectProgress_Value(0)
 }
 
 func (x *Project) GetCreatedAt() string {
@@ -175,14 +235,14 @@ func (x *Project) GetUpdatedAt() string {
 
 // 项目列表项结构体
 type ProjectListItem struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	BuildingName     string                 `protobuf:"bytes,3,opt,name=building_name,json=buildingName,proto3" json:"building_name,omitempty"`
-	BuildingLocation string                 `protobuf:"bytes,4,opt,name=building_location,json=buildingLocation,proto3" json:"building_location,omitempty"`
-	ThumbnailUrl     string                 `protobuf:"bytes,5,opt,name=thumbnail_url,json=thumbnailUrl,proto3" json:"thumbnail_url,omitempty"`
-	Progress         uint32                 `protobuf:"varint,6,opt,name=progress,proto3" json:"progress,omitempty"`
-	CreatedAt        string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state            protoimpl.MessageState       `protogen:"open.v1"`
+	Id               string                       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name             string                       `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	BuildingName     string                       `protobuf:"bytes,3,opt,name=building_name,json=buildingName,proto3" json:"building_name,omitempty"`
+	BuildingLocation string                       `protobuf:"bytes,4,opt,name=building_location,json=buildingLocation,proto3" json:"building_location,omitempty"`
+	ThumbnailUrl     string                       `protobuf:"bytes,5,opt,name=thumbnail_url,json=thumbnailUrl,proto3" json:"thumbnail_url,omitempty"`
+	Progress         common.ProjectProgress_Value `protobuf:"varint,6,opt,name=progress,proto3,enum=icw.core.common.ProjectProgress_Value" json:"progress,omitempty"`
+	CreatedAt        string                       `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -252,11 +312,11 @@ func (x *ProjectListItem) GetThumbnailUrl() string {
 	return ""
 }
 
-func (x *ProjectListItem) GetProgress() uint32 {
+func (x *ProjectListItem) GetProgress() common.ProjectProgress_Value {
 	if x != nil {
 		return x.Progress
 	}
-	return 0
+	return common.ProjectProgress_Value(0)
 }
 
 func (x *ProjectListItem) GetCreatedAt() string {
@@ -483,16 +543,16 @@ func (x *ProjectImageStatusChangedMessage) GetImage() *common.ProjectImage {
 
 // 项目图像检测任务状态变化 WebSocket 消息结构体
 type ProjectDetectionTaskStatusChangedMessage struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	ProjectId     string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ImageUuid     string                 `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	NodeCode      string                 `protobuf:"bytes,4,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
-	MainTaskUuid  string                 `protobuf:"bytes,5,opt,name=main_task_uuid,json=mainTaskUuid,proto3" json:"main_task_uuid,omitempty"`
-	MainStatus    string                 `protobuf:"bytes,6,opt,name=main_status,json=mainStatus,proto3" json:"main_status,omitempty"`
-	SubTaskUuid   string                 `protobuf:"bytes,7,opt,name=sub_task_uuid,json=subTaskUuid,proto3" json:"sub_task_uuid,omitempty"`
-	SubStatus     string                 `protobuf:"bytes,8,opt,name=sub_status,json=subStatus,proto3" json:"sub_status,omitempty"`
-	OccurredAt    string                 `protobuf:"bytes,9,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
+	state         protoimpl.MessageState                     `protogen:"open.v1"`
+	Type          string                                     `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	ProjectId     string                                     `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ImageUuid     string                                     `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	NodeCode      string                                     `protobuf:"bytes,4,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
+	MainTaskUuid  string                                     `protobuf:"bytes,5,opt,name=main_task_uuid,json=mainTaskUuid,proto3" json:"main_task_uuid,omitempty"`
+	MainStatus    common.ProjectDetectionTaskStatus_Value    `protobuf:"varint,6,opt,name=main_status,json=mainStatus,proto3,enum=icw.core.common.ProjectDetectionTaskStatus_Value" json:"main_status,omitempty"`
+	SubTaskUuid   string                                     `protobuf:"bytes,7,opt,name=sub_task_uuid,json=subTaskUuid,proto3" json:"sub_task_uuid,omitempty"`
+	SubStatus     common.ProjectDetectionSubTaskStatus_Value `protobuf:"varint,8,opt,name=sub_status,json=subStatus,proto3,enum=icw.core.common.ProjectDetectionSubTaskStatus_Value" json:"sub_status,omitempty"`
+	OccurredAt    string                                     `protobuf:"bytes,9,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -562,11 +622,11 @@ func (x *ProjectDetectionTaskStatusChangedMessage) GetMainTaskUuid() string {
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedMessage) GetMainStatus() string {
+func (x *ProjectDetectionTaskStatusChangedMessage) GetMainStatus() common.ProjectDetectionTaskStatus_Value {
 	if x != nil {
 		return x.MainStatus
 	}
-	return ""
+	return common.ProjectDetectionTaskStatus_Value(0)
 }
 
 func (x *ProjectDetectionTaskStatusChangedMessage) GetSubTaskUuid() string {
@@ -576,11 +636,11 @@ func (x *ProjectDetectionTaskStatusChangedMessage) GetSubTaskUuid() string {
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedMessage) GetSubStatus() string {
+func (x *ProjectDetectionTaskStatusChangedMessage) GetSubStatus() common.ProjectDetectionSubTaskStatus_Value {
 	if x != nil {
 		return x.SubStatus
 	}
-	return ""
+	return common.ProjectDetectionSubTaskStatus_Value(0)
 }
 
 func (x *ProjectDetectionTaskStatusChangedMessage) GetOccurredAt() string {
@@ -594,7 +654,7 @@ var File_core_api_common_proto protoreflect.FileDescriptor
 
 const file_core_api_common_proto_rawDesc = "" +
 	"\n" +
-	"\x15core/api/common.proto\x12\ficw.core.api\x1a\x11core/common.proto\"\x9c\x03\n" +
+	"\x15core/api/common.proto\x12\ficw.core.api\x1a\x11core/common.proto\"\xc4\x03\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
@@ -605,20 +665,20 @@ const file_core_api_common_proto_rawDesc = "" +
 	"\x14building_description\x18\x06 \x01(\tR\x13buildingDescription\x12!\n" +
 	"\fknown_issues\x18\a \x01(\tR\vknownIssues\x12'\n" +
 	"\x0fassessment_goal\x18\b \x01(\tR\x0eassessmentGoal\x12#\n" +
-	"\rthumbnail_url\x18\t \x01(\tR\fthumbnailUrl\x12\x1a\n" +
+	"\rthumbnail_url\x18\t \x01(\tR\fthumbnailUrl\x12B\n" +
 	"\bprogress\x18\n" +
-	" \x01(\rR\bprogress\x12\x1d\n" +
+	" \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\bprogress\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\v \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\f \x01(\tR\tupdatedAt\"\xe7\x01\n" +
+	"updated_at\x18\f \x01(\tR\tupdatedAt\"\x8f\x02\n" +
 	"\x0fProjectListItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
 	"\rbuilding_name\x18\x03 \x01(\tR\fbuildingName\x12+\n" +
 	"\x11building_location\x18\x04 \x01(\tR\x10buildingLocation\x12#\n" +
-	"\rthumbnail_url\x18\x05 \x01(\tR\fthumbnailUrl\x12\x1a\n" +
-	"\bprogress\x18\x06 \x01(\rR\bprogress\x12\x1d\n" +
+	"\rthumbnail_url\x18\x05 \x01(\tR\fthumbnailUrl\x12B\n" +
+	"\bprogress\x18\x06 \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\bprogress\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\a \x01(\tR\tcreatedAt\"\x88\x01\n" +
 	"\fProjectGroup\x12\x0e\n" +
@@ -639,7 +699,7 @@ const file_core_api_common_proto_rawDesc = "" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\x123\n" +
-	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\"\xc4\x02\n" +
+	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\"\xad\x03\n" +
 	"(ProjectDetectionTaskStatusChangedMessage\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
@@ -647,12 +707,12 @@ const file_core_api_common_proto_rawDesc = "" +
 	"\n" +
 	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12\x1b\n" +
 	"\tnode_code\x18\x04 \x01(\tR\bnodeCode\x12$\n" +
-	"\x0emain_task_uuid\x18\x05 \x01(\tR\fmainTaskUuid\x12\x1f\n" +
-	"\vmain_status\x18\x06 \x01(\tR\n" +
+	"\x0emain_task_uuid\x18\x05 \x01(\tR\fmainTaskUuid\x12R\n" +
+	"\vmain_status\x18\x06 \x01(\x0e21.icw.core.common.ProjectDetectionTaskStatus.ValueR\n" +
 	"mainStatus\x12\"\n" +
-	"\rsub_task_uuid\x18\a \x01(\tR\vsubTaskUuid\x12\x1d\n" +
+	"\rsub_task_uuid\x18\a \x01(\tR\vsubTaskUuid\x12S\n" +
 	"\n" +
-	"sub_status\x18\b \x01(\tR\tsubStatus\x12\x1f\n" +
+	"sub_status\x18\b \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\x12\x1f\n" +
 	"\voccurred_at\x18\t \x01(\tR\n" +
 	"occurredAtB\x1fZ\x1dicw_common/gen/core/api;apipbP\x00b\x06proto3"
 
@@ -676,16 +736,23 @@ var file_core_api_common_proto_goTypes = []any{
 	(*UploadProjectImageItem)(nil),                   // 3: icw.core.api.UploadProjectImageItem
 	(*ProjectImageStatusChangedMessage)(nil),         // 4: icw.core.api.ProjectImageStatusChangedMessage
 	(*ProjectDetectionTaskStatusChangedMessage)(nil), // 5: icw.core.api.ProjectDetectionTaskStatusChangedMessage
-	(*common.ProjectImage)(nil),                      // 6: icw.core.common.ProjectImage
+	(common.ProjectProgress_Value)(0),                // 6: icw.core.common.ProjectProgress.Value
+	(*common.ProjectImage)(nil),                      // 7: icw.core.common.ProjectImage
+	(common.ProjectDetectionTaskStatus_Value)(0),     // 8: icw.core.common.ProjectDetectionTaskStatus.Value
+	(common.ProjectDetectionSubTaskStatus_Value)(0),  // 9: icw.core.common.ProjectDetectionSubTaskStatus.Value
 }
 var file_core_api_common_proto_depIdxs = []int32{
-	6, // 0: icw.core.api.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
-	6, // 1: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	6, // 0: icw.core.api.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
+	6, // 1: icw.core.api.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
+	7, // 2: icw.core.api.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
+	7, // 3: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
+	8, // 4: icw.core.api.ProjectDetectionTaskStatusChangedMessage.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
+	9, // 5: icw.core.api.ProjectDetectionTaskStatusChangedMessage.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_core_api_common_proto_init() }

@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: activity/consts.proto
+// source: activity/common.proto
 
 package activitypb
 
@@ -57,11 +57,11 @@ func (x DetectionStatus_Value) String() string {
 }
 
 func (DetectionStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_activity_consts_proto_enumTypes[0].Descriptor()
+	return file_activity_common_proto_enumTypes[0].Descriptor()
 }
 
 func (DetectionStatus_Value) Type() protoreflect.EnumType {
-	return &file_activity_consts_proto_enumTypes[0]
+	return &file_activity_common_proto_enumTypes[0]
 }
 
 func (x DetectionStatus_Value) Number() protoreflect.EnumNumber {
@@ -70,7 +70,7 @@ func (x DetectionStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DetectionStatus_Value.Descriptor instead.
 func (DetectionStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_activity_consts_proto_rawDescGZIP(), []int{0, 0}
+	return file_activity_common_proto_rawDescGZIP(), []int{0, 0}
 }
 
 type DetectionTaskCode_Value int32
@@ -121,11 +121,11 @@ func (x DetectionTaskCode_Value) String() string {
 }
 
 func (DetectionTaskCode_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_activity_consts_proto_enumTypes[1].Descriptor()
+	return file_activity_common_proto_enumTypes[1].Descriptor()
 }
 
 func (DetectionTaskCode_Value) Type() protoreflect.EnumType {
-	return &file_activity_consts_proto_enumTypes[1]
+	return &file_activity_common_proto_enumTypes[1]
 }
 
 func (x DetectionTaskCode_Value) Number() protoreflect.EnumNumber {
@@ -134,7 +134,7 @@ func (x DetectionTaskCode_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DetectionTaskCode_Value.Descriptor instead.
 func (DetectionTaskCode_Value) EnumDescriptor() ([]byte, []int) {
-	return file_activity_consts_proto_rawDescGZIP(), []int{1, 0}
+	return file_activity_common_proto_rawDescGZIP(), []int{1, 0}
 }
 
 // 任务状态
@@ -146,7 +146,7 @@ type DetectionStatus struct {
 
 func (x *DetectionStatus) Reset() {
 	*x = DetectionStatus{}
-	mi := &file_activity_consts_proto_msgTypes[0]
+	mi := &file_activity_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -158,7 +158,7 @@ func (x *DetectionStatus) String() string {
 func (*DetectionStatus) ProtoMessage() {}
 
 func (x *DetectionStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_activity_consts_proto_msgTypes[0]
+	mi := &file_activity_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -171,7 +171,7 @@ func (x *DetectionStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DetectionStatus.ProtoReflect.Descriptor instead.
 func (*DetectionStatus) Descriptor() ([]byte, []int) {
-	return file_activity_consts_proto_rawDescGZIP(), []int{0}
+	return file_activity_common_proto_rawDescGZIP(), []int{0}
 }
 
 // 原子检测能力代码
@@ -183,7 +183,7 @@ type DetectionTaskCode struct {
 
 func (x *DetectionTaskCode) Reset() {
 	*x = DetectionTaskCode{}
-	mi := &file_activity_consts_proto_msgTypes[1]
+	mi := &file_activity_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -195,7 +195,7 @@ func (x *DetectionTaskCode) String() string {
 func (*DetectionTaskCode) ProtoMessage() {}
 
 func (x *DetectionTaskCode) ProtoReflect() protoreflect.Message {
-	mi := &file_activity_consts_proto_msgTypes[1]
+	mi := &file_activity_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -208,14 +208,14 @@ func (x *DetectionTaskCode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DetectionTaskCode.ProtoReflect.Descriptor instead.
 func (*DetectionTaskCode) Descriptor() ([]byte, []int) {
-	return file_activity_consts_proto_rawDescGZIP(), []int{1}
+	return file_activity_common_proto_rawDescGZIP(), []int{1}
 }
 
-var File_activity_consts_proto protoreflect.FileDescriptor
+var File_activity_common_proto protoreflect.FileDescriptor
 
-const file_activity_consts_proto_rawDesc = "" +
+const file_activity_common_proto_rawDesc = "" +
 	"\n" +
-	"\x15activity/consts.proto\x12\ficw.activity\"B\n" +
+	"\x15activity/common.proto\x12\ficw.activity\"B\n" +
 	"\x0fDetectionStatus\"/\n" +
 	"\x05Value\x12\v\n" +
 	"\aUnknown\x10\x00\x12\r\n" +
@@ -232,26 +232,26 @@ const file_activity_consts_proto_rawDesc = "" +
 	"\bSpalling\x10\x05B$Z\"icw_common/gen/activity;activitypbb\x06proto3"
 
 var (
-	file_activity_consts_proto_rawDescOnce sync.Once
-	file_activity_consts_proto_rawDescData []byte
+	file_activity_common_proto_rawDescOnce sync.Once
+	file_activity_common_proto_rawDescData []byte
 )
 
-func file_activity_consts_proto_rawDescGZIP() []byte {
-	file_activity_consts_proto_rawDescOnce.Do(func() {
-		file_activity_consts_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_activity_consts_proto_rawDesc), len(file_activity_consts_proto_rawDesc)))
+func file_activity_common_proto_rawDescGZIP() []byte {
+	file_activity_common_proto_rawDescOnce.Do(func() {
+		file_activity_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_activity_common_proto_rawDesc), len(file_activity_common_proto_rawDesc)))
 	})
-	return file_activity_consts_proto_rawDescData
+	return file_activity_common_proto_rawDescData
 }
 
-var file_activity_consts_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_activity_consts_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_activity_consts_proto_goTypes = []any{
+var file_activity_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_activity_common_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_activity_common_proto_goTypes = []any{
 	(DetectionStatus_Value)(0),   // 0: icw.activity.DetectionStatus.Value
 	(DetectionTaskCode_Value)(0), // 1: icw.activity.DetectionTaskCode.Value
 	(*DetectionStatus)(nil),      // 2: icw.activity.DetectionStatus
 	(*DetectionTaskCode)(nil),    // 3: icw.activity.DetectionTaskCode
 }
-var file_activity_consts_proto_depIdxs = []int32{
+var file_activity_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -259,27 +259,27 @@ var file_activity_consts_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_activity_consts_proto_init() }
-func file_activity_consts_proto_init() {
-	if File_activity_consts_proto != nil {
+func init() { file_activity_common_proto_init() }
+func file_activity_common_proto_init() {
+	if File_activity_common_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_activity_consts_proto_rawDesc), len(file_activity_consts_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_activity_common_proto_rawDesc), len(file_activity_common_proto_rawDesc)),
 			NumEnums:      2,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_activity_consts_proto_goTypes,
-		DependencyIndexes: file_activity_consts_proto_depIdxs,
-		EnumInfos:         file_activity_consts_proto_enumTypes,
-		MessageInfos:      file_activity_consts_proto_msgTypes,
+		GoTypes:           file_activity_common_proto_goTypes,
+		DependencyIndexes: file_activity_common_proto_depIdxs,
+		EnumInfos:         file_activity_common_proto_enumTypes,
+		MessageInfos:      file_activity_common_proto_msgTypes,
 	}.Build()
-	File_activity_consts_proto = out.File
-	file_activity_consts_proto_goTypes = nil
-	file_activity_consts_proto_depIdxs = nil
+	File_activity_common_proto = out.File
+	file_activity_common_proto_goTypes = nil
+	file_activity_common_proto_depIdxs = nil
 }

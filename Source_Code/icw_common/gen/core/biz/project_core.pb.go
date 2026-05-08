@@ -9,6 +9,7 @@ package bizpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -23,11 +24,11 @@ const (
 
 // AdvanceProject 请求结构体
 type AdvanceProjectRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	FromProgress  uint32                 `protobuf:"varint,3,opt,name=from_progress,json=fromProgress,proto3" json:"from_progress,omitempty"`
-	ToProgress    uint32                 `protobuf:"varint,4,opt,name=to_progress,json=toProgress,proto3" json:"to_progress,omitempty"`
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	UserId        uint64                       `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                       `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	FromProgress  common.ProjectProgress_Value `protobuf:"varint,3,opt,name=from_progress,json=fromProgress,proto3,enum=icw.core.common.ProjectProgress_Value" json:"from_progress,omitempty"`
+	ToProgress    common.ProjectProgress_Value `protobuf:"varint,4,opt,name=to_progress,json=toProgress,proto3,enum=icw.core.common.ProjectProgress_Value" json:"to_progress,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -76,18 +77,18 @@ func (x *AdvanceProjectRequest) GetProjectId() uint64 {
 	return 0
 }
 
-func (x *AdvanceProjectRequest) GetFromProgress() uint32 {
+func (x *AdvanceProjectRequest) GetFromProgress() common.ProjectProgress_Value {
 	if x != nil {
 		return x.FromProgress
 	}
-	return 0
+	return common.ProjectProgress_Value(0)
 }
 
-func (x *AdvanceProjectRequest) GetToProgress() uint32 {
+func (x *AdvanceProjectRequest) GetToProgress() common.ProjectProgress_Value {
 	if x != nil {
 		return x.ToProgress
 	}
-	return 0
+	return common.ProjectProgress_Value(0)
 }
 
 // AdvanceProject 响应结构体
@@ -182,10 +183,10 @@ func (x *CheckProjectAccessRequest) GetProjectId() uint64 {
 
 // CheckProjectAccess 响应结构体
 type CheckProjectAccessResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     uint64                 `protobuf:"varint,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Progress      uint32                 `protobuf:"varint,2,opt,name=progress,proto3" json:"progress,omitempty"`
-	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	ProjectId     uint64                       `protobuf:"varint,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Progress      common.ProjectProgress_Value `protobuf:"varint,2,opt,name=progress,proto3,enum=icw.core.common.ProjectProgress_Value" json:"progress,omitempty"`
+	Status        common.ProjectStatus_Value   `protobuf:"varint,3,opt,name=status,proto3,enum=icw.core.common.ProjectStatus_Value" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -227,18 +228,18 @@ func (x *CheckProjectAccessResponse) GetProjectId() uint64 {
 	return 0
 }
 
-func (x *CheckProjectAccessResponse) GetProgress() uint32 {
+func (x *CheckProjectAccessResponse) GetProgress() common.ProjectProgress_Value {
 	if x != nil {
 		return x.Progress
 	}
-	return 0
+	return common.ProjectProgress_Value(0)
 }
 
-func (x *CheckProjectAccessResponse) GetStatus() string {
+func (x *CheckProjectAccessResponse) GetStatus() common.ProjectStatus_Value {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return common.ProjectStatus_Value(0)
 }
 
 // CreateProject 请求结构体
@@ -539,24 +540,24 @@ var File_core_biz_project_core_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_core_proto_rawDesc = "" +
 	"\n" +
-	"\x1bcore/biz/project_core.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"\x95\x01\n" +
+	"\x1bcore/biz/project_core.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\x1a\x11core/common.proto\"\xe5\x01\n" +
 	"\x15AdvanceProjectRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\x04R\tprojectId\x12#\n" +
-	"\rfrom_progress\x18\x03 \x01(\rR\ffromProgress\x12\x1f\n" +
-	"\vto_progress\x18\x04 \x01(\rR\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\x12K\n" +
+	"\rfrom_progress\x18\x03 \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\ffromProgress\x12G\n" +
+	"\vto_progress\x18\x04 \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\n" +
 	"toProgress\"\x18\n" +
 	"\x16AdvanceProjectResponse\"S\n" +
 	"\x19CheckProjectAccessRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\x04R\tprojectId\"o\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\"\xbd\x01\n" +
 	"\x1aCheckProjectAccessResponse\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\x04R\tprojectId\x12\x1a\n" +
-	"\bprogress\x18\x02 \x01(\rR\bprogress\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"/\n" +
+	"project_id\x18\x01 \x01(\x04R\tprojectId\x12B\n" +
+	"\bprogress\x18\x02 \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\bprogress\x12<\n" +
+	"\x06status\x18\x03 \x01(\x0e2$.icw.core.common.ProjectStatus.ValueR\x06status\"/\n" +
 	"\x14CreateProjectRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\"H\n" +
 	"\x15CreateProjectResponse\x12/\n" +
@@ -604,30 +605,36 @@ var file_core_biz_project_core_proto_goTypes = []any{
 	(*DeleteProjectResponse)(nil),      // 7: icw.core.biz.DeleteProjectResponse
 	(*ListProjectsRequest)(nil),        // 8: icw.core.biz.ListProjectsRequest
 	(*ListProjectsResponse)(nil),       // 9: icw.core.biz.ListProjectsResponse
-	(*Project)(nil),                    // 10: icw.core.biz.Project
-	(*ProjectListItem)(nil),            // 11: icw.core.biz.ProjectListItem
+	(common.ProjectProgress_Value)(0),  // 10: icw.core.common.ProjectProgress.Value
+	(common.ProjectStatus_Value)(0),    // 11: icw.core.common.ProjectStatus.Value
+	(*Project)(nil),                    // 12: icw.core.biz.Project
+	(*ProjectListItem)(nil),            // 13: icw.core.biz.ProjectListItem
 }
 var file_core_biz_project_core_proto_depIdxs = []int32{
-	10, // 0: icw.core.biz.CreateProjectResponse.project:type_name -> icw.core.biz.Project
-	11, // 1: icw.core.biz.DeleteProjectResponse.active_projects:type_name -> icw.core.biz.ProjectListItem
-	11, // 2: icw.core.biz.DeleteProjectResponse.completed_projects:type_name -> icw.core.biz.ProjectListItem
-	11, // 3: icw.core.biz.ListProjectsResponse.active_projects:type_name -> icw.core.biz.ProjectListItem
-	11, // 4: icw.core.biz.ListProjectsResponse.completed_projects:type_name -> icw.core.biz.ProjectListItem
-	0,  // 5: icw.core.biz.ProjectCoreService.AdvanceProject:input_type -> icw.core.biz.AdvanceProjectRequest
-	2,  // 6: icw.core.biz.ProjectCoreService.CheckProjectAccess:input_type -> icw.core.biz.CheckProjectAccessRequest
-	4,  // 7: icw.core.biz.ProjectCoreService.CreateProject:input_type -> icw.core.biz.CreateProjectRequest
-	6,  // 8: icw.core.biz.ProjectCoreService.DeleteProject:input_type -> icw.core.biz.DeleteProjectRequest
-	8,  // 9: icw.core.biz.ProjectCoreService.ListProjects:input_type -> icw.core.biz.ListProjectsRequest
-	1,  // 10: icw.core.biz.ProjectCoreService.AdvanceProject:output_type -> icw.core.biz.AdvanceProjectResponse
-	3,  // 11: icw.core.biz.ProjectCoreService.CheckProjectAccess:output_type -> icw.core.biz.CheckProjectAccessResponse
-	5,  // 12: icw.core.biz.ProjectCoreService.CreateProject:output_type -> icw.core.biz.CreateProjectResponse
-	7,  // 13: icw.core.biz.ProjectCoreService.DeleteProject:output_type -> icw.core.biz.DeleteProjectResponse
-	9,  // 14: icw.core.biz.ProjectCoreService.ListProjects:output_type -> icw.core.biz.ListProjectsResponse
-	10, // [10:15] is the sub-list for method output_type
-	5,  // [5:10] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	10, // 0: icw.core.biz.AdvanceProjectRequest.from_progress:type_name -> icw.core.common.ProjectProgress.Value
+	10, // 1: icw.core.biz.AdvanceProjectRequest.to_progress:type_name -> icw.core.common.ProjectProgress.Value
+	10, // 2: icw.core.biz.CheckProjectAccessResponse.progress:type_name -> icw.core.common.ProjectProgress.Value
+	11, // 3: icw.core.biz.CheckProjectAccessResponse.status:type_name -> icw.core.common.ProjectStatus.Value
+	12, // 4: icw.core.biz.CreateProjectResponse.project:type_name -> icw.core.biz.Project
+	13, // 5: icw.core.biz.DeleteProjectResponse.active_projects:type_name -> icw.core.biz.ProjectListItem
+	13, // 6: icw.core.biz.DeleteProjectResponse.completed_projects:type_name -> icw.core.biz.ProjectListItem
+	13, // 7: icw.core.biz.ListProjectsResponse.active_projects:type_name -> icw.core.biz.ProjectListItem
+	13, // 8: icw.core.biz.ListProjectsResponse.completed_projects:type_name -> icw.core.biz.ProjectListItem
+	0,  // 9: icw.core.biz.ProjectCoreService.AdvanceProject:input_type -> icw.core.biz.AdvanceProjectRequest
+	2,  // 10: icw.core.biz.ProjectCoreService.CheckProjectAccess:input_type -> icw.core.biz.CheckProjectAccessRequest
+	4,  // 11: icw.core.biz.ProjectCoreService.CreateProject:input_type -> icw.core.biz.CreateProjectRequest
+	6,  // 12: icw.core.biz.ProjectCoreService.DeleteProject:input_type -> icw.core.biz.DeleteProjectRequest
+	8,  // 13: icw.core.biz.ProjectCoreService.ListProjects:input_type -> icw.core.biz.ListProjectsRequest
+	1,  // 14: icw.core.biz.ProjectCoreService.AdvanceProject:output_type -> icw.core.biz.AdvanceProjectResponse
+	3,  // 15: icw.core.biz.ProjectCoreService.CheckProjectAccess:output_type -> icw.core.biz.CheckProjectAccessResponse
+	5,  // 16: icw.core.biz.ProjectCoreService.CreateProject:output_type -> icw.core.biz.CreateProjectResponse
+	7,  // 17: icw.core.biz.ProjectCoreService.DeleteProject:output_type -> icw.core.biz.DeleteProjectResponse
+	9,  // 18: icw.core.biz.ProjectCoreService.ListProjects:output_type -> icw.core.biz.ListProjectsResponse
+	14, // [14:19] is the sub-list for method output_type
+	9,  // [9:14] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_project_core_proto_init() }

@@ -4,10 +4,12 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
+import "activity/common.proto";
+
 // ReportProjectSummaryResult 请求结构体
 message ReportProjectSummaryResultRequest {
   uint64 project_id = 1;
-  string status = 2;
+  .icw.activity.DetectionStatus.Value status = 2;
   string result_json = 3;
   string error_message = 4;
 }

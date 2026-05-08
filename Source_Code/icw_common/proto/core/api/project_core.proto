@@ -5,12 +5,13 @@ package icw.core.api;
 option go_package = "icw_common/gen/core/api;apipb";
 
 import "core/api/common.proto";
+import "core/common.proto";
 
 // AdvanceProject 请求结构体
 message AdvanceProjectRequest {
   string project_id = 1;
-  uint32 from_progress = 2;
-  uint32 to_progress = 3;
+  .icw.core.common.ProjectProgress.Value from_progress = 2;
+  .icw.core.common.ProjectProgress.Value to_progress = 3;
 }
 
 // AdvanceProject 响应结构体
