@@ -60,3 +60,17 @@ img {
   border-color: #93C5FD;
   box-shadow: 0 4px 12px #0F172A14;
 }
+
+@keyframes detection-progress-flow {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.detection-progress-flow {
+  animation: detection-progress-flow 1.4s linear infinite;
+}

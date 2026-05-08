@@ -4,23 +4,23 @@ export const AVATAR_TYPE_NONE = 'none';
 
 export type AvatarType = typeof AVATAR_TYPE_CUSTOM | typeof AVATAR_TYPE_DEFAULT | typeof AVATAR_TYPE_NONE;
 
-export const LOGIN_SCENE_PASSWORD = 'password';
-export const LOGIN_SCENE_EMAIL = 'email';
+export const LOGIN_SCENE_PASSWORD = 1;
+export const LOGIN_SCENE_EMAIL = 2;
 
 export type LoginScene = typeof LOGIN_SCENE_PASSWORD | typeof LOGIN_SCENE_EMAIL;
 
-export const EMAIL_CODE_SCENE_REGISTER = 'register';
-export const EMAIL_CODE_SCENE_LOGIN = 'login';
-export const EMAIL_CODE_SCENE_RESET = 'reset';
+export const EMAIL_CODE_SCENE_REGISTER = 1;
+export const EMAIL_CODE_SCENE_LOGIN = 2;
+export const EMAIL_CODE_SCENE_RESET = 3;
 
 export type EmailCodeScene =
   | typeof EMAIL_CODE_SCENE_REGISTER
   | typeof EMAIL_CODE_SCENE_LOGIN
   | typeof EMAIL_CODE_SCENE_RESET;
 
-export const PROJECT_IMAGE_STATUS_PENDING = 'pending';
-export const PROJECT_IMAGE_STATUS_UPLOADED = 'uploaded';
-export const PROJECT_IMAGE_STATUS_FAILED = 'failed';
+export const PROJECT_IMAGE_STATUS_PENDING = 1;
+export const PROJECT_IMAGE_STATUS_UPLOADED = 2;
+export const PROJECT_IMAGE_STATUS_FAILED = 3;
 
 export type ProjectImageStatus =
   | typeof PROJECT_IMAGE_STATUS_PENDING
@@ -28,8 +28,76 @@ export type ProjectImageStatus =
   | typeof PROJECT_IMAGE_STATUS_FAILED;
 
 export const PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED = 'project_image_status_changed';
+export const PROJECT_EVENT_TYPE_DETECTION_TASK_STATUS_CHANGED = 'project_detection_task_status_changed';
 
-export type ProjectEventType = typeof PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED;
+export type ProjectEventType =
+  | typeof PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED
+  | typeof PROJECT_EVENT_TYPE_DETECTION_TASK_STATUS_CHANGED;
+
+export const SOCKET_SCOPE_PROJECT_ASSETS = 'ws_project_assets';
+export const SOCKET_SCOPE_PROJECT_DETECTION = 'ws_project_detection';
+export const SOCKET_SCOPE_PROJECT_REPORT = 'ws_project_report';
+
+export type SocketScope =
+  | typeof SOCKET_SCOPE_PROJECT_ASSETS
+  | typeof SOCKET_SCOPE_PROJECT_DETECTION
+  | typeof SOCKET_SCOPE_PROJECT_REPORT;
+
+export const PROJECT_DETECTION_MAIN_STATUS_PENDING = 1;
+export const PROJECT_DETECTION_MAIN_STATUS_CLASSIFYING = 2;
+export const PROJECT_DETECTION_MAIN_STATUS_DETECTING = 3;
+export const PROJECT_DETECTION_MAIN_STATUS_SUMMARIZING = 4;
+export const PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED = 5;
+export const PROJECT_DETECTION_MAIN_STATUS_FAILED = 6;
+
+export type ProjectDetectionMainStatus =
+  | typeof PROJECT_DETECTION_MAIN_STATUS_PENDING
+  | typeof PROJECT_DETECTION_MAIN_STATUS_CLASSIFYING
+  | typeof PROJECT_DETECTION_MAIN_STATUS_DETECTING
+  | typeof PROJECT_DETECTION_MAIN_STATUS_SUMMARIZING
+  | typeof PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED
+  | typeof PROJECT_DETECTION_MAIN_STATUS_FAILED;
+
+export const PROJECT_DETECTION_SUB_STATUS_PENDING = 1;
+export const PROJECT_DETECTION_SUB_STATUS_SUCCEEDED = 2;
+export const PROJECT_DETECTION_SUB_STATUS_FAILED = 3;
+
+export type ProjectDetectionSubStatus =
+  | typeof PROJECT_DETECTION_SUB_STATUS_PENDING
+  | typeof PROJECT_DETECTION_SUB_STATUS_SUCCEEDED
+  | typeof PROJECT_DETECTION_SUB_STATUS_FAILED;
+
+export const PROJECT_DETECTION_NODE_CLASSIFICATION = 'classification';
+export const PROJECT_DETECTION_NODE_SUMMARY = 'summary';
+export const PROJECT_DETECTION_NODE_REASONING_PREFIX = 'reasoning:';
+
+export type ProjectDetectionNodeCode = string;
+
+export const DETECTION_PROGRESS_NODE_STATUS_FAILED = 'failed';
+export const DETECTION_PROGRESS_NODE_STATUS_PENDING = 'pending';
+export const DETECTION_PROGRESS_NODE_STATUS_RUNNING = 'running';
+export const DETECTION_PROGRESS_NODE_STATUS_SKIPPED = 'skipped';
+export const DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED = 'succeeded';
+
+export type DetectionProgressNodeStatus =
+  | typeof DETECTION_PROGRESS_NODE_STATUS_FAILED
+  | typeof DETECTION_PROGRESS_NODE_STATUS_PENDING
+  | typeof DETECTION_PROGRESS_NODE_STATUS_RUNNING
+  | typeof DETECTION_PROGRESS_NODE_STATUS_SKIPPED
+  | typeof DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED;
+
+export const DETECTION_TASK_CODE_CORROSION = 1;
+export const DETECTION_TASK_CODE_CRACK = 2;
+export const DETECTION_TASK_CODE_STAIN = 3;
+export const DETECTION_TASK_CODE_FLATNESS = 4;
+export const DETECTION_TASK_CODE_SPALLING = 5;
+
+export type DetectionTaskCode =
+  | typeof DETECTION_TASK_CODE_CORROSION
+  | typeof DETECTION_TASK_CODE_CRACK
+  | typeof DETECTION_TASK_CODE_STAIN
+  | typeof DETECTION_TASK_CODE_FLATNESS
+  | typeof DETECTION_TASK_CODE_SPALLING;
 
 export const AUTH_STATUS_INITIALIZING = 'initializing';
 export const AUTH_STATUS_AUTHENTICATED = 'authenticated';
