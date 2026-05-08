@@ -445,6 +445,8 @@ func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sq
 		MainTaskUuid:    task.Uuid,
 		MainStatus:      task.Status,
 		DetectionStatus: make([]*commonpb.ProjectDetectionNodeStatus, 0),
+		StartedAt:       utils.NullTimeString(task.StartedAt),
+		FinishedAt:      utils.NullTimeString(task.FinishedAt),
 	}
 
 	if subStatus := project_detection.ClassificationNodeStatus(task); subStatus != bizpb.ProjectDetectionSubTaskStatus_Unknown {

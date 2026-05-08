@@ -823,6 +823,8 @@ type ProjectDetectionStatus struct {
 	ClassificationStatus *ProjectDetectionNodeStatus      `protobuf:"bytes,4,opt,name=classification_status,json=classificationStatus,proto3" json:"classification_status,omitempty"`
 	DetectionStatus      []*ProjectDetectionNodeStatus    `protobuf:"bytes,5,rep,name=detection_status,json=detectionStatus,proto3" json:"detection_status,omitempty"`
 	SummaryStatus        *ProjectDetectionNodeStatus      `protobuf:"bytes,6,opt,name=summary_status,json=summaryStatus,proto3" json:"summary_status,omitempty"`
+	StartedAt            string                           `protobuf:"bytes,7,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt           string                           `protobuf:"bytes,8,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -897,6 +899,20 @@ func (x *ProjectDetectionStatus) GetSummaryStatus() *ProjectDetectionNodeStatus 
 		return x.SummaryStatus
 	}
 	return nil
+}
+
+func (x *ProjectDetectionStatus) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *ProjectDetectionStatus) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
 }
 
 // 项目图像金属锈蚀检测区域结构体
@@ -2037,7 +2053,7 @@ const file_core_common_proto_rawDesc = "" +
 	"\tnode_code\x18\x01 \x01(\tR\bnodeCode\x12\"\n" +
 	"\rsub_task_uuid\x18\x02 \x01(\tR\vsubTaskUuid\x12S\n" +
 	"\n" +
-	"sub_status\x18\x03 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\"\xbf\x03\n" +
+	"sub_status\x18\x03 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\"\xff\x03\n" +
 	"\x16ProjectDetectionStatus\x12\x1d\n" +
 	"\n" +
 	"image_uuid\x18\x01 \x01(\tR\timageUuid\x12$\n" +
@@ -2046,7 +2062,11 @@ const file_core_common_proto_rawDesc = "" +
 	"mainStatus\x12`\n" +
 	"\x15classification_status\x18\x04 \x01(\v2+.icw.core.common.ProjectDetectionNodeStatusR\x14classificationStatus\x12V\n" +
 	"\x10detection_status\x18\x05 \x03(\v2+.icw.core.common.ProjectDetectionNodeStatusR\x0fdetectionStatus\x12R\n" +
-	"\x0esummary_status\x18\x06 \x01(\v2+.icw.core.common.ProjectDetectionNodeStatusR\rsummaryStatus\"\xae\x01\n" +
+	"\x0esummary_status\x18\x06 \x01(\v2+.icw.core.common.ProjectDetectionNodeStatusR\rsummaryStatus\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\a \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\b \x01(\tR\n" +
+	"finishedAt\"\xae\x01\n" +
 	"\x1fProjectDetectionCorrosionRegion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1e\n" +
 	"\n" +
