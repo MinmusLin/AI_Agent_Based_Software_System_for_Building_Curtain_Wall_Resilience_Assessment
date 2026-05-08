@@ -58,6 +58,51 @@ func (*DeleteProjectThumbnailResponse) Descriptor() ([]byte, []int) {
 	return file_core_api_project_profile_proto_rawDescGZIP(), []int{0}
 }
 
+// GetProjectProfile 请求结构体
+type GetProjectProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectProfileRequest) Reset() {
+	*x = GetProjectProfileRequest{}
+	mi := &file_core_api_project_profile_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectProfileRequest) ProtoMessage() {}
+
+func (x *GetProjectProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_project_profile_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectProfileRequest.ProtoReflect.Descriptor instead.
+func (*GetProjectProfileRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_project_profile_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GetProjectProfileRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
 // GetProjectProfile 响应结构体
 type GetProjectProfileResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -68,7 +113,7 @@ type GetProjectProfileResponse struct {
 
 func (x *GetProjectProfileResponse) Reset() {
 	*x = GetProjectProfileResponse{}
-	mi := &file_core_api_project_profile_proto_msgTypes[1]
+	mi := &file_core_api_project_profile_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -80,7 +125,7 @@ func (x *GetProjectProfileResponse) String() string {
 func (*GetProjectProfileResponse) ProtoMessage() {}
 
 func (x *GetProjectProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_profile_proto_msgTypes[1]
+	mi := &file_core_api_project_profile_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -93,7 +138,7 @@ func (x *GetProjectProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectProfileResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectProfileResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_profile_proto_rawDescGZIP(), []int{1}
+	return file_core_api_project_profile_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetProjectProfileResponse) GetProject() *Project {
@@ -101,6 +146,51 @@ func (x *GetProjectProfileResponse) GetProject() *Project {
 		return x.Project
 	}
 	return nil
+}
+
+// GetProjectThumbnail 请求结构体
+type GetProjectThumbnailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectThumbnailRequest) Reset() {
+	*x = GetProjectThumbnailRequest{}
+	mi := &file_core_api_project_profile_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectThumbnailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectThumbnailRequest) ProtoMessage() {}
+
+func (x *GetProjectThumbnailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_project_profile_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectThumbnailRequest.ProtoReflect.Descriptor instead.
+func (*GetProjectThumbnailRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_project_profile_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetProjectThumbnailRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
 }
 
 // GetProjectThumbnail 响应结构体
@@ -113,7 +203,7 @@ type GetProjectThumbnailResponse struct {
 
 func (x *GetProjectThumbnailResponse) Reset() {
 	*x = GetProjectThumbnailResponse{}
-	mi := &file_core_api_project_profile_proto_msgTypes[2]
+	mi := &file_core_api_project_profile_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -125,7 +215,7 @@ func (x *GetProjectThumbnailResponse) String() string {
 func (*GetProjectThumbnailResponse) ProtoMessage() {}
 
 func (x *GetProjectThumbnailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_profile_proto_msgTypes[2]
+	mi := &file_core_api_project_profile_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -138,7 +228,7 @@ func (x *GetProjectThumbnailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectThumbnailResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectThumbnailResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_profile_proto_rawDescGZIP(), []int{2}
+	return file_core_api_project_profile_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetProjectThumbnailResponse) GetThumbnailUrl() string {
@@ -165,7 +255,7 @@ type UpdateProjectProfileRequest struct {
 
 func (x *UpdateProjectProfileRequest) Reset() {
 	*x = UpdateProjectProfileRequest{}
-	mi := &file_core_api_project_profile_proto_msgTypes[3]
+	mi := &file_core_api_project_profile_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -177,7 +267,7 @@ func (x *UpdateProjectProfileRequest) String() string {
 func (*UpdateProjectProfileRequest) ProtoMessage() {}
 
 func (x *UpdateProjectProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_profile_proto_msgTypes[3]
+	mi := &file_core_api_project_profile_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -190,7 +280,7 @@ func (x *UpdateProjectProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProjectProfileRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_profile_proto_rawDescGZIP(), []int{3}
+	return file_core_api_project_profile_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateProjectProfileRequest) GetProjectId() string {
@@ -259,7 +349,7 @@ type UpdateProjectProfileResponse struct {
 
 func (x *UpdateProjectProfileResponse) Reset() {
 	*x = UpdateProjectProfileResponse{}
-	mi := &file_core_api_project_profile_proto_msgTypes[4]
+	mi := &file_core_api_project_profile_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -271,7 +361,7 @@ func (x *UpdateProjectProfileResponse) String() string {
 func (*UpdateProjectProfileResponse) ProtoMessage() {}
 
 func (x *UpdateProjectProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_profile_proto_msgTypes[4]
+	mi := &file_core_api_project_profile_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -284,7 +374,7 @@ func (x *UpdateProjectProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectProfileResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProjectProfileResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_profile_proto_rawDescGZIP(), []int{4}
+	return file_core_api_project_profile_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateProjectProfileResponse) GetProject() *Project {
@@ -304,7 +394,7 @@ type UploadProjectThumbnailRequest struct {
 
 func (x *UploadProjectThumbnailRequest) Reset() {
 	*x = UploadProjectThumbnailRequest{}
-	mi := &file_core_api_project_profile_proto_msgTypes[5]
+	mi := &file_core_api_project_profile_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -316,7 +406,7 @@ func (x *UploadProjectThumbnailRequest) String() string {
 func (*UploadProjectThumbnailRequest) ProtoMessage() {}
 
 func (x *UploadProjectThumbnailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_profile_proto_msgTypes[5]
+	mi := &file_core_api_project_profile_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,7 +419,7 @@ func (x *UploadProjectThumbnailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadProjectThumbnailRequest.ProtoReflect.Descriptor instead.
 func (*UploadProjectThumbnailRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_profile_proto_rawDescGZIP(), []int{5}
+	return file_core_api_project_profile_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UploadProjectThumbnailRequest) GetProjectId() string {
@@ -349,7 +439,7 @@ type UploadProjectThumbnailResponse struct {
 
 func (x *UploadProjectThumbnailResponse) Reset() {
 	*x = UploadProjectThumbnailResponse{}
-	mi := &file_core_api_project_profile_proto_msgTypes[6]
+	mi := &file_core_api_project_profile_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -361,7 +451,7 @@ func (x *UploadProjectThumbnailResponse) String() string {
 func (*UploadProjectThumbnailResponse) ProtoMessage() {}
 
 func (x *UploadProjectThumbnailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_profile_proto_msgTypes[6]
+	mi := &file_core_api_project_profile_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -374,7 +464,7 @@ func (x *UploadProjectThumbnailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadProjectThumbnailResponse.ProtoReflect.Descriptor instead.
 func (*UploadProjectThumbnailResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_profile_proto_rawDescGZIP(), []int{6}
+	return file_core_api_project_profile_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UploadProjectThumbnailResponse) GetUploadUrl() string {
@@ -389,9 +479,15 @@ var File_core_api_project_profile_proto protoreflect.FileDescriptor
 const file_core_api_project_profile_proto_rawDesc = "" +
 	"\n" +
 	"\x1ecore/api/project_profile.proto\x12\ficw.core.api\x1a\x15core/api/common.proto\" \n" +
-	"\x1eDeleteProjectThumbnailResponse\"L\n" +
+	"\x1eDeleteProjectThumbnailResponse\"9\n" +
+	"\x18GetProjectProfileRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\"L\n" +
 	"\x19GetProjectProfileResponse\x12/\n" +
-	"\aproject\x18\x01 \x01(\v2\x15.icw.core.api.ProjectR\aproject\"B\n" +
+	"\aproject\x18\x01 \x01(\v2\x15.icw.core.api.ProjectR\aproject\";\n" +
+	"\x1aGetProjectThumbnailRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\"B\n" +
 	"\x1bGetProjectThumbnailResponse\x12#\n" +
 	"\rthumbnail_url\x18\x01 \x01(\tR\fthumbnailUrl\"\xc0\x02\n" +
 	"\x1bUpdateProjectProfileRequest\x12\x1d\n" +
@@ -426,20 +522,22 @@ func file_core_api_project_profile_proto_rawDescGZIP() []byte {
 	return file_core_api_project_profile_proto_rawDescData
 }
 
-var file_core_api_project_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_core_api_project_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_core_api_project_profile_proto_goTypes = []any{
 	(*DeleteProjectThumbnailResponse)(nil), // 0: icw.core.api.DeleteProjectThumbnailResponse
-	(*GetProjectProfileResponse)(nil),      // 1: icw.core.api.GetProjectProfileResponse
-	(*GetProjectThumbnailResponse)(nil),    // 2: icw.core.api.GetProjectThumbnailResponse
-	(*UpdateProjectProfileRequest)(nil),    // 3: icw.core.api.UpdateProjectProfileRequest
-	(*UpdateProjectProfileResponse)(nil),   // 4: icw.core.api.UpdateProjectProfileResponse
-	(*UploadProjectThumbnailRequest)(nil),  // 5: icw.core.api.UploadProjectThumbnailRequest
-	(*UploadProjectThumbnailResponse)(nil), // 6: icw.core.api.UploadProjectThumbnailResponse
-	(*Project)(nil),                        // 7: icw.core.api.Project
+	(*GetProjectProfileRequest)(nil),       // 1: icw.core.api.GetProjectProfileRequest
+	(*GetProjectProfileResponse)(nil),      // 2: icw.core.api.GetProjectProfileResponse
+	(*GetProjectThumbnailRequest)(nil),     // 3: icw.core.api.GetProjectThumbnailRequest
+	(*GetProjectThumbnailResponse)(nil),    // 4: icw.core.api.GetProjectThumbnailResponse
+	(*UpdateProjectProfileRequest)(nil),    // 5: icw.core.api.UpdateProjectProfileRequest
+	(*UpdateProjectProfileResponse)(nil),   // 6: icw.core.api.UpdateProjectProfileResponse
+	(*UploadProjectThumbnailRequest)(nil),  // 7: icw.core.api.UploadProjectThumbnailRequest
+	(*UploadProjectThumbnailResponse)(nil), // 8: icw.core.api.UploadProjectThumbnailResponse
+	(*Project)(nil),                        // 9: icw.core.api.Project
 }
 var file_core_api_project_profile_proto_depIdxs = []int32{
-	7, // 0: icw.core.api.GetProjectProfileResponse.project:type_name -> icw.core.api.Project
-	7, // 1: icw.core.api.UpdateProjectProfileResponse.project:type_name -> icw.core.api.Project
+	9, // 0: icw.core.api.GetProjectProfileResponse.project:type_name -> icw.core.api.Project
+	9, // 1: icw.core.api.UpdateProjectProfileResponse.project:type_name -> icw.core.api.Project
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -459,7 +557,7 @@ func file_core_api_project_profile_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_project_profile_proto_rawDesc), len(file_core_api_project_profile_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

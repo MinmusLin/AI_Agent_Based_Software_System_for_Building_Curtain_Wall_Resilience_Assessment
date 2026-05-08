@@ -15,3 +15,21 @@ message CreateSocketTicketResponse {
   string ticket = 1;
   int64 expires_in = 2;
 }
+
+// SetupAssetsWebSocket 请求结构体
+message SetupAssetsWebSocketRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+  string ticket = 2; // 从 HTTP Query 获取
+}
+
+// SetupDetectionWebSocket 请求结构体
+message SetupDetectionWebSocketRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+  string ticket = 2; // 从 HTTP Query 获取
+}
+
+// SetupReportWebSocket 请求结构体
+message SetupReportWebSocketRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+  string ticket = 2; // 从 HTTP Query 获取
+}

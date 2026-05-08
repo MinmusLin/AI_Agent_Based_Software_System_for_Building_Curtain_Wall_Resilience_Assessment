@@ -127,6 +127,165 @@ func (x *CreateSocketTicketResponse) GetExpiresIn() int64 {
 	return 0
 }
 
+// SetupAssetsWebSocket 请求结构体
+type SetupAssetsWebSocketRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	Ticket        string                 `protobuf:"bytes,2,opt,name=ticket,proto3" json:"ticket,omitempty"`                        // 从 HTTP Query 获取
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetupAssetsWebSocketRequest) Reset() {
+	*x = SetupAssetsWebSocketRequest{}
+	mi := &file_core_api_socket_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetupAssetsWebSocketRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetupAssetsWebSocketRequest) ProtoMessage() {}
+
+func (x *SetupAssetsWebSocketRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_socket_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetupAssetsWebSocketRequest.ProtoReflect.Descriptor instead.
+func (*SetupAssetsWebSocketRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_socket_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SetupAssetsWebSocketRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *SetupAssetsWebSocketRequest) GetTicket() string {
+	if x != nil {
+		return x.Ticket
+	}
+	return ""
+}
+
+// SetupDetectionWebSocket 请求结构体
+type SetupDetectionWebSocketRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	Ticket        string                 `protobuf:"bytes,2,opt,name=ticket,proto3" json:"ticket,omitempty"`                        // 从 HTTP Query 获取
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetupDetectionWebSocketRequest) Reset() {
+	*x = SetupDetectionWebSocketRequest{}
+	mi := &file_core_api_socket_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetupDetectionWebSocketRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetupDetectionWebSocketRequest) ProtoMessage() {}
+
+func (x *SetupDetectionWebSocketRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_socket_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetupDetectionWebSocketRequest.ProtoReflect.Descriptor instead.
+func (*SetupDetectionWebSocketRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_socket_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *SetupDetectionWebSocketRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *SetupDetectionWebSocketRequest) GetTicket() string {
+	if x != nil {
+		return x.Ticket
+	}
+	return ""
+}
+
+// SetupReportWebSocket 请求结构体
+type SetupReportWebSocketRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	Ticket        string                 `protobuf:"bytes,2,opt,name=ticket,proto3" json:"ticket,omitempty"`                        // 从 HTTP Query 获取
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetupReportWebSocketRequest) Reset() {
+	*x = SetupReportWebSocketRequest{}
+	mi := &file_core_api_socket_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetupReportWebSocketRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetupReportWebSocketRequest) ProtoMessage() {}
+
+func (x *SetupReportWebSocketRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_socket_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetupReportWebSocketRequest.ProtoReflect.Descriptor instead.
+func (*SetupReportWebSocketRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_socket_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SetupReportWebSocketRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *SetupReportWebSocketRequest) GetTicket() string {
+	if x != nil {
+		return x.Ticket
+	}
+	return ""
+}
+
 var File_core_api_socket_proto protoreflect.FileDescriptor
 
 const file_core_api_socket_proto_rawDesc = "" +
@@ -139,7 +298,19 @@ const file_core_api_socket_proto_rawDesc = "" +
 	"\x1aCreateSocketTicketResponse\x12\x16\n" +
 	"\x06ticket\x18\x01 \x01(\tR\x06ticket\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x02 \x01(\x03R\texpiresInB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
+	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"T\n" +
+	"\x1bSetupAssetsWebSocketRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x16\n" +
+	"\x06ticket\x18\x02 \x01(\tR\x06ticket\"W\n" +
+	"\x1eSetupDetectionWebSocketRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x16\n" +
+	"\x06ticket\x18\x02 \x01(\tR\x06ticket\"T\n" +
+	"\x1bSetupReportWebSocketRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x16\n" +
+	"\x06ticket\x18\x02 \x01(\tR\x06ticketB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
 
 var (
 	file_core_api_socket_proto_rawDescOnce sync.Once
@@ -153,10 +324,13 @@ func file_core_api_socket_proto_rawDescGZIP() []byte {
 	return file_core_api_socket_proto_rawDescData
 }
 
-var file_core_api_socket_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_core_api_socket_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_core_api_socket_proto_goTypes = []any{
-	(*CreateSocketTicketRequest)(nil),  // 0: icw.core.api.CreateSocketTicketRequest
-	(*CreateSocketTicketResponse)(nil), // 1: icw.core.api.CreateSocketTicketResponse
+	(*CreateSocketTicketRequest)(nil),      // 0: icw.core.api.CreateSocketTicketRequest
+	(*CreateSocketTicketResponse)(nil),     // 1: icw.core.api.CreateSocketTicketResponse
+	(*SetupAssetsWebSocketRequest)(nil),    // 2: icw.core.api.SetupAssetsWebSocketRequest
+	(*SetupDetectionWebSocketRequest)(nil), // 3: icw.core.api.SetupDetectionWebSocketRequest
+	(*SetupReportWebSocketRequest)(nil),    // 4: icw.core.api.SetupReportWebSocketRequest
 }
 var file_core_api_socket_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -177,7 +351,7 @@ func file_core_api_socket_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_socket_proto_rawDesc), len(file_core_api_socket_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

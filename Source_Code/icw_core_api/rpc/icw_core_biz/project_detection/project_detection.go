@@ -10,6 +10,11 @@ import (
 	"icw_core_api/utils"
 )
 
+// GetImageDetectionResult 获取图像检测结果
+func GetImageDetectionResult(ctx context.Context, client *icw_core_biz.Client, req *bizpb.GetImageDetectionResultRequest, resp *bizpb.GetImageDetectionResultResponse) error {
+	return rpc.CallGRPC[bizpb.GetImageDetectionResultRequest, bizpb.GetImageDetectionResultResponse](ctx, client, req, resp, client.ProjectDetection().GetImageDetectionResult, rpc.WithRequestIdResolver(utils.GetXRequestId))
+}
+
 // GetProjectDetectionTasks 获取项目检测任务列表
 func GetProjectDetectionTasks(ctx context.Context, client *icw_core_biz.Client, req *bizpb.GetProjectDetectionTasksRequest, resp *bizpb.GetProjectDetectionTasksResponse) error {
 	return rpc.CallGRPC[bizpb.GetProjectDetectionTasksRequest, bizpb.GetProjectDetectionTasksResponse](ctx, client, req, resp, client.ProjectDetection().GetProjectDetectionTasks, rpc.WithRequestIdResolver(utils.GetXRequestId))

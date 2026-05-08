@@ -34,9 +34,20 @@ message DeleteProjectImageRequest {
 // DeleteProjectImage 响应结构体
 message DeleteProjectImageResponse {}
 
+// GetProjectAssets 请求结构体
+message GetProjectAssetsRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+}
+
 // GetProjectAssets 响应结构体
 message GetProjectAssetsResponse {
   repeated ProjectGroup groups = 1;
+}
+
+// GetProjectImageOriginal 请求结构体
+message GetProjectImageOriginalRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+  string image_uuid = 2; // 从 HTTP Query 获取
 }
 
 // GetProjectImageOriginal 响应结构体

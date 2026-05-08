@@ -8,8 +8,8 @@ import "core/common.proto";
 
 // GetImageDetectionResult 请求结构体
 message GetImageDetectionResultRequest {
-  string project_id = 1;
-  string image_uuid = 2;
+  string project_id = 1; // 从 HTTP Query 获取
+  string image_uuid = 2; // 从 HTTP Query 获取
 }
 
 // GetImageDetectionResult 响应结构体
@@ -28,7 +28,7 @@ message GetImageDetectionResultResponse {
 
 // GetProjectDetectionTasks 请求结构体
 message GetProjectDetectionTasksRequest {
-  string project_id = 1;
+  string project_id = 1; // 从 HTTP Query 获取
 }
 
 // GetProjectDetectionTasks 响应结构体

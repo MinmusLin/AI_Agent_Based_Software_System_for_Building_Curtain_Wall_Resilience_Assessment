@@ -9,9 +9,19 @@ import "core/api/common.proto";
 // DeleteProjectThumbnail 响应结构体
 message DeleteProjectThumbnailResponse {}
 
+// GetProjectProfile 请求结构体
+message GetProjectProfileRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+}
+
 // GetProjectProfile 响应结构体
 message GetProjectProfileResponse {
   Project project = 1;
+}
+
+// GetProjectThumbnail 请求结构体
+message GetProjectThumbnailRequest {
+  string project_id = 1; // 从 HTTP Query 获取
 }
 
 // GetProjectThumbnail 响应结构体

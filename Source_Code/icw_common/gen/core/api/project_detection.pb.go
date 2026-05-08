@@ -25,8 +25,8 @@ const (
 // GetImageDetectionResult 请求结构体
 type GetImageDetectionResultRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ImageUuid     string                 `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	ImageUuid     string                 `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"` // 从 HTTP Query 获取
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -195,7 +195,7 @@ func (x *GetImageDetectionResultResponse) GetSummaryResult() *common.ProjectDete
 // GetProjectDetectionTasks 请求结构体
 type GetProjectDetectionTasksRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

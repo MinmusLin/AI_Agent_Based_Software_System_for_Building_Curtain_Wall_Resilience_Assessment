@@ -292,6 +292,51 @@ func (*DeleteProjectImageResponse) Descriptor() ([]byte, []int) {
 	return file_core_api_project_assets_proto_rawDescGZIP(), []int{5}
 }
 
+// GetProjectAssets 请求结构体
+type GetProjectAssetsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectAssetsRequest) Reset() {
+	*x = GetProjectAssetsRequest{}
+	mi := &file_core_api_project_assets_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectAssetsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectAssetsRequest) ProtoMessage() {}
+
+func (x *GetProjectAssetsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_project_assets_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectAssetsRequest.ProtoReflect.Descriptor instead.
+func (*GetProjectAssetsRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetProjectAssetsRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
 // GetProjectAssets 响应结构体
 type GetProjectAssetsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -302,7 +347,7 @@ type GetProjectAssetsResponse struct {
 
 func (x *GetProjectAssetsResponse) Reset() {
 	*x = GetProjectAssetsResponse{}
-	mi := &file_core_api_project_assets_proto_msgTypes[6]
+	mi := &file_core_api_project_assets_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -314,7 +359,7 @@ func (x *GetProjectAssetsResponse) String() string {
 func (*GetProjectAssetsResponse) ProtoMessage() {}
 
 func (x *GetProjectAssetsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[6]
+	mi := &file_core_api_project_assets_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -327,7 +372,7 @@ func (x *GetProjectAssetsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectAssetsResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectAssetsResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{6}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetProjectAssetsResponse) GetGroups() []*ProjectGroup {
@@ -335,6 +380,59 @@ func (x *GetProjectAssetsResponse) GetGroups() []*ProjectGroup {
 		return x.Groups
 	}
 	return nil
+}
+
+// GetProjectImageOriginal 请求结构体
+type GetProjectImageOriginalRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	ImageUuid     string                 `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"` // 从 HTTP Query 获取
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectImageOriginalRequest) Reset() {
+	*x = GetProjectImageOriginalRequest{}
+	mi := &file_core_api_project_assets_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectImageOriginalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectImageOriginalRequest) ProtoMessage() {}
+
+func (x *GetProjectImageOriginalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_project_assets_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectImageOriginalRequest.ProtoReflect.Descriptor instead.
+func (*GetProjectImageOriginalRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetProjectImageOriginalRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *GetProjectImageOriginalRequest) GetImageUuid() string {
+	if x != nil {
+		return x.ImageUuid
+	}
+	return ""
 }
 
 // GetProjectImageOriginal 响应结构体
@@ -347,7 +445,7 @@ type GetProjectImageOriginalResponse struct {
 
 func (x *GetProjectImageOriginalResponse) Reset() {
 	*x = GetProjectImageOriginalResponse{}
-	mi := &file_core_api_project_assets_proto_msgTypes[7]
+	mi := &file_core_api_project_assets_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -359,7 +457,7 @@ func (x *GetProjectImageOriginalResponse) String() string {
 func (*GetProjectImageOriginalResponse) ProtoMessage() {}
 
 func (x *GetProjectImageOriginalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[7]
+	mi := &file_core_api_project_assets_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -372,7 +470,7 @@ func (x *GetProjectImageOriginalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectImageOriginalResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectImageOriginalResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{7}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetProjectImageOriginalResponse) GetOriginalUrl() string {
@@ -397,7 +495,7 @@ type MoveProjectGroupRequest struct {
 
 func (x *MoveProjectGroupRequest) Reset() {
 	*x = MoveProjectGroupRequest{}
-	mi := &file_core_api_project_assets_proto_msgTypes[8]
+	mi := &file_core_api_project_assets_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -409,7 +507,7 @@ func (x *MoveProjectGroupRequest) String() string {
 func (*MoveProjectGroupRequest) ProtoMessage() {}
 
 func (x *MoveProjectGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[8]
+	mi := &file_core_api_project_assets_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -422,7 +520,7 @@ func (x *MoveProjectGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveProjectGroupRequest.ProtoReflect.Descriptor instead.
 func (*MoveProjectGroupRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{8}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *MoveProjectGroupRequest) GetProjectId() string {
@@ -477,7 +575,7 @@ type MoveProjectGroupResponse struct {
 
 func (x *MoveProjectGroupResponse) Reset() {
 	*x = MoveProjectGroupResponse{}
-	mi := &file_core_api_project_assets_proto_msgTypes[9]
+	mi := &file_core_api_project_assets_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -489,7 +587,7 @@ func (x *MoveProjectGroupResponse) String() string {
 func (*MoveProjectGroupResponse) ProtoMessage() {}
 
 func (x *MoveProjectGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[9]
+	mi := &file_core_api_project_assets_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -502,7 +600,7 @@ func (x *MoveProjectGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveProjectGroupResponse.ProtoReflect.Descriptor instead.
 func (*MoveProjectGroupResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{9}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *MoveProjectGroupResponse) GetGroup() *ProjectGroup {
@@ -524,7 +622,7 @@ type MoveProjectImageRequest struct {
 
 func (x *MoveProjectImageRequest) Reset() {
 	*x = MoveProjectImageRequest{}
-	mi := &file_core_api_project_assets_proto_msgTypes[10]
+	mi := &file_core_api_project_assets_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -536,7 +634,7 @@ func (x *MoveProjectImageRequest) String() string {
 func (*MoveProjectImageRequest) ProtoMessage() {}
 
 func (x *MoveProjectImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[10]
+	mi := &file_core_api_project_assets_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -549,7 +647,7 @@ func (x *MoveProjectImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveProjectImageRequest.ProtoReflect.Descriptor instead.
 func (*MoveProjectImageRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{10}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *MoveProjectImageRequest) GetProjectId() string {
@@ -583,7 +681,7 @@ type MoveProjectImageResponse struct {
 
 func (x *MoveProjectImageResponse) Reset() {
 	*x = MoveProjectImageResponse{}
-	mi := &file_core_api_project_assets_proto_msgTypes[11]
+	mi := &file_core_api_project_assets_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -595,7 +693,7 @@ func (x *MoveProjectImageResponse) String() string {
 func (*MoveProjectImageResponse) ProtoMessage() {}
 
 func (x *MoveProjectImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[11]
+	mi := &file_core_api_project_assets_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -608,7 +706,7 @@ func (x *MoveProjectImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveProjectImageResponse.ProtoReflect.Descriptor instead.
 func (*MoveProjectImageResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{11}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *MoveProjectImageResponse) GetImages() []*common.ProjectImage {
@@ -630,7 +728,7 @@ type ReportProjectImageRequest struct {
 
 func (x *ReportProjectImageRequest) Reset() {
 	*x = ReportProjectImageRequest{}
-	mi := &file_core_api_project_assets_proto_msgTypes[12]
+	mi := &file_core_api_project_assets_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -642,7 +740,7 @@ func (x *ReportProjectImageRequest) String() string {
 func (*ReportProjectImageRequest) ProtoMessage() {}
 
 func (x *ReportProjectImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[12]
+	mi := &file_core_api_project_assets_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -655,7 +753,7 @@ func (x *ReportProjectImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportProjectImageRequest.ProtoReflect.Descriptor instead.
 func (*ReportProjectImageRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{12}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ReportProjectImageRequest) GetProjectId() string {
@@ -688,7 +786,7 @@ type ReportProjectImageResponse struct {
 
 func (x *ReportProjectImageResponse) Reset() {
 	*x = ReportProjectImageResponse{}
-	mi := &file_core_api_project_assets_proto_msgTypes[13]
+	mi := &file_core_api_project_assets_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -700,7 +798,7 @@ func (x *ReportProjectImageResponse) String() string {
 func (*ReportProjectImageResponse) ProtoMessage() {}
 
 func (x *ReportProjectImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[13]
+	mi := &file_core_api_project_assets_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -713,7 +811,7 @@ func (x *ReportProjectImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportProjectImageResponse.ProtoReflect.Descriptor instead.
 func (*ReportProjectImageResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{13}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{15}
 }
 
 // UpdateProjectGroup 请求结构体
@@ -728,7 +826,7 @@ type UpdateProjectGroupRequest struct {
 
 func (x *UpdateProjectGroupRequest) Reset() {
 	*x = UpdateProjectGroupRequest{}
-	mi := &file_core_api_project_assets_proto_msgTypes[14]
+	mi := &file_core_api_project_assets_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -740,7 +838,7 @@ func (x *UpdateProjectGroupRequest) String() string {
 func (*UpdateProjectGroupRequest) ProtoMessage() {}
 
 func (x *UpdateProjectGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[14]
+	mi := &file_core_api_project_assets_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -753,7 +851,7 @@ func (x *UpdateProjectGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectGroupRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProjectGroupRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{14}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *UpdateProjectGroupRequest) GetProjectId() string {
@@ -787,7 +885,7 @@ type UpdateProjectGroupResponse struct {
 
 func (x *UpdateProjectGroupResponse) Reset() {
 	*x = UpdateProjectGroupResponse{}
-	mi := &file_core_api_project_assets_proto_msgTypes[15]
+	mi := &file_core_api_project_assets_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -799,7 +897,7 @@ func (x *UpdateProjectGroupResponse) String() string {
 func (*UpdateProjectGroupResponse) ProtoMessage() {}
 
 func (x *UpdateProjectGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[15]
+	mi := &file_core_api_project_assets_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -812,7 +910,7 @@ func (x *UpdateProjectGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectGroupResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProjectGroupResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{15}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UpdateProjectGroupResponse) GetGroup() *ProjectGroup {
@@ -834,7 +932,7 @@ type UploadProjectImageRequest struct {
 
 func (x *UploadProjectImageRequest) Reset() {
 	*x = UploadProjectImageRequest{}
-	mi := &file_core_api_project_assets_proto_msgTypes[16]
+	mi := &file_core_api_project_assets_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -846,7 +944,7 @@ func (x *UploadProjectImageRequest) String() string {
 func (*UploadProjectImageRequest) ProtoMessage() {}
 
 func (x *UploadProjectImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[16]
+	mi := &file_core_api_project_assets_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -859,7 +957,7 @@ func (x *UploadProjectImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadProjectImageRequest.ProtoReflect.Descriptor instead.
 func (*UploadProjectImageRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{16}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UploadProjectImageRequest) GetProjectId() string {
@@ -893,7 +991,7 @@ type UploadProjectImageResponse struct {
 
 func (x *UploadProjectImageResponse) Reset() {
 	*x = UploadProjectImageResponse{}
-	mi := &file_core_api_project_assets_proto_msgTypes[17]
+	mi := &file_core_api_project_assets_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -905,7 +1003,7 @@ func (x *UploadProjectImageResponse) String() string {
 func (*UploadProjectImageResponse) ProtoMessage() {}
 
 func (x *UploadProjectImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_assets_proto_msgTypes[17]
+	mi := &file_core_api_project_assets_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -918,7 +1016,7 @@ func (x *UploadProjectImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadProjectImageResponse.ProtoReflect.Descriptor instead.
 func (*UploadProjectImageResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_assets_proto_rawDescGZIP(), []int{17}
+	return file_core_api_project_assets_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UploadProjectImageResponse) GetImages() []*common.UploadProjectImageResult {
@@ -948,9 +1046,17 @@ const file_core_api_project_assets_proto_rawDesc = "" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1f\n" +
 	"\vimage_uuids\x18\x02 \x03(\tR\n" +
 	"imageUuids\"\x1c\n" +
-	"\x1aDeleteProjectImageResponse\"N\n" +
+	"\x1aDeleteProjectImageResponse\"8\n" +
+	"\x17GetProjectAssetsRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\"N\n" +
 	"\x18GetProjectAssetsResponse\x122\n" +
-	"\x06groups\x18\x01 \x03(\v2\x1a.icw.core.api.ProjectGroupR\x06groups\"D\n" +
+	"\x06groups\x18\x01 \x03(\v2\x1a.icw.core.api.ProjectGroupR\x06groups\"^\n" +
+	"\x1eGetProjectImageOriginalRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1d\n" +
+	"\n" +
+	"image_uuid\x18\x02 \x01(\tR\timageUuid\"D\n" +
 	"\x1fGetProjectImageOriginalResponse\x12!\n" +
 	"\foriginal_url\x18\x01 \x01(\tR\voriginalUrl\"\xe9\x01\n" +
 	"\x17MoveProjectGroupRequest\x12\x1d\n" +
@@ -1006,7 +1112,7 @@ func file_core_api_project_assets_proto_rawDescGZIP() []byte {
 	return file_core_api_project_assets_proto_rawDescData
 }
 
-var file_core_api_project_assets_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_core_api_project_assets_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_core_api_project_assets_proto_goTypes = []any{
 	(*CreateProjectGroupRequest)(nil),       // 0: icw.core.api.CreateProjectGroupRequest
 	(*CreateProjectGroupResponse)(nil),      // 1: icw.core.api.CreateProjectGroupResponse
@@ -1014,31 +1120,33 @@ var file_core_api_project_assets_proto_goTypes = []any{
 	(*DeleteProjectGroupResponse)(nil),      // 3: icw.core.api.DeleteProjectGroupResponse
 	(*DeleteProjectImageRequest)(nil),       // 4: icw.core.api.DeleteProjectImageRequest
 	(*DeleteProjectImageResponse)(nil),      // 5: icw.core.api.DeleteProjectImageResponse
-	(*GetProjectAssetsResponse)(nil),        // 6: icw.core.api.GetProjectAssetsResponse
-	(*GetProjectImageOriginalResponse)(nil), // 7: icw.core.api.GetProjectImageOriginalResponse
-	(*MoveProjectGroupRequest)(nil),         // 8: icw.core.api.MoveProjectGroupRequest
-	(*MoveProjectGroupResponse)(nil),        // 9: icw.core.api.MoveProjectGroupResponse
-	(*MoveProjectImageRequest)(nil),         // 10: icw.core.api.MoveProjectImageRequest
-	(*MoveProjectImageResponse)(nil),        // 11: icw.core.api.MoveProjectImageResponse
-	(*ReportProjectImageRequest)(nil),       // 12: icw.core.api.ReportProjectImageRequest
-	(*ReportProjectImageResponse)(nil),      // 13: icw.core.api.ReportProjectImageResponse
-	(*UpdateProjectGroupRequest)(nil),       // 14: icw.core.api.UpdateProjectGroupRequest
-	(*UpdateProjectGroupResponse)(nil),      // 15: icw.core.api.UpdateProjectGroupResponse
-	(*UploadProjectImageRequest)(nil),       // 16: icw.core.api.UploadProjectImageRequest
-	(*UploadProjectImageResponse)(nil),      // 17: icw.core.api.UploadProjectImageResponse
-	(*ProjectGroup)(nil),                    // 18: icw.core.api.ProjectGroup
-	(*common.ProjectImage)(nil),             // 19: icw.core.common.ProjectImage
-	(*UploadProjectImageItem)(nil),          // 20: icw.core.api.UploadProjectImageItem
-	(*common.UploadProjectImageResult)(nil), // 21: icw.core.common.UploadProjectImageResult
+	(*GetProjectAssetsRequest)(nil),         // 6: icw.core.api.GetProjectAssetsRequest
+	(*GetProjectAssetsResponse)(nil),        // 7: icw.core.api.GetProjectAssetsResponse
+	(*GetProjectImageOriginalRequest)(nil),  // 8: icw.core.api.GetProjectImageOriginalRequest
+	(*GetProjectImageOriginalResponse)(nil), // 9: icw.core.api.GetProjectImageOriginalResponse
+	(*MoveProjectGroupRequest)(nil),         // 10: icw.core.api.MoveProjectGroupRequest
+	(*MoveProjectGroupResponse)(nil),        // 11: icw.core.api.MoveProjectGroupResponse
+	(*MoveProjectImageRequest)(nil),         // 12: icw.core.api.MoveProjectImageRequest
+	(*MoveProjectImageResponse)(nil),        // 13: icw.core.api.MoveProjectImageResponse
+	(*ReportProjectImageRequest)(nil),       // 14: icw.core.api.ReportProjectImageRequest
+	(*ReportProjectImageResponse)(nil),      // 15: icw.core.api.ReportProjectImageResponse
+	(*UpdateProjectGroupRequest)(nil),       // 16: icw.core.api.UpdateProjectGroupRequest
+	(*UpdateProjectGroupResponse)(nil),      // 17: icw.core.api.UpdateProjectGroupResponse
+	(*UploadProjectImageRequest)(nil),       // 18: icw.core.api.UploadProjectImageRequest
+	(*UploadProjectImageResponse)(nil),      // 19: icw.core.api.UploadProjectImageResponse
+	(*ProjectGroup)(nil),                    // 20: icw.core.api.ProjectGroup
+	(*common.ProjectImage)(nil),             // 21: icw.core.common.ProjectImage
+	(*UploadProjectImageItem)(nil),          // 22: icw.core.api.UploadProjectImageItem
+	(*common.UploadProjectImageResult)(nil), // 23: icw.core.common.UploadProjectImageResult
 }
 var file_core_api_project_assets_proto_depIdxs = []int32{
-	18, // 0: icw.core.api.CreateProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
-	18, // 1: icw.core.api.GetProjectAssetsResponse.groups:type_name -> icw.core.api.ProjectGroup
-	18, // 2: icw.core.api.MoveProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
-	19, // 3: icw.core.api.MoveProjectImageResponse.images:type_name -> icw.core.common.ProjectImage
-	18, // 4: icw.core.api.UpdateProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
-	20, // 5: icw.core.api.UploadProjectImageRequest.images:type_name -> icw.core.api.UploadProjectImageItem
-	21, // 6: icw.core.api.UploadProjectImageResponse.images:type_name -> icw.core.common.UploadProjectImageResult
+	20, // 0: icw.core.api.CreateProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
+	20, // 1: icw.core.api.GetProjectAssetsResponse.groups:type_name -> icw.core.api.ProjectGroup
+	20, // 2: icw.core.api.MoveProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
+	21, // 3: icw.core.api.MoveProjectImageResponse.images:type_name -> icw.core.common.ProjectImage
+	20, // 4: icw.core.api.UpdateProjectGroupResponse.group:type_name -> icw.core.api.ProjectGroup
+	22, // 5: icw.core.api.UploadProjectImageRequest.images:type_name -> icw.core.api.UploadProjectImageItem
+	23, // 6: icw.core.api.UploadProjectImageResponse.images:type_name -> icw.core.common.UploadProjectImageResult
 	7,  // [7:7] is the sub-list for method output_type
 	7,  // [7:7] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
@@ -1058,7 +1166,7 @@ func file_core_api_project_assets_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_project_assets_proto_rawDesc), len(file_core_api_project_assets_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

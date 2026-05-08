@@ -44,7 +44,7 @@ func (h *Handler) CreateSocketTicket(c *gin.Context) {
 		response.WriteError(c, rpc_error.BadRequestDefault("socket scope is required"))
 		return
 	}
-	if socketScope != consts.SocketScopeProjectAssets && socketScope != consts.SocketScopeProjectDetection {
+	if socketScope != consts.SocketScopeProjectAssets && socketScope != consts.SocketScopeProjectDetection && socketScope != consts.SocketScopeProjectReport {
 		response.WriteError(c, rpc_error.BadRequestDefault("socket scope is invalid"))
 		return
 	}
