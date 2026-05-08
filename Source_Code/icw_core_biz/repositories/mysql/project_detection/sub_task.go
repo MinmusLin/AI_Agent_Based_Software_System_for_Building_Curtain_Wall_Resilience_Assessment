@@ -18,7 +18,7 @@ import (
 
 // FindProjectDetectionSubTaskByIdFromTableTx 按子任务表名和子任务 ID 查询项目图像检测子任务记录
 func FindProjectDetectionSubTaskByIdFromTableTx(ctx context.Context, tx *sql.Tx, table string, taskId uint64) (*model.ProjectDetectionSubTaskRecord, error) {
-	return utils.ScanProjectDetectionSubTask(tx.QueryRowContext(ctx, fmt.Sprintf(`
+	return model.ScanProjectDetectionSubTask(tx.QueryRowContext(ctx, fmt.Sprintf(`
 		SELECT id, uuid, main_task_id, user_id, project_id, image_id, status, started_at, finished_at, created_at, updated_at
 		FROM %s
 		WHERE id = ?
@@ -76,7 +76,7 @@ func FindProjectDetectionSubTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskCo
 	if err != nil {
 		return nil, err
 	}
-	record, err := utils.ScanProjectDetectionSubTask(tx.QueryRowContext(ctx, fmt.Sprintf(`
+	record, err := model.ScanProjectDetectionSubTask(tx.QueryRowContext(ctx, fmt.Sprintf(`
 		SELECT id, uuid, main_task_id, user_id, project_id, image_id, status, started_at, finished_at, created_at, updated_at
 		FROM %s
 		WHERE uuid = ?

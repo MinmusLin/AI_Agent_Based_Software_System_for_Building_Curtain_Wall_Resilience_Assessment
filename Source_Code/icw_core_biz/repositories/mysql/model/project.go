@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"icw_common/gen/core/biz"
-	"icw_common/utils"
 
 	"icw_core_biz/repositories/minio"
+	"icw_core_biz/repositories/mysql/utils"
 	"icw_core_biz/repositories/redis"
 )
 
@@ -47,10 +47,10 @@ func ProjectRecordToDTO(record *ProjectRecord) *bizpb.Project {
 		Name:                record.Name,
 		BuildingName:        record.BuildingName,
 		BuildingLocation:    record.BuildingLocation,
-		BuiltYear:           utils.If[uint32](record.BuiltYear.Valid && record.BuiltYear.Int64 >= 0, uint32(record.BuiltYear.Int64), 0),
-		BuildingDescription: record.BuildingDescription.String,
-		KnownIssues:         record.KnownIssues.String,
-		AssessmentGoal:      record.AssessmentGoal.String,
+		BuiltYear:           utils.NullUint32(record.BuiltYear),
+		BuildingDescription: utils.NullString(record.BuildingDescription),
+		KnownIssues:         utils.NullString(record.KnownIssues),
+		AssessmentGoal:      utils.NullString(record.AssessmentGoal),
 		ThumbnailUrl:        "",
 		Progress:            record.Progress,
 		CreatedAt:           record.CreatedAt.Format(time.DateTime),
@@ -188,7 +188,7 @@ func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, r
 		Height:      record.Height,
 		Metadata:    record.Metadata,
 		Status:      record.Status,
-		UploadedAt:  record.UploadedAt.Time.Format(time.DateTime),
+		UploadedAt:  utils.NullTimeString(record.UploadedAt),
 		CreatedAt:   record.CreatedAt.Format(time.DateTime),
 	}
 	if record.Status != bizpb.ProjectImageStatus_Uploaded {

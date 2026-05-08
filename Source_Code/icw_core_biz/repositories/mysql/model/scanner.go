@@ -1,9 +1,7 @@
-package utils
+package model
 
 import (
 	"icw_common/enum"
-
-	"icw_core_biz/repositories/mysql/model"
 )
 
 // sqlScanner 抽象 QueryRow 和 Rows 的 Scan 能力
@@ -12,8 +10,8 @@ type sqlScanner interface {
 }
 
 // ScanProjectDetectionTask 扫描项目图像检测主任务记录
-func ScanProjectDetectionTask(scanner sqlScanner) (*model.ProjectDetectionTaskRecord, error) {
-	task := &model.ProjectDetectionTaskRecord{}
+func ScanProjectDetectionTask(scanner sqlScanner) (*ProjectDetectionTaskRecord, error) {
+	task := &ProjectDetectionTaskRecord{}
 	var status string
 	if err := scanner.Scan(
 		&task.Id,
@@ -47,8 +45,8 @@ func ScanProjectDetectionTask(scanner sqlScanner) (*model.ProjectDetectionTaskRe
 }
 
 // ScanProjectDetectionSubTask 扫描项目图像检测子任务记录
-func ScanProjectDetectionSubTask(scanner sqlScanner) (*model.ProjectDetectionSubTaskRecord, error) {
-	record := &model.ProjectDetectionSubTaskRecord{}
+func ScanProjectDetectionSubTask(scanner sqlScanner) (*ProjectDetectionSubTaskRecord, error) {
+	record := &ProjectDetectionSubTaskRecord{}
 	var status string
 	if err := scanner.Scan(
 		&record.Id,

@@ -13,7 +13,7 @@ import (
 
 // FindProjectDetectionTaskByIdForUpdateTx 按主任务 ID 查询并锁定项目图像检测主任务记录
 func FindProjectDetectionTaskByIdForUpdateTx(ctx context.Context, tx *sql.Tx, taskId uint64) (*model.ProjectDetectionTaskRecord, error) {
-	return utils.ScanProjectDetectionTask(tx.QueryRowContext(ctx, `
+	return model.ScanProjectDetectionTask(tx.QueryRowContext(ctx, `
 		SELECT
 			id,
 			uuid,
@@ -46,7 +46,7 @@ func FindProjectDetectionTaskByIdForUpdateTx(ctx context.Context, tx *sql.Tx, ta
 
 // FindProjectDetectionTaskByUuidTx 按主任务 UUID 查询并锁定项目图像检测主任务记录
 func FindProjectDetectionTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*model.ProjectDetectionTaskRecord, error) {
-	return utils.ScanProjectDetectionTask(tx.QueryRowContext(ctx, `
+	return model.ScanProjectDetectionTask(tx.QueryRowContext(ctx, `
 		SELECT
 			id,
 			uuid,
