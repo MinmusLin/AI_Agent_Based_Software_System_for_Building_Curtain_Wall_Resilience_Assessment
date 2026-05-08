@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/utils"
 
@@ -53,7 +52,7 @@ func ProjectRecordToDTO(record *ProjectRecord) *bizpb.Project {
 		KnownIssues:         record.KnownIssues.String,
 		AssessmentGoal:      record.AssessmentGoal.String,
 		ThumbnailUrl:        "",
-		Progress:            uint32(enum.ProjectProgressUint8(record.Progress)),
+		Progress:            record.Progress,
 		CreatedAt:           record.CreatedAt.Format(time.DateTime),
 		UpdatedAt:           record.UpdatedAt.Format(time.DateTime),
 	}
@@ -89,7 +88,7 @@ func ProjectRecordsToListItemsDTO(records []*ProjectRecord) []*bizpb.ProjectList
 			BuildingName:     record.BuildingName,
 			BuildingLocation: record.BuildingLocation,
 			ThumbnailUrl:     "",
-			Progress:         uint32(enum.ProjectProgressUint8(record.Progress)),
+			Progress:         record.Progress,
 			CreatedAt:        record.CreatedAt.Format(time.DateTime),
 		})
 	}
@@ -188,7 +187,7 @@ func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, r
 		Width:       record.Width,
 		Height:      record.Height,
 		Metadata:    record.Metadata,
-		Status:      enum.ProjectImageStatusString(record.Status),
+		Status:      record.Status,
 		UploadedAt:  record.UploadedAt.Time.Format(time.DateTime),
 		CreatedAt:   record.CreatedAt.Format(time.DateTime),
 	}

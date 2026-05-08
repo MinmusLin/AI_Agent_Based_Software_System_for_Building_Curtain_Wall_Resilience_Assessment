@@ -116,14 +116,14 @@ func NormalizeDetectionTaskCodes(taskCodes []string) ([]string, error) {
 }
 
 // ClassificationNodeStatus 根据图像检测主任务状态推导图像检测分类任务状态
-func ClassificationNodeStatus(task *model.ProjectDetectionTaskRecord) string {
+func ClassificationNodeStatus(task *model.ProjectDetectionTaskRecord) bizpb.ProjectDetectionSubTaskStatus_Value {
 	switch task.Status {
 	case bizpb.ProjectDetectionTaskStatus_Classifying:
-		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Pending)
+		return bizpb.ProjectDetectionSubTaskStatus_Pending
 	case bizpb.ProjectDetectionTaskStatus_Detecting,
 		bizpb.ProjectDetectionTaskStatus_Summarizing,
 		bizpb.ProjectDetectionTaskStatus_Succeeded:
-		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded)
+		return bizpb.ProjectDetectionSubTaskStatus_Succeeded
 	case bizpb.ProjectDetectionTaskStatus_Failed:
 		if !task.CorrosionShouldExecute &&
 			!task.CrackShouldExecute &&
@@ -131,10 +131,10 @@ func ClassificationNodeStatus(task *model.ProjectDetectionTaskRecord) string {
 			!task.FlatnessShouldExecute &&
 			!task.SpallingShouldExecute &&
 			!task.SummaryShouldExecute {
-			return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Failed)
+			return bizpb.ProjectDetectionSubTaskStatus_Failed
 		}
-		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded)
+		return bizpb.ProjectDetectionSubTaskStatus_Succeeded
 	default:
-		return ""
+		return bizpb.ProjectDetectionSubTaskStatus_Unknown
 	}
 }
