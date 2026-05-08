@@ -7,7 +7,6 @@ import (
 
 	"icw_core_biz/internal/services/user/utils"
 	"icw_core_biz/repositories/minio"
-	"icw_core_biz/repositories/redis"
 )
 
 // DeleteAvatar 删除用户自定义头像
@@ -28,7 +27,7 @@ func (s *Service) deleteAvatar(req *bizpb.DeleteAvatarRequest, _ *bizpb.DeleteAv
 
 	if s.Redis() != nil {
 		// 清除预签名 URL 缓存
-		_ = s.Redis().ClearPresignURL(s.Ctx(), redis.GenCustomAvatarPresignURLKey(emailHash))
+		_ = s.Redis().ClearPresignURL(s.Ctx(), minio.GenCustomAvatarKey(emailHash))
 	}
 
 	// 删除用户自定义头像
