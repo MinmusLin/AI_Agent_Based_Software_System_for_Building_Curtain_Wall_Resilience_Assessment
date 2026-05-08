@@ -46,9 +46,9 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 		ImageUuid: req.ImageUuid,
 	}
 
-	// 执行分类任务
+	// 执行图像分类任务并返回检测任务代码列表和模型原始输出
 	classificationStart := time.Now()
-	taskCodes, modelOutput, err := classificationUtils.ExecuteClassification(ctx, req, s.AgentClient(), s.Config().AgentImageSize)
+	taskCodes, output, err := classificationUtils.ExecuteClassification(ctx, req, s.AgentClient(), s.Config().AgentImageSize)
 	classificationCost := time.Since(classificationStart)
 
 	if utils.IsEmptyError(err) {
@@ -58,12 +58,12 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 			callbackReq.TaskCodes = append(callbackReq.TaskCodes, enum.ParseDetectionTaskCode(taskCode))
 		}
 		callbackReq.ErrorMessage = ""
-		common.ClassificationInfo(requestId, req.TaskUuid, req.ImageUuid, taskCodes, modelOutput, classificationCost)
+		common.ClassificationInfo(requestId, req.TaskUuid, req.ImageUuid, taskCodes, output, classificationCost)
 	} else {
 		callbackReq.Status = activitypb.DetectionStatus_Failed
-		callbackReq.TaskCodes = nil
+		callbackReq.TaskCodes = make([]activitypb.DetectionTaskCode_Value, 0)
 		callbackReq.ErrorMessage = err.Error()
-		common.ClassificationError(requestId, req.TaskUuid, req.ImageUuid, taskCodes, modelOutput, classificationCost, err)
+		common.ClassificationError(requestId, req.TaskUuid, req.ImageUuid, taskCodes, output, classificationCost, err)
 	}
 
 	// 上报图像检测分类结果
@@ -73,7 +73,6 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 	if err := icw_core_biz.ReportClassificationResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); utils.IsEmptyError(err) {
 		common.CallbackInfo(requestId, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart)
 		return
-	} else {
-		common.CallbackError(requestId, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart, err)
 	}
+	common.CallbackError(requestId, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart, err)
 }
