@@ -139,6 +139,11 @@ export interface GetImageDetectionResultResponse {
   task_codes?: DetectionTaskCode[];
 }
 
+export interface GetImageDetectionResultRequest {
+  image_uuid: string;
+  project_id: string;
+}
+
 export interface GetProjectDetectionTasksResponse {
   tasks?: ProjectDetectionStatus[];
 }
