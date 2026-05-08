@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 
 	"icw_common/consts"
-	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/utils"
 
@@ -25,11 +24,11 @@ const (
 
 var (
 	// DetectionNodeStatusPending 检测任务节点状态：等待中/执行中
-	DetectionNodeStatusPending = enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Pending)
+	DetectionNodeStatusPending = bizpb.ProjectDetectionSubTaskStatus_Pending
 	// DetectionNodeStatusSucceeded 检测任务节点状态：成功
-	DetectionNodeStatusSucceeded = enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded)
+	DetectionNodeStatusSucceeded = bizpb.ProjectDetectionSubTaskStatus_Succeeded
 	// DetectionNodeStatusFailed 检测任务节点状态：失败
-	DetectionNodeStatusFailed = enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Failed)
+	DetectionNodeStatusFailed = bizpb.ProjectDetectionSubTaskStatus_Failed
 )
 
 // ReasoningNodeCode 生成推理阶段检测任务节点代码
@@ -58,7 +57,7 @@ func PublishProjectImageStatusChangedEvent(ctx context.Context, rocketMQ *rocket
 }
 
 // PublishProjectDetectionNodeStatusChangedEvent 发布项目图像检测任务状态变化事件
-func PublishProjectDetectionNodeStatusChangedEvent(ctx context.Context, rocketMQ *rocketmq.Producer, userId, projectId uint64, imageUuid, nodeCode, mainTaskUuid, mainStatus, subTaskUuid, subStatus string) {
+func PublishProjectDetectionNodeStatusChangedEvent(ctx context.Context, rocketMQ *rocketmq.Producer, userId, projectId uint64, imageUuid, nodeCode, mainTaskUuid string, mainStatus bizpb.ProjectDetectionTaskStatus_Value, subTaskUuid string, subStatus bizpb.ProjectDetectionSubTaskStatus_Value) {
 	event := &bizpb.ProjectDetectionTaskStatusChangedEvent{
 		EventId:      uuid.NewString(),
 		EventType:    consts.EventTypeProjectDetectionTaskStatusChanged,

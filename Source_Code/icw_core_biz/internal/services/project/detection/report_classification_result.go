@@ -21,9 +21,8 @@ func (s *Service) ReportClassificationResult(ctx context.Context, req *bizpb.Rep
 }
 
 func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.ReportClassificationResultRequest) error {
-	status := enum.ParseDetectionStatus(req.Status)
 	var taskStatus bizpb.ProjectDetectionSubTaskStatus_Value
-	switch status {
+	switch req.Status {
 	case activitypb.DetectionStatus_Succeeded:
 		taskStatus = bizpb.ProjectDetectionSubTaskStatus_Succeeded
 	case activitypb.DetectionStatus_Failed:
@@ -31,9 +30,16 @@ func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.Rep
 	default:
 		return rpc_error.BadRequestDefault("detection status is invalid")
 	}
+	taskCodes := make([]string, 0, len(req.TaskCodes))
+	for _, taskCode := range req.TaskCodes {
+		code := enum.DetectionTaskCodeString(taskCode)
+		if code != "" {
+			taskCodes = append(taskCodes, code)
+		}
+	}
 
 	// 按主任务 UUID 更新项目图像检测分类结果
-	task, subTasks, err := s.MySQL().UpdateProjectDetectionClassificationResult(ctx, req.TaskUuid, taskStatus, req.TaskCodes)
+	task, subTasks, err := s.MySQL().UpdateProjectDetectionClassificationResult(ctx, req.TaskUuid, taskStatus, taskCodes)
 	if err != nil || task == nil {
 		return err
 	}
@@ -47,9 +53,9 @@ func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.Rep
 		task.ImageUuid,
 		events.DetectionNodeCodeClassification,
 		task.Uuid,
-		enum.ProjectDetectionTaskStatusString(task.Status),
+		task.Status,
 		"",
-		enum.ProjectDetectionSubTaskStatusString(taskStatus),
+		taskStatus,
 	)
 
 	if task.Status == bizpb.ProjectDetectionTaskStatus_Failed {

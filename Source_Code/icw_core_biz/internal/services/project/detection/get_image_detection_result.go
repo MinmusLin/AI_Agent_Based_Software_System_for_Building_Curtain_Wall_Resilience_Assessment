@@ -73,7 +73,7 @@ func (s *Service) getImageDetectionResult(ctx context.Context, req *bizpb.GetIma
 
 	resp.Image = imageDTO
 	resp.OriginalUrl = originalURL
-	resp.TaskCodes = make([]string, 0)
+	resp.TaskCodes = make([]activitypb.DetectionTaskCode_Value, 0)
 
 	// 将项目图像检测任务填充进 HTTP 响应
 	if err := s.fillProjectDetectionTaskResults(ctx, task, resp); err != nil {
@@ -98,7 +98,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 				return err
 			}
 			resp.CorrosionResult = result
-			resp.TaskCodes = append(resp.TaskCodes, taskCode)
+			resp.TaskCodes = append(resp.TaskCodes, enum.ParseDetectionTaskCode(taskCode))
 		}
 	}
 	if task.CrackShouldExecute && task.CrackTaskId.Valid {
@@ -113,7 +113,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 				return err
 			}
 			resp.CrackResult = result
-			resp.TaskCodes = append(resp.TaskCodes, taskCode)
+			resp.TaskCodes = append(resp.TaskCodes, enum.ParseDetectionTaskCode(taskCode))
 		}
 	}
 	if task.StainShouldExecute && task.StainTaskId.Valid {
@@ -128,7 +128,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 				return err
 			}
 			resp.StainResult = result
-			resp.TaskCodes = append(resp.TaskCodes, taskCode)
+			resp.TaskCodes = append(resp.TaskCodes, enum.ParseDetectionTaskCode(taskCode))
 		}
 	}
 	if task.FlatnessShouldExecute && task.FlatnessTaskId.Valid {
@@ -143,7 +143,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 				return err
 			}
 			resp.FlatnessResult = result
-			resp.TaskCodes = append(resp.TaskCodes, taskCode)
+			resp.TaskCodes = append(resp.TaskCodes, enum.ParseDetectionTaskCode(taskCode))
 		}
 	}
 	if task.SpallingShouldExecute && task.SpallingTaskId.Valid {
@@ -158,7 +158,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 				return err
 			}
 			resp.SpallingResult = result
-			resp.TaskCodes = append(resp.TaskCodes, taskCode)
+			resp.TaskCodes = append(resp.TaskCodes, enum.ParseDetectionTaskCode(taskCode))
 		}
 	}
 	return nil

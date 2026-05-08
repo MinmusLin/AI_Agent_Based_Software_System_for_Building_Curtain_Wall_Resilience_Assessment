@@ -3,7 +3,6 @@ package detection
 import (
 	"context"
 
-	"icw_common/enum"
 	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
@@ -21,9 +20,8 @@ func (s *Service) ReportDetectionSummaryResult(ctx context.Context, req *bizpb.R
 }
 
 func (s *Service) reportDetectionSummaryResult(ctx context.Context, req *bizpb.ReportDetectionSummaryResultRequest) error {
-	status := enum.ParseDetectionStatus(req.Status)
 	var taskStatus bizpb.ProjectDetectionSubTaskStatus_Value
-	switch status {
+	switch req.Status {
 	case activitypb.DetectionStatus_Succeeded:
 		taskStatus = bizpb.ProjectDetectionSubTaskStatus_Succeeded
 	case activitypb.DetectionStatus_Failed:
@@ -47,9 +45,9 @@ func (s *Service) reportDetectionSummaryResult(ctx context.Context, req *bizpb.R
 		task.ImageUuid,
 		events.DetectionNodeCodeSummary,
 		task.Uuid,
-		enum.ProjectDetectionTaskStatusString(task.Status),
+		task.Status,
 		summaryTask.Uuid,
-		enum.ProjectDetectionSubTaskStatusString(taskStatus),
+		taskStatus,
 	)
 
 	return nil

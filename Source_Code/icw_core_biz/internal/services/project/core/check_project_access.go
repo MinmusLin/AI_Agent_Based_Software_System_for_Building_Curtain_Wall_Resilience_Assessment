@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 
-	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 )
@@ -27,8 +26,8 @@ func (s *Service) checkProjectAccess(req *bizpb.CheckProjectAccessRequest, resp 
 	}
 
 	resp.ProjectId = projectRecord.Id
-	resp.Progress = uint32(enum.ProjectProgressUint8(projectRecord.Progress))
-	resp.Status = enum.ProjectStatusString(projectRecord.Status)
+	resp.Progress = projectRecord.Progress
+	resp.Status = projectRecord.Status
 
 	return nil
 }

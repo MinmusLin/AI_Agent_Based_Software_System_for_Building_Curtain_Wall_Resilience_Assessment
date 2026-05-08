@@ -22,9 +22,8 @@ func (s *Service) ReportReasoningResult(ctx context.Context, req *bizpb.ReportRe
 }
 
 func (s *Service) reportReasoningResult(ctx context.Context, req *bizpb.ReportReasoningResultRequest) error {
-	status := enum.ParseDetectionStatus(req.Status)
 	var taskStatus bizpb.ProjectDetectionSubTaskStatus_Value
-	switch status {
+	switch req.Status {
 	case activitypb.DetectionStatus_Succeeded:
 		taskStatus = bizpb.ProjectDetectionSubTaskStatus_Succeeded
 	case activitypb.DetectionStatus_Failed:
@@ -38,9 +37,13 @@ func (s *Service) reportReasoningResult(ctx context.Context, req *bizpb.ReportRe
 	if err != nil {
 		return err
 	}
+	taskCode := enum.DetectionTaskCodeString(req.TaskCode)
+	if taskCode == "" {
+		return rpc_error.BadRequestDefault("detection task code is invalid")
+	}
 
 	// 按推理任务 UUID 更新项目图像检测推理子任务结果
-	task, subTask, summaryTask, err := s.MySQL().UpdateProjectDetectionReasoningTaskResult(ctx, req.TaskCode, req.TaskUuid, taskStatus, req.ResultJson, artifactSha256Map)
+	task, subTask, summaryTask, err := s.MySQL().UpdateProjectDetectionReasoningTaskResult(ctx, taskCode, req.TaskUuid, taskStatus, req.ResultJson, artifactSha256Map)
 	if err != nil || task == nil || subTask == nil {
 		return err
 	}
@@ -52,11 +55,11 @@ func (s *Service) reportReasoningResult(ctx context.Context, req *bizpb.ReportRe
 		task.UserId,
 		task.ProjectId,
 		task.ImageUuid,
-		events.ReasoningNodeCode(req.TaskCode),
+		events.ReasoningNodeCode(taskCode),
 		task.Uuid,
-		enum.ProjectDetectionTaskStatusString(task.Status),
+		task.Status,
 		subTask.Uuid,
-		enum.ProjectDetectionSubTaskStatusString(taskStatus),
+		taskStatus,
 	)
 
 	if summaryTask != nil {

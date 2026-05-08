@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 
@@ -27,7 +26,7 @@ func (s *Service) reportProjectImage(req *bizpb.ReportProjectImageRequest, _ *bi
 	if imageUuid == "" {
 		return rpc_error.BadRequestDefault("image uuid is required")
 	}
-	status := enum.ParseProjectImageStatus(req.Status)
+	status := req.Status
 	if status != bizpb.ProjectImageStatus_Uploaded && status != bizpb.ProjectImageStatus_Failed {
 		return rpc_error.BadRequestDefault("project image status is invalid")
 	}

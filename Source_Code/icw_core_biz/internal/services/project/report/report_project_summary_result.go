@@ -3,7 +3,6 @@ package report
 import (
 	"context"
 
-	"icw_common/enum"
 	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
@@ -19,7 +18,7 @@ func (s *Service) ReportProjectSummaryResult(ctx context.Context, req *bizpb.Rep
 }
 
 func (s *Service) reportProjectSummaryResult(req *bizpb.ReportProjectSummaryResultRequest) error {
-	switch enum.ParseDetectionStatus(req.Status) {
+	switch req.Status {
 	case activitypb.DetectionStatus_Succeeded:
 		return nil
 	case activitypb.DetectionStatus_Failed:
