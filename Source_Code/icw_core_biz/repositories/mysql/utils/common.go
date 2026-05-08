@@ -79,6 +79,55 @@ func JsonStringOrEmptyObject(value string) string {
 	return value
 }
 
+// UnmarshalRegions 将数据库 JSON 字符串解析为检测区域列表
+func UnmarshalRegions[T any](regions sql.NullString, target *[]*T) error {
+	if target == nil {
+		return nil
+	}
+	*target = make([]*T, 0)
+	if !regions.Valid || strings.TrimSpace(regions.String) == "" {
+		return nil
+	}
+	return json.Unmarshal([]byte(regions.String), target)
+}
+
+// NullBool 将 sql.NullBool 转换为 bool
+func NullBool(value sql.NullBool) bool {
+	return value.Valid && value.Bool
+}
+
+// NullFloat64 将 sql.NullFloat64 转换为 float64
+func NullFloat64(value sql.NullFloat64) float64 {
+	if !value.Valid {
+		return 0
+	}
+	return value.Float64
+}
+
+// NullString 将 sql.NullString 转换为 string
+func NullString(value sql.NullString) string {
+	if !value.Valid {
+		return ""
+	}
+	return value.String
+}
+
+// NullUint32 将 sql.NullInt64 转换为 uint32
+func NullUint32(value sql.NullInt64) uint32 {
+	if !value.Valid || value.Int64 <= 0 {
+		return 0
+	}
+	return uint32(value.Int64)
+}
+
+// NullUint64 将 sql.NullInt64 转换为 uint64
+func NullUint64(value sql.NullInt64) uint64 {
+	if !value.Valid || value.Int64 <= 0 {
+		return 0
+	}
+	return uint64(value.Int64)
+}
+
 // CheckRowsAffected 检查 SQL 执行结果是否至少影响一行
 func CheckRowsAffected(result sql.Result, err error) error {
 	if err != nil {
