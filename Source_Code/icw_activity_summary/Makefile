@@ -17,7 +17,7 @@ help:
 	@echo "Usage: make <COMMAND>"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make all                Run fmt, tidy, vet, test"
+	@echo "  make all                Run fmt, tidy, vet, test, and build"
 	@echo "  make verify             Run fmt-check, tidy-check, vet, and test"
 	@echo "  make fmt                Format Go files"
 	@echo "  make fmt-check          Check Go formatting without modifying files"
