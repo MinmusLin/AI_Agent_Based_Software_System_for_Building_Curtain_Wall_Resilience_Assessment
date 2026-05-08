@@ -258,7 +258,7 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 
 // FindProjectDetectionTaskById 按主任务 ID 查询项目图像检测主任务
 func (r *Repository) FindProjectDetectionTaskById(ctx context.Context, taskId uint64) (*model.ProjectDetectionTaskRecord, error) {
-	task, err := utils.ScanProjectDetectionTask(r.mysql.QueryRowContext(ctx, `
+	task, err := model.ScanProjectDetectionTask(r.mysql.QueryRowContext(ctx, `
 		SELECT
 			id,
 			uuid,
@@ -298,7 +298,7 @@ func (r *Repository) FindProjectDetectionTaskById(ctx context.Context, taskId ui
 
 // FindProjectDetectionTaskByImageUuid 按用户 ID、项目 ID 和图像 UUID 查询项目图像检测主任务
 func (r *Repository) FindProjectDetectionTaskByImageUuid(ctx context.Context, userId, projectId uint64, imageUuid string) (*model.ProjectDetectionTaskRecord, error) {
-	task, err := utils.ScanProjectDetectionTask(r.mysql.QueryRowContext(ctx, `
+	task, err := model.ScanProjectDetectionTask(r.mysql.QueryRowContext(ctx, `
 		SELECT
 			id,
 			uuid,
@@ -377,7 +377,7 @@ func (r *Repository) GetProjectDetectionTasksStatus(ctx context.Context, userId,
 
 	tasks := make([]*model.ProjectDetectionTaskRecord, 0)
 	for rows.Next() {
-		task, err := utils.ScanProjectDetectionTask(rows)
+		task, err := model.ScanProjectDetectionTask(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -447,7 +447,7 @@ func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sq
 		DetectionStatus: make([]*commonpb.ProjectDetectionNodeStatus, 0),
 	}
 
-	if subStatus := utils.ClassificationNodeStatus(task); subStatus != bizpb.ProjectDetectionSubTaskStatus_Unknown {
+	if subStatus := project_detection.ClassificationNodeStatus(task); subStatus != bizpb.ProjectDetectionSubTaskStatus_Unknown {
 		item.ClassificationStatus = &commonpb.ProjectDetectionNodeStatus{
 			NodeCode:  "classification",
 			SubStatus: subStatus,
@@ -967,7 +967,7 @@ func (r *Repository) UpdateProjectDetectionClassificationResult(ctx context.Cont
 		return task, nil, err
 	}
 
-	taskCodes, err = utils.NormalizeDetectionTaskCodes(taskCodes)
+	taskCodes, err = project_detection.NormalizeDetectionTaskCodes(taskCodes)
 	if err != nil {
 		return nil, nil, err
 	}
