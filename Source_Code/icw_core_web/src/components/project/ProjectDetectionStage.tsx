@@ -1,32 +1,76 @@
-import { message } from 'antd';
-import type { DragEvent, ReactElement } from 'react';
+import { Empty, message, Spin } from 'antd';
+import type { ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getErrorMessage } from '@/api/http';
 import { getProjectAssets } from '@/api/project/assets';
-import { ProjectAssessContent } from '@/components/project/assess/ProjectAssessContent';
-import { ProjectAssessToolbar } from '@/components/project/assess/ProjectAssessToolbar';
-import { ProjectAssessViewer } from '@/components/project/assess/ProjectAssessViewer';
-import { useProjectAssetsViewer } from '@/hooks/project/useProjectAssetsViewer';
-import type { ProjectGroup } from '@/types/project/assets';
+import { advanceProject } from '@/api/project/core';
 import {
-  flattenUploadedImages,
-  groupIdsSet,
-  normalizeGroups,
-  projectGroupImageStats,
-  UPLOAD_ACCEPT,
-} from '@/utils/assetsStage';
+  getImageDetectionResult,
+  getProjectDetectionTasks,
+  retryProjectDetection,
+  startProjectDetection,
+} from '@/api/project/detection';
+import { ProjectDetectionGroup } from '@/components/project/detection/ProjectDetectionGroup';
+import { ProjectDetectionProgressViewer } from '@/components/project/detection/ProjectDetectionProgressViewer';
+import { ProjectDetectionResultViewer } from '@/components/project/detection/ProjectDetectionResultViewer';
+import { ProjectDetectionToolbar } from '@/components/project/detection/ProjectDetectionToolbar';
+import { useProjectDetectionSocket } from '@/hooks/project/useProjectDetectionSocket';
+import type { ProjectProgress } from '@/types/common';
+import { PROJECT_PROGRESS_ASSETS_FINISHED, PROJECT_PROGRESS_DETECTION_FINISHED } from '@/types/common';
+import type { ProjectGroup } from '@/types/project/assets';
+import type { Project } from '@/types/project/core';
+import type { GetImageDetectionResultResponse } from '@/types/project/detection';
+import { EMPTY_ITEMS_COUNT, flattenUploadedImages, normalizeGroups, NOT_FOUND_INDEX } from '@/utils/assetsStage';
+import type { ProjectDetectionStatusMap } from '@/utils/detectionStage';
+import {
+  allDetectionTasksSucceeded,
+  detectionActionState,
+  detectionTasksMap,
+  detectionTaskStatusStats,
+  hasDetectionTasks,
+  hasFailedDetectionTask,
+  isDetectionTaskSucceeded,
+} from '@/utils/detectionStage';
+
+const DEFAULT_TASK_COUNT = 0;
 
 interface ProjectDetectionStageProps {
   loading?: boolean;
+  onProgressChange: (progress: ProjectProgress) => void;
+  onProjectChange: (project: Project) => void;
+  project: Project;
   projectId: string;
+  selectedProgress: ProjectProgress;
 }
 
-export function ProjectDetectionStage({ loading = false, projectId }: ProjectDetectionStageProps): ReactElement {
+export function ProjectDetectionStage({
+  loading = false,
+  onProgressChange,
+  onProjectChange,
+  project,
+  projectId,
+  selectedProgress,
+}: ProjectDetectionStageProps): ReactElement {
   const [messageApi, contextHolder] = message.useMessage();
   const [groups, setGroups] = useState<ProjectGroup[]>([]);
+  const [taskMap, setTaskMap] = useState<ProjectDetectionStatusMap>({});
   const [assetsLoading, setAssetsLoading] = useState(true);
+  const [detectionLoading, setDetectionLoading] = useState(true);
+  const [startingDetection, setStartingDetection] = useState(false);
+  const [retryingDetection, setRetryingDetection] = useState(false);
+  const [advancing, setAdvancing] = useState(false);
   const [collapsedGroupIds, setCollapsedGroupIds] = useState<Set<string>>(() => new Set());
+  const [viewerImageUuid, setViewerImageUuid] = useState<string | null>(null);
+  const [viewerLoading, setViewerLoading] = useState(false);
+  const [viewerResult, setViewerResult] = useState<GetImageDetectionResultResponse | null>(null);
+  const [progressImageUuid, setProgressImageUuid] = useState<string | null>(null);
+
+  const readOnly =
+    loading ||
+    project.progress > PROJECT_PROGRESS_ASSETS_FINISHED ||
+    selectedProgress !== PROJECT_PROGRESS_ASSETS_FINISHED;
+
   const showError = useCallback(
     (text: string): void => {
       void messageApi.error(text);
@@ -50,119 +94,251 @@ export function ProjectDetectionStage({ loading = false, projectId }: ProjectDet
     }
   }, [projectId, showError]);
 
+  const loadDetectionTasks = useCallback(async (): Promise<void> => {
+    if (projectId === '') {
+      return;
+    }
+
+    setDetectionLoading(true);
+    try {
+      const data = await getProjectDetectionTasks(projectId);
+      setTaskMap(detectionTasksMap(data.tasks));
+    } catch (error: unknown) {
+      showError(getErrorMessage(error));
+    } finally {
+      setDetectionLoading(false);
+    }
+  }, [projectId, showError]);
+
+  const refreshPage = useCallback(async (): Promise<void> => {
+    await Promise.all([loadAssets(), loadDetectionTasks()]);
+  }, [loadAssets, loadDetectionTasks]);
+
   useEffect(() => {
     if (loading) {
       return;
     }
-    void loadAssets();
-  }, [loadAssets, loading]);
+    void refreshPage();
+  }, [loading, refreshPage]);
 
   const uploadedImages = useMemo(() => flattenUploadedImages(groups), [groups]);
-  const imageStats = useMemo(() => projectGroupImageStats(groups), [groups]);
-  const { openImageViewer, setViewer, viewer, viewerImage, viewerIndex } = useProjectAssetsViewer({
-    onError: showError,
-    projectId,
-    uploadedImages,
-  });
+  const viewerIndex = useMemo(() => {
+    if (!viewerImageUuid) {
+      return NOT_FOUND_INDEX;
+    }
+    return uploadedImages.findIndex((item) => item.image.uuid === viewerImageUuid);
+  }, [uploadedImages, viewerImageUuid]);
+  const progressTask = progressImageUuid ? taskMap[progressImageUuid] : undefined;
+
+  const openDetectionResultViewer = useCallback(
+    async (imageUuid: string): Promise<void> => {
+      setViewerImageUuid(imageUuid);
+      setViewerLoading(true);
+      setViewerResult(null);
+      try {
+        const data = await getImageDetectionResult({
+          image_uuid: imageUuid,
+          project_id: projectId,
+        });
+        setViewerResult(data);
+      } catch (error: unknown) {
+        setViewerImageUuid(null);
+        showError(getErrorMessage(error));
+      } finally {
+        setViewerLoading(false);
+      }
+    },
+    [projectId, showError],
+  );
+
+  const openDetectionImage = useCallback(
+    (imageUuid: string): void => {
+      const task = taskMap[imageUuid];
+      if (task && !isDetectionTaskSucceeded(task)) {
+        setProgressImageUuid(imageUuid);
+        return;
+      }
+      void openDetectionResultViewer(imageUuid);
+    },
+    [openDetectionResultViewer, taskMap],
+  );
+
+  const handleStartDetection = useCallback(async (): Promise<void> => {
+    if (projectId === '') {
+      return;
+    }
+
+    setStartingDetection(true);
+    try {
+      const data = await startProjectDetection(projectId);
+      void messageApi.success(`已提交 ${String(data.task_count ?? DEFAULT_TASK_COUNT)} 张图像检测任务`);
+      await loadDetectionTasks();
+    } catch (error: unknown) {
+      showError(getErrorMessage(error));
+    } finally {
+      setStartingDetection(false);
+    }
+  }, [loadDetectionTasks, messageApi, projectId, showError]);
+
+  const handleRetryDetection = useCallback(async (): Promise<void> => {
+    if (projectId === '') {
+      return;
+    }
+
+    setRetryingDetection(true);
+    try {
+      const data = await retryProjectDetection(projectId);
+      void messageApi.success(`已重新提交 ${String(data.task_count ?? DEFAULT_TASK_COUNT)} 张失败图像检测任务`);
+      await loadDetectionTasks();
+    } catch (error: unknown) {
+      showError(getErrorMessage(error));
+    } finally {
+      setRetryingDetection(false);
+    }
+  }, [loadDetectionTasks, messageApi, projectId, showError]);
+
+  const handleComplete = useCallback(async (): Promise<void> => {
+    setAdvancing(true);
+    try {
+      await advanceProject({
+        from_progress: project.progress,
+        project_id: projectId,
+        to_progress: PROJECT_PROGRESS_DETECTION_FINISHED,
+      });
+      onProjectChange({
+        ...project,
+        progress: PROJECT_PROGRESS_DETECTION_FINISHED,
+      });
+      onProgressChange(PROJECT_PROGRESS_DETECTION_FINISHED);
+    } catch (error: unknown) {
+      showError(getErrorMessage(error));
+    } finally {
+      setAdvancing(false);
+    }
+  }, [onProgressChange, onProjectChange, project, projectId, showError]);
+
+  const handleToggleCollapsed = useCallback((groupId: string): void => {
+    setCollapsedGroupIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+      if (nextIds.has(groupId)) {
+        nextIds.delete(groupId);
+      } else {
+        nextIds.add(groupId);
+      }
+      return nextIds;
+    });
+  }, []);
 
   const handleCollapseAllGroups = useCallback((): void => {
-    setCollapsedGroupIds(groupIdsSet(groups));
+    setCollapsedGroupIds(new Set(groups.map((group) => group.id)));
   }, [groups]);
+
   const handleExpandAllGroups = useCallback((): void => {
     setCollapsedGroupIds(new Set());
   }, []);
-  const noop = useCallback((): void => undefined, []);
-  const noopGroupDragOver = useCallback((event: DragEvent<HTMLElement>): void => {
-    event.preventDefault();
-  }, []);
+
+  const pageLoading = loading || assetsLoading || detectionLoading;
+  useProjectDetectionSocket({ enabled: !loading, projectId, setTasks: setTaskMap });
+
+  useEffect(() => {
+    if (progressTask && isDetectionTaskSucceeded(progressTask)) {
+      setProgressImageUuid(null);
+    }
+  }, [progressTask]);
+
+  const taskStatusStats = useMemo(() => detectionTaskStatusStats(taskMap), [taskMap]);
+  const detectionStarted = hasDetectionTasks(taskMap);
+  const detectionFailed = hasFailedDetectionTask(taskMap);
+  const detectionCompleted = allDetectionTasksSucceeded(taskMap, uploadedImages.length);
+  const actionState = detectionActionState({
+    detectionCompleted,
+    detectionFailed,
+    detectionStarted,
+    pageLoading,
+    readOnly,
+    uploadedImageCount: uploadedImages.length,
+  });
 
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">
       {contextHolder}
-      <ProjectAssessToolbar
-        advancing={false}
-        assetsLoading={assetsLoading}
-        batchDeleting={false}
-        batchMode={false}
-        batchMoveDisabled
-        batchMoveMenuItems={[]}
-        batchMoving={false}
-        canComplete={false}
-        creatingGroup={false}
-        failedImageCount={imageStats.failed}
+      <ProjectDetectionToolbar
+        advancing={advancing}
+        canComplete={actionState.canComplete}
+        canRetry={actionState.canRetry}
+        canStart={actionState.canStart}
+        failedTaskCount={taskStatusStats.failed}
         groupCount={groups.length}
-        hasSelectedImages={false}
-        onBatchDeleteImages={noop}
-        onBatchModeToggle={noop}
-        onBatchMoveImages={noop}
+        loading={pageLoading}
         onCollapseAllGroups={handleCollapseAllGroups}
-        onComplete={noop}
-        onCreateGroup={noop}
+        onComplete={() => {
+          void handleComplete();
+        }}
         onExpandAllGroups={handleExpandAllGroups}
-        onRefresh={noop}
-        pendingImageCount={imageStats.pending}
-        readOnly
-        totalImageCount={imageStats.total}
+        onRefresh={() => {
+          void refreshPage();
+        }}
+        onRetry={() => {
+          void handleRetryDetection();
+        }}
+        onStart={() => {
+          void handleStartDetection();
+        }}
+        retrying={retryingDetection}
+        runningTaskCount={taskStatusStats.running}
+        showComplete={actionState.showComplete}
+        showRetry={actionState.showRetry}
+        showStart={actionState.showStart}
+        starting={startingDetection}
+        totalImageCount={uploadedImages.length}
       />
       <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-        <ProjectAssessContent
-          accept={UPLOAD_ACCEPT}
-          assetsLoading={assetsLoading}
-          batchMode={false}
-          collapsedGroupIds={collapsedGroupIds}
-          deletingGroupIds={new Set()}
-          deletingImageUuids={new Set()}
-          draggingGroupId=""
-          editingGroupId=""
-          editingGroupName=""
-          groups={groups}
-          onDeleteGroup={noop}
-          onDeleteImage={noop}
-          onDeselectGroupImages={noop}
-          onEditingGroupNameChange={noop}
-          onGroupDragEnd={noop}
-          onGroupDragOver={noopGroupDragOver}
-          onGroupDragStart={noop}
-          onGroupDrop={noopGroupDragOver}
-          onImageDragEnd={noop}
-          onImageDragStart={noop}
-          onOpenImageViewer={(imageUuid) => {
-            void openImageViewer(imageUuid);
-          }}
-          onSaveEditGroup={noop}
-          onSelectGroupImages={noop}
-          onStartEditGroup={noop}
-          onToggleCollapsed={(groupId) => {
-            setCollapsedGroupIds((currentIds) => {
-              const nextIds = new Set(currentIds);
-              if (nextIds.has(groupId)) {
-                nextIds.delete(groupId);
-              } else {
-                nextIds.add(groupId);
-              }
-              return nextIds;
-            });
-          }}
-          onToggleSelectedImage={noop}
-          onUploadFiles={noop}
-          readOnly
-          registerGroupRef={noop}
-          savingGroupId=""
-          selectedImageUuids={new Set()}
-          uploadingImages={false}
-        />
+        {pageLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <Spin description="正在加载智能检测数据" />
+          </div>
+        ) : null}
+        {!pageLoading && groups.length === EMPTY_ITEMS_COUNT ? (
+          <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-200">
+            <Empty description="暂无图像资产，请完成图像资产构建" />
+          </div>
+        ) : null}
+        {!pageLoading && groups.length > EMPTY_ITEMS_COUNT ? (
+          <div className="space-y-4">
+            {groups.map((group) => (
+              <ProjectDetectionGroup
+                collapsed={collapsedGroupIds.has(group.id)}
+                group={group}
+                key={group.id}
+                onOpenImageViewer={openDetectionImage}
+                onOpenProgressViewer={setProgressImageUuid}
+                onToggleCollapsed={handleToggleCollapsed}
+                taskMap={taskMap}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
-      <ProjectAssessViewer
+      <ProjectDetectionResultViewer
+        loading={viewerLoading}
         onClose={() => {
-          setViewer(null);
+          setViewerImageUuid(null);
+          setViewerResult(null);
         }}
         onOpenImage={(imageUuid) => {
-          void openImageViewer(imageUuid);
+          void openDetectionResultViewer(imageUuid);
         }}
+        open={viewerImageUuid !== null}
+        result={viewerResult}
         uploadedImages={uploadedImages}
-        viewer={viewer}
-        viewerImage={viewerImage}
         viewerIndex={viewerIndex}
+      />
+      <ProjectDetectionProgressViewer
+        onClose={() => {
+          setProgressImageUuid(null);
+        }}
+        open={progressImageUuid !== null && progressTask !== undefined && !isDetectionTaskSucceeded(progressTask)}
+        task={progressTask}
       />
     </div>
   );

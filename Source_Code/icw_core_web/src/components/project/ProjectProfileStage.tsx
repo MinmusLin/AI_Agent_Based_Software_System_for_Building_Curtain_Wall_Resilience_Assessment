@@ -231,7 +231,13 @@ function ProjectThumbnailControl({
         ref={inputRef}
         type="file"
       />
-      <div className="group relative aspect-square overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
+      <div
+        className={`group relative aspect-square overflow-hidden rounded-lg border border-dashed bg-white transition duration-200 ${
+          !hasThumbnail && !actionDisabled
+            ? 'border-slate-300 hover:border-[#1677FF] hover:bg-blue-50'
+            : 'border-slate-300'
+        }`}
+      >
         {hasThumbnail ? (
           <div className="size-full overflow-hidden rounded-lg">
             <img
@@ -277,7 +283,9 @@ function ProjectThumbnailControl({
         ) : (
           <button
             aria-label="上传缩略图"
-            className="flex size-full flex-col items-center justify-center gap-2 text-sm text-slate-500 transition duration-200 hover:border-[#1677FF] hover:text-[#1677FF] disabled:cursor-not-allowed disabled:hover:text-slate-400"
+            className={`flex size-full flex-col items-center justify-center gap-2 text-sm transition duration-200 disabled:cursor-not-allowed ${
+              actionDisabled ? 'text-slate-400' : 'text-slate-500 group-hover:text-[#1677FF]'
+            }`}
             disabled={actionDisabled}
             onClick={openFileSelector}
             type="button"
@@ -314,6 +322,7 @@ export function ProjectProfileStage({
   const yearOptions = useMemo(() => buildYearOptions(), []);
   const createdAtText = useMemo(() => formatDateTime(project.created_at), [project.created_at]);
   const updatedAtText = useMemo(() => formatDateTime(project.updated_at), [project.updated_at]);
+  const builtYearText = form.builtYear > EMPTY_BUILT_YEAR ? `${String(form.builtYear)} 年` : '';
   const readOnly =
     loading ||
     project.progress > PROJECT_PROGRESS_INITIALIZATION_FINISHED ||
@@ -440,17 +449,21 @@ export function ProjectProfileStage({
             </label>
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-slate-700">建筑建成年份</span>
-              <Select
-                allowClear
-                className="w-full"
-                disabled={readOnly}
-                onChange={(value: number | undefined) => {
-                  updateFormField('builtYear', value ?? EMPTY_BUILT_YEAR);
-                }}
-                options={yearOptions}
-                placeholder="请选择年份"
-                value={form.builtYear > EMPTY_BUILT_YEAR ? form.builtYear : undefined}
-              />
+              {readOnly ? (
+                <Input disabled={loading} readOnly value={loading ? '' : builtYearText} />
+              ) : (
+                <Select
+                  allowClear
+                  className="w-full"
+                  disabled={loading}
+                  onChange={(value: number | undefined) => {
+                    updateFormField('builtYear', value ?? EMPTY_BUILT_YEAR);
+                  }}
+                  options={yearOptions}
+                  placeholder="请选择年份"
+                  value={form.builtYear > EMPTY_BUILT_YEAR ? form.builtYear : undefined}
+                />
+              )}
             </label>
           </div>
         </div>

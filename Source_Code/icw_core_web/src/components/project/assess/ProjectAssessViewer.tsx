@@ -100,7 +100,7 @@ function ProjectImageViewerDetails({ image }: ProjectImageViewerDetailsProps): R
       </div>
       <div className="mt-4 flex min-h-0 flex-1 flex-col">
         <div className="mb-1 font-medium text-slate-900">元数据</div>
-        <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-all rounded bg-slate-50 p-3 text-xs leading-5">
+        <pre className="min-h-0 flex-1 overflow-auto overscroll-contain whitespace-pre-wrap break-all rounded bg-slate-50 p-3 text-xs leading-5">
           {formatProjectImageMetadata(image?.metadata ?? '{}')}
         </pre>
       </div>

@@ -83,7 +83,7 @@ export function ProjectAssessContent({
   if (assetsLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <Spin description="正在加载图像资产" />
+        <Spin description="正在加载图像资产数据" />
       </div>
     );
   }
