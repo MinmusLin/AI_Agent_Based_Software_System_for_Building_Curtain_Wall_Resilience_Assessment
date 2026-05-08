@@ -269,6 +269,44 @@ function reportEntries(report: Record<string, unknown>): [string, unknown][] {
   return detailEntries(report, REPORT_EXCLUDED_FIELDS);
 }
 
+function isFlatnessUneven(result?: DetectionResult): boolean {
+  return Boolean(result && 'result' in result && result.result === 'uneven');
+}
+
+function showDetectionRegions(taskKey: string, result?: DetectionResult): boolean {
+  if (!result) {
+    return false;
+  }
+  if (taskKey === 'corrosion' && 'has_corrosion' in result) {
+    return Boolean(result.has_corrosion);
+  }
+  if (taskKey === 'crack' && 'has_crack' in result) {
+    return Boolean(result.has_crack);
+  }
+  if (taskKey === 'stain' && 'has_stain' in result) {
+    return Boolean(result.has_stain);
+  }
+  if (taskKey === 'flatness') {
+    return isFlatnessUneven(result);
+  }
+  return false;
+}
+
+function visibleRegions(taskKey: string, result?: DetectionResult): Record<string, unknown>[] {
+  return showDetectionRegions(taskKey, result) ? resultRegions(result) : [];
+}
+
+function detectionDataEntries(
+  taskKey: string,
+  report: Record<string, unknown>,
+  result?: DetectionResult,
+): [string, unknown][] {
+  if (taskKey === 'flatness' && !isFlatnessUneven(result)) {
+    return [];
+  }
+  return reportEntries(report);
+}
+
 function resultReport(result?: DetectionResult): Record<string, unknown> {
   if (!result) {
     return {};
@@ -285,8 +323,8 @@ function resultRegions(result?: DetectionResult): Record<string, unknown>[] {
   return result.regions.map((item) => ({ ...item }));
 }
 
-function resultPageIndex(result: DetectionResult | undefined, pageIndex: number): number {
-  const pageCount = resultRegions(result).length + NEXT_INDEX_OFFSET;
+function resultPageIndex(taskKey: string, result: DetectionResult | undefined, pageIndex: number): number {
+  const pageCount = visibleRegions(taskKey, result).length + NEXT_INDEX_OFFSET;
   return Math.min(pageIndex, Math.max(pageCount - NEXT_INDEX_OFFSET, DETECTION_DATA_PAGE_INDEX));
 }
 
@@ -487,15 +525,16 @@ function DetectionResultTab({
   taskKey,
 }: DetectionResultTabProps): ReactElement {
   const report = resultReport(result);
-  const regions = resultRegions(result);
-  const currentPageIndex = resultPageIndex(result, groupIndex);
+  const regions = visibleRegions(taskKey, result);
+  const currentPageIndex = resultPageIndex(taskKey, result, groupIndex);
   const currentRegion =
     currentPageIndex > DETECTION_DATA_PAGE_INDEX ? (regions.at(currentPageIndex - NEXT_INDEX_OFFSET) ?? null) : null;
   const detailRows =
     currentRegion === null
-      ? reportEntries(report)
+      ? detectionDataEntries(taskKey, report, result)
       : detailEntries(currentRegion, new Set([...REPORT_EXCLUDED_FIELDS, 'id']));
   const showNavigation = regions.length > EMPTY_ITEMS_COUNT;
+  const showReportDetails = showNavigation || detailRows.length > EMPTY_ITEMS_COUNT;
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-4 text-sm text-slate-600">
@@ -523,16 +562,18 @@ function DetectionResultTab({
           <div>{imageDateText(result?.finished_at)}</div>
         </div>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col">
-        {showNavigation ? (
-          <ResultNavigation
-            currentIndex={currentPageIndex}
-            onChange={onGroupIndexChange}
-            regionCount={regions.length}
-          />
-        ) : null}
-        <ReportDetails entries={detailRows} title={currentRegion === null ? '检测数据' : '区域数据'} />
-      </div>
+      {showReportDetails ? (
+        <div className="flex min-h-0 flex-1 flex-col">
+          {showNavigation ? (
+            <ResultNavigation
+              currentIndex={currentPageIndex}
+              onChange={onGroupIndexChange}
+              regionCount={regions.length}
+            />
+          ) : null}
+          <ReportDetails entries={detailRows} title={currentRegion === null ? '检测数据' : '区域数据'} />
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -630,12 +671,16 @@ function taskArtifactPreview(
   taskKey: string,
   artifacts: ProjectDetectionArtifacts,
   pageIndex: number,
+  result?: DetectionResult,
 ): ReactElement | null {
   if (taskKey === 'corrosion') {
+    if (!showDetectionRegions(taskKey, result)) {
+      return null;
+    }
     return <SingleArtifactPreview name="annotated.png" url={artifactUrl(artifacts, 'annotated.png')} />;
   }
   if (taskKey === 'crack') {
-    if (pageIndex === DETECTION_DATA_PAGE_INDEX) {
+    if (pageIndex === DETECTION_DATA_PAGE_INDEX || !showDetectionRegions(taskKey, result)) {
       return null;
     }
     return (
@@ -646,6 +691,9 @@ function taskArtifactPreview(
     );
   }
   if (taskKey === 'stain') {
+    if (!showDetectionRegions(taskKey, result)) {
+      return null;
+    }
     if (pageIndex === DETECTION_DATA_PAGE_INDEX) {
       return <SingleArtifactPreview name="annotated.png" url={artifactUrl(artifacts, 'annotated.png')} />;
     }
@@ -664,12 +712,10 @@ function taskArtifactPreview(
   }
   if (taskKey === 'flatness') {
     if (pageIndex === DETECTION_DATA_PAGE_INDEX) {
-      return (
-        <HorizontalArtifactsPreview
-          left={{ name: 'mask.png', url: artifactUrl(artifacts, 'mask.png') }}
-          right={{ name: 'overlay.png', url: artifactUrl(artifacts, 'overlay.png') }}
-        />
-      );
+      return null;
+    }
+    if (!showDetectionRegions(taskKey, result)) {
+      return null;
     }
     return <FlatnessRegionPreview artifacts={artifacts} regionId={String(pageIndex)} />;
   }
@@ -689,7 +735,12 @@ function DetectionPreview({
     return <OriginalImagePreview image={image} loading={loading} originalUrl={originalUrl} />;
   }
 
-  const preview = taskArtifactPreview(taskKey, resultArtifacts(result), resultPageIndex(result, groupIndex));
+  const preview = taskArtifactPreview(
+    taskKey,
+    resultArtifacts(result),
+    resultPageIndex(taskKey, result, groupIndex),
+    result,
+  );
   if (!preview) {
     return <OriginalImagePreview image={image} loading={false} originalUrl={originalUrl} />;
   }
