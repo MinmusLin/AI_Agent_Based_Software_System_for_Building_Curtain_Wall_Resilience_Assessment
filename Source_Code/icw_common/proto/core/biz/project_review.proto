@@ -4,12 +4,38 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
-// 人工复核 RPC 服务
-service ProjectReviewService {
-  // 人工复核服务探活
-  rpc Ping(PingReviewRequest) returns (PingReviewResponse);
+import "core/common.proto";
+
+// GetProjectDetectionReview 请求结构体
+message GetProjectDetectionReviewRequest {
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+  string task_uuid = 3;
 }
 
-message PingReviewRequest {}
+// GetProjectDetectionReview 响应结构体
+message GetProjectDetectionReviewResponse {
+  .icw.core.common.ProjectDetectionReview review = 1;
+}
 
-message PingReviewResponse {}
+// UpdateProjectDetectionReview 请求结构体
+message UpdateProjectDetectionReviewRequest {
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+  string task_uuid = 3;
+  .icw.core.common.ProjectDetectionReviewVerdict.Value verdict = 4;
+  string comment = 5;
+}
+
+// UpdateProjectDetectionReview 响应结构体
+message UpdateProjectDetectionReviewResponse {
+  .icw.core.common.ProjectDetectionReview review = 1;
+}
+
+// 人工复核 RPC 服务
+service ProjectReviewService {
+  // 获取图像检测人工复核信息
+  rpc GetProjectDetectionReview(GetProjectDetectionReviewRequest) returns (GetProjectDetectionReviewResponse);
+  // 更新图像检测人工复核信息
+  rpc UpdateProjectDetectionReview(UpdateProjectDetectionReviewRequest) returns (UpdateProjectDetectionReviewResponse);
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+import "core/common.proto";
+
+// GetProjectReport 请求结构体
+message GetProjectReportRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+}
+
+// GetProjectReport 响应结构体
+message GetProjectReportResponse {
+  .icw.core.common.ProjectReport report = 1;
+}

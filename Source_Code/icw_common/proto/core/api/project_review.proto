@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+import "core/common.proto";
+
+// GetProjectDetectionReview 请求结构体
+message GetProjectDetectionReviewRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+  string task_uuid = 2; // 从 HTTP Query 获取
+}
+
+// GetProjectDetectionReview 响应结构体
+message GetProjectDetectionReviewResponse {
+  .icw.core.common.ProjectDetectionReview review = 1;
+}
+
+// UpdateProjectDetectionReview 请求结构体
+message UpdateProjectDetectionReviewRequest {
+  string project_id = 1;
+  string task_uuid = 2;
+  .icw.core.common.ProjectDetectionReviewVerdict.Value verdict = 3;
+  string comment = 4;
+}
+
+// UpdateProjectDetectionReview 响应结构体
+message UpdateProjectDetectionReviewResponse {
+  .icw.core.common.ProjectDetectionReview review = 1;
+}

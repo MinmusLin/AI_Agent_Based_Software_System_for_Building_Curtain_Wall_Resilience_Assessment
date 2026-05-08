@@ -5,6 +5,18 @@ package icw.core.biz;
 option go_package = "icw_common/gen/core/biz;bizpb";
 
 import "activity/common.proto";
+import "core/common.proto";
+
+// GetProjectReport 请求结构体
+message GetProjectReportRequest {
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+}
+
+// GetProjectReport 响应结构体
+message GetProjectReportResponse {
+  .icw.core.common.ProjectReport report = 1;
+}
 
 // ReportProjectSummaryResult 请求结构体
 message ReportProjectSummaryResultRequest {
@@ -19,6 +31,8 @@ message ReportProjectSummaryResultResponse {}
 
 // 评估报告 RPC 服务
 service ProjectReportService {
+  // 获取项目评估报告
+  rpc GetProjectReport(GetProjectReportRequest) returns (GetProjectReportResponse);
   // 上报项目总结结果
   rpc ReportProjectSummaryResult(ReportProjectSummaryResultRequest) returns (ReportProjectSummaryResultResponse);
 }
