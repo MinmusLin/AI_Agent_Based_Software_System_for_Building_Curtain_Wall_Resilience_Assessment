@@ -64,9 +64,9 @@ func ProjectDetectionSubTaskAggregateStatusTx(ctx context.Context, tx *sql.Tx, m
 		switch status {
 		case bizpb.ProjectDetectionSubTaskStatus_Succeeded:
 			succeededCount++
-		default:
+		case bizpb.ProjectDetectionSubTaskStatus_Failed:
 			anyFailed = true
-
+		default:
 		}
 	}
 
