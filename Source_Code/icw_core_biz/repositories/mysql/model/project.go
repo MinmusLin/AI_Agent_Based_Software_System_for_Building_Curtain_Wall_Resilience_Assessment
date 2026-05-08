@@ -65,7 +65,7 @@ func ProjectRecordToDTOWithThumbnail(ctx context.Context, minioRepo *minio.Repos
 	if item == nil {
 		return nil, nil
 	}
-	thumbnailURL, err := minio.PresignProjectThumbnailURL(ctx, minioRepo, redisRepo, record.UserId, record.Id, ttl)
+	thumbnailURL, err := minio.PresignProjectThumbnailURL(ctx, minioRepo, redisRepo, record.Id, ttl)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func ProjectRecordsToListItemsDTOWithThumbnail(ctx context.Context, minioRepo *m
 		if record == nil {
 			continue
 		}
-		thumbnailURL, err := minio.PresignProjectThumbnailURL(ctx, minioRepo, redisRepo, record.UserId, record.Id, ttl)
+		thumbnailURL, err := minio.PresignProjectThumbnailURL(ctx, minioRepo, redisRepo, record.Id, ttl)
 		if err != nil {
 			return nil, err
 		}
@@ -196,7 +196,7 @@ func ProjectImageRecordToDTO(ctx context.Context, minioRepo *minio.Repository, r
 		return item, nil
 	}
 	var err error
-	item.ThumbnailUrl, err = minio.PresignProjectImageThumbnailURL(ctx, minioRepo, redisRepo, record.UserId, record.ProjectId, record.Uuid, ttl)
+	item.ThumbnailUrl, err = minio.PresignProjectImageThumbnailURL(ctx, minioRepo, redisRepo, record.ProjectId, record.Uuid, ttl)
 	if err != nil {
 		return nil, err
 	}
