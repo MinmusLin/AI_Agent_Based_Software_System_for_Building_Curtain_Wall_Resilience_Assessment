@@ -9,24 +9,21 @@ import (
 	"icw_common/utils"
 )
 
-// ReadyClient gRPC 调用通用 Client 能力
-type ReadyClient interface {
+// readyClient gRPC 调用通用 Client 能力
+type readyClient interface {
 	Ready() bool
 }
 
-// RequestIdResolver 从调用方上下文中解析请求 ID
-type RequestIdResolver func(context.Context) string
-
-// CallOption gRPC 调用配置项类型
-type CallOption func(*callOptions)
+// requestIdResolver 从调用方上下文中解析请求 ID
+type requestIdResolver func(context.Context) string
 
 // callOptions gRPC 调用配置项
 type callOptions struct {
-	requestIdResolver RequestIdResolver
+	requestIdResolver requestIdResolver
 }
 
 // WithRequestIdResolver 配置请求 ID 解析函数
-func WithRequestIdResolver(resolver RequestIdResolver) CallOption {
+func WithRequestIdResolver(resolver requestIdResolver) func(*callOptions) {
 	return func(options *callOptions) {
 		options.requestIdResolver = resolver
 	}
@@ -35,11 +32,11 @@ func WithRequestIdResolver(resolver RequestIdResolver) CallOption {
 // CallGRPC 执行通用 gRPC 调用
 func CallGRPC[PBReq any, PBResp any](
 	ctx context.Context,
-	client ReadyClient,
+	client readyClient,
 	req *PBReq,
 	resp *PBResp,
 	invoke func(context.Context, *PBReq, ...grpc.CallOption) (*PBResp, error),
-	options ...CallOption,
+	options ...func(*callOptions),
 ) error {
 	if ctx == nil {
 		ctx = context.Background()

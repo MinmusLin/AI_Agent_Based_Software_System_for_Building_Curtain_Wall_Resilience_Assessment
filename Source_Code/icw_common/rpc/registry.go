@@ -22,23 +22,23 @@ var (
 	errorType = reflect.TypeOf((*error)(nil)).Elem()
 )
 
-// ServiceMeta RPC 服务元数据
-type ServiceMeta struct {
+// serviceMeta RPC 服务元数据
+type serviceMeta struct {
 	Name        string
 	Description string
 	Service     interface{}
 	Register    func(grpc.ServiceRegistrar, interface{})
-	Methods     []MethodMeta
+	Methods     []methodMeta
 }
 
-// MethodMeta RPC 方法元数据
-type MethodMeta struct {
+// methodMeta RPC 方法元数据
+type methodMeta struct {
 	Name        string
 	Description string
 }
 
-// RegisteredMethodMeta 已注册 RPC 方法元数据
-type RegisteredMethodMeta struct {
+// registeredMethodMeta 已注册 RPC 方法元数据
+type registeredMethodMeta struct {
 	serviceName       string
 	methodName        string
 	methodDescription string
@@ -46,10 +46,10 @@ type RegisteredMethodMeta struct {
 }
 
 // RegisterServices 注册 gRPC 服务并输出 RPC 注册表
-func RegisterServices(grpcServer *grpc.Server, metas []ServiceMeta) {
-	registeredMethods := make([]RegisteredMethodMeta, 0)
+func RegisterServices(grpcServer *grpc.Server, metas []serviceMeta) {
+	registeredMethods := make([]registeredMethodMeta, 0)
 	for _, meta := range metas {
-		methods, err := ResolveMethods(meta)
+		methods, err := resolveMethods(meta)
 		if err != nil {
 			utils.LogFatal(consts.LogScopeRPC, "Failed to register RPC service %s: %v", meta.Name, err)
 		}
@@ -62,8 +62,8 @@ func RegisterServices(grpcServer *grpc.Server, metas []ServiceMeta) {
 	utils.LogInfo(consts.LogScopeRPC, consts.LogColorBoldGreen, "RPC methods registered, waiting for requests:\n%s", formatRegistryTable(registeredMethods))
 }
 
-// ResolveMethods 校验并解析 RPC 方法
-func ResolveMethods(meta ServiceMeta) ([]RegisteredMethodMeta, error) {
+// resolveMethods 校验并解析 RPC 方法
+func resolveMethods(meta serviceMeta) ([]registeredMethodMeta, error) {
 	serviceType := reflect.TypeOf(meta.Service)
 	if serviceType == nil {
 		return nil, errors.New("service is nil")
@@ -93,11 +93,11 @@ func ResolveMethods(meta ServiceMeta) ([]RegisteredMethodMeta, error) {
 		return nil, fmt.Errorf("method description is missing: %v", availableNames)
 	}
 
-	methods := make([]RegisteredMethodMeta, 0, len(meta.Methods))
+	methods := make([]registeredMethodMeta, 0, len(meta.Methods))
 	for _, method := range meta.Methods {
 		reflectedMethod := availableMethods[method.Name]
 		handler := handlerName(reflectedMethod)
-		methods = append(methods, RegisteredMethodMeta{
+		methods = append(methods, registeredMethodMeta{
 			serviceName:       meta.Name,
 			methodName:        method.Name,
 			methodDescription: method.Description,
@@ -142,7 +142,7 @@ func handlerName(method reflect.Method) string {
 }
 
 // formatRegistryTable 格式化 RPC 注册表
-func formatRegistryTable(methods []RegisteredMethodMeta) string {
+func formatRegistryTable(methods []registeredMethodMeta) string {
 	serviceMethods := make([]string, 0, len(methods))
 	methodDescriptions := make([]string, 0, len(methods))
 	handlers := make([]string, 0, len(methods))
