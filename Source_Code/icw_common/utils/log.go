@@ -1,10 +1,30 @@
 package utils
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
 	"icw_common/consts"
 )
+
+// FormatErrorLog 格式化错误日志内容
+func FormatErrorLog(err interface{}) string {
+	msg := strings.TrimSpace(fmt.Sprint(err))
+	if IsEmptyError(err) {
+		return msg
+	}
+	return consts.LogColorBoldRed + msg + consts.LogColorReset
+}
+
+// FormatSuccessLog 格式化成功日志内容
+func FormatSuccessLog(value interface{}) string {
+	msg := strings.TrimSpace(fmt.Sprint(value))
+	if IsEmptyError(value) {
+		return msg
+	}
+	return consts.LogColorBoldGreen + msg + consts.LogColorReset
+}
 
 // LogInfo 输出标准日志
 func LogInfo(scope, color, format string, args ...interface{}) {
