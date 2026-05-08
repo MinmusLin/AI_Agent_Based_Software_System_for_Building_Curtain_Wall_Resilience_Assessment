@@ -11,7 +11,7 @@ import (
 // RetryProjectDetection 重试项目智能检测
 func (s *Service) RetryProjectDetection(ctx context.Context, req *bizpb.RetryProjectDetectionRequest) (*bizpb.RetryProjectDetectionResponse, error) {
 	resp := &bizpb.RetryProjectDetectionResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.retryProjectDetection(ctx, req, resp)
 	})
 	return resp, err

@@ -14,7 +14,7 @@ import (
 // ValidateSocketTicket 校验 WebSocket 连接票据
 func (s *Service) ValidateSocketTicket(ctx context.Context, req *bizpb.ValidateSocketTicketRequest) (*bizpb.ValidateSocketTicketResponse, error) {
 	resp := &bizpb.ValidateSocketTicketResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.validateSocketTicket(req, resp)
 	})
 	return resp, err

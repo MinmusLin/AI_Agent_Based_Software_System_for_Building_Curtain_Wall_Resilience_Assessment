@@ -12,7 +12,7 @@ import (
 // ReportProjectSummaryResult 上报项目总结结果
 func (s *Service) ReportProjectSummaryResult(ctx context.Context, req *bizpb.ReportProjectSummaryResultRequest) (*bizpb.ReportProjectSummaryResultResponse, error) {
 	resp := &bizpb.ReportProjectSummaryResultResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.reportProjectSummaryResult(req)
 	})
 	return resp, err

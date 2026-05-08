@@ -13,7 +13,7 @@ import (
 // MoveProjectImage 移动图像
 func (s *Service) MoveProjectImage(ctx context.Context, req *bizpb.MoveProjectImageRequest) (*bizpb.MoveProjectImageResponse, error) {
 	resp := &bizpb.MoveProjectImageResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.moveProjectImage(req, resp)
 	})
 	return resp, err

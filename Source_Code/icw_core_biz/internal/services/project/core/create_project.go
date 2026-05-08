@@ -12,7 +12,7 @@ import (
 // CreateProject 创建项目
 func (s *Service) CreateProject(ctx context.Context, req *bizpb.CreateProjectRequest) (*bizpb.CreateProjectResponse, error) {
 	resp := &bizpb.CreateProjectResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.createProject(req, resp)
 	})
 	return resp, err

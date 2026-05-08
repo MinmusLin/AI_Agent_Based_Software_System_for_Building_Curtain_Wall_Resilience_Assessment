@@ -22,7 +22,7 @@ const (
 // CreateProjectGroup 创建图像组
 func (s *Service) CreateProjectGroup(ctx context.Context, req *bizpb.CreateProjectGroupRequest) (*bizpb.CreateProjectGroupResponse, error) {
 	resp := &bizpb.CreateProjectGroupResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.createProjectGroup(req, resp)
 	})
 	return resp, err

@@ -12,7 +12,7 @@ import (
 // Me 获取用户信息
 func (s *Service) Me(ctx context.Context, req *bizpb.MeRequest) (*bizpb.MeResponse, error) {
 	resp := &bizpb.MeResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.me(req, resp)
 	})
 	return resp, err

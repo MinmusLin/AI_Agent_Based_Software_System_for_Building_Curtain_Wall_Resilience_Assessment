@@ -11,7 +11,7 @@ import (
 // GetProjectAssets 获取项目图像列表
 func (s *Service) GetProjectAssets(ctx context.Context, req *bizpb.GetProjectAssetsRequest) (*bizpb.GetProjectAssetsResponse, error) {
 	resp := &bizpb.GetProjectAssetsResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.getProjectAssets(req, resp)
 	})
 	return resp, err

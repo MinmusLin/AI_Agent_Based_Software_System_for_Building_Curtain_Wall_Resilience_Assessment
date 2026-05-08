@@ -17,7 +17,7 @@ import (
 // SendEmailCode 发送邮箱验证码
 func (s *Service) SendEmailCode(ctx context.Context, req *bizpb.SendEmailCodeRequest) (*bizpb.SendEmailCodeResponse, error) {
 	resp := &bizpb.SendEmailCodeResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.sendEmailCode(req, resp)
 	})
 	return resp, err

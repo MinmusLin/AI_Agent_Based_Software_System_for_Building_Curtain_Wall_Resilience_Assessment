@@ -11,7 +11,7 @@ import (
 // ListProjects 获取项目列表
 func (s *Service) ListProjects(ctx context.Context, req *bizpb.ListProjectsRequest) (*bizpb.ListProjectsResponse, error) {
 	resp := &bizpb.ListProjectsResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.listProjects(req, resp)
 	})
 	return resp, err

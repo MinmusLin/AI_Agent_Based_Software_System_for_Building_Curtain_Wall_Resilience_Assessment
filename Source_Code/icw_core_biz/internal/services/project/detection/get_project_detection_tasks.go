@@ -9,7 +9,7 @@ import (
 // GetProjectDetectionTasks 获取项目检测任务列表
 func (s *Service) GetProjectDetectionTasks(ctx context.Context, req *bizpb.GetProjectDetectionTasksRequest) (*bizpb.GetProjectDetectionTasksResponse, error) {
 	resp := &bizpb.GetProjectDetectionTasksResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.getProjectDetectionTasks(ctx, req, resp)
 	})
 	return resp, err

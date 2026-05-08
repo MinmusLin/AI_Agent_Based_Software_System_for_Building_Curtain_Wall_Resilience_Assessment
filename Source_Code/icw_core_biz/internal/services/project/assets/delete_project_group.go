@@ -15,7 +15,7 @@ import (
 // DeleteProjectGroup 删除图像组
 func (s *Service) DeleteProjectGroup(ctx context.Context, req *bizpb.DeleteProjectGroupRequest) (*bizpb.DeleteProjectGroupResponse, error) {
 	resp := &bizpb.DeleteProjectGroupResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.deleteProjectGroup(req, resp)
 	})
 	return resp, err

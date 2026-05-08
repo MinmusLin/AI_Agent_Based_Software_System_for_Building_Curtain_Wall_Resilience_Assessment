@@ -13,7 +13,7 @@ import (
 // GetProjectImageOriginal 获取原图
 func (s *Service) GetProjectImageOriginal(ctx context.Context, req *bizpb.GetProjectImageOriginalRequest) (*bizpb.GetProjectImageOriginalResponse, error) {
 	resp := &bizpb.GetProjectImageOriginalResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.getProjectImageOriginal(req, resp)
 	})
 	return resp, err

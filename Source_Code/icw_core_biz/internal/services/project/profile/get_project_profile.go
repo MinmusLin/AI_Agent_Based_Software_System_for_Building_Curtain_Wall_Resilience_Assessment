@@ -12,7 +12,7 @@ import (
 // GetProjectProfile 获取项目基础信息
 func (s *Service) GetProjectProfile(ctx context.Context, req *bizpb.GetProjectProfileRequest) (*bizpb.GetProjectProfileResponse, error) {
 	resp := &bizpb.GetProjectProfileResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.getProjectProfile(req, resp)
 	})
 	return resp, err

@@ -14,7 +14,7 @@ import (
 // ReportDetectionSummaryResult 上报图像检测总结结果
 func (s *Service) ReportDetectionSummaryResult(ctx context.Context, req *bizpb.ReportDetectionSummaryResultRequest) (*bizpb.ReportDetectionSummaryResultResponse, error) {
 	resp := &bizpb.ReportDetectionSummaryResultResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.reportDetectionSummaryResult(ctx, req)
 	})
 	return resp, err

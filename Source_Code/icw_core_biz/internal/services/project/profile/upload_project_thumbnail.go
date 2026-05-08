@@ -13,7 +13,7 @@ import (
 // UploadProjectThumbnail 上传项目缩略图
 func (s *Service) UploadProjectThumbnail(ctx context.Context, req *bizpb.UploadProjectThumbnailRequest) (*bizpb.UploadProjectThumbnailResponse, error) {
 	resp := &bizpb.UploadProjectThumbnailResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.uploadProjectThumbnail(req, resp)
 	})
 	return resp, err

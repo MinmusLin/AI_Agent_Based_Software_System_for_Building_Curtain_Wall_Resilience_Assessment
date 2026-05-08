@@ -17,7 +17,7 @@ import (
 // GetImageDetectionResult 获取图像检测结果
 func (s *Service) GetImageDetectionResult(ctx context.Context, req *bizpb.GetImageDetectionResultRequest) (*bizpb.GetImageDetectionResultResponse, error) {
 	resp := &bizpb.GetImageDetectionResultResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.getImageDetectionResult(ctx, req, resp)
 	})
 	return resp, err

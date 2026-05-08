@@ -14,7 +14,7 @@ import (
 // Logout 登出
 func (s *Service) Logout(ctx context.Context, req *bizpb.LogoutRequest) (*bizpb.LogoutResponse, error) {
 	resp := &bizpb.LogoutResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.logout(req, resp)
 	})
 	return resp, err

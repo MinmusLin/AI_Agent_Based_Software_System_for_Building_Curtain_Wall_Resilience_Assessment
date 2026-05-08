@@ -16,7 +16,7 @@ import (
 // CreateSocketTicket 创建 WebSocket 连接票据
 func (s *Service) CreateSocketTicket(ctx context.Context, req *bizpb.CreateSocketTicketRequest) (*bizpb.CreateSocketTicketResponse, error) {
 	resp := &bizpb.CreateSocketTicketResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.createSocketTicket(ctx, req, resp)
 	})
 	return resp, err

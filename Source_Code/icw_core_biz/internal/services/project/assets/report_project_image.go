@@ -16,7 +16,7 @@ import (
 // ReportProjectImage 上报图像
 func (s *Service) ReportProjectImage(ctx context.Context, req *bizpb.ReportProjectImageRequest) (*bizpb.ReportProjectImageResponse, error) {
 	resp := &bizpb.ReportProjectImageResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.reportProjectImage(req, resp)
 	})
 	return resp, err

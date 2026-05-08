@@ -19,7 +19,7 @@ import (
 // UploadProjectImage 上传图像
 func (s *Service) UploadProjectImage(ctx context.Context, req *bizpb.UploadProjectImageRequest) (*bizpb.UploadProjectImageResponse, error) {
 	resp := &bizpb.UploadProjectImageResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.uploadProjectImage(req, resp)
 	})
 	return resp, err

@@ -17,7 +17,7 @@ import (
 // Register 注册
 func (s *Service) Register(ctx context.Context, req *bizpb.RegisterRequest) (*bizpb.RegisterResponse, error) {
 	resp := &bizpb.RegisterResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.register(req, resp)
 	})
 	return resp, err

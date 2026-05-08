@@ -18,7 +18,7 @@ import (
 // Login 登录
 func (s *Service) Login(ctx context.Context, req *bizpb.LoginRequest) (*bizpb.LoginResponse, error) {
 	resp := &bizpb.LoginResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.login(req, resp)
 	})
 	return resp, err

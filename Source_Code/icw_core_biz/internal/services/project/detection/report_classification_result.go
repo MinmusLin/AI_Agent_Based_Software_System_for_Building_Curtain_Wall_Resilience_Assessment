@@ -14,7 +14,7 @@ import (
 // ReportClassificationResult 上报图像检测分类结果
 func (s *Service) ReportClassificationResult(ctx context.Context, req *bizpb.ReportClassificationResultRequest) (*bizpb.ReportClassificationResultResponse, error) {
 	resp := &bizpb.ReportClassificationResultResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.reportClassificationResult(ctx, req)
 	})
 	return resp, err

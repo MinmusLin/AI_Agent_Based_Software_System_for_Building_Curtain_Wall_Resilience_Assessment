@@ -11,7 +11,7 @@ import (
 // StartProjectDetection 启动项目智能检测
 func (s *Service) StartProjectDetection(ctx context.Context, req *bizpb.StartProjectDetectionRequest) (*bizpb.StartProjectDetectionResponse, error) {
 	resp := &bizpb.StartProjectDetectionResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		return s.startProjectDetection(ctx, req, resp)
 	})
 	return resp, err
