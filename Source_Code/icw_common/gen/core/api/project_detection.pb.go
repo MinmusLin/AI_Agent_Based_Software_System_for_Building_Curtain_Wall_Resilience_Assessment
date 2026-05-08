@@ -467,7 +467,7 @@ var File_core_api_project_detection_proto protoreflect.FileDescriptor
 
 const file_core_api_project_detection_proto_rawDesc = "" +
 	"\n" +
-	" core/api/project_detection.proto\x12\ficw.core.api\x1a\x11core/common.proto\x1a\x15activity/common.proto\"^\n" +
+	" core/api/project_detection.proto\x12\ficw.core.api\x1a\x15activity/common.proto\x1a\x11core/common.proto\"^\n" +
 	"\x1eGetImageDetectionResultRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1d\n" +

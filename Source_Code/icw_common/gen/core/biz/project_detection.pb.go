@@ -857,7 +857,7 @@ var File_core_biz_project_detection_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_detection_proto_rawDesc = "" +
 	"\n" +
-	" core/biz/project_detection.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\x1a\x15activity/common.proto\x1a\x11core/common.proto\"w\n" +
+	" core/biz/project_detection.proto\x12\ficw.core.biz\x1a\x15activity/common.proto\x1a\x15core/biz/common.proto\x1a\x11core/common.proto\"w\n" +
 	"\x1eGetImageDetectionResultRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +

@@ -4,8 +4,8 @@ package icw.core.api;
 
 option go_package = "icw_common/gen/core/api;apipb";
 
-import "core/common.proto";
 import "activity/common.proto";
+import "core/common.proto";
 
 // GetImageDetectionResult 请求结构体
 message GetImageDetectionResultRequest {

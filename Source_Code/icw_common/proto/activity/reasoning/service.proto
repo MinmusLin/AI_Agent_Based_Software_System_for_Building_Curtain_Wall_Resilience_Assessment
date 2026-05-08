@@ -4,8 +4,8 @@ package icw.activity.reasoning;
 
 option go_package = "icw_common/gen/activity/reasoning;reasoningpb";
 
-import "activity/reasoning/common.proto";
 import "activity/common.proto";
+import "activity/reasoning/common.proto";
 
 // Start 请求结构体
 message StartRequest {

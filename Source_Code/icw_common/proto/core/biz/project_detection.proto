@@ -4,8 +4,8 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
-import "core/biz/common.proto";
 import "activity/common.proto";
+import "core/biz/common.proto";
 import "core/common.proto";
 
 // GetImageDetectionResult 请求结构体

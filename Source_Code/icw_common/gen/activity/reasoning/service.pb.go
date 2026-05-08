@@ -140,7 +140,7 @@ var File_activity_reasoning_service_proto protoreflect.FileDescriptor
 
 const file_activity_reasoning_service_proto_rawDesc = "" +
 	"\n" +
-	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x1factivity/reasoning/common.proto\x1a\x15activity/common.proto\"\x96\x02\n" +
+	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x15activity/common.proto\x1a\x1factivity/reasoning/common.proto\"\x96\x02\n" +
 	"\fStartRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12B\n" +
 	"\ttask_code\x18\x02 \x01(\x0e2%.icw.activity.DetectionTaskCode.ValueR\btaskCode\x12\x1d\n" +
