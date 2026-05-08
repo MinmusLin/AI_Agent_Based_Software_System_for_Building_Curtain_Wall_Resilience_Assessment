@@ -30,6 +30,7 @@ func (cfg *Config) Validate() error {
 		{key: "ICW_CORE_BIZ_ADDR", value: cfg.CoreBizAddr},
 		{key: "AGENT_SECRET_TOKEN", value: cfg.AgentSecretToken},
 		{key: "AGENT_BOT_ID", value: cfg.AgentBotId},
+		{key: "AGENT_USER_ID", value: cfg.AgentUserId},
 	}
 	for _, item := range required {
 		if strings.TrimSpace(item.value) == "" {
@@ -58,32 +59,13 @@ func Load() (Config, error) {
 		CoreBizAddr:                      env.EnvString("ICW_CORE_BIZ_ADDR"),
 		ClassificationTaskMaxConcurrency: env.EnvInt("CLASSIFICATION_TASK_MAX_CONCURRENCY"),
 		AgentSecretToken:                 env.EnvString("AGENT_SECRET_TOKEN"),
-		AgentBotId:                       firstNotEmpty(env.EnvString("AGENT_BOT_ID"), env.EnvString("BOT_ID")),
-		AgentUserId:                      firstNotEmpty(env.EnvString("AGENT_USER_ID"), "icw_activity_classification"),
-		AgentImageSize:                   firstPositive(env.EnvInt("AGENT_IMAGE_SIZE"), 1024),
-		AgentRequestTimeoutSeconds:       firstPositive(env.EnvInt("AGENT_REQUEST_TIMEOUT_SECONDS"), 120),
+		AgentBotId:                       env.EnvString("AGENT_BOT_ID"),
+		AgentUserId:                      env.EnvString("AGENT_USER_ID"),
+		AgentImageSize:                   env.EnvInt("AGENT_IMAGE_SIZE"),
+		AgentRequestTimeoutSeconds:       env.EnvInt("AGENT_REQUEST_TIMEOUT_SECONDS"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
 	}
 	return cfg, nil
-}
-
-func firstNotEmpty(values ...string) string {
-	for _, value := range values {
-		value = strings.TrimSpace(value)
-		if value != "" {
-			return value
-		}
-	}
-	return ""
-}
-
-func firstPositive(values ...int) int {
-	for _, value := range values {
-		if value > 0 {
-			return value
-		}
-	}
-	return 0
 }
