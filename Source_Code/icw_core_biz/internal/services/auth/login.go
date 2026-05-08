@@ -33,7 +33,7 @@ func (s *Service) login(req *bizpb.LoginRequest, resp *bizpb.LoginResponse) erro
 	emailHash := utils.HashEmailAddress(email)
 
 	// 获取登录方式枚举
-	scene := enum.ParseLoginScene(req.Scene)
+	scene := req.Scene
 	if scene == bizpb.LoginScene_Unknown {
 		return rpc_error.BadRequestDefault("invalid login scene")
 	}

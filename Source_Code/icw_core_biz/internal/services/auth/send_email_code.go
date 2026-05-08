@@ -32,7 +32,7 @@ func (s *Service) sendEmailCode(req *bizpb.SendEmailCodeRequest, resp *bizpb.Sen
 	emailHash := utils.HashEmailAddress(email)
 
 	// 获取邮箱验证码业务场景枚举
-	scene := enum.ParseEmailCodeScene(req.Scene)
+	scene := req.Scene
 	if scene == bizpb.EmailCodeScene_Unknown {
 		return rpc_error.BadRequestDefault("invalid email code scene")
 	}
