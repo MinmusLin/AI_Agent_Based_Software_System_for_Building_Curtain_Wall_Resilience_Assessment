@@ -112,7 +112,7 @@ build-linux-arm64:
 	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 $(GO) build -o $(BIN)-linux-arm64 $(MAIN)
 
 run:
-	$(GO) run $(MAIN)
+	./$(BIN)
 
 clean:
 	rm -rf $(BIN_DIR) $(COVER_DIR)
