@@ -99,11 +99,15 @@ func UpdateProjectDetectionSummaryTaskStatusTx(ctx context.Context, tx *sql.Tx, 
 
 // UpdateProjectDetectionSummaryTaskResultTx 更新图像检测总结任务报告与状态
 func UpdateProjectDetectionSummaryTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
+		return UpdateProjectDetectionSummaryTaskStatusTx(ctx, tx, taskUuid, status, false, true)
+	}
+
 	result, err := tx.ExecContext(ctx, `
 		UPDATE project_detection_summary_tasks
-		SET result_json = CASE WHEN ? = ? THEN ? ELSE result_json END
+		SET result_json = ?
 		WHERE uuid = ?
-	`, enum.ProjectDetectionSubTaskStatusString(status), enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded), utils.JsonStringOrEmptyObject(resultJSON), taskUuid)
+	`, utils.JsonStringOrEmptyObject(resultJSON), taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
