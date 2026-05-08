@@ -3,6 +3,8 @@ package minio
 import (
 	"bytes"
 	"context"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -79,6 +81,22 @@ func (r *Repository) RemoveObjectsByPrefix(ctx context.Context, prefix string) e
 	return nil
 }
 
+// ListObjectKeysByPrefix 按对象 Key 前缀查询对象 Key 列表
+func (r *Repository) ListObjectKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
+	objects := r.client.ListObjects(ctx, r.bucket, minio.ListObjectsOptions{
+		Prefix:    prefix,
+		Recursive: true,
+	})
+	keys := make([]string, 0)
+	for object := range objects {
+		if object.Err != nil {
+			return nil, object.Err
+		}
+		keys = append(keys, object.Key)
+	}
+	return keys, nil
+}
+
 // PresignGetObject 生成对象下载预签名 URL
 func (r *Repository) PresignGetObject(ctx context.Context, key string, ttl time.Duration) (string, error) {
 	presignedURL, err := r.client.PresignedGetObject(ctx, r.bucket, key, ttl, nil)
@@ -95,4 +113,39 @@ func (r *Repository) PresignPutObject(ctx context.Context, key string, ttl time.
 		return "", err
 	}
 	return presignedURL.String(), nil
+}
+
+// PresignPostPolicy 生成受限前缀的 POST Policy 上传授权
+func (r *Repository) PresignPostPolicy(ctx context.Context, keyPrefix string, ttl time.Duration) (string, map[string]string, error) {
+	policy := minio.NewPostPolicy()
+	if err := policy.SetBucket(r.bucket); err != nil {
+		return "", nil, err
+	}
+	if err := policy.SetKeyStartsWith(keyPrefix); err != nil {
+		return "", nil, err
+	}
+	if err := policy.SetContentType("image/png"); err != nil {
+		return "", nil, err
+	}
+	if err := policy.SetExpires(time.Now().Add(ttl)); err != nil {
+		return "", nil, err
+	}
+	presignedURL, formData, err := r.client.PresignedPostPolicy(ctx, policy)
+	if err != nil {
+		return "", nil, err
+	}
+	return presignedURL.String(), formData, nil
+}
+
+// normalizeEndpoint 将 Endpoint 配置标准化为 MinIO SDK 需要的 <host>:<port> 格式
+func normalizeEndpoint(endpoint string) (string, bool) {
+	endpoint = strings.TrimSpace(endpoint)
+	if endpoint == "" {
+		return "", false
+	}
+	parsedURL, err := url.Parse(endpoint)
+	if err != nil || parsedURL.Host == "" {
+		return "", false
+	}
+	return parsedURL.Host, parsedURL.Scheme == "https"
 }

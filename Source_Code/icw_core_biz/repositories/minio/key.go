@@ -3,24 +3,10 @@ package minio
 import (
 	"errors"
 	"fmt"
-	"net/url"
 	"strings"
 
 	"icw_common/utils"
 )
-
-// normalizeEndpoint 将 Endpoint 配置标准化为 MinIO SDK 需要的 <host>:<port> 格式
-func normalizeEndpoint(endpoint string) (string, bool) {
-	endpoint = strings.TrimSpace(endpoint)
-	if endpoint == "" {
-		return "", false
-	}
-	parsedURL, err := url.Parse(endpoint)
-	if err != nil || parsedURL.Host == "" {
-		return "", false
-	}
-	return parsedURL.Host, parsedURL.Scheme == "https"
-}
 
 // GenDefaultAvatarKey 生成用户默认头像对象 Key
 func GenDefaultAvatarKey(emailHash string) string {
@@ -67,8 +53,21 @@ func GenProjectImageThumbnailKey(projectId uint64, imageUuid string) (string, er
 	return fmt.Sprintf("projects/%s/assets/%s/thumbnail.png", projectCode, imageUuid), nil
 }
 
-// GenProjectDetectionArtifactKey 生成项目检测产物对象 Key
-func GenProjectDetectionArtifactKey(projectId uint64, imageUuid, taskCode, artifactName string) (string, error) {
+// GenProjectDetectionArtifactPrefix 生成项目检测产物对象 Key 前缀
+func GenProjectDetectionArtifactPrefix(projectId uint64, imageUuid string) (string, error) {
+	projectCode := utils.Encode(projectId)
+	if projectCode == "" {
+		return "", errors.New("project id is invalid")
+	}
+	imageUuid = strings.TrimSpace(imageUuid)
+	if imageUuid == "" {
+		return "", errors.New("image uuid is invalid")
+	}
+	return fmt.Sprintf("projects/%s/detections/%s/", projectCode, imageUuid), nil
+}
+
+// GenProjectDetectionArtifactPrefixByTask 生成项目检测产物对象 Key 任务前缀
+func GenProjectDetectionArtifactPrefixByTask(projectId uint64, imageUuid, taskCode string) (string, error) {
 	projectCode := utils.Encode(projectId)
 	if projectCode == "" {
 		return "", errors.New("project id is invalid")
@@ -81,22 +80,5 @@ func GenProjectDetectionArtifactKey(projectId uint64, imageUuid, taskCode, artif
 	if taskCode == "" {
 		return "", errors.New("task code is invalid")
 	}
-	artifactName = strings.TrimSpace(artifactName)
-	if artifactName == "" {
-		return "", errors.New("artifact name is invalid")
-	}
-	return fmt.Sprintf("projects/%s/detections/%s/%s/%s", projectCode, imageUuid, taskCode, artifactName), nil
-}
-
-// GenProjectDetectionArtifactPrefix 生成项目检测产物对象 Key 前缀
-func GenProjectDetectionArtifactPrefix(projectId uint64, imageUuid string) (string, error) {
-	projectCode := utils.Encode(projectId)
-	if projectCode == "" {
-		return "", errors.New("project id is invalid")
-	}
-	imageUuid = strings.TrimSpace(imageUuid)
-	if imageUuid == "" {
-		return "", errors.New("image uuid is invalid")
-	}
-	return fmt.Sprintf("projects/%s/detections/%s/", projectCode, imageUuid), nil
+	return fmt.Sprintf("projects/%s/detections/%s/%s/", projectCode, imageUuid, taskCode), nil
 }
