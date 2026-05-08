@@ -12,7 +12,7 @@ message StartRequest {
   string task_code = 2;
   string image_uuid = 3;
   string presign_get_url = 4;
-  repeated ReasoningArtifactUploadPlan artifacts = 5;
+  ReasoningArtifactUploadPolicy artifact_policy = 5;
 }
 
 // Start 响应结构体
