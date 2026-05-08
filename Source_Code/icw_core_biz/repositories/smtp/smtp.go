@@ -43,7 +43,7 @@ func (r *Repository) SendEmailCode(to, scene, code string) error {
 	if !r.Configured() {
 		return errors.New("smtp service not configured")
 	}
-	subject, sceneName, err := emailSceneText(scene)
+	subject, sceneName, err := emailCodeSceneText(scene)
 	if err != nil {
 		return err
 	}
