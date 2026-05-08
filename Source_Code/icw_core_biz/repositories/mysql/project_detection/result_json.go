@@ -12,7 +12,7 @@ import (
 )
 
 // updateProjectDetectionCorrosionTaskResultTx 更新项目图像金属锈蚀检测子任务报告与状态
-func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) error {
 	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_corrosion_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
@@ -40,9 +40,10 @@ func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx
 			corrosion_pixels = ?,
 			corrosion_ratio = ?,
 			regions = ?,
+			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.HasCorrosion, report.CorrosionCount, report.MaxConfidence, report.AverageConfidence, report.CorrosionPixels, report.CorrosionRatio, utils.JsonOrEmptyArray(report.Regions), report.RuntimeSeconds, taskUuid)
+	`, report.HasCorrosion, report.CorrosionCount, report.MaxConfidence, report.AverageConfidence, report.CorrosionPixels, report.CorrosionRatio, utils.JsonOrEmptyArray(report.Regions), utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
@@ -51,7 +52,7 @@ func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx
 }
 
 // updateProjectDetectionCrackTaskResultTx 更新项目图像石材裂缝检测子任务报告与状态
-func updateProjectDetectionCrackTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+func updateProjectDetectionCrackTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) error {
 	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_crack_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
@@ -75,9 +76,10 @@ func updateProjectDetectionCrackTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 			crack_pixels = ?,
 			crack_ratio = ?,
 			regions = ?,
+			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.HasCrack, report.CrackCount, report.CrackPixels, report.CrackRatio, utils.JsonOrEmptyArray(report.Regions), report.RuntimeSeconds, taskUuid)
+	`, report.HasCrack, report.CrackCount, report.CrackPixels, report.CrackRatio, utils.JsonOrEmptyArray(report.Regions), utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
@@ -86,7 +88,7 @@ func updateProjectDetectionCrackTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 }
 
 // updateProjectDetectionStainTaskResultTx 更新项目图像石材污渍检测子任务报告与状态
-func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) error {
 	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_stain_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
@@ -110,9 +112,10 @@ func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 			average_stain_ratio = ?,
 			max_stain_ratio = ?,
 			regions = ?,
+			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.HasStain, report.StainCount, report.AverageStainRatio, report.MaxStainRatio, utils.JsonOrEmptyArray(report.Regions), report.RuntimeSeconds, taskUuid)
+	`, report.HasStain, report.StainCount, report.AverageStainRatio, report.MaxStainRatio, utils.JsonOrEmptyArray(report.Regions), utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
@@ -121,7 +124,7 @@ func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 }
 
 // updateProjectDetectionFlatnessTaskResultTx 更新项目图像玻璃平整度检测子任务报告与状态
-func updateProjectDetectionFlatnessTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+func updateProjectDetectionFlatnessTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) error {
 	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_flatness_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
@@ -141,9 +144,10 @@ func updateProjectDetectionFlatnessTaskResultTx(ctx context.Context, tx *sql.Tx,
 		SET result = ?,
 			uneven_count = ?,
 			regions = ?,
+			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.Result, report.UnevenCount, utils.JsonOrEmptyArray(report.Regions), report.RuntimeSeconds, taskUuid)
+	`, report.Result, report.UnevenCount, utils.JsonOrEmptyArray(report.Regions), utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
@@ -152,7 +156,7 @@ func updateProjectDetectionFlatnessTaskResultTx(ctx context.Context, tx *sql.Tx,
 }
 
 // updateProjectDetectionSpallingTaskResultTx 更新项目图像玻璃爆裂检测子任务报告与状态
-func updateProjectDetectionSpallingTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+func updateProjectDetectionSpallingTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) error {
 	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_spalling_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
@@ -170,9 +174,10 @@ func updateProjectDetectionSpallingTaskResultTx(ctx context.Context, tx *sql.Tx,
 		UPDATE project_detection_spalling_tasks
 		SET has_spalling = ?,
 			confidence = ?,
+			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.HasSpalling, report.Confidence, report.RuntimeSeconds, taskUuid)
+	`, report.HasSpalling, report.Confidence, utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}

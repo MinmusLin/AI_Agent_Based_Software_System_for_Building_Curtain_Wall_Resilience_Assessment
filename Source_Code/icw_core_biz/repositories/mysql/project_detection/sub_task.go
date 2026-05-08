@@ -139,18 +139,18 @@ func UpdateProjectDetectionSubTaskStatusTx(ctx context.Context, tx *sql.Tx, task
 }
 
 // UpdateProjectDetectionSubTaskResultTx 更新项目图像检测子任务报告与状态
-func UpdateProjectDetectionSubTaskResultTx(ctx context.Context, tx *sql.Tx, taskCode, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+func UpdateProjectDetectionSubTaskResultTx(ctx context.Context, tx *sql.Tx, taskCode, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) error {
 	switch enum.ParseDetectionTaskCode(taskCode) {
 	case activitypb.DetectionTaskCode_Corrosion:
-		return updateProjectDetectionCorrosionTaskResultTx(ctx, tx, taskUuid, status, resultJSON)
+		return updateProjectDetectionCorrosionTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
 	case activitypb.DetectionTaskCode_Crack:
-		return updateProjectDetectionCrackTaskResultTx(ctx, tx, taskUuid, status, resultJSON)
+		return updateProjectDetectionCrackTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
 	case activitypb.DetectionTaskCode_Stain:
-		return updateProjectDetectionStainTaskResultTx(ctx, tx, taskUuid, status, resultJSON)
+		return updateProjectDetectionStainTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
 	case activitypb.DetectionTaskCode_Flatness:
-		return updateProjectDetectionFlatnessTaskResultTx(ctx, tx, taskUuid, status, resultJSON)
+		return updateProjectDetectionFlatnessTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
 	case activitypb.DetectionTaskCode_Spalling:
-		return updateProjectDetectionSpallingTaskResultTx(ctx, tx, taskUuid, status, resultJSON)
+		return updateProjectDetectionSpallingTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
 	default:
 		return model.ErrUnsupportedDetectionTaskCode
 	}
