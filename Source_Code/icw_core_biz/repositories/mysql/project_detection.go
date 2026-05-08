@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -85,7 +86,22 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 	}()
 
 	rows, err := tx.QueryContext(ctx, `
-		SELECT id, image_id, image_uuid
+		SELECT
+			id,
+			image_id,
+			image_uuid,
+			corrosion_should_execute,
+			corrosion_task_id,
+			crack_should_execute,
+			crack_task_id,
+			stain_should_execute,
+			stain_task_id,
+			flatness_should_execute,
+			flatness_task_id,
+			spalling_should_execute,
+			spalling_task_id,
+			summary_should_execute,
+			summary_task_id
 		FROM project_detection_tasks
 		WHERE user_id = ? AND project_id = ? AND status = ?
 		ORDER BY created_at ASC, id ASC
@@ -96,15 +112,43 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 	}
 
 	type failedTask struct {
-		id        uint64
-		imageId   uint64
-		imageUuid string
+		id                     uint64
+		imageId                uint64
+		imageUuid              string
+		corrosionShouldExecute bool
+		corrosionTaskId        sql.NullInt64
+		crackShouldExecute     bool
+		crackTaskId            sql.NullInt64
+		stainShouldExecute     bool
+		stainTaskId            sql.NullInt64
+		flatnessShouldExecute  bool
+		flatnessTaskId         sql.NullInt64
+		spallingShouldExecute  bool
+		spallingTaskId         sql.NullInt64
+		summaryShouldExecute   bool
+		summaryTaskId          sql.NullInt64
 	}
 
 	failedTasks := make([]*failedTask, 0)
 	for rows.Next() {
 		task := &failedTask{}
-		if err := rows.Scan(&task.id, &task.imageId, &task.imageUuid); err != nil {
+		if err := rows.Scan(
+			&task.id,
+			&task.imageId,
+			&task.imageUuid,
+			&task.corrosionShouldExecute,
+			&task.corrosionTaskId,
+			&task.crackShouldExecute,
+			&task.crackTaskId,
+			&task.stainShouldExecute,
+			&task.stainTaskId,
+			&task.flatnessShouldExecute,
+			&task.flatnessTaskId,
+			&task.spallingShouldExecute,
+			&task.spallingTaskId,
+			&task.summaryShouldExecute,
+			&task.summaryTaskId,
+		); err != nil {
 			_ = rows.Close()
 			return nil, nil, err
 		}
@@ -127,8 +171,38 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 
 	imageUuids := make([]string, 0, len(failedTasks))
 	taskIds := make([]uint64, 0, len(failedTasks))
+	deleteSubTask := func(table string, shouldExecute bool, taskId sql.NullInt64, mainTaskId uint64) error {
+		if !shouldExecute || !taskId.Valid {
+			return nil
+		}
+		_, err := tx.ExecContext(ctx, fmt.Sprintf(`
+			DELETE FROM %s
+			WHERE id = ? AND main_task_id = ? AND user_id = ? AND project_id = ?
+		`, table), taskId.Int64, mainTaskId, userId, projectId)
+		return err
+	}
+
 	for _, task := range failedTasks {
 		imageUuids = append(imageUuids, task.imageUuid)
+
+		if err := deleteSubTask("project_detection_corrosion_tasks", task.corrosionShouldExecute, task.corrosionTaskId, task.id); err != nil {
+			return nil, nil, err
+		}
+		if err := deleteSubTask("project_detection_crack_tasks", task.crackShouldExecute, task.crackTaskId, task.id); err != nil {
+			return nil, nil, err
+		}
+		if err := deleteSubTask("project_detection_stain_tasks", task.stainShouldExecute, task.stainTaskId, task.id); err != nil {
+			return nil, nil, err
+		}
+		if err := deleteSubTask("project_detection_flatness_tasks", task.flatnessShouldExecute, task.flatnessTaskId, task.id); err != nil {
+			return nil, nil, err
+		}
+		if err := deleteSubTask("project_detection_spalling_tasks", task.spallingShouldExecute, task.spallingTaskId, task.id); err != nil {
+			return nil, nil, err
+		}
+		if err := deleteSubTask("project_detection_summary_tasks", task.summaryShouldExecute, task.summaryTaskId, task.id); err != nil {
+			return nil, nil, err
+		}
 
 		result, err := tx.ExecContext(ctx, `
 			DELETE FROM project_detection_tasks
@@ -181,145 +255,6 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 	}
 
 	return imageUuids, tasks, nil
-}
-
-// ListProjectDetectionImageUuids 按用户 ID 和项目 ID 查询已创建检测任务的图像 UUID 列表
-func (r *Repository) ListProjectDetectionImageUuids(ctx context.Context, userId, projectId uint64) ([]string, error) {
-	rows, err := r.mysql.QueryContext(ctx, `
-		SELECT image_uuid
-		FROM project_detection_tasks
-		WHERE user_id = ? AND project_id = ?
-		ORDER BY created_at ASC, id ASC
-	`, userId, projectId)
-
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	imageUuids := make([]string, 0)
-	for rows.Next() {
-		var imageUuid string
-		if err := rows.Scan(&imageUuid); err != nil {
-			return nil, err
-		}
-		imageUuids = append(imageUuids, imageUuid)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return imageUuids, nil
-}
-
-// ListProjectDetectionImageUuidsByStatus 按用户 ID、项目 ID 和状态查询已创建检测任务的图像 UUID 列表
-func (r *Repository) ListProjectDetectionImageUuidsByStatus(ctx context.Context, userId, projectId uint64, status bizpb.ProjectDetectionTaskStatus_Value) ([]string, error) {
-	statusText := enum.ProjectDetectionTaskStatusString(status)
-	if statusText == "" {
-		return nil, model.ErrProjectDetectionTaskStatusInvalid
-	}
-	rows, err := r.mysql.QueryContext(ctx, `
-		SELECT image_uuid
-		FROM project_detection_tasks
-		WHERE user_id = ? AND project_id = ? AND status = ?
-		ORDER BY created_at ASC, id ASC
-	`, userId, projectId, statusText)
-
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	imageUuids := make([]string, 0)
-	for rows.Next() {
-		var imageUuid string
-		if err := rows.Scan(&imageUuid); err != nil {
-			return nil, err
-		}
-		imageUuids = append(imageUuids, imageUuid)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return imageUuids, nil
-}
-
-// DeleteProjectDetectionTasks 按用户 ID 和项目 ID 删除项目图像检测任务
-func (r *Repository) DeleteProjectDetectionTasks(ctx context.Context, userId, projectId uint64) error {
-	_, err := r.mysql.ExecContext(ctx, `
-		DELETE FROM project_detection_tasks
-		WHERE user_id = ? AND project_id = ?
-	`, userId, projectId)
-	return err
-}
-
-// DeleteProjectDetectionTasksByStatus 按用户 ID、项目 ID 和状态删除项目图像检测任务
-func (r *Repository) DeleteProjectDetectionTasksByStatus(ctx context.Context, userId, projectId uint64, status bizpb.ProjectDetectionTaskStatus_Value) error {
-	statusText := enum.ProjectDetectionTaskStatusString(status)
-	if statusText == "" {
-		return model.ErrProjectDetectionTaskStatusInvalid
-	}
-	_, err := r.mysql.ExecContext(ctx, `
-		DELETE FROM project_detection_tasks
-		WHERE user_id = ? AND project_id = ? AND status = ?
-	`, userId, projectId, statusText)
-	return err
-}
-
-// ListProjectDetectionTasksByStatus 按用户 ID、项目 ID 和状态查询项目图像检测主任务
-func (r *Repository) ListProjectDetectionTasksByStatus(ctx context.Context, userId, projectId uint64, status bizpb.ProjectDetectionTaskStatus_Value) ([]*model.ProjectDetectionTaskRecord, error) {
-	rows, err := r.mysql.QueryContext(ctx, `
-		SELECT
-			id,
-			uuid,
-			user_id,
-			project_id,
-			image_id,
-			image_uuid,
-			status,
-			corrosion_should_execute,
-			corrosion_task_id,
-			crack_should_execute,
-			crack_task_id,
-			stain_should_execute,
-			stain_task_id,
-			flatness_should_execute,
-			flatness_task_id,
-			spalling_should_execute,
-			spalling_task_id,
-			summary_should_execute,
-			summary_task_id,
-			started_at,
-			finished_at,
-			created_at,
-			updated_at
-		FROM project_detection_tasks
-		WHERE user_id = ? AND project_id = ? AND status = ?
-		ORDER BY created_at ASC, id ASC
-	`, userId, projectId, enum.ProjectDetectionTaskStatusString(status))
-
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	tasks := make([]*model.ProjectDetectionTaskRecord, 0)
-	for rows.Next() {
-		task, err := utils.ScanProjectDetectionTask(rows)
-		if err != nil {
-			return nil, err
-		}
-		tasks = append(tasks, task)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return tasks, nil
 }
 
 // FindProjectDetectionTaskById 按主任务 ID 查询项目图像检测主任务
