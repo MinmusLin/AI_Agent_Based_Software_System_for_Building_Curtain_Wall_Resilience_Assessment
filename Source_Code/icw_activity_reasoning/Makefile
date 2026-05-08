@@ -18,7 +18,7 @@ help:
 	@echo "Usage: make <COMMAND>"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make all                Run fmt, tidy, vet, test, and build"
+	@echo "  make all                Run fmt, tidy, vet, test"
 	@echo "  make verify             Run fmt-check, tidy-check, vet, and test"
 	@echo "  make uv-sync            Sync Python dependencies with uv"
 	@echo "  make python-check       Compile Python files with uv"
@@ -41,7 +41,7 @@ help:
 	@echo "  make run                Run service locally"
 	@echo "  make clean              Remove generated build and coverage artifacts"
 
-all: fmt tidy vet test build
+all: fmt tidy vet test
 
 verify: fmt-check tidy-check vet test
 
