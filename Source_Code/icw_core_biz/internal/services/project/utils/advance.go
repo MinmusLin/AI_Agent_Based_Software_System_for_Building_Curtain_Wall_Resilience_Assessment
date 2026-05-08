@@ -59,6 +59,13 @@ func BeforeAdvanceProject(ctx context.Context, repo *mysql.Repository, userId, p
 
 	// Agent 智能检测阶段 -> 人工复核确认阶段
 	if fromProgress == bizpb.ProjectProgress_AssetsFinished && toProgress == bizpb.ProjectProgress_DetectionFinished {
+		allSucceeded, err := repo.ProjectDetectionTasksAllSucceeded(ctx, userId, projectId)
+		if err != nil {
+			return err
+		}
+		if !allSucceeded {
+			return rpc_error.BadRequestDefault("project detection tasks must all succeed")
+		}
 		return nil
 	}
 

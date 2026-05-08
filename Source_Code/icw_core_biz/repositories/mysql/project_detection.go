@@ -438,6 +438,28 @@ func (r *Repository) GetProjectDetectionTaskStatus(ctx context.Context, userId, 
 	return item, nil
 }
 
+// ProjectDetectionTasksAllSucceeded 按用户 ID 和项目 ID 判断项目已上传图像检测任务是否全部成功
+func (r *Repository) ProjectDetectionTasksAllSucceeded(ctx context.Context, userId, projectId uint64) (bool, error) {
+	var uploadedImageCount, succeededTaskCount uint64
+	if err := r.mysql.QueryRowContext(ctx, `
+		SELECT
+			COUNT(i.id),
+			COALESCE(SUM(CASE WHEN t.status = ? THEN 1 ELSE 0 END), 0)
+		FROM project_group_images i
+		LEFT JOIN project_detection_tasks t
+			ON t.image_id = i.id
+			AND t.user_id = i.user_id
+			AND t.project_id = i.project_id
+		WHERE i.user_id = ? AND i.project_id = ? AND i.status = ?
+	`, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Succeeded),
+		userId,
+		projectId,
+		enum.ProjectImageStatusString(bizpb.ProjectImageStatus_Uploaded)).Scan(&uploadedImageCount, &succeededTaskCount); err != nil {
+		return false, err
+	}
+	return uploadedImageCount > 0 && uploadedImageCount == succeededTaskCount, nil
+}
+
 // projectDetectionTaskToStatusDTO 将项目图像检测主任务记录转换为检测状态数据结构
 func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*commonpb.ProjectDetectionStatus, error) {
 	item := &commonpb.ProjectDetectionStatus{
@@ -776,7 +798,7 @@ func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, task
 	return result, nil
 }
 
-// StartProjectDetectionClassificationTask 执行总结任务时，按项目图像检测主任务 ID 更新开始时间
+// StartProjectDetectionClassificationTask 执行分类任务时，按项目图像检测主任务 ID 更新开始时间
 func (r *Repository) StartProjectDetectionClassificationTask(ctx context.Context, taskId uint64) (*model.ProjectDetectionTaskRecord, error) {
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_detection_tasks
@@ -857,6 +879,201 @@ func (r *Repository) StartProjectDetectionSummaryTask(ctx context.Context, taskU
 		if err := project_detection.UpdateProjectDetectionSummaryTaskStatusTx(ctx, tx, taskUuid, bizpb.ProjectDetectionSubTaskStatus_Pending, true, false); err != nil {
 			return nil, nil, err
 		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, nil, err
+	}
+
+	task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
+
+	return task, subTask, err
+}
+
+// UpdateProjectDetectionClassificationResult 按项目图像检测主任务 UUID 更新分类结果
+func (r *Repository) UpdateProjectDetectionClassificationResult(ctx context.Context, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, taskCodes []string) (*model.ProjectDetectionTaskRecord, map[string]*model.ProjectDetectionSubTaskRecord, error) {
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	mainTask, err := project_detection.FindProjectDetectionTaskByUuidTx(ctx, tx, taskUuid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil, nil
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if mainTask.Status != bizpb.ProjectDetectionTaskStatus_Classifying {
+		return mainTask, nil, tx.Commit()
+	}
+
+	if status == bizpb.ProjectDetectionSubTaskStatus_Failed {
+		if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, mainTask.Id, bizpb.ProjectDetectionTaskStatus_Failed); err != nil {
+			return nil, nil, err
+		}
+		if err := tx.Commit(); err != nil {
+			return nil, nil, err
+		}
+		task, err := r.FindProjectDetectionTaskById(ctx, mainTask.Id)
+		return task, nil, err
+	}
+
+	taskCodes, err = project_detection.NormalizeDetectionTaskCodes(taskCodes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if len(taskCodes) == 0 {
+		if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, mainTask.Id, bizpb.ProjectDetectionTaskStatus_Succeeded); err != nil {
+			return nil, nil, err
+		}
+		if err := tx.Commit(); err != nil {
+			return nil, nil, err
+		}
+		task, err := r.FindProjectDetectionTaskById(ctx, mainTask.Id)
+		return task, nil, err
+	}
+
+	subTasks := make(map[string]*model.ProjectDetectionSubTaskRecord, len(taskCodes))
+	for _, taskCode := range taskCodes {
+		subTask, err := project_detection.CreateProjectDetectionSubTaskTx(ctx, tx, mainTask, taskCode)
+		if err != nil {
+			return nil, nil, err
+		}
+		subTasks[taskCode] = subTask
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, nil, err
+	}
+
+	task, err := r.FindProjectDetectionTaskById(ctx, mainTask.Id)
+
+	return task, subTasks, err
+}
+
+// UpdateProjectDetectionReasoningTaskResult 按项目图像检测子任务代码和子任务 UUID 更新推理结果
+func (r *Repository) UpdateProjectDetectionReasoningTaskResult(ctx context.Context, taskCode, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) (*model.ProjectDetectionTaskRecord, *model.ProjectDetectionSubTaskRecord, *model.ProjectDetectionSummaryTaskRecord, error) {
+	statusText := enum.ProjectDetectionSubTaskStatusString(status)
+	if statusText == "" {
+		return nil, nil, nil, model.ErrProjectDetectionSubTaskStatusInvalid
+	}
+
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	subTask, err := project_detection.FindProjectDetectionSubTaskByUuidTx(ctx, tx, taskCode, taskUuid)
+	if err != nil || subTask == nil {
+		return nil, nil, nil, err
+	}
+
+	if subTask.Status != bizpb.ProjectDetectionSubTaskStatus_Pending {
+		if err := tx.Commit(); err != nil {
+			return nil, nil, nil, err
+		}
+		task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
+		return task, subTask, nil, err
+	}
+
+	if err := project_detection.UpdateProjectDetectionSubTaskResultTx(ctx, tx, taskCode, taskUuid, status, resultJSON, artifactSha256Map); err != nil {
+		return nil, nil, nil, err
+	}
+
+	var summaryTask *model.ProjectDetectionSummaryTaskRecord
+	if status == bizpb.ProjectDetectionSubTaskStatus_Failed {
+		if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, subTask.MainTaskId, bizpb.ProjectDetectionTaskStatus_Failed); err != nil {
+			return nil, nil, nil, err
+		}
+	} else {
+		anyFailed, allSucceeded, err := project_detection.ProjectDetectionSubTaskAggregateStatusTx(ctx, tx, subTask.MainTaskId)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		if anyFailed {
+			if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, subTask.MainTaskId, bizpb.ProjectDetectionTaskStatus_Failed); err != nil {
+				return nil, nil, nil, err
+			}
+		} else if allSucceeded {
+			mainTask, err := project_detection.FindProjectDetectionTaskByIdForUpdateTx(ctx, tx, subTask.MainTaskId)
+			if err != nil {
+				return nil, nil, nil, err
+			}
+
+			if !mainTask.SummaryShouldExecute && !mainTask.SummaryTaskId.Valid {
+				summaryTask, err = project_detection.CreateProjectDetectionSummaryTaskTx(ctx, tx, mainTask)
+				if err != nil {
+					return nil, nil, nil, err
+				}
+			}
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, nil, nil, err
+	}
+
+	task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
+
+	return task, subTask, summaryTask, err
+}
+
+// UpdateProjectDetectionSummaryResult 按项目图像检测主任务 UUID 更新总结结果
+func (r *Repository) UpdateProjectDetectionSummaryResult(ctx context.Context, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) (*model.ProjectDetectionTaskRecord, *model.ProjectDetectionSummaryTaskRecord, error) {
+	statusText := enum.ProjectDetectionSubTaskStatusString(status)
+	if statusText == "" {
+		return nil, nil, model.ErrProjectDetectionSummaryTaskStatusInvalid
+	}
+
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	subTask, err := project_detection.FindProjectDetectionSummaryTaskByUuidTx(ctx, tx, taskUuid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil, nil
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if subTask.Status != bizpb.ProjectDetectionSubTaskStatus_Pending {
+		if err := tx.Commit(); err != nil {
+			return nil, nil, err
+		}
+
+		task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
+
+		return task, subTask, err
+	}
+
+	if err := project_detection.UpdateProjectDetectionSummaryTaskResultTx(ctx, tx, taskUuid, status, resultJSON); err != nil {
+		return nil, nil, err
+	}
+
+	mainStatus := bizpb.ProjectDetectionTaskStatus_Succeeded
+	if status == bizpb.ProjectDetectionSubTaskStatus_Failed {
+		mainStatus = bizpb.ProjectDetectionTaskStatus_Failed
+	}
+
+	if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, subTask.MainTaskId, mainStatus); err != nil {
+		return nil, nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -1003,183 +1220,4 @@ func (r *Repository) UpdateProjectDetectionTaskStatus(ctx context.Context, taskI
 		return nil, err
 	}
 	return r.FindProjectDetectionTaskById(ctx, taskId)
-}
-
-// UpdateProjectDetectionClassificationResult 按主任务 UUID 更新项目图像检测分类结果
-func (r *Repository) UpdateProjectDetectionClassificationResult(ctx context.Context, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, taskCodes []string) (*model.ProjectDetectionTaskRecord, map[string]*model.ProjectDetectionSubTaskRecord, error) {
-	tx, err := r.mysql.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer func() {
-		_ = tx.Rollback()
-	}()
-
-	mainTask, err := project_detection.FindProjectDetectionTaskByUuidTx(ctx, tx, taskUuid)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil, nil
-	}
-	if err != nil {
-		return nil, nil, err
-	}
-	if mainTask.Status != bizpb.ProjectDetectionTaskStatus_Classifying {
-		return mainTask, nil, tx.Commit()
-	}
-
-	if status == bizpb.ProjectDetectionSubTaskStatus_Failed {
-		if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, mainTask.Id, bizpb.ProjectDetectionTaskStatus_Failed); err != nil {
-			return nil, nil, err
-		}
-		if err := tx.Commit(); err != nil {
-			return nil, nil, err
-		}
-		task, err := r.FindProjectDetectionTaskById(ctx, mainTask.Id)
-		return task, nil, err
-	}
-
-	taskCodes, err = project_detection.NormalizeDetectionTaskCodes(taskCodes)
-	if err != nil {
-		return nil, nil, err
-	}
-	if len(taskCodes) == 0 {
-		if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, mainTask.Id, bizpb.ProjectDetectionTaskStatus_Succeeded); err != nil {
-			return nil, nil, err
-		}
-		if err := tx.Commit(); err != nil {
-			return nil, nil, err
-		}
-		task, err := r.FindProjectDetectionTaskById(ctx, mainTask.Id)
-		return task, nil, err
-	}
-
-	subTasks := make(map[string]*model.ProjectDetectionSubTaskRecord, len(taskCodes))
-	for _, taskCode := range taskCodes {
-		// 创建 检测任务 表
-		subTask, err := project_detection.CreateProjectDetectionSubTaskTx(ctx, tx, mainTask, taskCode)
-		if err != nil {
-			return nil, nil, err
-		}
-		subTasks[taskCode] = subTask
-	}
-
-	if err := tx.Commit(); err != nil {
-		return nil, nil, err
-	}
-	task, err := r.FindProjectDetectionTaskById(ctx, mainTask.Id)
-	return task, subTasks, err
-}
-
-// UpdateProjectDetectionReasoningTaskResult 按推理任务 UUID 更新项目图像检测推理子任务结果
-func (r *Repository) UpdateProjectDetectionReasoningTaskResult(ctx context.Context, taskCode, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) (*model.ProjectDetectionTaskRecord, *model.ProjectDetectionSubTaskRecord, *model.ProjectDetectionSummaryTaskRecord, error) {
-	statusText := enum.ProjectDetectionSubTaskStatusString(status)
-	if statusText == "" {
-		return nil, nil, nil, model.ErrProjectDetectionSubTaskStatusInvalid
-	}
-
-	tx, err := r.mysql.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	defer func() {
-		_ = tx.Rollback()
-	}()
-
-	// 根据uuid查询 MainTask ID
-	subTask, err := project_detection.FindProjectDetectionSubTaskByUuidTx(ctx, tx, taskCode, taskUuid)
-	if err != nil || subTask == nil {
-		return nil, nil, nil, err
-	}
-	if subTask.Status != bizpb.ProjectDetectionSubTaskStatus_Pending {
-		if err := tx.Commit(); err != nil {
-			return nil, nil, nil, err
-		}
-		task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
-		return task, subTask, nil, err
-	}
-	// 写入检测任务 更新检测任务的状态
-	if err := project_detection.UpdateProjectDetectionSubTaskResultTx(ctx, tx, taskCode, taskUuid, status, resultJSON, artifactSha256Map); err != nil {
-		return nil, nil, nil, err
-	}
-
-	var summaryTask *model.ProjectDetectionSummaryTaskRecord
-	if status == bizpb.ProjectDetectionSubTaskStatus_Failed {
-		if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, subTask.MainTaskId, bizpb.ProjectDetectionTaskStatus_Failed); err != nil {
-			return nil, nil, nil, err
-		}
-	} else {
-		anyFailed, allSucceeded, err := project_detection.ProjectDetectionSubTaskAggregateStatusTx(ctx, tx, subTask.MainTaskId)
-		if err != nil {
-			return nil, nil, nil, err
-		}
-		if anyFailed {
-			if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, subTask.MainTaskId, bizpb.ProjectDetectionTaskStatus_Failed); err != nil {
-				return nil, nil, nil, err
-			}
-		} else if allSucceeded {
-			mainTask, err := project_detection.FindProjectDetectionTaskByIdForUpdateTx(ctx, tx, subTask.MainTaskId)
-			if err != nil {
-				return nil, nil, nil, err
-			}
-			if !mainTask.SummaryShouldExecute && !mainTask.SummaryTaskId.Valid {
-				summaryTask, err = project_detection.CreateProjectDetectionSummaryTaskTx(ctx, tx, mainTask)
-				if err != nil {
-					return nil, nil, nil, err
-				}
-			}
-		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return nil, nil, nil, err
-	}
-	task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
-	return task, subTask, summaryTask, err
-}
-
-// UpdateProjectDetectionSummaryResult 按总结任务 UUID 更新项目图像检测总结结果
-func (r *Repository) UpdateProjectDetectionSummaryResult(ctx context.Context, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) (*model.ProjectDetectionTaskRecord, *model.ProjectDetectionSummaryTaskRecord, error) {
-	statusText := enum.ProjectDetectionSubTaskStatusString(status)
-	if statusText == "" {
-		return nil, nil, model.ErrProjectDetectionSummaryTaskStatusInvalid
-	}
-
-	tx, err := r.mysql.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer func() {
-		_ = tx.Rollback()
-	}()
-
-	subTask, err := project_detection.FindProjectDetectionSummaryTaskByUuidTx(ctx, tx, taskUuid)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil, nil
-	}
-	if err != nil {
-		return nil, nil, err
-	}
-	if subTask.Status != bizpb.ProjectDetectionSubTaskStatus_Pending {
-		if err := tx.Commit(); err != nil {
-			return nil, nil, err
-		}
-		task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
-		return task, subTask, err
-	}
-	if err := project_detection.UpdateProjectDetectionSummaryTaskResultTx(ctx, tx, taskUuid, status, resultJSON); err != nil {
-		return nil, nil, err
-	}
-
-	mainStatus := bizpb.ProjectDetectionTaskStatus_Succeeded
-	if status == bizpb.ProjectDetectionSubTaskStatus_Failed {
-		mainStatus = bizpb.ProjectDetectionTaskStatus_Failed
-	}
-	if err := project_detection.UpdateProjectDetectionTaskStatusTx(ctx, tx, subTask.MainTaskId, mainStatus); err != nil {
-		return nil, nil, err
-	}
-
-	if err := tx.Commit(); err != nil {
-		return nil, nil, err
-	}
-	task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
-	return task, subTask, err
 }
