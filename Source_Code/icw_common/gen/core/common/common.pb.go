@@ -272,7 +272,7 @@ func (x *UploadProjectImageResult) GetThumbnailUploadUrl() string {
 type ProjectDetectionNodeStatus struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NodeCode      string                 `protobuf:"bytes,1,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
-	SubTaskId     string                 `protobuf:"bytes,2,opt,name=sub_task_id,json=subTaskId,proto3" json:"sub_task_id,omitempty"`
+	SubTaskUuid   string                 `protobuf:"bytes,2,opt,name=sub_task_uuid,json=subTaskUuid,proto3" json:"sub_task_uuid,omitempty"`
 	SubStatus     string                 `protobuf:"bytes,3,opt,name=sub_status,json=subStatus,proto3" json:"sub_status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -315,9 +315,9 @@ func (x *ProjectDetectionNodeStatus) GetNodeCode() string {
 	return ""
 }
 
-func (x *ProjectDetectionNodeStatus) GetSubTaskId() string {
+func (x *ProjectDetectionNodeStatus) GetSubTaskUuid() string {
 	if x != nil {
-		return x.SubTaskId
+		return x.SubTaskUuid
 	}
 	return ""
 }
@@ -333,7 +333,7 @@ func (x *ProjectDetectionNodeStatus) GetSubStatus() string {
 type ProjectDetectionStatus struct {
 	state         protoimpl.MessageState        `protogen:"open.v1"`
 	ImageUuid     string                        `protobuf:"bytes,1,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	MainTaskId    string                        `protobuf:"bytes,2,opt,name=main_task_id,json=mainTaskId,proto3" json:"main_task_id,omitempty"`
+	MainTaskUuid  string                        `protobuf:"bytes,2,opt,name=main_task_uuid,json=mainTaskUuid,proto3" json:"main_task_uuid,omitempty"`
 	MainStatus    string                        `protobuf:"bytes,3,opt,name=main_status,json=mainStatus,proto3" json:"main_status,omitempty"`
 	Nodes         []*ProjectDetectionNodeStatus `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -377,9 +377,9 @@ func (x *ProjectDetectionStatus) GetImageUuid() string {
 	return ""
 }
 
-func (x *ProjectDetectionStatus) GetMainTaskId() string {
+func (x *ProjectDetectionStatus) GetMainTaskUuid() string {
 	if x != nil {
-		return x.MainTaskId
+		return x.MainTaskUuid
 	}
 	return ""
 }
@@ -396,6 +396,976 @@ func (x *ProjectDetectionStatus) GetNodes() []*ProjectDetectionNodeStatus {
 		return x.Nodes
 	}
 	return nil
+}
+
+// 项目图像金属锈蚀检测区域结构体
+type ProjectDetectionCorrosionRegion struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Confidence    float64                `protobuf:"fixed64,2,opt,name=confidence,proto3" json:"confidence,omitempty"`
+	BboxXyxy      []float64              `protobuf:"fixed64,3,rep,packed,name=bbox_xyxy,json=bboxXyxy,proto3" json:"bbox_xyxy,omitempty"`
+	MaskPixels    uint64                 `protobuf:"varint,4,opt,name=mask_pixels,json=maskPixels,proto3" json:"mask_pixels,omitempty"`
+	MaskRatio     float64                `protobuf:"fixed64,5,opt,name=mask_ratio,json=maskRatio,proto3" json:"mask_ratio,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionCorrosionRegion) Reset() {
+	*x = ProjectDetectionCorrosionRegion{}
+	mi := &file_core_common_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionCorrosionRegion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionCorrosionRegion) ProtoMessage() {}
+
+func (x *ProjectDetectionCorrosionRegion) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionCorrosionRegion.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionCorrosionRegion) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ProjectDetectionCorrosionRegion) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionRegion) GetConfidence() float64 {
+	if x != nil {
+		return x.Confidence
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionRegion) GetBboxXyxy() []float64 {
+	if x != nil {
+		return x.BboxXyxy
+	}
+	return nil
+}
+
+func (x *ProjectDetectionCorrosionRegion) GetMaskPixels() uint64 {
+	if x != nil {
+		return x.MaskPixels
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionRegion) GetMaskRatio() float64 {
+	if x != nil {
+		return x.MaskRatio
+	}
+	return 0
+}
+
+// 项目图像金属锈蚀检测结果结构体
+type ProjectDetectionCorrosionResult struct {
+	state             protoimpl.MessageState             `protogen:"open.v1"`
+	TaskUuid          string                             `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	Status            string                             `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	HasCorrosion      bool                               `protobuf:"varint,3,opt,name=has_corrosion,json=hasCorrosion,proto3" json:"has_corrosion,omitempty"`
+	CorrosionCount    uint32                             `protobuf:"varint,4,opt,name=corrosion_count,json=corrosionCount,proto3" json:"corrosion_count,omitempty"`
+	MaxConfidence     float64                            `protobuf:"fixed64,5,opt,name=max_confidence,json=maxConfidence,proto3" json:"max_confidence,omitempty"`
+	AverageConfidence float64                            `protobuf:"fixed64,6,opt,name=average_confidence,json=averageConfidence,proto3" json:"average_confidence,omitempty"`
+	CorrosionPixels   uint64                             `protobuf:"varint,7,opt,name=corrosion_pixels,json=corrosionPixels,proto3" json:"corrosion_pixels,omitempty"`
+	CorrosionRatio    float64                            `protobuf:"fixed64,8,opt,name=corrosion_ratio,json=corrosionRatio,proto3" json:"corrosion_ratio,omitempty"`
+	Regions           []*ProjectDetectionCorrosionRegion `protobuf:"bytes,9,rep,name=regions,proto3" json:"regions,omitempty"`
+	RuntimeSeconds    float64                            `protobuf:"fixed64,10,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
+	Artifacts         map[string]string                  `protobuf:"bytes,11,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionCorrosionResult) Reset() {
+	*x = ProjectDetectionCorrosionResult{}
+	mi := &file_core_common_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionCorrosionResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionCorrosionResult) ProtoMessage() {}
+
+func (x *ProjectDetectionCorrosionResult) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionCorrosionResult.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionCorrosionResult) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ProjectDetectionCorrosionResult) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionCorrosionResult) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ProjectDetectionCorrosionResult) GetHasCorrosion() bool {
+	if x != nil {
+		return x.HasCorrosion
+	}
+	return false
+}
+
+func (x *ProjectDetectionCorrosionResult) GetCorrosionCount() uint32 {
+	if x != nil {
+		return x.CorrosionCount
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionResult) GetMaxConfidence() float64 {
+	if x != nil {
+		return x.MaxConfidence
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionResult) GetAverageConfidence() float64 {
+	if x != nil {
+		return x.AverageConfidence
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionResult) GetCorrosionPixels() uint64 {
+	if x != nil {
+		return x.CorrosionPixels
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionResult) GetCorrosionRatio() float64 {
+	if x != nil {
+		return x.CorrosionRatio
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionResult) GetRegions() []*ProjectDetectionCorrosionRegion {
+	if x != nil {
+		return x.Regions
+	}
+	return nil
+}
+
+func (x *ProjectDetectionCorrosionResult) GetRuntimeSeconds() float64 {
+	if x != nil {
+		return x.RuntimeSeconds
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCorrosionResult) GetArtifacts() map[string]string {
+	if x != nil {
+		return x.Artifacts
+	}
+	return nil
+}
+
+// 项目图像石材裂缝检测区域结构体
+type ProjectDetectionCrackRegion struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	BboxXyxy      []float64              `protobuf:"fixed64,2,rep,packed,name=bbox_xyxy,json=bboxXyxy,proto3" json:"bbox_xyxy,omitempty"`
+	MaskPixels    uint64                 `protobuf:"varint,3,opt,name=mask_pixels,json=maskPixels,proto3" json:"mask_pixels,omitempty"`
+	MaskRatio     float64                `protobuf:"fixed64,4,opt,name=mask_ratio,json=maskRatio,proto3" json:"mask_ratio,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionCrackRegion) Reset() {
+	*x = ProjectDetectionCrackRegion{}
+	mi := &file_core_common_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionCrackRegion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionCrackRegion) ProtoMessage() {}
+
+func (x *ProjectDetectionCrackRegion) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionCrackRegion.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionCrackRegion) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ProjectDetectionCrackRegion) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCrackRegion) GetBboxXyxy() []float64 {
+	if x != nil {
+		return x.BboxXyxy
+	}
+	return nil
+}
+
+func (x *ProjectDetectionCrackRegion) GetMaskPixels() uint64 {
+	if x != nil {
+		return x.MaskPixels
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCrackRegion) GetMaskRatio() float64 {
+	if x != nil {
+		return x.MaskRatio
+	}
+	return 0
+}
+
+// 项目图像石材裂缝检测结果结构体
+type ProjectDetectionCrackResult struct {
+	state          protoimpl.MessageState         `protogen:"open.v1"`
+	TaskUuid       string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	Status         string                         `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	HasCrack       bool                           `protobuf:"varint,3,opt,name=has_crack,json=hasCrack,proto3" json:"has_crack,omitempty"`
+	CrackCount     uint32                         `protobuf:"varint,4,opt,name=crack_count,json=crackCount,proto3" json:"crack_count,omitempty"`
+	CrackPixels    uint64                         `protobuf:"varint,5,opt,name=crack_pixels,json=crackPixels,proto3" json:"crack_pixels,omitempty"`
+	CrackRatio     float64                        `protobuf:"fixed64,6,opt,name=crack_ratio,json=crackRatio,proto3" json:"crack_ratio,omitempty"`
+	Regions        []*ProjectDetectionCrackRegion `protobuf:"bytes,7,rep,name=regions,proto3" json:"regions,omitempty"`
+	RuntimeSeconds float64                        `protobuf:"fixed64,8,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
+	Artifacts      map[string]string              `protobuf:"bytes,9,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionCrackResult) Reset() {
+	*x = ProjectDetectionCrackResult{}
+	mi := &file_core_common_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionCrackResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionCrackResult) ProtoMessage() {}
+
+func (x *ProjectDetectionCrackResult) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionCrackResult.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionCrackResult) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ProjectDetectionCrackResult) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionCrackResult) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ProjectDetectionCrackResult) GetHasCrack() bool {
+	if x != nil {
+		return x.HasCrack
+	}
+	return false
+}
+
+func (x *ProjectDetectionCrackResult) GetCrackCount() uint32 {
+	if x != nil {
+		return x.CrackCount
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCrackResult) GetCrackPixels() uint64 {
+	if x != nil {
+		return x.CrackPixels
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCrackResult) GetCrackRatio() float64 {
+	if x != nil {
+		return x.CrackRatio
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCrackResult) GetRegions() []*ProjectDetectionCrackRegion {
+	if x != nil {
+		return x.Regions
+	}
+	return nil
+}
+
+func (x *ProjectDetectionCrackResult) GetRuntimeSeconds() float64 {
+	if x != nil {
+		return x.RuntimeSeconds
+	}
+	return 0
+}
+
+func (x *ProjectDetectionCrackResult) GetArtifacts() map[string]string {
+	if x != nil {
+		return x.Artifacts
+	}
+	return nil
+}
+
+// 项目图像石材污渍检测区域结构体
+type ProjectDetectionStainRegion struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Confidence    float64                `protobuf:"fixed64,2,opt,name=confidence,proto3" json:"confidence,omitempty"`
+	BboxXyxy      []float64              `protobuf:"fixed64,3,rep,packed,name=bbox_xyxy,json=bboxXyxy,proto3" json:"bbox_xyxy,omitempty"`
+	RegionWidth   uint32                 `protobuf:"varint,4,opt,name=region_width,json=regionWidth,proto3" json:"region_width,omitempty"`
+	RegionHeight  uint32                 `protobuf:"varint,5,opt,name=region_height,json=regionHeight,proto3" json:"region_height,omitempty"`
+	StainPixels   uint64                 `protobuf:"varint,6,opt,name=stain_pixels,json=stainPixels,proto3" json:"stain_pixels,omitempty"`
+	StainRatio    float64                `protobuf:"fixed64,7,opt,name=stain_ratio,json=stainRatio,proto3" json:"stain_ratio,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionStainRegion) Reset() {
+	*x = ProjectDetectionStainRegion{}
+	mi := &file_core_common_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionStainRegion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionStainRegion) ProtoMessage() {}
+
+func (x *ProjectDetectionStainRegion) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionStainRegion.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionStainRegion) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ProjectDetectionStainRegion) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainRegion) GetConfidence() float64 {
+	if x != nil {
+		return x.Confidence
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainRegion) GetBboxXyxy() []float64 {
+	if x != nil {
+		return x.BboxXyxy
+	}
+	return nil
+}
+
+func (x *ProjectDetectionStainRegion) GetRegionWidth() uint32 {
+	if x != nil {
+		return x.RegionWidth
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainRegion) GetRegionHeight() uint32 {
+	if x != nil {
+		return x.RegionHeight
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainRegion) GetStainPixels() uint64 {
+	if x != nil {
+		return x.StainPixels
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainRegion) GetStainRatio() float64 {
+	if x != nil {
+		return x.StainRatio
+	}
+	return 0
+}
+
+// 项目图像石材污渍检测结果结构体
+type ProjectDetectionStainResult struct {
+	state             protoimpl.MessageState         `protogen:"open.v1"`
+	TaskUuid          string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	Status            string                         `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	HasStain          bool                           `protobuf:"varint,3,opt,name=has_stain,json=hasStain,proto3" json:"has_stain,omitempty"`
+	StainCount        uint32                         `protobuf:"varint,4,opt,name=stain_count,json=stainCount,proto3" json:"stain_count,omitempty"`
+	AverageStainRatio float64                        `protobuf:"fixed64,5,opt,name=average_stain_ratio,json=averageStainRatio,proto3" json:"average_stain_ratio,omitempty"`
+	MaxStainRatio     float64                        `protobuf:"fixed64,6,opt,name=max_stain_ratio,json=maxStainRatio,proto3" json:"max_stain_ratio,omitempty"`
+	Regions           []*ProjectDetectionStainRegion `protobuf:"bytes,7,rep,name=regions,proto3" json:"regions,omitempty"`
+	RuntimeSeconds    float64                        `protobuf:"fixed64,8,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
+	Artifacts         map[string]string              `protobuf:"bytes,9,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionStainResult) Reset() {
+	*x = ProjectDetectionStainResult{}
+	mi := &file_core_common_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionStainResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionStainResult) ProtoMessage() {}
+
+func (x *ProjectDetectionStainResult) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionStainResult.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionStainResult) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ProjectDetectionStainResult) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionStainResult) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ProjectDetectionStainResult) GetHasStain() bool {
+	if x != nil {
+		return x.HasStain
+	}
+	return false
+}
+
+func (x *ProjectDetectionStainResult) GetStainCount() uint32 {
+	if x != nil {
+		return x.StainCount
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainResult) GetAverageStainRatio() float64 {
+	if x != nil {
+		return x.AverageStainRatio
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainResult) GetMaxStainRatio() float64 {
+	if x != nil {
+		return x.MaxStainRatio
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainResult) GetRegions() []*ProjectDetectionStainRegion {
+	if x != nil {
+		return x.Regions
+	}
+	return nil
+}
+
+func (x *ProjectDetectionStainResult) GetRuntimeSeconds() float64 {
+	if x != nil {
+		return x.RuntimeSeconds
+	}
+	return 0
+}
+
+func (x *ProjectDetectionStainResult) GetArtifacts() map[string]string {
+	if x != nil {
+		return x.Artifacts
+	}
+	return nil
+}
+
+// 项目图像玻璃平整度检测区域结构体
+type ProjectDetectionFlatnessRegion struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	Id                      uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	BboxXyxy                []float64              `protobuf:"fixed64,2,rep,packed,name=bbox_xyxy,json=bboxXyxy,proto3" json:"bbox_xyxy,omitempty"`
+	EdgeUnevenDetected      bool                   `protobuf:"varint,3,opt,name=edge_uneven_detected,json=edgeUnevenDetected,proto3" json:"edge_uneven_detected,omitempty"`
+	LineUnevenDetected      bool                   `protobuf:"varint,4,opt,name=line_uneven_detected,json=lineUnevenDetected,proto3" json:"line_uneven_detected,omitempty"`
+	GradientUnevenDetected  bool                   `protobuf:"varint,5,opt,name=gradient_uneven_detected,json=gradientUnevenDetected,proto3" json:"gradient_uneven_detected,omitempty"`
+	FrequencyUnevenDetected bool                   `protobuf:"varint,6,opt,name=frequency_uneven_detected,json=frequencyUnevenDetected,proto3" json:"frequency_uneven_detected,omitempty"`
+	EdgeCount               uint64                 `protobuf:"varint,7,opt,name=edge_count,json=edgeCount,proto3" json:"edge_count,omitempty"`
+	LaplacianVariance       float64                `protobuf:"fixed64,8,opt,name=laplacian_variance,json=laplacianVariance,proto3" json:"laplacian_variance,omitempty"`
+	LineCount               uint64                 `protobuf:"varint,9,opt,name=line_count,json=lineCount,proto3" json:"line_count,omitempty"`
+	AngleStd                float64                `protobuf:"fixed64,10,opt,name=angle_std,json=angleStd,proto3" json:"angle_std,omitempty"`
+	GradientMean            float64                `protobuf:"fixed64,11,opt,name=gradient_mean,json=gradientMean,proto3" json:"gradient_mean,omitempty"`
+	GradientStd             float64                `protobuf:"fixed64,12,opt,name=gradient_std,json=gradientStd,proto3" json:"gradient_std,omitempty"`
+	FrequencyMin            float64                `protobuf:"fixed64,13,opt,name=frequency_min,json=frequencyMin,proto3" json:"frequency_min,omitempty"`
+	FrequencyMax            float64                `protobuf:"fixed64,14,opt,name=frequency_max,json=frequencyMax,proto3" json:"frequency_max,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionFlatnessRegion) Reset() {
+	*x = ProjectDetectionFlatnessRegion{}
+	mi := &file_core_common_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionFlatnessRegion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionFlatnessRegion) ProtoMessage() {}
+
+func (x *ProjectDetectionFlatnessRegion) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionFlatnessRegion.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionFlatnessRegion) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetBboxXyxy() []float64 {
+	if x != nil {
+		return x.BboxXyxy
+	}
+	return nil
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetEdgeUnevenDetected() bool {
+	if x != nil {
+		return x.EdgeUnevenDetected
+	}
+	return false
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetLineUnevenDetected() bool {
+	if x != nil {
+		return x.LineUnevenDetected
+	}
+	return false
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetGradientUnevenDetected() bool {
+	if x != nil {
+		return x.GradientUnevenDetected
+	}
+	return false
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetFrequencyUnevenDetected() bool {
+	if x != nil {
+		return x.FrequencyUnevenDetected
+	}
+	return false
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetEdgeCount() uint64 {
+	if x != nil {
+		return x.EdgeCount
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetLaplacianVariance() float64 {
+	if x != nil {
+		return x.LaplacianVariance
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetLineCount() uint64 {
+	if x != nil {
+		return x.LineCount
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetAngleStd() float64 {
+	if x != nil {
+		return x.AngleStd
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetGradientMean() float64 {
+	if x != nil {
+		return x.GradientMean
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetGradientStd() float64 {
+	if x != nil {
+		return x.GradientStd
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetFrequencyMin() float64 {
+	if x != nil {
+		return x.FrequencyMin
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessRegion) GetFrequencyMax() float64 {
+	if x != nil {
+		return x.FrequencyMax
+	}
+	return 0
+}
+
+// 项目图像玻璃平整度检测结果结构体
+type ProjectDetectionFlatnessResult struct {
+	state          protoimpl.MessageState            `protogen:"open.v1"`
+	TaskUuid       string                            `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	Status         string                            `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Result         string                            `protobuf:"bytes,3,opt,name=result,proto3" json:"result,omitempty"`
+	UnevenCount    uint32                            `protobuf:"varint,4,opt,name=uneven_count,json=unevenCount,proto3" json:"uneven_count,omitempty"`
+	Regions        []*ProjectDetectionFlatnessRegion `protobuf:"bytes,5,rep,name=regions,proto3" json:"regions,omitempty"`
+	RuntimeSeconds float64                           `protobuf:"fixed64,6,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
+	Artifacts      map[string]string                 `protobuf:"bytes,7,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionFlatnessResult) Reset() {
+	*x = ProjectDetectionFlatnessResult{}
+	mi := &file_core_common_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionFlatnessResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionFlatnessResult) ProtoMessage() {}
+
+func (x *ProjectDetectionFlatnessResult) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionFlatnessResult.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionFlatnessResult) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ProjectDetectionFlatnessResult) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionFlatnessResult) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ProjectDetectionFlatnessResult) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+func (x *ProjectDetectionFlatnessResult) GetUnevenCount() uint32 {
+	if x != nil {
+		return x.UnevenCount
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessResult) GetRegions() []*ProjectDetectionFlatnessRegion {
+	if x != nil {
+		return x.Regions
+	}
+	return nil
+}
+
+func (x *ProjectDetectionFlatnessResult) GetRuntimeSeconds() float64 {
+	if x != nil {
+		return x.RuntimeSeconds
+	}
+	return 0
+}
+
+func (x *ProjectDetectionFlatnessResult) GetArtifacts() map[string]string {
+	if x != nil {
+		return x.Artifacts
+	}
+	return nil
+}
+
+// 项目图像玻璃爆裂检测结果结构体
+type ProjectDetectionSpallingResult struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	TaskUuid       string                 `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	Status         string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	HasSpalling    bool                   `protobuf:"varint,3,opt,name=has_spalling,json=hasSpalling,proto3" json:"has_spalling,omitempty"`
+	Confidence     float64                `protobuf:"fixed64,4,opt,name=confidence,proto3" json:"confidence,omitempty"`
+	RuntimeSeconds float64                `protobuf:"fixed64,5,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
+	Artifacts      map[string]string      `protobuf:"bytes,6,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionSpallingResult) Reset() {
+	*x = ProjectDetectionSpallingResult{}
+	mi := &file_core_common_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionSpallingResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionSpallingResult) ProtoMessage() {}
+
+func (x *ProjectDetectionSpallingResult) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionSpallingResult.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionSpallingResult) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ProjectDetectionSpallingResult) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionSpallingResult) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ProjectDetectionSpallingResult) GetHasSpalling() bool {
+	if x != nil {
+		return x.HasSpalling
+	}
+	return false
+}
+
+func (x *ProjectDetectionSpallingResult) GetConfidence() float64 {
+	if x != nil {
+		return x.Confidence
+	}
+	return 0
+}
+
+func (x *ProjectDetectionSpallingResult) GetRuntimeSeconds() float64 {
+	if x != nil {
+		return x.RuntimeSeconds
+	}
+	return 0
+}
+
+func (x *ProjectDetectionSpallingResult) GetArtifacts() map[string]string {
+	if x != nil {
+		return x.Artifacts
+	}
+	return nil
+}
+
+// 项目图像检测总结结果结构体
+type ProjectDetectionSummaryResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskUuid      string                 `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	ResultJson    string                 `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectDetectionSummaryResult) Reset() {
+	*x = ProjectDetectionSummaryResult{}
+	mi := &file_core_common_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectDetectionSummaryResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectDetectionSummaryResult) ProtoMessage() {}
+
+func (x *ProjectDetectionSummaryResult) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectDetectionSummaryResult.ProtoReflect.Descriptor instead.
+func (*ProjectDetectionSummaryResult) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ProjectDetectionSummaryResult) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *ProjectDetectionSummaryResult) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ProjectDetectionSummaryResult) GetResultJson() string {
+	if x != nil {
+		return x.ResultJson
+	}
+	return ""
 }
 
 var File_core_common_proto protoreflect.FileDescriptor
@@ -426,20 +1396,138 @@ const file_core_common_proto_rawDesc = "" +
 	"\x18UploadProjectImageResult\x123\n" +
 	"\x05image\x18\x01 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\x12.\n" +
 	"\x13original_upload_url\x18\x02 \x01(\tR\x11originalUploadUrl\x120\n" +
-	"\x14thumbnail_upload_url\x18\x03 \x01(\tR\x12thumbnailUploadUrl\"x\n" +
+	"\x14thumbnail_upload_url\x18\x03 \x01(\tR\x12thumbnailUploadUrl\"|\n" +
 	"\x1aProjectDetectionNodeStatus\x12\x1b\n" +
-	"\tnode_code\x18\x01 \x01(\tR\bnodeCode\x12\x1e\n" +
-	"\vsub_task_id\x18\x02 \x01(\tR\tsubTaskId\x12\x1d\n" +
+	"\tnode_code\x18\x01 \x01(\tR\bnodeCode\x12\"\n" +
+	"\rsub_task_uuid\x18\x02 \x01(\tR\vsubTaskUuid\x12\x1d\n" +
 	"\n" +
-	"sub_status\x18\x03 \x01(\tR\tsubStatus\"\xbd\x01\n" +
+	"sub_status\x18\x03 \x01(\tR\tsubStatus\"\xc1\x01\n" +
 	"\x16ProjectDetectionStatus\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x01 \x01(\tR\timageUuid\x12 \n" +
-	"\fmain_task_id\x18\x02 \x01(\tR\n" +
-	"mainTaskId\x12\x1f\n" +
+	"image_uuid\x18\x01 \x01(\tR\timageUuid\x12$\n" +
+	"\x0emain_task_uuid\x18\x02 \x01(\tR\fmainTaskUuid\x12\x1f\n" +
 	"\vmain_status\x18\x03 \x01(\tR\n" +
 	"mainStatus\x12A\n" +
-	"\x05nodes\x18\x04 \x03(\v2+.icw.core.common.ProjectDetectionNodeStatusR\x05nodesB%Z#icw_common/gen/core/common;commonpbb\x06proto3"
+	"\x05nodes\x18\x04 \x03(\v2+.icw.core.common.ProjectDetectionNodeStatusR\x05nodes\"\xae\x01\n" +
+	"\x1fProjectDetectionCorrosionRegion\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1e\n" +
+	"\n" +
+	"confidence\x18\x02 \x01(\x01R\n" +
+	"confidence\x12\x1b\n" +
+	"\tbbox_xyxy\x18\x03 \x03(\x01R\bbboxXyxy\x12\x1f\n" +
+	"\vmask_pixels\x18\x04 \x01(\x04R\n" +
+	"maskPixels\x12\x1d\n" +
+	"\n" +
+	"mask_ratio\x18\x05 \x01(\x01R\tmaskRatio\"\xe0\x04\n" +
+	"\x1fProjectDetectionCorrosionResult\x12\x1b\n" +
+	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12#\n" +
+	"\rhas_corrosion\x18\x03 \x01(\bR\fhasCorrosion\x12'\n" +
+	"\x0fcorrosion_count\x18\x04 \x01(\rR\x0ecorrosionCount\x12%\n" +
+	"\x0emax_confidence\x18\x05 \x01(\x01R\rmaxConfidence\x12-\n" +
+	"\x12average_confidence\x18\x06 \x01(\x01R\x11averageConfidence\x12)\n" +
+	"\x10corrosion_pixels\x18\a \x01(\x04R\x0fcorrosionPixels\x12'\n" +
+	"\x0fcorrosion_ratio\x18\b \x01(\x01R\x0ecorrosionRatio\x12J\n" +
+	"\aregions\x18\t \x03(\v20.icw.core.common.ProjectDetectionCorrosionRegionR\aregions\x12'\n" +
+	"\x0fruntime_seconds\x18\n" +
+	" \x01(\x01R\x0eruntimeSeconds\x12]\n" +
+	"\tartifacts\x18\v \x03(\v2?.icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\x0eArtifactsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8a\x01\n" +
+	"\x1bProjectDetectionCrackRegion\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1b\n" +
+	"\tbbox_xyxy\x18\x02 \x03(\x01R\bbboxXyxy\x12\x1f\n" +
+	"\vmask_pixels\x18\x03 \x01(\x04R\n" +
+	"maskPixels\x12\x1d\n" +
+	"\n" +
+	"mask_ratio\x18\x04 \x01(\x01R\tmaskRatio\"\xde\x03\n" +
+	"\x1bProjectDetectionCrackResult\x12\x1b\n" +
+	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1b\n" +
+	"\thas_crack\x18\x03 \x01(\bR\bhasCrack\x12\x1f\n" +
+	"\vcrack_count\x18\x04 \x01(\rR\n" +
+	"crackCount\x12!\n" +
+	"\fcrack_pixels\x18\x05 \x01(\x04R\vcrackPixels\x12\x1f\n" +
+	"\vcrack_ratio\x18\x06 \x01(\x01R\n" +
+	"crackRatio\x12F\n" +
+	"\aregions\x18\a \x03(\v2,.icw.core.common.ProjectDetectionCrackRegionR\aregions\x12'\n" +
+	"\x0fruntime_seconds\x18\b \x01(\x01R\x0eruntimeSeconds\x12Y\n" +
+	"\tartifacts\x18\t \x03(\v2;.icw.core.common.ProjectDetectionCrackResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\x0eArtifactsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf6\x01\n" +
+	"\x1bProjectDetectionStainRegion\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1e\n" +
+	"\n" +
+	"confidence\x18\x02 \x01(\x01R\n" +
+	"confidence\x12\x1b\n" +
+	"\tbbox_xyxy\x18\x03 \x03(\x01R\bbboxXyxy\x12!\n" +
+	"\fregion_width\x18\x04 \x01(\rR\vregionWidth\x12#\n" +
+	"\rregion_height\x18\x05 \x01(\rR\fregionHeight\x12!\n" +
+	"\fstain_pixels\x18\x06 \x01(\x04R\vstainPixels\x12\x1f\n" +
+	"\vstain_ratio\x18\a \x01(\x01R\n" +
+	"stainRatio\"\xf2\x03\n" +
+	"\x1bProjectDetectionStainResult\x12\x1b\n" +
+	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1b\n" +
+	"\thas_stain\x18\x03 \x01(\bR\bhasStain\x12\x1f\n" +
+	"\vstain_count\x18\x04 \x01(\rR\n" +
+	"stainCount\x12.\n" +
+	"\x13average_stain_ratio\x18\x05 \x01(\x01R\x11averageStainRatio\x12&\n" +
+	"\x0fmax_stain_ratio\x18\x06 \x01(\x01R\rmaxStainRatio\x12F\n" +
+	"\aregions\x18\a \x03(\v2,.icw.core.common.ProjectDetectionStainRegionR\aregions\x12'\n" +
+	"\x0fruntime_seconds\x18\b \x01(\x01R\x0eruntimeSeconds\x12Y\n" +
+	"\tartifacts\x18\t \x03(\v2;.icw.core.common.ProjectDetectionStainResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\x0eArtifactsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc3\x04\n" +
+	"\x1eProjectDetectionFlatnessRegion\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1b\n" +
+	"\tbbox_xyxy\x18\x02 \x03(\x01R\bbboxXyxy\x120\n" +
+	"\x14edge_uneven_detected\x18\x03 \x01(\bR\x12edgeUnevenDetected\x120\n" +
+	"\x14line_uneven_detected\x18\x04 \x01(\bR\x12lineUnevenDetected\x128\n" +
+	"\x18gradient_uneven_detected\x18\x05 \x01(\bR\x16gradientUnevenDetected\x12:\n" +
+	"\x19frequency_uneven_detected\x18\x06 \x01(\bR\x17frequencyUnevenDetected\x12\x1d\n" +
+	"\n" +
+	"edge_count\x18\a \x01(\x04R\tedgeCount\x12-\n" +
+	"\x12laplacian_variance\x18\b \x01(\x01R\x11laplacianVariance\x12\x1d\n" +
+	"\n" +
+	"line_count\x18\t \x01(\x04R\tlineCount\x12\x1b\n" +
+	"\tangle_std\x18\n" +
+	" \x01(\x01R\bangleStd\x12#\n" +
+	"\rgradient_mean\x18\v \x01(\x01R\fgradientMean\x12!\n" +
+	"\fgradient_std\x18\f \x01(\x01R\vgradientStd\x12#\n" +
+	"\rfrequency_min\x18\r \x01(\x01R\ffrequencyMin\x12#\n" +
+	"\rfrequency_max\x18\x0e \x01(\x01R\ffrequencyMax\"\xa0\x03\n" +
+	"\x1eProjectDetectionFlatnessResult\x12\x1b\n" +
+	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x16\n" +
+	"\x06result\x18\x03 \x01(\tR\x06result\x12!\n" +
+	"\funeven_count\x18\x04 \x01(\rR\vunevenCount\x12I\n" +
+	"\aregions\x18\x05 \x03(\v2/.icw.core.common.ProjectDetectionFlatnessRegionR\aregions\x12'\n" +
+	"\x0fruntime_seconds\x18\x06 \x01(\x01R\x0eruntimeSeconds\x12\\\n" +
+	"\tartifacts\x18\a \x03(\v2>.icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\x0eArtifactsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdd\x02\n" +
+	"\x1eProjectDetectionSpallingResult\x12\x1b\n" +
+	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12!\n" +
+	"\fhas_spalling\x18\x03 \x01(\bR\vhasSpalling\x12\x1e\n" +
+	"\n" +
+	"confidence\x18\x04 \x01(\x01R\n" +
+	"confidence\x12'\n" +
+	"\x0fruntime_seconds\x18\x05 \x01(\x01R\x0eruntimeSeconds\x12\\\n" +
+	"\tartifacts\x18\x06 \x03(\v2>.icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\x0eArtifactsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"u\n" +
+	"\x1dProjectDetectionSummaryResult\x12\x1b\n" +
+	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1f\n" +
+	"\vresult_json\x18\x03 \x01(\tR\n" +
+	"resultJsonB%Z#icw_common/gen/core/common;commonpbb\x06proto3"
 
 var (
 	file_core_common_proto_rawDescOnce sync.Once
@@ -453,22 +1541,46 @@ func file_core_common_proto_rawDescGZIP() []byte {
 	return file_core_common_proto_rawDescData
 }
 
-var file_core_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_core_common_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_core_common_proto_goTypes = []any{
-	(*User)(nil),                       // 0: icw.core.common.User
-	(*ProjectImage)(nil),               // 1: icw.core.common.ProjectImage
-	(*UploadProjectImageResult)(nil),   // 2: icw.core.common.UploadProjectImageResult
-	(*ProjectDetectionNodeStatus)(nil), // 3: icw.core.common.ProjectDetectionNodeStatus
-	(*ProjectDetectionStatus)(nil),     // 4: icw.core.common.ProjectDetectionStatus
+	(*User)(nil),                            // 0: icw.core.common.User
+	(*ProjectImage)(nil),                    // 1: icw.core.common.ProjectImage
+	(*UploadProjectImageResult)(nil),        // 2: icw.core.common.UploadProjectImageResult
+	(*ProjectDetectionNodeStatus)(nil),      // 3: icw.core.common.ProjectDetectionNodeStatus
+	(*ProjectDetectionStatus)(nil),          // 4: icw.core.common.ProjectDetectionStatus
+	(*ProjectDetectionCorrosionRegion)(nil), // 5: icw.core.common.ProjectDetectionCorrosionRegion
+	(*ProjectDetectionCorrosionResult)(nil), // 6: icw.core.common.ProjectDetectionCorrosionResult
+	(*ProjectDetectionCrackRegion)(nil),     // 7: icw.core.common.ProjectDetectionCrackRegion
+	(*ProjectDetectionCrackResult)(nil),     // 8: icw.core.common.ProjectDetectionCrackResult
+	(*ProjectDetectionStainRegion)(nil),     // 9: icw.core.common.ProjectDetectionStainRegion
+	(*ProjectDetectionStainResult)(nil),     // 10: icw.core.common.ProjectDetectionStainResult
+	(*ProjectDetectionFlatnessRegion)(nil),  // 11: icw.core.common.ProjectDetectionFlatnessRegion
+	(*ProjectDetectionFlatnessResult)(nil),  // 12: icw.core.common.ProjectDetectionFlatnessResult
+	(*ProjectDetectionSpallingResult)(nil),  // 13: icw.core.common.ProjectDetectionSpallingResult
+	(*ProjectDetectionSummaryResult)(nil),   // 14: icw.core.common.ProjectDetectionSummaryResult
+	nil,                                     // 15: icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntry
+	nil,                                     // 16: icw.core.common.ProjectDetectionCrackResult.ArtifactsEntry
+	nil,                                     // 17: icw.core.common.ProjectDetectionStainResult.ArtifactsEntry
+	nil,                                     // 18: icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntry
+	nil,                                     // 19: icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntry
 }
 var file_core_common_proto_depIdxs = []int32{
-	1, // 0: icw.core.common.UploadProjectImageResult.image:type_name -> icw.core.common.ProjectImage
-	3, // 1: icw.core.common.ProjectDetectionStatus.nodes:type_name -> icw.core.common.ProjectDetectionNodeStatus
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1,  // 0: icw.core.common.UploadProjectImageResult.image:type_name -> icw.core.common.ProjectImage
+	3,  // 1: icw.core.common.ProjectDetectionStatus.nodes:type_name -> icw.core.common.ProjectDetectionNodeStatus
+	5,  // 2: icw.core.common.ProjectDetectionCorrosionResult.regions:type_name -> icw.core.common.ProjectDetectionCorrosionRegion
+	15, // 3: icw.core.common.ProjectDetectionCorrosionResult.artifacts:type_name -> icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntry
+	7,  // 4: icw.core.common.ProjectDetectionCrackResult.regions:type_name -> icw.core.common.ProjectDetectionCrackRegion
+	16, // 5: icw.core.common.ProjectDetectionCrackResult.artifacts:type_name -> icw.core.common.ProjectDetectionCrackResult.ArtifactsEntry
+	9,  // 6: icw.core.common.ProjectDetectionStainResult.regions:type_name -> icw.core.common.ProjectDetectionStainRegion
+	17, // 7: icw.core.common.ProjectDetectionStainResult.artifacts:type_name -> icw.core.common.ProjectDetectionStainResult.ArtifactsEntry
+	11, // 8: icw.core.common.ProjectDetectionFlatnessResult.regions:type_name -> icw.core.common.ProjectDetectionFlatnessRegion
+	18, // 9: icw.core.common.ProjectDetectionFlatnessResult.artifacts:type_name -> icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntry
+	19, // 10: icw.core.common.ProjectDetectionSpallingResult.artifacts:type_name -> icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntry
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_core_common_proto_init() }
@@ -482,7 +1594,7 @@ func file_core_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_common_proto_rawDesc), len(file_core_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

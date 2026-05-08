@@ -1,5 +1,7 @@
 package consts
 
+// todo 这里未来可能要专门看一下注释
+
 const (
 	// LogColorReset ANSI 终端颜色重置码
 	LogColorReset = "\033[0m"

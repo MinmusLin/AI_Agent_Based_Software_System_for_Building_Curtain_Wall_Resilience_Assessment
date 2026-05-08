@@ -21,30 +21,30 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 图像检测推理产物上传计划结构体
-type ReasoningArtifactUploadPlan struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	PresignUploadUrl string                 `protobuf:"bytes,2,opt,name=presign_upload_url,json=presignUploadUrl,proto3" json:"presign_upload_url,omitempty"`
-	ContentType      string                 `protobuf:"bytes,3,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+// 图像检测推理产物上传策略结构体
+type ReasoningArtifactUploadPolicy struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	KeyPrefix     string                 `protobuf:"bytes,2,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"`
+	FormData      map[string]string      `protobuf:"bytes,3,rep,name=form_data,json=formData,proto3" json:"form_data,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ReasoningArtifactUploadPlan) Reset() {
-	*x = ReasoningArtifactUploadPlan{}
+func (x *ReasoningArtifactUploadPolicy) Reset() {
+	*x = ReasoningArtifactUploadPolicy{}
 	mi := &file_activity_reasoning_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ReasoningArtifactUploadPlan) String() string {
+func (x *ReasoningArtifactUploadPolicy) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ReasoningArtifactUploadPlan) ProtoMessage() {}
+func (*ReasoningArtifactUploadPolicy) ProtoMessage() {}
 
-func (x *ReasoningArtifactUploadPlan) ProtoReflect() protoreflect.Message {
+func (x *ReasoningArtifactUploadPolicy) ProtoReflect() protoreflect.Message {
 	mi := &file_activity_reasoning_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -56,41 +56,45 @@ func (x *ReasoningArtifactUploadPlan) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ReasoningArtifactUploadPlan.ProtoReflect.Descriptor instead.
-func (*ReasoningArtifactUploadPlan) Descriptor() ([]byte, []int) {
+// Deprecated: Use ReasoningArtifactUploadPolicy.ProtoReflect.Descriptor instead.
+func (*ReasoningArtifactUploadPolicy) Descriptor() ([]byte, []int) {
 	return file_activity_reasoning_common_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ReasoningArtifactUploadPlan) GetName() string {
+func (x *ReasoningArtifactUploadPolicy) GetUrl() string {
 	if x != nil {
-		return x.Name
+		return x.Url
 	}
 	return ""
 }
 
-func (x *ReasoningArtifactUploadPlan) GetPresignUploadUrl() string {
+func (x *ReasoningArtifactUploadPolicy) GetKeyPrefix() string {
 	if x != nil {
-		return x.PresignUploadUrl
+		return x.KeyPrefix
 	}
 	return ""
 }
 
-func (x *ReasoningArtifactUploadPlan) GetContentType() string {
+func (x *ReasoningArtifactUploadPolicy) GetFormData() map[string]string {
 	if x != nil {
-		return x.ContentType
+		return x.FormData
 	}
-	return ""
+	return nil
 }
 
 var File_activity_reasoning_common_proto protoreflect.FileDescriptor
 
 const file_activity_reasoning_common_proto_rawDesc = "" +
 	"\n" +
-	"\x1factivity/reasoning/common.proto\x12\x16icw.activity.reasoning\"\x82\x01\n" +
-	"\x1bReasoningArtifactUploadPlan\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12,\n" +
-	"\x12presign_upload_url\x18\x02 \x01(\tR\x10presignUploadUrl\x12!\n" +
-	"\fcontent_type\x18\x03 \x01(\tR\vcontentTypeB/Z-icw_common/gen/activity/reasoning;reasoningpbb\x06proto3"
+	"\x1factivity/reasoning/common.proto\x12\x16icw.activity.reasoning\"\xef\x01\n" +
+	"\x1dReasoningArtifactUploadPolicy\x12\x10\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\x12\x1d\n" +
+	"\n" +
+	"key_prefix\x18\x02 \x01(\tR\tkeyPrefix\x12`\n" +
+	"\tform_data\x18\x03 \x03(\v2C.icw.activity.reasoning.ReasoningArtifactUploadPolicy.FormDataEntryR\bformData\x1a;\n" +
+	"\rFormDataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B/Z-icw_common/gen/activity/reasoning;reasoningpbb\x06proto3"
 
 var (
 	file_activity_reasoning_common_proto_rawDescOnce sync.Once
@@ -104,16 +108,18 @@ func file_activity_reasoning_common_proto_rawDescGZIP() []byte {
 	return file_activity_reasoning_common_proto_rawDescData
 }
 
-var file_activity_reasoning_common_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_activity_reasoning_common_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_activity_reasoning_common_proto_goTypes = []any{
-	(*ReasoningArtifactUploadPlan)(nil), // 0: icw.activity.reasoning.ReasoningArtifactUploadPlan
+	(*ReasoningArtifactUploadPolicy)(nil), // 0: icw.activity.reasoning.ReasoningArtifactUploadPolicy
+	nil,                                   // 1: icw.activity.reasoning.ReasoningArtifactUploadPolicy.FormDataEntry
 }
 var file_activity_reasoning_common_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	1, // 0: icw.activity.reasoning.ReasoningArtifactUploadPolicy.form_data:type_name -> icw.activity.reasoning.ReasoningArtifactUploadPolicy.FormDataEntry
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_activity_reasoning_common_proto_init() }
@@ -127,7 +133,7 @@ func file_activity_reasoning_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_activity_reasoning_common_proto_rawDesc), len(file_activity_reasoning_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ProjectDetectionService_GetImageDetectionResult_FullMethodName      = "/icw.core.biz.ProjectDetectionService/GetImageDetectionResult"
 	ProjectDetectionService_GetProjectDetectionTasks_FullMethodName     = "/icw.core.biz.ProjectDetectionService/GetProjectDetectionTasks"
 	ProjectDetectionService_ReportClassificationResult_FullMethodName   = "/icw.core.biz.ProjectDetectionService/ReportClassificationResult"
 	ProjectDetectionService_ReportDetectionSummaryResult_FullMethodName = "/icw.core.biz.ProjectDetectionService/ReportDetectionSummaryResult"
@@ -33,6 +34,8 @@ const (
 //
 // 智能检测 RPC 服务
 type ProjectDetectionServiceClient interface {
+	// 获取图像检测结果
+	GetImageDetectionResult(ctx context.Context, in *GetImageDetectionResultRequest, opts ...grpc.CallOption) (*GetImageDetectionResultResponse, error)
 	// 获取项目检测任务列表
 	GetProjectDetectionTasks(ctx context.Context, in *GetProjectDetectionTasksRequest, opts ...grpc.CallOption) (*GetProjectDetectionTasksResponse, error)
 	// 上报图像检测分类结果
@@ -53,6 +56,16 @@ type projectDetectionServiceClient struct {
 
 func NewProjectDetectionServiceClient(cc grpc.ClientConnInterface) ProjectDetectionServiceClient {
 	return &projectDetectionServiceClient{cc}
+}
+
+func (c *projectDetectionServiceClient) GetImageDetectionResult(ctx context.Context, in *GetImageDetectionResultRequest, opts ...grpc.CallOption) (*GetImageDetectionResultResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetImageDetectionResultResponse)
+	err := c.cc.Invoke(ctx, ProjectDetectionService_GetImageDetectionResult_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *projectDetectionServiceClient) GetProjectDetectionTasks(ctx context.Context, in *GetProjectDetectionTasksRequest, opts ...grpc.CallOption) (*GetProjectDetectionTasksResponse, error) {
@@ -121,6 +134,8 @@ func (c *projectDetectionServiceClient) StartProjectDetection(ctx context.Contex
 //
 // 智能检测 RPC 服务
 type ProjectDetectionServiceServer interface {
+	// 获取图像检测结果
+	GetImageDetectionResult(context.Context, *GetImageDetectionResultRequest) (*GetImageDetectionResultResponse, error)
 	// 获取项目检测任务列表
 	GetProjectDetectionTasks(context.Context, *GetProjectDetectionTasksRequest) (*GetProjectDetectionTasksResponse, error)
 	// 上报图像检测分类结果
@@ -143,6 +158,9 @@ type ProjectDetectionServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectDetectionServiceServer struct{}
 
+func (UnimplementedProjectDetectionServiceServer) GetImageDetectionResult(context.Context, *GetImageDetectionResultRequest) (*GetImageDetectionResultResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetImageDetectionResult not implemented")
+}
 func (UnimplementedProjectDetectionServiceServer) GetProjectDetectionTasks(context.Context, *GetProjectDetectionTasksRequest) (*GetProjectDetectionTasksResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProjectDetectionTasks not implemented")
 }
@@ -181,6 +199,24 @@ func RegisterProjectDetectionServiceServer(s grpc.ServiceRegistrar, srv ProjectD
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ProjectDetectionService_ServiceDesc, srv)
+}
+
+func _ProjectDetectionService_GetImageDetectionResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetImageDetectionResultRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectDetectionServiceServer).GetImageDetectionResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectDetectionService_GetImageDetectionResult_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectDetectionServiceServer).GetImageDetectionResult(ctx, req.(*GetImageDetectionResultRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ProjectDetectionService_GetProjectDetectionTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -298,6 +334,10 @@ var ProjectDetectionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "icw.core.biz.ProjectDetectionService",
 	HandlerType: (*ProjectDetectionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetImageDetectionResult",
+			Handler:    _ProjectDetectionService_GetImageDetectionResult_Handler,
+		},
 		{
 			MethodName: "GetProjectDetectionTasks",
 			Handler:    _ProjectDetectionService_GetProjectDetectionTasks_Handler,

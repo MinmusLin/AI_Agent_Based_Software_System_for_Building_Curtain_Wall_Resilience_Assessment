@@ -23,14 +23,14 @@ const (
 
 // Start 请求结构体
 type StartRequest struct {
-	state         protoimpl.MessageState         `protogen:"open.v1"`
-	TaskUuid      string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
-	TaskCode      string                         `protobuf:"bytes,2,opt,name=task_code,json=taskCode,proto3" json:"task_code,omitempty"`
-	ImageUuid     string                         `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	PresignGetUrl string                         `protobuf:"bytes,4,opt,name=presign_get_url,json=presignGetUrl,proto3" json:"presign_get_url,omitempty"`
-	Artifacts     []*ReasoningArtifactUploadPlan `protobuf:"bytes,5,rep,name=artifacts,proto3" json:"artifacts,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState         `protogen:"open.v1"`
+	TaskUuid       string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	TaskCode       string                         `protobuf:"bytes,2,opt,name=task_code,json=taskCode,proto3" json:"task_code,omitempty"`
+	ImageUuid      string                         `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	PresignGetUrl  string                         `protobuf:"bytes,4,opt,name=presign_get_url,json=presignGetUrl,proto3" json:"presign_get_url,omitempty"`
+	ArtifactPolicy *ReasoningArtifactUploadPolicy `protobuf:"bytes,5,opt,name=artifact_policy,json=artifactPolicy,proto3" json:"artifact_policy,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *StartRequest) Reset() {
@@ -91,9 +91,9 @@ func (x *StartRequest) GetPresignGetUrl() string {
 	return ""
 }
 
-func (x *StartRequest) GetArtifacts() []*ReasoningArtifactUploadPlan {
+func (x *StartRequest) GetArtifactPolicy() *ReasoningArtifactUploadPolicy {
 	if x != nil {
-		return x.Artifacts
+		return x.ArtifactPolicy
 	}
 	return nil
 }
@@ -139,14 +139,14 @@ var File_activity_reasoning_service_proto protoreflect.FileDescriptor
 
 const file_activity_reasoning_service_proto_rawDesc = "" +
 	"\n" +
-	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x1factivity/reasoning/common.proto\"\xe2\x01\n" +
+	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x1factivity/reasoning/common.proto\"\xef\x01\n" +
 	"\fStartRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1b\n" +
 	"\ttask_code\x18\x02 \x01(\tR\btaskCode\x12\x1d\n" +
 	"\n" +
 	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12&\n" +
-	"\x0fpresign_get_url\x18\x04 \x01(\tR\rpresignGetUrl\x12Q\n" +
-	"\tartifacts\x18\x05 \x03(\v23.icw.activity.reasoning.ReasoningArtifactUploadPlanR\tartifacts\"\x0f\n" +
+	"\x0fpresign_get_url\x18\x04 \x01(\tR\rpresignGetUrl\x12^\n" +
+	"\x0fartifact_policy\x18\x05 \x01(\v25.icw.activity.reasoning.ReasoningArtifactUploadPolicyR\x0eartifactPolicy\"\x0f\n" +
 	"\rStartResponse2h\n" +
 	"\x10ReasoningService\x12T\n" +
 	"\x05Start\x12$.icw.activity.reasoning.StartRequest\x1a%.icw.activity.reasoning.StartResponseB/Z-icw_common/gen/activity/reasoning;reasoningpbb\x06proto3"
@@ -165,12 +165,12 @@ func file_activity_reasoning_service_proto_rawDescGZIP() []byte {
 
 var file_activity_reasoning_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_activity_reasoning_service_proto_goTypes = []any{
-	(*StartRequest)(nil),                // 0: icw.activity.reasoning.StartRequest
-	(*StartResponse)(nil),               // 1: icw.activity.reasoning.StartResponse
-	(*ReasoningArtifactUploadPlan)(nil), // 2: icw.activity.reasoning.ReasoningArtifactUploadPlan
+	(*StartRequest)(nil),                  // 0: icw.activity.reasoning.StartRequest
+	(*StartResponse)(nil),                 // 1: icw.activity.reasoning.StartResponse
+	(*ReasoningArtifactUploadPolicy)(nil), // 2: icw.activity.reasoning.ReasoningArtifactUploadPolicy
 }
 var file_activity_reasoning_service_proto_depIdxs = []int32{
-	2, // 0: icw.activity.reasoning.StartRequest.artifacts:type_name -> icw.activity.reasoning.ReasoningArtifactUploadPlan
+	2, // 0: icw.activity.reasoning.StartRequest.artifact_policy:type_name -> icw.activity.reasoning.ReasoningArtifactUploadPolicy
 	0, // 1: icw.activity.reasoning.ReasoningService.Start:input_type -> icw.activity.reasoning.StartRequest
 	1, // 2: icw.activity.reasoning.ReasoningService.Start:output_type -> icw.activity.reasoning.StartResponse
 	2, // [2:3] is the sub-list for method output_type

@@ -29,6 +29,16 @@ type ProjectImage = common.ProjectImage
 type UploadProjectImageResult = common.UploadProjectImageResult
 type ProjectDetectionNodeStatus = common.ProjectDetectionNodeStatus
 type ProjectDetectionStatus = common.ProjectDetectionStatus
+type ProjectDetectionCorrosionRegion = common.ProjectDetectionCorrosionRegion
+type ProjectDetectionCorrosionResult = common.ProjectDetectionCorrosionResult
+type ProjectDetectionCrackRegion = common.ProjectDetectionCrackRegion
+type ProjectDetectionCrackResult = common.ProjectDetectionCrackResult
+type ProjectDetectionStainRegion = common.ProjectDetectionStainRegion
+type ProjectDetectionStainResult = common.ProjectDetectionStainResult
+type ProjectDetectionFlatnessRegion = common.ProjectDetectionFlatnessRegion
+type ProjectDetectionFlatnessResult = common.ProjectDetectionFlatnessResult
+type ProjectDetectionSpallingResult = common.ProjectDetectionSpallingResult
+type ProjectDetectionSummaryResult = common.ProjectDetectionSummaryResult
 
 // 项目信息结构体
 type Project struct {
@@ -553,9 +563,9 @@ type ProjectDetectionTaskStatusChangedEvent struct {
 	UserId        uint64                 `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	ImageUuid     string                 `protobuf:"bytes,6,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
 	NodeCode      string                 `protobuf:"bytes,7,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
-	MainTaskId    string                 `protobuf:"bytes,8,opt,name=main_task_id,json=mainTaskId,proto3" json:"main_task_id,omitempty"`
+	MainTaskUuid  string                 `protobuf:"bytes,8,opt,name=main_task_uuid,json=mainTaskUuid,proto3" json:"main_task_uuid,omitempty"`
 	MainStatus    string                 `protobuf:"bytes,9,opt,name=main_status,json=mainStatus,proto3" json:"main_status,omitempty"`
-	SubTaskId     string                 `protobuf:"bytes,10,opt,name=sub_task_id,json=subTaskId,proto3" json:"sub_task_id,omitempty"`
+	SubTaskUuid   string                 `protobuf:"bytes,10,opt,name=sub_task_uuid,json=subTaskUuid,proto3" json:"sub_task_uuid,omitempty"`
 	SubStatus     string                 `protobuf:"bytes,11,opt,name=sub_status,json=subStatus,proto3" json:"sub_status,omitempty"`
 	OccurredAt    string                 `protobuf:"bytes,12,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -641,9 +651,9 @@ func (x *ProjectDetectionTaskStatusChangedEvent) GetNodeCode() string {
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedEvent) GetMainTaskId() string {
+func (x *ProjectDetectionTaskStatusChangedEvent) GetMainTaskUuid() string {
 	if x != nil {
-		return x.MainTaskId
+		return x.MainTaskUuid
 	}
 	return ""
 }
@@ -655,9 +665,9 @@ func (x *ProjectDetectionTaskStatusChangedEvent) GetMainStatus() string {
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedEvent) GetSubTaskId() string {
+func (x *ProjectDetectionTaskStatusChangedEvent) GetSubTaskUuid() string {
 	if x != nil {
-		return x.SubTaskId
+		return x.SubTaskUuid
 	}
 	return ""
 }
@@ -799,7 +809,7 @@ const file_core_biz_common_proto_rawDesc = "" +
 	"\auser_id\x18\x05 \x01(\x04R\x06userId\x123\n" +
 	"\x05image\x18\x06 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\x12\x1f\n" +
 	"\voccurred_at\x18\a \x01(\tR\n" +
-	"occurredAt\"\x9c\x03\n" +
+	"occurredAt\"\xa4\x03\n" +
 	"&ProjectDetectionTaskStatusChangedEvent\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1d\n" +
 	"\n" +
@@ -810,13 +820,12 @@ const file_core_biz_common_proto_rawDesc = "" +
 	"\auser_id\x18\x05 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
 	"image_uuid\x18\x06 \x01(\tR\timageUuid\x12\x1b\n" +
-	"\tnode_code\x18\a \x01(\tR\bnodeCode\x12 \n" +
-	"\fmain_task_id\x18\b \x01(\tR\n" +
-	"mainTaskId\x12\x1f\n" +
+	"\tnode_code\x18\a \x01(\tR\bnodeCode\x12$\n" +
+	"\x0emain_task_uuid\x18\b \x01(\tR\fmainTaskUuid\x12\x1f\n" +
 	"\vmain_status\x18\t \x01(\tR\n" +
-	"mainStatus\x12\x1e\n" +
-	"\vsub_task_id\x18\n" +
-	" \x01(\tR\tsubTaskId\x12\x1d\n" +
+	"mainStatus\x12\"\n" +
+	"\rsub_task_uuid\x18\n" +
+	" \x01(\tR\vsubTaskUuid\x12\x1d\n" +
 	"\n" +
 	"sub_status\x18\v \x01(\tR\tsubStatus\x12\x1f\n" +
 	"\voccurred_at\x18\f \x01(\tR\n" +

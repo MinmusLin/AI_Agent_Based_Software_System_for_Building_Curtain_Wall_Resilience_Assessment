@@ -85,7 +85,6 @@ func (x *StartDetectionSummaryRequest) GetReportJson() string {
 // StartDetectionSummary 响应结构体
 type StartDetectionSummaryResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -118,13 +117,6 @@ func (x *StartDetectionSummaryResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use StartDetectionSummaryResponse.ProtoReflect.Descriptor instead.
 func (*StartDetectionSummaryResponse) Descriptor() ([]byte, []int) {
 	return file_activity_summary_service_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *StartDetectionSummaryResponse) GetResult() string {
-	if x != nil {
-		return x.Result
-	}
-	return ""
 }
 
 // StartProjectSummary 请求结构体
@@ -183,7 +175,6 @@ func (x *StartProjectSummaryRequest) GetReportJson() string {
 // StartProjectSummary 响应结构体
 type StartProjectSummaryResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -218,13 +209,6 @@ func (*StartProjectSummaryResponse) Descriptor() ([]byte, []int) {
 	return file_activity_summary_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *StartProjectSummaryResponse) GetResult() string {
-	if x != nil {
-		return x.Result
-	}
-	return ""
-}
-
 var File_activity_summary_service_proto protoreflect.FileDescriptor
 
 const file_activity_summary_service_proto_rawDesc = "" +
@@ -235,16 +219,14 @@ const file_activity_summary_service_proto_rawDesc = "" +
 	"\n" +
 	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12\x1f\n" +
 	"\vreport_json\x18\x03 \x01(\tR\n" +
-	"reportJson\"7\n" +
-	"\x1dStartDetectionSummaryResponse\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\tR\x06result\"\\\n" +
+	"reportJson\"\x1f\n" +
+	"\x1dStartDetectionSummaryResponse\"\\\n" +
 	"\x1aStartProjectSummaryRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1f\n" +
 	"\vreport_json\x18\x02 \x01(\tR\n" +
-	"reportJson\"5\n" +
-	"\x1bStartProjectSummaryResponse\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\tR\x06result2\x8f\x02\n" +
+	"reportJson\"\x1d\n" +
+	"\x1bStartProjectSummaryResponse2\x8f\x02\n" +
 	"\x0eSummaryService\x12\x80\x01\n" +
 	"\x15StartDetectionSummary\x122.icw.activity.summary.StartDetectionSummaryRequest\x1a3.icw.activity.summary.StartDetectionSummaryResponse\x12z\n" +
 	"\x13StartProjectSummary\x120.icw.activity.summary.StartProjectSummaryRequest\x1a1.icw.activity.summary.StartProjectSummaryResponseB+Z)icw_common/gen/activity/summary;summarypbb\x06proto3"
