@@ -19,7 +19,7 @@ func (s *Service) StartProjectDetection(ctx context.Context, req *bizpb.StartPro
 
 func (s *Service) startProjectDetection(ctx context.Context, req *bizpb.StartProjectDetectionRequest, resp *bizpb.StartProjectDetectionResponse) error {
 	// 按用户 ID 和项目 ID 查询项目图像检测任务状态
-	currentTasks, err := s.MySQL().GetProjectDetectionTasks(ctx, req.UserId, req.ProjectId)
+	currentTasks, err := s.MySQL().GetProjectDetectionTasksStatus(ctx, req.UserId, req.ProjectId)
 	if err != nil {
 		return err
 	}

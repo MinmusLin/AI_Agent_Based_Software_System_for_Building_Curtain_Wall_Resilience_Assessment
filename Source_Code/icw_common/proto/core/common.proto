@@ -125,7 +125,9 @@ message ProjectDetectionStatus {
   string image_uuid = 1;
   string main_task_uuid = 2;
   ProjectDetectionTaskStatus.Value main_status = 3;
-  repeated ProjectDetectionNodeStatus nodes = 4;
+  ProjectDetectionNodeStatus classification_status = 4;
+  repeated ProjectDetectionNodeStatus detection_status = 5;
+  ProjectDetectionNodeStatus summary_status = 6;
 }
 
 // 项目图像金属锈蚀检测区域结构体

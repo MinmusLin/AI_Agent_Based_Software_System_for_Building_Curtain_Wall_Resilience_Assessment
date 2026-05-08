@@ -59,20 +59,15 @@ func (s *Service) getImageDetectionResult(ctx context.Context, req *bizpb.GetIma
 		return nil
 	}
 
-	// 按用户 ID 和项目 ID 查询项目图像检测任务状态
-	statusItems, err := s.MySQL().GetProjectDetectionTasks(ctx, req.UserId, req.ProjectId)
+	// 按用户 ID、项目 ID 和图像 UUID 查询项目图像检测任务状态
+	status, err := s.MySQL().GetProjectDetectionTaskStatus(ctx, req.UserId, req.ProjectId, req.ImageUuid)
 	if err != nil {
 		return err
-	}
-	for _, item := range statusItems {
-		if item != nil && item.ImageUuid == req.ImageUuid {
-			resp.Status = item
-			break
-		}
 	}
 
 	resp.Image = imageDTO
 	resp.OriginalUrl = originalURL
+	resp.Status = status
 	resp.TaskCodes = make([]activitypb.DetectionTaskCode_Value, 0)
 
 	// 将项目图像检测任务填充进 HTTP 响应

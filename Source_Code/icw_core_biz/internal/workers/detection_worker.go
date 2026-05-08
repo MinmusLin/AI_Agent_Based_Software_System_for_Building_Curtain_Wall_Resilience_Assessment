@@ -129,7 +129,7 @@ func (w *DetectionWorker) processClassification(ctx context.Context, item *detec
 }
 
 // StartReasoningTasks 启动项目图像检测推理子任务
-func (w *DetectionWorker) StartReasoningTasks(ctx context.Context, task *model.ProjectDetectionTaskRecord, subTasks map[string]*model.ProjectDetectionSubTaskRecord) {
+func (w *DetectionWorker) StartReasoningTasks(ctx context.Context, subTasks map[string]*model.ProjectDetectionSubTaskRecord) {
 	if w == nil {
 		return
 	}
@@ -144,10 +144,9 @@ func (w *DetectionWorker) StartReasoningTasks(ctx context.Context, task *model.P
 		if startedTask == nil || startedSubTask == nil || startedSubTask.Status != bizpb.ProjectDetectionSubTaskStatus_Pending {
 			continue
 		}
-		task = startedTask
 		subTask = startedSubTask
-		w.publishNode(ctx, task, events.ReasoningNodeCode(taskCode), subTask.Uuid, events.DetectionNodeStatusPending)
-		if err := w.startReasoningTask(ctx, task, taskCode, subTask); err != nil {
+		w.publishNode(ctx, startedTask, events.ReasoningNodeCode(taskCode), subTask.Uuid, events.DetectionNodeStatusPending)
+		if err := w.startReasoningTask(ctx, startedTask, taskCode, subTask); err != nil {
 			updatedTask, updatedSubTask, _, updateErr := w.mysql.UpdateProjectDetectionReasoningTaskResult(ctx, taskCode, subTask.Uuid, bizpb.ProjectDetectionSubTaskStatus_Failed, "", "")
 			if updateErr == nil && updatedTask != nil && updatedSubTask != nil {
 				w.publishNode(ctx, updatedTask, events.ReasoningNodeCode(taskCode), updatedSubTask.Uuid, events.DetectionNodeStatusFailed)
@@ -232,7 +231,7 @@ func (w *DetectionWorker) startReasoningTask(ctx context.Context, task *model.Pr
 	}
 	req := &reasoningpb.StartRequest{
 		TaskUuid:       subTask.Uuid,
-		TaskCode:       taskCode,
+		TaskCode:       enum.ParseDetectionTaskCode(taskCode),
 		ImageUuid:      task.ImageUuid,
 		PresignGetUrl:  originalURL,
 		ArtifactPolicy: artifactPolicy,
@@ -268,7 +267,7 @@ func (w *DetectionWorker) failTask(ctx context.Context, task *model.ProjectDetec
 	w.publishNode(ctx, updatedTask, events.DetectionNodeCodeClassification, "", events.DetectionNodeStatusFailed)
 }
 
-func (w *DetectionWorker) publishNode(ctx context.Context, task *model.ProjectDetectionTaskRecord, nodeCode, subTaskUuid, subStatus string) {
+func (w *DetectionWorker) publishNode(ctx context.Context, task *model.ProjectDetectionTaskRecord, nodeCode, subTaskUuid string, subStatus bizpb.ProjectDetectionSubTaskStatus_Value) {
 	if task == nil {
 		return
 	}
@@ -280,7 +279,7 @@ func (w *DetectionWorker) publishNode(ctx context.Context, task *model.ProjectDe
 		task.ImageUuid,
 		nodeCode,
 		task.Uuid,
-		enum.ProjectDetectionTaskStatusString(task.Status),
+		task.Status,
 		subTaskUuid,
 		subStatus,
 	)

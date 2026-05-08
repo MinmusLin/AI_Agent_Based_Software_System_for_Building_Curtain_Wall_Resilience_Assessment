@@ -816,13 +816,15 @@ func (x *ProjectDetectionNodeStatus) GetSubStatus() ProjectDetectionSubTaskStatu
 
 // 项目图像检测任务状态结构体
 type ProjectDetectionStatus struct {
-	state         protoimpl.MessageState           `protogen:"open.v1"`
-	ImageUuid     string                           `protobuf:"bytes,1,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	MainTaskUuid  string                           `protobuf:"bytes,2,opt,name=main_task_uuid,json=mainTaskUuid,proto3" json:"main_task_uuid,omitempty"`
-	MainStatus    ProjectDetectionTaskStatus_Value `protobuf:"varint,3,opt,name=main_status,json=mainStatus,proto3,enum=icw.core.common.ProjectDetectionTaskStatus_Value" json:"main_status,omitempty"`
-	Nodes         []*ProjectDetectionNodeStatus    `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState           `protogen:"open.v1"`
+	ImageUuid            string                           `protobuf:"bytes,1,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	MainTaskUuid         string                           `protobuf:"bytes,2,opt,name=main_task_uuid,json=mainTaskUuid,proto3" json:"main_task_uuid,omitempty"`
+	MainStatus           ProjectDetectionTaskStatus_Value `protobuf:"varint,3,opt,name=main_status,json=mainStatus,proto3,enum=icw.core.common.ProjectDetectionTaskStatus_Value" json:"main_status,omitempty"`
+	ClassificationStatus *ProjectDetectionNodeStatus      `protobuf:"bytes,4,opt,name=classification_status,json=classificationStatus,proto3" json:"classification_status,omitempty"`
+	DetectionStatus      []*ProjectDetectionNodeStatus    `protobuf:"bytes,5,rep,name=detection_status,json=detectionStatus,proto3" json:"detection_status,omitempty"`
+	SummaryStatus        *ProjectDetectionNodeStatus      `protobuf:"bytes,6,opt,name=summary_status,json=summaryStatus,proto3" json:"summary_status,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ProjectDetectionStatus) Reset() {
@@ -876,9 +878,23 @@ func (x *ProjectDetectionStatus) GetMainStatus() ProjectDetectionTaskStatus_Valu
 	return ProjectDetectionTaskStatus_Unknown
 }
 
-func (x *ProjectDetectionStatus) GetNodes() []*ProjectDetectionNodeStatus {
+func (x *ProjectDetectionStatus) GetClassificationStatus() *ProjectDetectionNodeStatus {
 	if x != nil {
-		return x.Nodes
+		return x.ClassificationStatus
+	}
+	return nil
+}
+
+func (x *ProjectDetectionStatus) GetDetectionStatus() []*ProjectDetectionNodeStatus {
+	if x != nil {
+		return x.DetectionStatus
+	}
+	return nil
+}
+
+func (x *ProjectDetectionStatus) GetSummaryStatus() *ProjectDetectionNodeStatus {
+	if x != nil {
+		return x.SummaryStatus
 	}
 	return nil
 }
@@ -1925,14 +1941,16 @@ const file_core_common_proto_rawDesc = "" +
 	"\tnode_code\x18\x01 \x01(\tR\bnodeCode\x12\"\n" +
 	"\rsub_task_uuid\x18\x02 \x01(\tR\vsubTaskUuid\x12S\n" +
 	"\n" +
-	"sub_status\x18\x03 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\"\xf4\x01\n" +
+	"sub_status\x18\x03 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\"\xbf\x03\n" +
 	"\x16ProjectDetectionStatus\x12\x1d\n" +
 	"\n" +
 	"image_uuid\x18\x01 \x01(\tR\timageUuid\x12$\n" +
 	"\x0emain_task_uuid\x18\x02 \x01(\tR\fmainTaskUuid\x12R\n" +
 	"\vmain_status\x18\x03 \x01(\x0e21.icw.core.common.ProjectDetectionTaskStatus.ValueR\n" +
-	"mainStatus\x12A\n" +
-	"\x05nodes\x18\x04 \x03(\v2+.icw.core.common.ProjectDetectionNodeStatusR\x05nodes\"\xae\x01\n" +
+	"mainStatus\x12`\n" +
+	"\x15classification_status\x18\x04 \x01(\v2+.icw.core.common.ProjectDetectionNodeStatusR\x14classificationStatus\x12V\n" +
+	"\x10detection_status\x18\x05 \x03(\v2+.icw.core.common.ProjectDetectionNodeStatusR\x0fdetectionStatus\x12R\n" +
+	"\x0esummary_status\x18\x06 \x01(\v2+.icw.core.common.ProjectDetectionNodeStatusR\rsummaryStatus\"\xae\x01\n" +
 	"\x1fProjectDetectionCorrosionRegion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1e\n" +
 	"\n" +
@@ -2104,27 +2122,29 @@ var file_core_common_proto_depIdxs = []int32{
 	11, // 1: icw.core.common.UploadProjectImageResult.image:type_name -> icw.core.common.ProjectImage
 	4,  // 2: icw.core.common.ProjectDetectionNodeStatus.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
 	3,  // 3: icw.core.common.ProjectDetectionStatus.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
-	13, // 4: icw.core.common.ProjectDetectionStatus.nodes:type_name -> icw.core.common.ProjectDetectionNodeStatus
-	4,  // 5: icw.core.common.ProjectDetectionCorrosionResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	15, // 6: icw.core.common.ProjectDetectionCorrosionResult.regions:type_name -> icw.core.common.ProjectDetectionCorrosionRegion
-	25, // 7: icw.core.common.ProjectDetectionCorrosionResult.artifacts:type_name -> icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntry
-	4,  // 8: icw.core.common.ProjectDetectionCrackResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	17, // 9: icw.core.common.ProjectDetectionCrackResult.regions:type_name -> icw.core.common.ProjectDetectionCrackRegion
-	26, // 10: icw.core.common.ProjectDetectionCrackResult.artifacts:type_name -> icw.core.common.ProjectDetectionCrackResult.ArtifactsEntry
-	4,  // 11: icw.core.common.ProjectDetectionStainResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	19, // 12: icw.core.common.ProjectDetectionStainResult.regions:type_name -> icw.core.common.ProjectDetectionStainRegion
-	27, // 13: icw.core.common.ProjectDetectionStainResult.artifacts:type_name -> icw.core.common.ProjectDetectionStainResult.ArtifactsEntry
-	4,  // 14: icw.core.common.ProjectDetectionFlatnessResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	21, // 15: icw.core.common.ProjectDetectionFlatnessResult.regions:type_name -> icw.core.common.ProjectDetectionFlatnessRegion
-	28, // 16: icw.core.common.ProjectDetectionFlatnessResult.artifacts:type_name -> icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntry
-	4,  // 17: icw.core.common.ProjectDetectionSpallingResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	29, // 18: icw.core.common.ProjectDetectionSpallingResult.artifacts:type_name -> icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntry
-	4,  // 19: icw.core.common.ProjectDetectionSummaryResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	13, // 4: icw.core.common.ProjectDetectionStatus.classification_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
+	13, // 5: icw.core.common.ProjectDetectionStatus.detection_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
+	13, // 6: icw.core.common.ProjectDetectionStatus.summary_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
+	4,  // 7: icw.core.common.ProjectDetectionCorrosionResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	15, // 8: icw.core.common.ProjectDetectionCorrosionResult.regions:type_name -> icw.core.common.ProjectDetectionCorrosionRegion
+	25, // 9: icw.core.common.ProjectDetectionCorrosionResult.artifacts:type_name -> icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntry
+	4,  // 10: icw.core.common.ProjectDetectionCrackResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	17, // 11: icw.core.common.ProjectDetectionCrackResult.regions:type_name -> icw.core.common.ProjectDetectionCrackRegion
+	26, // 12: icw.core.common.ProjectDetectionCrackResult.artifacts:type_name -> icw.core.common.ProjectDetectionCrackResult.ArtifactsEntry
+	4,  // 13: icw.core.common.ProjectDetectionStainResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	19, // 14: icw.core.common.ProjectDetectionStainResult.regions:type_name -> icw.core.common.ProjectDetectionStainRegion
+	27, // 15: icw.core.common.ProjectDetectionStainResult.artifacts:type_name -> icw.core.common.ProjectDetectionStainResult.ArtifactsEntry
+	4,  // 16: icw.core.common.ProjectDetectionFlatnessResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	21, // 17: icw.core.common.ProjectDetectionFlatnessResult.regions:type_name -> icw.core.common.ProjectDetectionFlatnessRegion
+	28, // 18: icw.core.common.ProjectDetectionFlatnessResult.artifacts:type_name -> icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntry
+	4,  // 19: icw.core.common.ProjectDetectionSpallingResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	29, // 20: icw.core.common.ProjectDetectionSpallingResult.artifacts:type_name -> icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntry
+	4,  // 21: icw.core.common.ProjectDetectionSummaryResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	22, // [22:22] is the sub-list for method output_type
+	22, // [22:22] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_core_common_proto_init() }

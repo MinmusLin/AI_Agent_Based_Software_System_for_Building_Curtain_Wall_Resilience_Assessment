@@ -297,8 +297,48 @@ func (r *Repository) FindProjectDetectionTaskById(ctx context.Context, taskId ui
 	return task, nil
 }
 
-// GetProjectDetectionTasks 按用户 ID 和项目 ID 查询项目图像检测任务状态
-func (r *Repository) GetProjectDetectionTasks(ctx context.Context, userId, projectId uint64) ([]*commonpb.ProjectDetectionStatus, error) {
+// FindProjectDetectionTaskByImageUuid 按用户 ID、项目 ID 和图像 UUID 查询项目图像检测主任务
+func (r *Repository) FindProjectDetectionTaskByImageUuid(ctx context.Context, userId, projectId uint64, imageUuid string) (*model.ProjectDetectionTaskRecord, error) {
+	task, err := utils.ScanProjectDetectionTask(r.mysql.QueryRowContext(ctx, `
+		SELECT
+			id,
+			uuid,
+			user_id,
+			project_id,
+			image_id,
+			image_uuid,
+			status,
+			corrosion_should_execute,
+			corrosion_task_id,
+			crack_should_execute,
+			crack_task_id,
+			stain_should_execute,
+			stain_task_id,
+			flatness_should_execute,
+			flatness_task_id,
+			spalling_should_execute,
+			spalling_task_id,
+			summary_should_execute,
+			summary_task_id,
+			started_at,
+			finished_at,
+			created_at,
+			updated_at
+		FROM project_detection_tasks
+		WHERE user_id = ? AND project_id = ? AND image_uuid = ?
+		LIMIT 1
+	`, userId, projectId, strings.TrimSpace(imageUuid)))
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return task, nil
+}
+
+// GetProjectDetectionTasksStatus 按用户 ID 和项目 ID 查询项目图像检测任务状态
+func (r *Repository) GetProjectDetectionTasksStatus(ctx context.Context, userId, projectId uint64) ([]*commonpb.ProjectDetectionStatus, error) {
 	rows, err := r.mysql.QueryContext(ctx, `
 		SELECT
 			id,
@@ -358,7 +398,7 @@ func (r *Repository) GetProjectDetectionTasks(ctx context.Context, userId, proje
 
 	items := make([]*commonpb.ProjectDetectionStatus, 0, len(tasks))
 	for _, task := range tasks {
-		item, err := projectDetectionTaskToStatusDTO(ctx, tx, task)
+		item, err := r.projectDetectionTaskToStatusDTO(ctx, tx, task)
 		if err != nil {
 			return nil, err
 		}
@@ -372,33 +412,75 @@ func (r *Repository) GetProjectDetectionTasks(ctx context.Context, userId, proje
 	return items, nil
 }
 
-// projectDetectionTaskToStatusDTO 将项目图像检测主任务记录转换为检测状态 DTO
-func projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*commonpb.ProjectDetectionStatus, error) {
-	item := &commonpb.ProjectDetectionStatus{
-		ImageUuid:    task.ImageUuid,
-		MainTaskUuid: task.Uuid,
-		MainStatus:   enum.ProjectDetectionTaskStatusString(task.Status),
-		Nodes:        make([]*commonpb.ProjectDetectionNodeStatus, 0, 7),
+// GetProjectDetectionTaskStatus 按用户 ID、项目 ID 和图像 UUID 查询项目图像检测任务状态
+func (r *Repository) GetProjectDetectionTaskStatus(ctx context.Context, userId, projectId uint64, imageUuid string) (*commonpb.ProjectDetectionStatus, error) {
+	task, err := r.FindProjectDetectionTaskByImageUuid(ctx, userId, projectId, imageUuid)
+	if err != nil || task == nil {
+		return nil, err
 	}
 
-	if subStatus := utils.ClassificationNodeStatus(task); subStatus != "" {
-		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	item, err := r.projectDetectionTaskToStatusDTO(ctx, tx, task)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return item, nil
+}
+
+// projectDetectionTaskToStatusDTO 将项目图像检测主任务记录转换为检测状态 DTO
+func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*commonpb.ProjectDetectionStatus, error) {
+	item := &commonpb.ProjectDetectionStatus{
+		ImageUuid:       task.ImageUuid,
+		MainTaskUuid:    task.Uuid,
+		MainStatus:      task.Status,
+		DetectionStatus: make([]*commonpb.ProjectDetectionNodeStatus, 0),
+	}
+
+	if subStatus := utils.ClassificationNodeStatus(task); subStatus != bizpb.ProjectDetectionSubTaskStatus_Unknown {
+		item.ClassificationStatus = &commonpb.ProjectDetectionNodeStatus{
 			NodeCode:  "classification",
 			SubStatus: subStatus,
-		})
+		}
 	}
 
 	reasoningNodes := []struct {
 		taskCode      string
 		shouldExecute bool
 		taskId        sql.NullInt64
-	}{
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion), shouldExecute: task.CorrosionShouldExecute, taskId: task.CorrosionTaskId},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack), shouldExecute: task.CrackShouldExecute, taskId: task.CrackTaskId},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain), shouldExecute: task.StainShouldExecute, taskId: task.StainTaskId},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness), shouldExecute: task.FlatnessShouldExecute, taskId: task.FlatnessTaskId},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling), shouldExecute: task.SpallingShouldExecute, taskId: task.SpallingTaskId},
-	}
+	}{{
+		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion),
+		shouldExecute: task.CorrosionShouldExecute,
+		taskId:        task.CorrosionTaskId,
+	}, {
+		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack),
+		shouldExecute: task.CrackShouldExecute,
+		taskId:        task.CrackTaskId,
+	}, {
+		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain),
+		shouldExecute: task.StainShouldExecute,
+		taskId:        task.StainTaskId,
+	}, {
+		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness),
+		shouldExecute: task.FlatnessShouldExecute,
+		taskId:        task.FlatnessTaskId,
+	}, {
+		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling),
+		shouldExecute: task.SpallingShouldExecute,
+		taskId:        task.SpallingTaskId,
+	}}
+
 	for _, node := range reasoningNodes {
 		if !node.shouldExecute || !node.taskId.Valid {
 			continue
@@ -407,10 +489,10 @@ func projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *mode
 		if err != nil {
 			return nil, err
 		}
-		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
+		item.DetectionStatus = append(item.DetectionStatus, &commonpb.ProjectDetectionNodeStatus{
 			NodeCode:    "reasoning:" + node.taskCode,
 			SubTaskUuid: subTask.Uuid,
-			SubStatus:   enum.ProjectDetectionSubTaskStatusString(subTask.Status),
+			SubStatus:   subTask.Status,
 		})
 	}
 
@@ -419,55 +501,17 @@ func projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *mode
 		if err != nil {
 			return nil, err
 		}
-		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
+		item.SummaryStatus = &commonpb.ProjectDetectionNodeStatus{
 			NodeCode:    "summary",
 			SubTaskUuid: subTask.Uuid,
-			SubStatus:   enum.ProjectDetectionSubTaskStatusString(subTask.Status),
-		})
+			SubStatus:   subTask.Status,
+		}
 	}
 
 	return item, nil
 }
 
-// FindProjectDetectionTaskByImageUuid 按用户 ID、项目 ID 和图像 UUID 查询项目图像检测主任务
-func (r *Repository) FindProjectDetectionTaskByImageUuid(ctx context.Context, userId, projectId uint64, imageUuid string) (*model.ProjectDetectionTaskRecord, error) {
-	task, err := utils.ScanProjectDetectionTask(r.mysql.QueryRowContext(ctx, `
-		SELECT
-			id,
-			uuid,
-			user_id,
-			project_id,
-			image_id,
-			image_uuid,
-			status,
-			corrosion_should_execute,
-			corrosion_task_id,
-			crack_should_execute,
-			crack_task_id,
-			stain_should_execute,
-			stain_task_id,
-			flatness_should_execute,
-			flatness_task_id,
-			spalling_should_execute,
-			spalling_task_id,
-			summary_should_execute,
-			summary_task_id,
-			started_at,
-			finished_at,
-			created_at,
-			updated_at
-		FROM project_detection_tasks
-		WHERE user_id = ? AND project_id = ? AND image_uuid = ?
-		LIMIT 1
-	`, userId, projectId, strings.TrimSpace(imageUuid)))
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	return task, nil
-}
+// todo 不要删这一行注释
 
 // GetProjectDetectionSubReportJSON 按子任务代码和子任务 ID 查询项目图像检测子任务报告 JSON
 func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskCode string, taskId uint64) (string, error) {
@@ -588,7 +632,7 @@ func (r *Repository) GetProjectDetectionCorrosionResult(ctx context.Context, tas
 		}
 		return nil, err
 	}
-	result.Status = enum.ProjectDetectionSubTaskStatusString(enum.ParseProjectDetectionSubTaskStatus(status))
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
 	result.HasCorrosion = nullBool(hasCorrosion)
 	result.CorrosionCount = nullUint32(corrosionCount)
 	result.MaxConfidence = nullFloat64(maxConfidence)
@@ -640,7 +684,7 @@ func (r *Repository) GetProjectDetectionCrackResult(ctx context.Context, taskId 
 		}
 		return nil, err
 	}
-	result.Status = enum.ProjectDetectionSubTaskStatusString(enum.ParseProjectDetectionSubTaskStatus(status))
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
 	result.HasCrack = nullBool(hasCrack)
 	result.CrackCount = nullUint32(crackCount)
 	result.CrackPixels = nullUint64(crackPixels)
@@ -690,7 +734,7 @@ func (r *Repository) GetProjectDetectionStainResult(ctx context.Context, taskId 
 		}
 		return nil, err
 	}
-	result.Status = enum.ProjectDetectionSubTaskStatusString(enum.ParseProjectDetectionSubTaskStatus(status))
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
 	result.HasStain = nullBool(hasStain)
 	result.StainCount = nullUint32(stainCount)
 	result.AverageStainRatio = nullFloat64(averageStainRatio)
@@ -734,7 +778,7 @@ func (r *Repository) GetProjectDetectionFlatnessResult(ctx context.Context, task
 		}
 		return nil, err
 	}
-	result.Status = enum.ProjectDetectionSubTaskStatusString(enum.ParseProjectDetectionSubTaskStatus(status))
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
 	result.Result = nullString(flatnessResult)
 	result.UnevenCount = nullUint32(unevenCount)
 	if err := unmarshalRegions(regions, &result.Regions); err != nil {
@@ -773,7 +817,7 @@ func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, task
 		}
 		return nil, err
 	}
-	result.Status = enum.ProjectDetectionSubTaskStatusString(enum.ParseProjectDetectionSubTaskStatus(status))
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
 	result.HasSpalling = nullBool(hasSpalling)
 	result.Confidence = nullFloat64(confidence)
 	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
@@ -795,7 +839,7 @@ func (r *Repository) GetProjectDetectionSummaryTypedResult(ctx context.Context, 
 		}
 		return nil, err
 	}
-	result.Status = enum.ProjectDetectionSubTaskStatusString(enum.ParseProjectDetectionSubTaskStatus(status))
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
 	return result, nil
 }
 

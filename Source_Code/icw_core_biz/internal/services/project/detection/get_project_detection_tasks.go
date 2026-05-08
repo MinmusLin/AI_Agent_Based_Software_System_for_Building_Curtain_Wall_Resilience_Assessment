@@ -16,7 +16,7 @@ func (s *Service) GetProjectDetectionTasks(ctx context.Context, req *bizpb.GetPr
 }
 
 func (s *Service) getProjectDetectionTasks(ctx context.Context, req *bizpb.GetProjectDetectionTasksRequest, resp *bizpb.GetProjectDetectionTasksResponse) error {
-	tasks, err := s.MySQL().GetProjectDetectionTasks(ctx, req.UserId, req.ProjectId)
+	tasks, err := s.MySQL().GetProjectDetectionTasksStatus(ctx, req.UserId, req.ProjectId)
 	if err != nil {
 		return err
 	}
