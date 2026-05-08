@@ -19,11 +19,11 @@ type Deps struct {
 	Config   configs.Config
 	MySQL    *mysql.Repository
 	Redis    *redis.Repository
-	RocketMQ *rocketmq.Repository
+	RocketMQ *rocketmq.Producer
 	MinIO    *minio.Repository
 }
 
-func NewDeps(config configs.Config, MySQL *mysql.Repository, Redis *redis.Repository, RocketMQ *rocketmq.Repository, MinIO *minio.Repository) *Deps {
+func NewDeps(config configs.Config, MySQL *mysql.Repository, Redis *redis.Repository, RocketMQ *rocketmq.Producer, MinIO *minio.Repository) *Deps {
 	return &Deps{
 		Config:   config,
 		MySQL:    MySQL,
@@ -161,7 +161,7 @@ func (j *BaseCronJob) Redis() *redis.Repository {
 }
 
 // RocketMQ 获取 RocketMQ 服务
-func (j *BaseCronJob) RocketMQ() *rocketmq.Repository {
+func (j *BaseCronJob) RocketMQ() *rocketmq.Producer {
 	if j == nil || j.deps == nil {
 		return nil
 	}

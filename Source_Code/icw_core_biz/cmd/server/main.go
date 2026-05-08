@@ -82,12 +82,12 @@ func main() {
 	utils.LogInfo(consts.LogScopeInit, "", "MinIO initialized successfully")
 
 	// 初始化 RocketMQ 生产者
-	dataRocketMQ, err := rocketmq.NewProducer(cfg)
+	rocketMQProducer, err := rocketmq.NewProducer(cfg)
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to connect to RocketMQ: %v", err)
 	}
 	defer func() {
-		_ = dataRocketMQ.Shutdown()
+		_ = rocketMQProducer.Shutdown()
 	}()
 	rocketmq.MQInfo("RocketMQ producer starts running")
 
@@ -121,7 +121,6 @@ func main() {
 	// 初始化数据服务
 	mysqlRepo := mysql.NewRepository(dataMySQL)
 	redisRepo := redis.NewRepository(dataRedis)
-	rocketMQRepo := rocketmq.NewRepository(dataRocketMQ, cfg.RocketMQProjectEventTopic)
 	minioRepo := minio.NewRepository(dataMinIO, cfg.MinIOBucket)
 
 	// 启动定时任务
@@ -129,12 +128,12 @@ func main() {
 		cfg,
 		mysqlRepo,
 		redisRepo,
-		rocketMQRepo,
+		rocketMQProducer,
 		minioRepo,
 	))
 
 	// 启动项目图像检测任务 Worker
-	detectionWorker := workers.NewDetectionWorker(cfg, mysqlRepo, minioRepo, rocketMQRepo, activityClassificationClient, activityReasoningClient, activitySummaryClient)
+	detectionWorker := workers.NewDetectionWorker(cfg, mysqlRepo, minioRepo, rocketMQProducer, activityClassificationClient, activityReasoningClient, activitySummaryClient)
 	detectionWorker.Start(ctx)
 
 	// 注册 gRPC 服务
@@ -143,7 +142,7 @@ func main() {
 		cfg,
 		mysqlRepo,
 		redisRepo,
-		rocketMQRepo,
+		rocketMQProducer,
 		minioRepo,
 		smtp.NewRepository(cfg),
 		detectionWorker,

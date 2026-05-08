@@ -19,22 +19,14 @@ import (
 	"icw_core_biz/configs"
 )
 
-// Repository RocketMQ 消息队列生产者服务
-type Repository struct {
+// Producer RocketMQ 消息队列生产者服务
+type Producer struct {
 	producer rocketmq.Producer
 	topic    string
 }
 
-// NewRepository 创建 RocketMQ 消息队列生产者服务
-func NewRepository(producer rocketmq.Producer, topic string) *Repository {
-	return &Repository{
-		producer: producer,
-		topic:    strings.TrimSpace(topic),
-	}
-}
-
-// NewProducer 创建 RocketMQ SDK 生产者
-func NewProducer(cfg configs.Config) (rocketmq.Producer, error) {
+// NewProducer 创建 RocketMQ 消息队列生产者服务
+func NewProducer(cfg configs.Config) (*Producer, error) {
 	rlog.SetLogLevel("fatal")
 	messageProducer, err := rocketmq.NewProducer(
 		producer.WithNameServer([]string{cfg.RocketMQNamesrvAddr}),
@@ -46,11 +38,22 @@ func NewProducer(cfg configs.Config) (rocketmq.Producer, error) {
 	if err := messageProducer.Start(); err != nil {
 		return nil, err
 	}
-	return messageProducer, nil
+	return &Producer{
+		producer: messageProducer,
+		topic:    strings.TrimSpace(cfg.RocketMQProjectEventTopic),
+	}, nil
 }
 
-// ProducerSendSync 同步发送 RocketMQ 消息
-func (r *Repository) ProducerSendSync(ctx context.Context, message *primitive.Message) (result *primitive.SendResult, err error) {
+// Shutdown 关闭 RocketMQ 消息队列生产者服务
+func (r *Producer) Shutdown() error {
+	if r == nil || r.producer == nil {
+		return nil
+	}
+	return r.producer.Shutdown()
+}
+
+// producerSendSync 同步发送 RocketMQ 消息
+func (r *Producer) producerSendSync(ctx context.Context, message *primitive.Message) (result *primitive.SendResult, err error) {
 	if r == nil || r.producer == nil || message == nil {
 		return nil, nil
 	}
@@ -79,7 +82,7 @@ func (r *Repository) ProducerSendSync(ctx context.Context, message *primitive.Me
 }
 
 // PublishProjectImageStatusChangedEvent 发布项目图像状态变化事件
-func (r *Repository) PublishProjectImageStatusChangedEvent(ctx context.Context, event *bizpb.ProjectImageStatusChangedEvent) (err error) {
+func (r *Producer) PublishProjectImageStatusChangedEvent(ctx context.Context, event *bizpb.ProjectImageStatusChangedEvent) (err error) {
 	if r == nil || r.producer == nil || event == nil || event.Image == nil {
 		return nil
 	}
@@ -93,12 +96,12 @@ func (r *Repository) PublishProjectImageStatusChangedEvent(ctx context.Context, 
 	message.WithTag(consts.EventTagProjectImageStatusChanged)
 	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", event.EventType, event.ProjectId, event.Image.Uuid)})
 
-	_, err = r.ProducerSendSync(ctx, message)
+	_, err = r.producerSendSync(ctx, message)
 	return err
 }
 
 // PublishProjectDetectionTaskStatusChangedEvent 发布项目图像检测任务状态变化事件
-func (r *Repository) PublishProjectDetectionTaskStatusChangedEvent(ctx context.Context, event *bizpb.ProjectDetectionTaskStatusChangedEvent) (err error) {
+func (r *Producer) PublishProjectDetectionTaskStatusChangedEvent(ctx context.Context, event *bizpb.ProjectDetectionTaskStatusChangedEvent) (err error) {
 	if r == nil || r.producer == nil || event == nil {
 		return nil
 	}
@@ -110,8 +113,8 @@ func (r *Repository) PublishProjectDetectionTaskStatusChangedEvent(ctx context.C
 
 	message := primitive.NewMessage(r.topic, body)
 	message.WithTag(consts.EventTagProjectDetectionTaskStatusChanged)
-	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", event.EventType, event.ProjectId, event.MainTaskId)})
+	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", event.EventType, event.ProjectId, event.MainTaskUuid)})
 
-	_, err = r.ProducerSendSync(ctx, message)
+	_, err = r.producerSendSync(ctx, message)
 	return err
 }
