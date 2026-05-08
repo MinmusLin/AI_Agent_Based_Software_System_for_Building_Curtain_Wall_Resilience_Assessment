@@ -2,8 +2,6 @@ package detection
 
 import (
 	"context"
-	"strings"
-
 	"icw_common/enum"
 	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
@@ -22,14 +20,6 @@ func (s *Service) ReportDetectionSummaryResult(ctx context.Context, req *bizpb.R
 }
 
 func (s *Service) reportDetectionSummaryResult(ctx context.Context, req *bizpb.ReportDetectionSummaryResultRequest) error {
-	req.TaskUuid = strings.TrimSpace(req.TaskUuid)
-	req.ImageUuid = strings.TrimSpace(req.ImageUuid)
-	if req.TaskUuid == "" {
-		return rpc_error.BadRequestDefault("task uuid is required")
-	}
-	if req.ImageUuid == "" {
-		return rpc_error.BadRequestDefault("image uuid is required")
-	}
 	status := enum.ParseDetectionStatus(req.Status)
 	var taskStatus bizpb.ProjectDetectionSubTaskStatus_Value
 	switch status {
@@ -40,10 +30,14 @@ func (s *Service) reportDetectionSummaryResult(ctx context.Context, req *bizpb.R
 	default:
 		return rpc_error.BadRequestDefault("detection status is invalid")
 	}
+
+	// 按总结任务 UUID 更新项目图像检测总结结果
 	task, summaryTask, err := s.MySQL().UpdateProjectDetectionSummaryResult(ctx, req.TaskUuid, taskStatus, req.ResultJson)
 	if err != nil || task == nil || summaryTask == nil {
 		return err
 	}
+
+	// 发布项目图像检测任务状态变化事件
 	events.PublishProjectDetectionNodeStatusChangedEvent(
 		ctx,
 		s.RocketMQ(),
@@ -56,5 +50,6 @@ func (s *Service) reportDetectionSummaryResult(ctx context.Context, req *bizpb.R
 		summaryTask.Uuid,
 		enum.ProjectDetectionSubTaskStatusString(taskStatus),
 	)
+
 	return nil
 }

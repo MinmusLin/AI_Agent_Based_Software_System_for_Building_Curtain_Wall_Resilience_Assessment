@@ -31,10 +31,14 @@ func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.Rep
 	default:
 		return rpc_error.BadRequestDefault("detection status is invalid")
 	}
+
+	// 按主任务 UUID 更新项目图像检测分类结果
 	task, subTasks, err := s.MySQL().UpdateProjectDetectionClassificationResult(ctx, req.TaskUuid, taskStatus, req.TaskCodes)
 	if err != nil || task == nil {
 		return err
 	}
+
+	// 发布项目图像检测任务状态变化事件
 	events.PublishProjectDetectionNodeStatusChangedEvent(
 		ctx,
 		s.RocketMQ(),
@@ -47,9 +51,13 @@ func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.Rep
 		"",
 		enum.ProjectDetectionSubTaskStatusString(taskStatus),
 	)
+
 	if task.Status == bizpb.ProjectDetectionTaskStatus_Failed {
 		return nil
 	}
+
+	// 启动项目图像检测推理子任务
 	s.DetectionWorker().StartReasoningTasks(ctx, task, subTasks)
+
 	return nil
 }

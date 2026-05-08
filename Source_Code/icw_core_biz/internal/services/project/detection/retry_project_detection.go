@@ -18,7 +18,7 @@ func (s *Service) RetryProjectDetection(ctx context.Context, req *bizpb.RetryPro
 }
 
 func (s *Service) retryProjectDetection(ctx context.Context, req *bizpb.RetryProjectDetectionRequest, resp *bizpb.RetryProjectDetectionResponse) error {
-	imageUuids, err := s.MySQL().ListProjectDetectionImageUuidsByStatus(ctx, req.UserId, req.ProjectId, bizpb.ProjectDetectionTaskStatus_Failed)
+	imageUuids, tasks, err := s.MySQL().RetryProjectDetectionTasks(ctx, req.UserId, req.ProjectId)
 	if err != nil {
 		return err
 	}
@@ -27,11 +27,14 @@ func (s *Service) retryProjectDetection(ctx context.Context, req *bizpb.RetryPro
 	}
 
 	for _, imageUuid := range imageUuids {
+		// 生成项目检测产物对象 Key 前缀
 		prefix, err := minio.GenProjectDetectionArtifactPrefix(req.ProjectId, imageUuid)
 		if err != nil {
 			return err
 		}
+
 		if s.Redis() != nil {
+			// 按对象 Key 前缀查询对象 Key 列表
 			keys, err := s.MinIO().ListObjectKeysByPrefix(ctx, prefix)
 			if err != nil {
 				return err
@@ -40,19 +43,19 @@ func (s *Service) retryProjectDetection(ctx context.Context, req *bizpb.RetryPro
 				_ = s.Redis().ClearPresignURL(ctx, key)
 			}
 		}
+
+		// 按对象 Key 前缀删除对象
 		if err := s.MinIO().RemoveObjectsByPrefix(ctx, prefix); err != nil {
 			return err
 		}
 	}
 
-	if err := s.MySQL().DeleteProjectDetectionTasksByStatus(ctx, req.UserId, req.ProjectId, bizpb.ProjectDetectionTaskStatus_Failed); err != nil {
-		return err
+	if len(tasks) == 0 {
+		return nil
 	}
 
-	tasks, err := s.MySQL().CreateProjectDetectionTasksByImageUuids(ctx, req.UserId, req.ProjectId, imageUuids)
-	if err != nil {
-		return err
-	}
+	// 投递项目图像检测任务
 	resp.TaskCount = s.enqueueProjectDetectionTasks(ctx, tasks)
+
 	return nil
 }

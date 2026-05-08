@@ -2,8 +2,6 @@ package detection
 
 import (
 	"context"
-	"encoding/json"
-	"strings"
 
 	"icw_common/enum"
 	"icw_common/gen/activity"
@@ -11,6 +9,7 @@ import (
 	"icw_common/rpc/error"
 
 	"icw_core_biz/internal/services/project/events"
+	"icw_core_biz/internal/services/project/utils"
 )
 
 // ReportReasoningResult 上报图像检测推理结果
@@ -33,14 +32,20 @@ func (s *Service) reportReasoningResult(ctx context.Context, req *bizpb.ReportRe
 	default:
 		return rpc_error.BadRequestDefault("detection status is invalid")
 	}
-	artifactSha256Map, err := artifactSha256MapJSON(req.Artifacts)
+
+	// 将图像检测推理产物上传结果转换为 Sha256 Map JSON
+	artifactSha256Map, err := utils.ArtifactSha256MapJSON(req.Artifacts)
 	if err != nil {
 		return err
 	}
+
+	// 按推理任务 UUID 更新项目图像检测推理子任务结果
 	task, subTask, summaryTask, err := s.MySQL().UpdateProjectDetectionReasoningTaskResult(ctx, req.TaskCode, req.TaskUuid, taskStatus, req.ResultJson, artifactSha256Map)
 	if err != nil || task == nil || subTask == nil {
 		return err
 	}
+
+	// 发布项目图像检测任务状态变化事件
 	events.PublishProjectDetectionNodeStatusChangedEvent(
 		ctx,
 		s.RocketMQ(),
@@ -53,28 +58,11 @@ func (s *Service) reportReasoningResult(ctx context.Context, req *bizpb.ReportRe
 		subTask.Uuid,
 		enum.ProjectDetectionSubTaskStatusString(taskStatus),
 	)
+
 	if summaryTask != nil {
+		// 启动项目图像检测总结任务
 		s.DetectionWorker().StartDetectionSummaryTask(ctx, task, summaryTask)
 	}
-	return nil
-}
 
-func artifactSha256MapJSON(artifacts []*bizpb.ReasoningArtifactUploadResult) (string, error) {
-	artifactSha256Map := make(map[string]string)
-	for _, artifact := range artifacts {
-		if artifact == nil || !artifact.Uploaded {
-			continue
-		}
-		name := strings.TrimSpace(artifact.Name)
-		sha256 := strings.TrimSpace(artifact.Sha256)
-		if name == "" || sha256 == "" {
-			continue
-		}
-		artifactSha256Map[name] = sha256
-	}
-	bytes, err := json.Marshal(artifactSha256Map)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+	return nil
 }

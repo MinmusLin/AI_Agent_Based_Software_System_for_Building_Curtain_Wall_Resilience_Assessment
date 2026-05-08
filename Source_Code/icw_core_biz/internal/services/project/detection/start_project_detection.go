@@ -18,6 +18,7 @@ func (s *Service) StartProjectDetection(ctx context.Context, req *bizpb.StartPro
 }
 
 func (s *Service) startProjectDetection(ctx context.Context, req *bizpb.StartProjectDetectionRequest, resp *bizpb.StartProjectDetectionResponse) error {
+	// 按用户 ID 和项目 ID 查询项目图像检测任务状态
 	currentTasks, err := s.MySQL().GetProjectDetectionTasks(ctx, req.UserId, req.ProjectId)
 	if err != nil {
 		return err
@@ -26,15 +27,19 @@ func (s *Service) startProjectDetection(ctx context.Context, req *bizpb.StartPro
 		return nil
 	}
 
+	// 按用户 ID 和项目 ID 创建项目图像检测主任务
 	tasks, err := s.MySQL().CreateProjectDetectionTasks(ctx, req.UserId, req.ProjectId)
 	if err != nil {
 		return err
 	}
+
+	// 投递项目图像检测任务
 	resp.TaskCount = s.enqueueProjectDetectionTasks(ctx, tasks)
+
 	return nil
 }
 
-// enqueueProjectDetectionTasks 投递项目图像检测任务并返回成功投递数量
+// enqueueProjectDetectionTasks 投递项目图像检测任务
 func (s *Service) enqueueProjectDetectionTasks(ctx context.Context, tasks []*model.ProjectDetectionTaskRecord) uint32 {
 	var taskCount uint32
 	for _, task := range tasks {
