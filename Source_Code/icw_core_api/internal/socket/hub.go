@@ -9,33 +9,33 @@ import (
 // Hub 管理项目维度 WebSocket 连接
 type Hub struct {
 	mu      sync.RWMutex
-	clients map[uint64]map[string]map[*Client]struct{}
+	clients map[uint64]map[string]map[*webSocketClient]struct{}
 }
 
 // NewHub 创建 WebSocket Hub
 func NewHub() *Hub {
 	return &Hub{
-		clients: make(map[uint64]map[string]map[*Client]struct{}),
+		clients: make(map[uint64]map[string]map[*webSocketClient]struct{}),
 	}
 }
 
 // Register 注册 WebSocket 连接
-func (h *Hub) Register(projectId uint64, scope string, conn *websocket.Conn) *Client {
-	client := newClient(h, projectId, scope, conn)
+func (h *Hub) Register(projectId uint64, scope string, conn *websocket.Conn) *webSocketClient {
+	client := newWebSocketClient(h, projectId, scope, conn)
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	if _, ok := h.clients[projectId]; !ok {
-		h.clients[projectId] = make(map[string]map[*Client]struct{})
+		h.clients[projectId] = make(map[string]map[*webSocketClient]struct{})
 	}
 	if _, ok := h.clients[projectId][scope]; !ok {
-		h.clients[projectId][scope] = make(map[*Client]struct{})
+		h.clients[projectId][scope] = make(map[*webSocketClient]struct{})
 	}
 	h.clients[projectId][scope][client] = struct{}{}
 	return client
 }
 
 // Unregister 注销 WebSocket 连接
-func (h *Hub) Unregister(client *Client) {
+func (h *Hub) Unregister(client *webSocketClient) {
 	if h == nil || client == nil {
 		return
 	}
@@ -69,7 +69,7 @@ func (h *Hub) BroadcastProject(projectId uint64, projectCode, scope string, payl
 	}
 	h.mu.RLock()
 	scopes := h.clients[projectId]
-	clients := make([]*Client, 0, len(scopes[scope]))
+	clients := make([]*webSocketClient, 0, len(scopes[scope]))
 	for client := range scopes[scope] {
 		if client == nil {
 			continue

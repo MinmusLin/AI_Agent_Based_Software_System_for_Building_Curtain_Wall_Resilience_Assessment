@@ -27,7 +27,7 @@ func (h *Handler) Register(c *gin.Context) {
 	}
 	rpcResp := &bizpb.RegisterResponse{}
 	if err := auth.Register(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 

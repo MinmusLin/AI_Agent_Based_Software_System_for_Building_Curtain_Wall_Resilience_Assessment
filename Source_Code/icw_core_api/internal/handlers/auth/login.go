@@ -26,7 +26,7 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 	rpcResp := &bizpb.LoginResponse{}
 	if err := auth.Login(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 

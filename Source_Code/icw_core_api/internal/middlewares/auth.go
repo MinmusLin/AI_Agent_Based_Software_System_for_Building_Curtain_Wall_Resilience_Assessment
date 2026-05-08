@@ -23,7 +23,7 @@ func AuthRequired(coreBizClient *icw_core_biz.Client) gin.HandlerFunc {
 		}
 		rpcResp := &bizpb.MeResponse{}
 		if err := auth.Me(c.Request.Context(), coreBizClient, rpcReq, rpcResp); err != nil {
-			response.WriteError(c, err)
+			response.Error(c, err)
 			c.Abort()
 			return
 		}

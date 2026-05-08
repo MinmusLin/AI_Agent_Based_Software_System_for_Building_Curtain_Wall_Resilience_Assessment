@@ -17,7 +17,7 @@ func (h *Handler) UploadAvatar(c *gin.Context) {
 	// 从 Gin Context 中获取当前登录用户
 	currentUser, err := utils.GetCurrentUser(c)
 	if err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 
@@ -28,7 +28,7 @@ func (h *Handler) UploadAvatar(c *gin.Context) {
 	}
 	rpcResp := &bizpb.UploadAvatarResponse{}
 	if err := user.UploadAvatar(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 

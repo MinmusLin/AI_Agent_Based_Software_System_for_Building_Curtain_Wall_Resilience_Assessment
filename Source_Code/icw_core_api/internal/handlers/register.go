@@ -131,6 +131,7 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		projectDetectionRouter := projectRouter.Group("/detection")
 		projectDetectionRoutes := common.NewRouteGroup(projectDetectionRouter, routeDescriptions)
 		{
+			projectDetectionRoutes.GET("/result", "获取图像检测结果", projectAccessible, projectDetectionHandler.GetImageDetectionResult)
 			projectDetectionRoutes.GET("/list", "获取项目检测任务列表", projectAccessible, projectDetectionHandler.GetProjectDetectionTasks)
 			projectDetectionRoutes.POST("/retry", "重试项目智能检测", projectDetectionEditable, projectDetectionHandler.RetryProjectDetection)
 			projectDetectionRoutes.POST("/start", "启动项目智能检测", projectDetectionEditable, projectDetectionHandler.StartProjectDetection)
@@ -158,19 +159,13 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 	// WebSocket Handler
 	socketHandler := socket.NewHandler(handlerDeps, socketHub)
 	socketRouter := router.Group("/socket")
+	socketRoutes := common.NewRouteGroup(socketRouter, routeDescriptions)
 	{
-		// Socket 建连 Router
-		socketSetupRouter := socketRouter.Group("/setup")
+		socketRoutes.GET("/setup", "建立 WebSocket 连接", socketHandler.SetupWebSocket)
+		protectedAuth := socketRouter.Group("")
+		protectedAuth.Use(middlewares.AuthRequired(coreBizClient))
 		{
-			common.NewRouteGroup(socketSetupRouter, routeDescriptions).GET("/assets", "建立图像资产 WebSocket 连接", socketHandler.SetupAssetsWebSocket)
-			common.NewRouteGroup(socketSetupRouter, routeDescriptions).GET("/detection", "建立智能检测 WebSocket 连接", socketHandler.SetupDetectionWebSocket)
-		}
-
-		// Socket 票据 Router
-		socketTicketRouter := socketRouter.Group("")
-		socketTicketRouter.Use(middlewares.AuthRequired(coreBizClient))
-		{
-			common.NewRouteGroup(socketTicketRouter, routeDescriptions).POST("/ticket", "创建 WebSocket 连接票据", middlewares.ProjectAccessible(coreBizClient), socketHandler.CreateSocketTicket)
+			common.NewRouteGroup(protectedAuth, routeDescriptions).POST("/ticket", "创建 WebSocket 连接票据", middlewares.ProjectAccessible(coreBizClient), socketHandler.CreateSocketTicket)
 		}
 	}
 

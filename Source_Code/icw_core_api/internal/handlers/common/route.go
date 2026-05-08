@@ -92,6 +92,13 @@ func joinPath(basePath, path string) string {
 	if basePath == "/" {
 		basePath = ""
 	}
+	if strings.TrimSpace(path) == "" {
+		fullPath := strings.TrimRight(basePath, "/")
+		if fullPath == "" {
+			return "/"
+		}
+		return fullPath
+	}
 	fullPath := strings.TrimRight(basePath, "/") + "/" + strings.TrimLeft(path, "/")
 	if fullPath == "" {
 		return "/"

@@ -5,6 +5,24 @@ import (
 	"icw_common/gen/core/biz"
 )
 
+func NewGetImageDetectionResultResponse(resp *bizpb.GetImageDetectionResultResponse) *apipb.GetImageDetectionResultResponse {
+	if resp == nil {
+		return nil
+	}
+	return &apipb.GetImageDetectionResultResponse{
+		Image:           resp.Image,
+		OriginalUrl:     resp.OriginalUrl,
+		Status:          resp.Status,
+		TaskCodes:       resp.TaskCodes,
+		CorrosionResult: resp.CorrosionResult,
+		CrackResult:     resp.CrackResult,
+		StainResult:     resp.StainResult,
+		FlatnessResult:  resp.FlatnessResult,
+		SpallingResult:  resp.SpallingResult,
+		SummaryResult:   resp.SummaryResult,
+	}
+}
+
 func NewGetProjectDetectionTasksResponse(resp *bizpb.GetProjectDetectionTasksResponse) *apipb.GetProjectDetectionTasksResponse {
 	if resp == nil {
 		return nil

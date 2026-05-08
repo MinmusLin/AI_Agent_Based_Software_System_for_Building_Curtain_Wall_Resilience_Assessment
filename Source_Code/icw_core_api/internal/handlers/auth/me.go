@@ -29,7 +29,7 @@ func (h *Handler) Me(c *gin.Context) {
 	}
 	rpcResp := &bizpb.MeResponse{}
 	if err := auth.Me(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 

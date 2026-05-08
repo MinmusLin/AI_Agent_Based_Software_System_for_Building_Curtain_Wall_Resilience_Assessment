@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"icw_common/consts"
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
@@ -28,24 +27,26 @@ func (h *Handler) CreateSocketTicket(c *gin.Context) {
 	// 从 Gin Context 中获取当前登录用户
 	user, err := apiUtils.GetCurrentUser(c)
 	if err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
 	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
+		response.Error(c, rpc_error.BadRequestDefault(err.Error()))
 		return
 	}
 
-	socketScope := strings.TrimSpace(req.SocketScope)
-	if socketScope == "" {
-		response.WriteError(c, rpc_error.BadRequestDefault("socket scope is required"))
+	scope := strings.TrimSpace(req.Scope)
+	if scope == "" {
+		response.Error(c, rpc_error.BadRequestDefault("socket scope is required"))
 		return
 	}
-	if socketScope != consts.SocketScopeProjectAssets && socketScope != consts.SocketScopeProjectDetection && socketScope != consts.SocketScopeProjectReport {
-		response.WriteError(c, rpc_error.BadRequestDefault("socket scope is invalid"))
+
+	// 校验是否是有效的 WebSocket 连接范围
+	if !isValidSocketScope(scope) {
+		response.Error(c, rpc_error.BadRequestDefault("socket scope is invalid"))
 		return
 	}
 
@@ -53,11 +54,11 @@ func (h *Handler) CreateSocketTicket(c *gin.Context) {
 		UserId:      user.Id,
 		ProjectId:   projectId,
 		ProjectCode: req.ProjectId,
-		SocketScope: socketScope,
+		Scope:       scope,
 	}
 	rpcResp := &bizpb.CreateSocketTicketResponse{}
 	if err := socket.CreateSocketTicket(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 

@@ -18,33 +18,33 @@ import (
 	apiUtils "icw_core_api/utils"
 )
 
-// ProjectProgressCondition 项目进度校验条件
-type ProjectProgressCondition func(progress bizpb.ProjectProgress_Value) bool
+// projectProgressCondition 项目进度校验条件
+type projectProgressCondition func(progress bizpb.ProjectProgress_Value) bool
 
 // projectProgressIs 校验项目进度是否等于指定值
-func projectProgressIs(expected bizpb.ProjectProgress_Value) ProjectProgressCondition {
+func projectProgressIs(expected bizpb.ProjectProgress_Value) projectProgressCondition {
 	return func(progress bizpb.ProjectProgress_Value) bool {
 		return progress == expected
 	}
 }
 
-// ProjectStatusCondition 项目状态校验条件
-type ProjectStatusCondition func(status bizpb.ProjectStatus_Value) bool
+// projectStatusCondition 项目状态校验条件
+type projectStatusCondition func(status bizpb.ProjectStatus_Value) bool
 
 // projectStatusIs 校验项目状态是否等于指定值
-func projectStatusIs(expected bizpb.ProjectStatus_Value) ProjectStatusCondition {
+func projectStatusIs(expected bizpb.ProjectStatus_Value) projectStatusCondition {
 	return func(status bizpb.ProjectStatus_Value) bool {
 		return status == expected
 	}
 }
 
 // projectAccessRequired 校验用户是否拥有项目访问权限，并根据项目进度与状态按需校验项目阶段编辑权限
-func projectAccessRequired(coreBizClient *icw_core_biz.Client, progressCondition ProjectProgressCondition, statusCondition ProjectStatusCondition) gin.HandlerFunc {
+func projectAccessRequired(coreBizClient *icw_core_biz.Client, progressCondition projectProgressCondition, statusCondition projectStatusCondition) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 从 Gin Context 中获取当前登录用户
 		user, err := apiUtils.GetCurrentUser(c)
 		if err != nil {
-			response.WriteError(c, err)
+			response.Error(c, err)
 			c.Abort()
 			return
 		}
@@ -52,7 +52,7 @@ func projectAccessRequired(coreBizClient *icw_core_biz.Client, progressCondition
 		// 从 HTTP Query 或 JSON Body 中解析项目 ID
 		projectId, err := parseProjectIdFromRequest(c)
 		if err != nil {
-			response.WriteError(c, err)
+			response.Error(c, err)
 			c.Abort()
 			return
 		}
@@ -63,21 +63,21 @@ func projectAccessRequired(coreBizClient *icw_core_biz.Client, progressCondition
 		}
 		rpcResp := &bizpb.CheckProjectAccessResponse{}
 		if err := project_core.CheckProjectAccess(c.Request.Context(), coreBizClient, rpcReq, rpcResp); err != nil {
-			response.WriteError(c, err)
+			response.Error(c, err)
 			c.Abort()
 			return
 		}
 
 		// 根据项目进度按需校验项目阶段编辑权限
 		if progressCondition != nil && !progressCondition(enum.ParseProjectProgress(uint8(rpcResp.Progress))) {
-			response.WriteError(c, rpc_error.BadRequestDefault("project progress condition is not satisfied"))
+			response.Error(c, rpc_error.BadRequestDefault("project progress condition is not satisfied"))
 			c.Abort()
 			return
 		}
 
 		// 根据项目状态按需校验项目阶段编辑权限
 		if statusCondition != nil && !statusCondition(enum.ParseProjectStatus(rpcResp.Status)) {
-			response.WriteError(c, rpc_error.BadRequestDefault("project status condition is not satisfied"))
+			response.Error(c, rpc_error.BadRequestDefault("project status condition is not satisfied"))
 			c.Abort()
 			return
 		}

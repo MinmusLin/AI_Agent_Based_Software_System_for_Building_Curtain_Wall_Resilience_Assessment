@@ -3,13 +3,11 @@ package response
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-
 	"icw_common/rpc/error"
 )
 
-// RpcErrorMessages 业务错误枚举提示
-var RpcErrorMessages = map[rpc_error.DetailCode]string{
+// rpcErrorMessages 业务错误枚举提示
+var rpcErrorMessages = map[rpc_error.DetailCode]string{
 	rpc_error.DetailBadRequest:                              "请求参数错误",
 	rpc_error.DetailUnauthorized:                            "登录状态已失效，请重新登录",
 	rpc_error.DetailAccountLocked:                           "登录失败次数过多，请稍后重试",
@@ -45,12 +43,6 @@ var RpcErrorMessages = map[rpc_error.DetailCode]string{
 	rpc_error.DetailProjectPendingOrFailedImageCountInvalid: "项目中不能存在上传中或上传失败的图像",
 }
 
-// WriteError 将 RPC 标准错误转换为 API 层的 HTTP 响应
-func WriteError(c *gin.Context, err error) {
-	code, detailCode, _ := rpc_error.Parse(err)
-	Error(c, errorStatus(code), errorCode(code, detailCode), errorMessage(detailCode))
-}
-
 // errorStatus 获取错误状态码
 // 400 - BAD_REQUEST - 无效请求
 // 401 - UNAUTHORIZED - 身份验证未通过
@@ -82,8 +74,8 @@ func errorCode(code rpc_error.Code, detailCode rpc_error.DetailCode) string {
 
 // errorMessage 获取错误业务信息
 func errorMessage(detailCode rpc_error.DetailCode) string {
-	if message, ok := RpcErrorMessages[detailCode]; ok && message != "" {
+	if message, ok := rpcErrorMessages[detailCode]; ok && message != "" {
 		return message
 	}
-	return RpcErrorMessages[rpc_error.DetailInternalError]
+	return rpcErrorMessages[rpc_error.DetailInternalError]
 }

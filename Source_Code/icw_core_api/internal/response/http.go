@@ -12,15 +12,15 @@ import (
 	"icw_common/utils"
 )
 
-// OKEnvelope HTTP 标准成功响应
-type OKEnvelope[T any] struct {
+// okEnvelope HTTP 标准成功响应
+type okEnvelope[T any] struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 	Data    T      `json:"data"`
 }
 
-// ErrorEnvelope HTTP 标准失败响应
-type ErrorEnvelope struct {
+// errorEnvelope HTTP 标准失败响应
+type errorEnvelope struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
@@ -28,14 +28,14 @@ type ErrorEnvelope struct {
 // OK 写入 HTTP 标准成功响应
 func OK[T any](c *gin.Context, data T) {
 	if protoData, ok := marshalProtoData(data); ok {
-		c.JSON(http.StatusOK, OKEnvelope[any]{
+		c.JSON(http.StatusOK, okEnvelope[any]{
 			Code:    "OK",
 			Message: "success",
 			Data:    protoData,
 		})
 		return
 	}
-	c.JSON(http.StatusOK, OKEnvelope[T]{
+	c.JSON(http.StatusOK, okEnvelope[T]{
 		Code:    "OK",
 		Message: "success",
 		Data:    data,
@@ -43,17 +43,21 @@ func OK[T any](c *gin.Context, data T) {
 }
 
 // Error 写入 HTTP 标准失败响应
-func Error(c *gin.Context, status int, code, message string) {
-	c.JSON(status, ErrorEnvelope{
-		Code:    code,
-		Message: message,
+func Error(c *gin.Context, err error) {
+	code, detailCode, _ := rpc_error.Parse(err)
+	c.JSON(errorStatus(code), errorEnvelope{
+		Code:    errorCode(code, detailCode),
+		Message: errorMessage(detailCode),
 	})
 }
 
 // BindJSON 绑定 JSON 请求体
 func BindJSON(c *gin.Context, out interface{}) bool {
 	if err := c.ShouldBindJSON(out); err != nil {
-		Error(c, http.StatusBadRequest, string(rpc_error.DetailBadRequest), errorMessage(rpc_error.DetailBadRequest))
+		c.JSON(http.StatusBadRequest, errorEnvelope{
+			Code:    string(rpc_error.DetailBadRequest),
+			Message: errorMessage(rpc_error.DetailBadRequest),
+		})
 		return false
 	}
 	return true

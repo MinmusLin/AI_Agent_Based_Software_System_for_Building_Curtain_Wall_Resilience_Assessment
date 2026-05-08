@@ -2,11 +2,13 @@ package socket
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
 	"icw_common/consts"
+	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 	"icw_common/utils"
@@ -22,35 +24,34 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// SetupAssetsWebSocket 建立图像资产 WebSocket 连接
-// @router /socket/setup/assets [GET]
-func (h *Handler) SetupAssetsWebSocket(c *gin.Context) {
-	h.setupProjectWebSocket(c, consts.SocketScopeProjectAssets)
-}
-
-// SetupDetectionWebSocket 建立智能检测 WebSocket 连接
-// @router /socket/setup/detection [GET]
-func (h *Handler) SetupDetectionWebSocket(c *gin.Context) {
-	h.setupProjectWebSocket(c, consts.SocketScopeProjectDetection)
-}
-
-func (h *Handler) setupProjectWebSocket(c *gin.Context, socketScope string) {
-	projectCode := c.Query("project_id")
-	ticket := c.Query("ticket")
-	projectId, err := utils.Decode(projectCode)
+// SetupWebSocket 建立 WebSocket 连接
+// @router /socket/setup [GET]
+func (h *Handler) SetupWebSocket(c *gin.Context) {
+	req := &apipb.SetupWebSocketRequest{
+		ProjectId: c.Query("project_id"),
+		Scope:     strings.TrimSpace(c.Query("scope")),
+		Ticket:    strings.TrimSpace(c.Query("ticket")),
+	}
+	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
+		response.Error(c, rpc_error.BadRequestDefault(err.Error()))
+		return
+	}
+
+	// 校验是否是有效的 WebSocket 连接范围
+	if !isValidSocketScope(req.Scope) {
+		response.Error(c, rpc_error.BadRequestDefault("socket scope is invalid"))
 		return
 	}
 
 	rpcReq := &bizpb.ValidateSocketTicketRequest{
-		ProjectCode: projectCode,
-		SocketScope: socketScope,
-		Ticket:      ticket,
+		ProjectCode: req.ProjectId,
+		Scope:       req.Scope,
+		Ticket:      req.Ticket,
 	}
 	rpcResp := &bizpb.ValidateSocketTicketResponse{}
 	if err := socket.ValidateSocketTicket(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 
@@ -59,7 +60,12 @@ func (h *Handler) setupProjectWebSocket(c *gin.Context, socketScope string) {
 		return
 	}
 
-	client := h.hub.Register(projectId, socketScope, conn)
+	client := h.hub.Register(projectId, req.Scope, conn)
 	go client.WritePump()
 	client.ReadPump()
+}
+
+// isValidSocketScope 校验是否是有效的 WebSocket 连接范围
+func isValidSocketScope(scope string) bool {
+	return scope == consts.SocketScopeProjectAssets || scope == consts.SocketScopeProjectDetection || scope == consts.SocketScopeProjectReport
 }

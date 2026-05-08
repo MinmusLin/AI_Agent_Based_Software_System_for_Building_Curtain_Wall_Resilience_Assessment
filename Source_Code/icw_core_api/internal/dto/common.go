@@ -97,15 +97,15 @@ func NewProjectDetectionTaskStatusChangedMessage(event *bizpb.ProjectDetectionTa
 		return nil
 	}
 	return &apipb.ProjectDetectionTaskStatusChangedMessage{
-		Type:       event.EventType,
-		ProjectId:  event.ProjectCode,
-		ImageUuid:  event.ImageUuid,
-		NodeCode:   event.NodeCode,
-		MainTaskId: event.MainTaskId,
-		MainStatus: event.MainStatus,
-		SubTaskId:  event.SubTaskId,
-		SubStatus:  event.SubStatus,
-		OccurredAt: event.OccurredAt,
+		Type:         event.EventType,
+		ProjectId:    event.ProjectCode,
+		ImageUuid:    event.ImageUuid,
+		NodeCode:     event.NodeCode,
+		MainTaskUuid: event.MainTaskUuid,
+		MainStatus:   event.MainStatus,
+		SubTaskUuid:  event.SubTaskUuid,
+		SubStatus:    event.SubStatus,
+		OccurredAt:   event.OccurredAt,
 	}
 }
 

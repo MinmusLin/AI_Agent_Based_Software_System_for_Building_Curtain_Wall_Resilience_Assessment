@@ -25,19 +25,19 @@ func (h *Handler) UpdateProjectGroup(c *gin.Context) {
 	// 从 Gin Context 中获取当前登录用户
 	user, err := apiUtils.GetCurrentUser(c)
 	if err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 
 	// 将 Sqids 字符串解码为数字 ID
 	projectId, err := utils.Decode(req.ProjectId)
 	if err != nil {
-		response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
+		response.Error(c, rpc_error.BadRequestDefault(err.Error()))
 		return
 	}
 	groupId, err := utils.Decode(req.GroupId)
 	if err != nil {
-		response.WriteError(c, rpc_error.BadRequestDefault(err.Error()))
+		response.Error(c, rpc_error.BadRequestDefault(err.Error()))
 		return
 	}
 
@@ -49,7 +49,7 @@ func (h *Handler) UpdateProjectGroup(c *gin.Context) {
 	}
 	rpcResp := &bizpb.UpdateProjectGroupResponse{}
 	if err := project_assets.UpdateProjectGroup(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 

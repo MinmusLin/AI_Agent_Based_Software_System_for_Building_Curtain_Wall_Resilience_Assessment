@@ -23,7 +23,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 	}
 	rpcResp := &bizpb.RefreshResponse{}
 	if err := auth.Refresh(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		code, _, _ := rpc_error.Parse(err)
 		if code == rpc_error.CodeUnauthorized {
 			// 旧 Refresh Token 失效

@@ -25,7 +25,7 @@ func (h *Handler) SendEmailCode(c *gin.Context) {
 	}
 	rpcResp := &bizpb.SendEmailCodeResponse{}
 	if err := auth.SendEmailCode(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 

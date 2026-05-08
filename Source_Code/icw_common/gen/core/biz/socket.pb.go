@@ -27,7 +27,7 @@ type CreateSocketTicketRequest struct {
 	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	ProjectCode   string                 `protobuf:"bytes,3,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
-	SocketScope   string                 `protobuf:"bytes,4,opt,name=socket_scope,json=socketScope,proto3" json:"socket_scope,omitempty"`
+	Scope         string                 `protobuf:"bytes,4,opt,name=scope,proto3" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -83,9 +83,9 @@ func (x *CreateSocketTicketRequest) GetProjectCode() string {
 	return ""
 }
 
-func (x *CreateSocketTicketRequest) GetSocketScope() string {
+func (x *CreateSocketTicketRequest) GetScope() string {
 	if x != nil {
-		return x.SocketScope
+		return x.Scope
 	}
 	return ""
 }
@@ -147,7 +147,7 @@ func (x *CreateSocketTicketResponse) GetExpiresIn() int64 {
 type ValidateSocketTicketRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProjectCode   string                 `protobuf:"bytes,1,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
-	SocketScope   string                 `protobuf:"bytes,2,opt,name=socket_scope,json=socketScope,proto3" json:"socket_scope,omitempty"`
+	Scope         string                 `protobuf:"bytes,2,opt,name=scope,proto3" json:"scope,omitempty"`
 	Ticket        string                 `protobuf:"bytes,3,opt,name=ticket,proto3" json:"ticket,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -190,9 +190,9 @@ func (x *ValidateSocketTicketRequest) GetProjectCode() string {
 	return ""
 }
 
-func (x *ValidateSocketTicketRequest) GetSocketScope() string {
+func (x *ValidateSocketTicketRequest) GetScope() string {
 	if x != nil {
-		return x.SocketScope
+		return x.Scope
 	}
 	return ""
 }
@@ -245,20 +245,20 @@ var File_core_biz_socket_proto protoreflect.FileDescriptor
 
 const file_core_biz_socket_proto_rawDesc = "" +
 	"\n" +
-	"\x15core/biz/socket.proto\x12\ficw.core.biz\"\x99\x01\n" +
+	"\x15core/biz/socket.proto\x12\ficw.core.biz\"\x8c\x01\n" +
 	"\x19CreateSocketTicketRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\x12!\n" +
-	"\fproject_code\x18\x03 \x01(\tR\vprojectCode\x12!\n" +
-	"\fsocket_scope\x18\x04 \x01(\tR\vsocketScope\"S\n" +
+	"\fproject_code\x18\x03 \x01(\tR\vprojectCode\x12\x14\n" +
+	"\x05scope\x18\x04 \x01(\tR\x05scope\"S\n" +
 	"\x1aCreateSocketTicketResponse\x12\x16\n" +
 	"\x06ticket\x18\x01 \x01(\tR\x06ticket\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"{\n" +
+	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"n\n" +
 	"\x1bValidateSocketTicketRequest\x12!\n" +
-	"\fproject_code\x18\x01 \x01(\tR\vprojectCode\x12!\n" +
-	"\fsocket_scope\x18\x02 \x01(\tR\vsocketScope\x12\x16\n" +
+	"\fproject_code\x18\x01 \x01(\tR\vprojectCode\x12\x14\n" +
+	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x16\n" +
 	"\x06ticket\x18\x03 \x01(\tR\x06ticket\"\x1e\n" +
 	"\x1cValidateSocketTicketResponse2\xe7\x01\n" +
 	"\rSocketService\x12g\n" +

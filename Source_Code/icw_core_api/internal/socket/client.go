@@ -19,8 +19,8 @@ const (
 	SendBufferSize = 16
 )
 
-// Client 单 WebSocket 连接
-type Client struct {
+// webSocketClient 单 WebSocket 连接
+type webSocketClient struct {
 	hub       *Hub
 	conn      *websocket.Conn
 	send      chan []byte
@@ -28,9 +28,9 @@ type Client struct {
 	scope     string
 }
 
-// newClient 创建单 WebSocket 连接
-func newClient(hub *Hub, projectId uint64, scope string, conn *websocket.Conn) *Client {
-	return &Client{
+// newWebSocketClient 创建单 WebSocket 连接
+func newWebSocketClient(hub *Hub, projectId uint64, scope string, conn *websocket.Conn) *webSocketClient {
+	return &webSocketClient{
 		hub:       hub,
 		conn:      conn,
 		send:      make(chan []byte, SendBufferSize),
@@ -40,7 +40,7 @@ func newClient(hub *Hub, projectId uint64, scope string, conn *websocket.Conn) *
 }
 
 // ReadPump 消费客户端消息，并维护连接生命周期
-func (c *Client) ReadPump() {
+func (c *webSocketClient) ReadPump() {
 	defer func() {
 		c.hub.Unregister(c)
 		_ = c.conn.Close()
@@ -59,7 +59,7 @@ func (c *Client) ReadPump() {
 }
 
 // WritePump 生产客户端消息，并维护连接心跳检测
-func (c *Client) WritePump() {
+func (c *webSocketClient) WritePump() {
 	ticker := time.NewTicker(PingPeriod)
 	defer func() {
 		ticker.Stop()

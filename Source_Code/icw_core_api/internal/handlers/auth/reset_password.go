@@ -26,7 +26,7 @@ func (h *Handler) ResetPassword(c *gin.Context) {
 	}
 	rpcResp := &bizpb.ResetPasswordResponse{}
 	if err := auth.ResetPassword(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {
-		response.WriteError(c, err)
+		response.Error(c, err)
 		return
 	}
 

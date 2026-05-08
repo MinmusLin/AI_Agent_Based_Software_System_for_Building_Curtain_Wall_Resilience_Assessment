@@ -274,18 +274,20 @@ type ProjectDetectionCorrosionTaskRecord struct {
 	CorrosionPixels   sql.NullInt64
 	CorrosionRatio    sql.NullFloat64
 	Regions           sql.NullString
+	ArtifactSha256Map sql.NullString
 	RuntimeSeconds    sql.NullFloat64
 }
 
 // ProjectDetectionCrackTaskRecord 项目图像石材裂缝检测子任务记录
 type ProjectDetectionCrackTaskRecord struct {
 	ProjectDetectionSubTaskRecord
-	HasCrack       sql.NullBool
-	CrackCount     sql.NullInt64
-	CrackPixels    sql.NullInt64
-	CrackRatio     sql.NullFloat64
-	Regions        sql.NullString
-	RuntimeSeconds sql.NullFloat64
+	HasCrack          sql.NullBool
+	CrackCount        sql.NullInt64
+	CrackPixels       sql.NullInt64
+	CrackRatio        sql.NullFloat64
+	Regions           sql.NullString
+	ArtifactSha256Map sql.NullString
+	RuntimeSeconds    sql.NullFloat64
 }
 
 // ProjectDetectionStainTaskRecord 项目图像石材污渍检测子任务记录
@@ -296,27 +298,31 @@ type ProjectDetectionStainTaskRecord struct {
 	AverageStainRatio sql.NullFloat64
 	MaxStainRatio     sql.NullFloat64
 	Regions           sql.NullString
+	ArtifactSha256Map sql.NullString
 	RuntimeSeconds    sql.NullFloat64
 }
 
 // ProjectDetectionFlatnessTaskRecord 项目图像玻璃平整度检测子任务记录
 type ProjectDetectionFlatnessTaskRecord struct {
 	ProjectDetectionSubTaskRecord
-	Result         sql.NullString
-	UnevenCount    sql.NullInt64
-	Regions        sql.NullString
-	RuntimeSeconds sql.NullFloat64
+	Result            sql.NullString
+	UnevenCount       sql.NullInt64
+	Regions           sql.NullString
+	ArtifactSha256Map sql.NullString
+	RuntimeSeconds    sql.NullFloat64
 }
 
 // ProjectDetectionSpallingTaskRecord 项目图像玻璃爆裂检测子任务记录
 type ProjectDetectionSpallingTaskRecord struct {
 	ProjectDetectionSubTaskRecord
-	HasSpalling    sql.NullBool
-	Confidence     sql.NullFloat64
-	RuntimeSeconds sql.NullFloat64
+	HasSpalling       sql.NullBool
+	Confidence        sql.NullFloat64
+	ArtifactSha256Map sql.NullString
+	RuntimeSeconds    sql.NullFloat64
 }
 
 // ProjectDetectionSummaryTaskRecord 项目图像检测总结任务记录
 type ProjectDetectionSummaryTaskRecord struct {
 	ProjectDetectionSubTaskRecord
+	ResultJson sql.NullString
 }
