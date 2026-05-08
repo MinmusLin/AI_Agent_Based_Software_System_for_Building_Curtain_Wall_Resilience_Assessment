@@ -133,7 +133,7 @@ func main() {
 	))
 
 	// 启动项目图像检测任务 Worker
-	detectionWorker := workers.NewDetectionWorker(cfg, mysqlRepo, minioRepo, rocketMQProducer, activityClassificationClient, activityReasoningClient, activitySummaryClient)
+	detectionWorker := workers.NewDetectionWorker(cfg, mysqlRepo, minioRepo, redisRepo, rocketMQProducer, activityClassificationClient, activityReasoningClient, activitySummaryClient)
 	detectionWorker.Start(ctx)
 
 	// 注册 gRPC 服务
