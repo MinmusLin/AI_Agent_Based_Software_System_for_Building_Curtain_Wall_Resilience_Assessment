@@ -21,7 +21,7 @@ import (
 // Start 启动分类任务
 func (s *Service) Start(ctx context.Context, req *classificationpb.StartRequest) (*classificationpb.StartResponse, error) {
 	resp := &classificationpb.StartResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		if err := classificationUtils.ValidateRequest(req); err != nil {
 			return err
 		}
@@ -38,6 +38,9 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 	s.Acquire()
 	defer s.Release()
 
+	ctx, cancel := context.WithTimeout(s.Ctx(), time.Duration(s.Config().AgentRequestTimeoutSeconds)*time.Second)
+	defer cancel()
+
 	callbackReq := &bizpb.ReportClassificationResultRequest{
 		TaskUuid:  req.TaskUuid,
 		ImageUuid: req.ImageUuid,
@@ -45,19 +48,22 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 
 	// 执行分类任务
 	classificationStart := time.Now()
-	taskCodes, err := executeClassification()
+	taskCodes, modelOutput, err := classificationUtils.ExecuteClassification(ctx, req, s.AgentClient(), s.Config().AgentImageSize)
 	classificationCost := time.Since(classificationStart)
 
 	if utils.IsEmptyError(err) {
-		callbackReq.Status = enum.DetectionStatusString(activitypb.DetectionStatus_Succeeded)
-		callbackReq.TaskCodes = taskCodes
+		callbackReq.Status = activitypb.DetectionStatus_Succeeded
+		callbackReq.TaskCodes = make([]activitypb.DetectionTaskCode_Value, 0, len(taskCodes))
+		for _, taskCode := range taskCodes {
+			callbackReq.TaskCodes = append(callbackReq.TaskCodes, enum.ParseDetectionTaskCode(taskCode))
+		}
 		callbackReq.ErrorMessage = ""
-		common.ClassificationInfo(requestId, req.TaskUuid, req.ImageUuid, taskCodes, classificationCost)
+		common.ClassificationInfo(requestId, req.TaskUuid, req.ImageUuid, taskCodes, modelOutput, classificationCost)
 	} else {
-		callbackReq.Status = enum.DetectionStatusString(activitypb.DetectionStatus_Failed)
+		callbackReq.Status = activitypb.DetectionStatus_Failed
 		callbackReq.TaskCodes = nil
 		callbackReq.ErrorMessage = err.Error()
-		common.ClassificationError(requestId, req.TaskUuid, req.ImageUuid, taskCodes, classificationCost, err)
+		common.ClassificationError(requestId, req.TaskUuid, req.ImageUuid, taskCodes, modelOutput, classificationCost, err)
 	}
 
 	// 上报图像检测分类结果
@@ -65,20 +71,9 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 	callbackResp := &bizpb.ReportClassificationResultResponse{}
 	callbackStart := time.Now()
 	if err := icw_core_biz.ReportClassificationResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); utils.IsEmptyError(err) {
-		common.CallbackInfo(requestId, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart)
+		common.CallbackInfo(requestId, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart)
 		return
 	} else {
-		common.CallbackError(requestId, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart, err)
+		common.CallbackError(requestId, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart, err)
 	}
-}
-
-// executeClassification 执行分类任务
-func executeClassification() ([]string, error) {
-	return []string{
-		enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion),
-		enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack),
-		enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain),
-		enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness),
-		enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling),
-	}, nil
 }

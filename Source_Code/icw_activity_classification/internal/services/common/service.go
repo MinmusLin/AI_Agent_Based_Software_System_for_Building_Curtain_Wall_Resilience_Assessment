@@ -7,6 +7,7 @@ import (
 	"icw_common/utils"
 
 	"icw_activity_classification/configs"
+	"icw_activity_classification/internal/agent"
 	"icw_activity_classification/rpc/icw_core_biz"
 )
 
@@ -14,6 +15,7 @@ import (
 type Deps struct {
 	Config    configs.Config
 	CoreBiz   *icw_core_biz.Client
+	Agent     *agent.Client
 	Semaphore chan struct{}
 }
 
@@ -22,6 +24,7 @@ func NewDeps(config configs.Config, coreBiz *icw_core_biz.Client) *Deps {
 	return &Deps{
 		Config:    config,
 		CoreBiz:   coreBiz,
+		Agent:     agent.NewClient(config.AgentSecretToken, config.AgentBotId, config.AgentUserId),
 		Semaphore: make(chan struct{}, config.ClassificationTaskMaxConcurrency),
 	}
 }
@@ -47,10 +50,7 @@ func NewBaseService(ctx context.Context, deps *Deps) *BaseService {
 }
 
 // CallRPC RPC 服务通用调用
-func (s *BaseService) CallRPC(ctx context.Context, req interface{}, fn func() error) (err error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
+func (s *BaseService) CallRPC(req interface{}, fn func() error) (err error) {
 	if utils.IsNil(req) {
 		return rpc_error.BadRequestDefault("request is nil")
 	}
@@ -82,6 +82,14 @@ func (s *BaseService) CoreBizClient() *icw_core_biz.Client {
 		return nil
 	}
 	return s.deps.CoreBiz
+}
+
+// AgentClient 获取分类智能体 Client
+func (s *BaseService) AgentClient() *agent.Client {
+	if s == nil || s.deps == nil {
+		return nil
+	}
+	return s.deps.Agent
 }
 
 // Acquire 获取并发执行额度
