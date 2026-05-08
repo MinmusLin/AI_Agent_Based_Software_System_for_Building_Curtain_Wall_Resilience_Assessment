@@ -438,28 +438,6 @@ func (r *Repository) GetProjectDetectionTaskStatus(ctx context.Context, userId, 
 	return item, nil
 }
 
-// ProjectDetectionTasksAllSucceeded 按用户 ID 和项目 ID 判断项目已上传图像检测任务是否全部成功
-func (r *Repository) ProjectDetectionTasksAllSucceeded(ctx context.Context, userId, projectId uint64) (bool, error) {
-	var uploadedImageCount, succeededTaskCount uint64
-	if err := r.mysql.QueryRowContext(ctx, `
-		SELECT
-			COUNT(i.id),
-			COALESCE(SUM(CASE WHEN t.status = ? THEN 1 ELSE 0 END), 0)
-		FROM project_group_images i
-		LEFT JOIN project_detection_tasks t
-			ON t.image_id = i.id
-			AND t.user_id = i.user_id
-			AND t.project_id = i.project_id
-		WHERE i.user_id = ? AND i.project_id = ? AND i.status = ?
-	`, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Succeeded),
-		userId,
-		projectId,
-		enum.ProjectImageStatusString(bizpb.ProjectImageStatus_Uploaded)).Scan(&uploadedImageCount, &succeededTaskCount); err != nil {
-		return false, err
-	}
-	return uploadedImageCount > 0 && uploadedImageCount == succeededTaskCount, nil
-}
-
 // projectDetectionTaskToStatusDTO 将项目图像检测主任务记录转换为检测状态数据结构
 func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*commonpb.ProjectDetectionStatus, error) {
 	item := &commonpb.ProjectDetectionStatus{
@@ -530,6 +508,28 @@ func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sq
 	}
 
 	return item, nil
+}
+
+// ProjectDetectionTasksAllSucceeded 按用户 ID 和项目 ID 判断项目图像检测任务是否全部成功
+func (r *Repository) ProjectDetectionTasksAllSucceeded(ctx context.Context, userId, projectId uint64) (bool, error) {
+	var uploadedImageCount, succeededTaskCount uint64
+	if err := r.mysql.QueryRowContext(ctx, `
+		SELECT
+			COUNT(i.id),
+			COALESCE(SUM(CASE WHEN t.status = ? THEN 1 ELSE 0 END), 0)
+		FROM project_group_images i
+		LEFT JOIN project_detection_tasks t
+			ON t.image_id = i.id
+			AND t.user_id = i.user_id
+			AND t.project_id = i.project_id
+		WHERE i.user_id = ? AND i.project_id = ? AND i.status = ?
+	`, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Succeeded),
+		userId,
+		projectId,
+		enum.ProjectImageStatusString(bizpb.ProjectImageStatus_Uploaded)).Scan(&uploadedImageCount, &succeededTaskCount); err != nil {
+		return false, err
+	}
+	return uploadedImageCount > 0 && uploadedImageCount == succeededTaskCount, nil
 }
 
 // GetProjectDetectionCorrosionResult 按项目图像检测子任务 ID 查询金属锈蚀检测结果
