@@ -23,7 +23,7 @@ type Deps struct {
 	Config                       configs.Config
 	MySQL                        *mysql.Repository
 	Redis                        *redis.Repository
-	RocketMQ                     *rocketmq.Repository
+	RocketMQ                     *rocketmq.Producer
 	MinIO                        *minio.Repository
 	SMTP                         *smtp.Repository
 	DetectionWorker              *workers.DetectionWorker
@@ -37,7 +37,7 @@ func NewDeps(
 	Config configs.Config,
 	MySQL *mysql.Repository,
 	Redis *redis.Repository,
-	RocketMQ *rocketmq.Repository,
+	RocketMQ *rocketmq.Producer,
 	MinIO *minio.Repository,
 	SMTP *smtp.Repository,
 	DetectionWorker *workers.DetectionWorker,
@@ -126,7 +126,7 @@ func (s *BaseService) Redis() *redis.Repository {
 }
 
 // RocketMQ 获取 RocketMQ 服务
-func (s *BaseService) RocketMQ() *rocketmq.Repository {
+func (s *BaseService) RocketMQ() *rocketmq.Producer {
 	if s == nil || s.deps == nil {
 		return nil
 	}

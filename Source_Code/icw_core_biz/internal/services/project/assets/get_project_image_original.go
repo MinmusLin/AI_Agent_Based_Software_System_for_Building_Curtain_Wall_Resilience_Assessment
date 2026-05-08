@@ -37,7 +37,7 @@ func (s *Service) getProjectImageOriginal(req *bizpb.GetProjectImageOriginalRequ
 	}
 
 	// 获取项目图像原图下载预签名 URL
-	originalURL, err := minio.PresignProjectImageOriginalURL(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, req.ProjectId, imageUuid, s.Config().ProjectImageGetTTL)
+	originalURL, err := minio.PresignProjectImageOriginalURL(s.Ctx(), s.MinIO(), s.Redis(), req.ProjectId, imageUuid, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

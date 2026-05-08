@@ -27,9 +27,14 @@ func (s *Service) createSocketTicket(ctx context.Context, req *bizpb.CreateSocke
 		return rpc_error.BadRequestDefault("socket ticket resource is required")
 	}
 	projectCode := strings.TrimSpace(req.ProjectCode)
-	socketScope := strings.TrimSpace(req.SocketScope)
-	if projectCode == "" || socketScope == "" {
+	scope := strings.TrimSpace(req.Scope)
+	if projectCode == "" || scope == "" {
 		return rpc_error.BadRequestDefault("socket ticket resource is required")
+	}
+
+	// 校验是否是有效的 WebSocket 连接范围
+	if !utils.ValidateSocketScope(scope) {
+		return rpc_error.BadRequestDefault("socket scope is invalid")
 	}
 
 	// 生成 WebSocket 连接票据
@@ -44,7 +49,7 @@ func (s *Service) createSocketTicket(ctx context.Context, req *bizpb.CreateSocke
 		UserId:      req.UserId,
 		ProjectId:   req.ProjectId,
 		ProjectCode: projectCode,
-		SocketScope: socketScope,
+		SocketScope: scope,
 		RequestId:   rpc.RequestIdFromIncomingContext(ctx),
 		CreateAt:    time.Now().Format("2006-01-02 15:04:05"),
 	}

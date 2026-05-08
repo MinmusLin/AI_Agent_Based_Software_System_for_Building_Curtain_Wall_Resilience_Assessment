@@ -23,9 +23,14 @@ func (s *Service) ValidateSocketTicket(ctx context.Context, req *bizpb.ValidateS
 func (s *Service) validateSocketTicket(req *bizpb.ValidateSocketTicketRequest, _ *bizpb.ValidateSocketTicketResponse) error {
 	ticket := strings.TrimSpace(req.Ticket)
 	projectCode := strings.TrimSpace(req.ProjectCode)
-	socketScope := strings.TrimSpace(req.SocketScope)
-	if ticket == "" || projectCode == "" || socketScope == "" {
+	scope := strings.TrimSpace(req.Scope)
+	if ticket == "" || projectCode == "" || scope == "" {
 		return rpc_error.BadRequestDefault("socket ticket resource is required")
+	}
+
+	// 校验是否是有效的 WebSocket 连接范围
+	if !utils.ValidateSocketScope(scope) {
+		return rpc_error.BadRequestDefault("socket scope is invalid")
 	}
 
 	// 消费 WebSocket 连接票据上下文
@@ -42,7 +47,7 @@ func (s *Service) validateSocketTicket(req *bizpb.ValidateSocketTicketRequest, _
 	if err := json.Unmarshal([]byte(rawContext), &ticketContext); err != nil {
 		return err
 	}
-	if ticketContext.ProjectCode != projectCode || ticketContext.SocketScope != socketScope {
+	if ticketContext.ProjectCode != projectCode || ticketContext.SocketScope != scope {
 		return rpc_error.BadRequestDefault("socket ticket is mismatched")
 	}
 

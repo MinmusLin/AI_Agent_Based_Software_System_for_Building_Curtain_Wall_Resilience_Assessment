@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	"icw_common/consts"
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
@@ -38,12 +37,6 @@ func (h *Handler) SetupWebSocket(c *gin.Context) {
 		return
 	}
 
-	// 校验是否是有效的 WebSocket 连接范围
-	if !isValidSocketScope(req.Scope) {
-		response.Error(c, rpc_error.BadRequestDefault("socket scope is invalid"))
-		return
-	}
-
 	rpcReq := &bizpb.ValidateSocketTicketRequest{
 		ProjectCode: req.ProjectId,
 		Scope:       req.Scope,
@@ -63,9 +56,4 @@ func (h *Handler) SetupWebSocket(c *gin.Context) {
 	client := h.hub.Register(projectId, req.Scope, conn)
 	go client.WritePump()
 	client.ReadPump()
-}
-
-// isValidSocketScope 校验是否是有效的 WebSocket 连接范围
-func isValidSocketScope(scope string) bool {
-	return scope == consts.SocketScopeProjectAssets || scope == consts.SocketScopeProjectDetection || scope == consts.SocketScopeProjectReport
 }

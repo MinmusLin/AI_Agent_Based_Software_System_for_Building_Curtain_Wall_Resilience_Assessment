@@ -44,12 +44,6 @@ func (h *Handler) CreateSocketTicket(c *gin.Context) {
 		return
 	}
 
-	// 校验是否是有效的 WebSocket 连接范围
-	if !isValidSocketScope(scope) {
-		response.Error(c, rpc_error.BadRequestDefault("socket scope is invalid"))
-		return
-	}
-
 	rpcReq := &bizpb.CreateSocketTicketRequest{
 		UserId:      user.Id,
 		ProjectId:   projectId,

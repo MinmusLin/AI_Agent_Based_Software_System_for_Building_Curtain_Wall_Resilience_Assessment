@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"icw_common/consts"
 )
 
 const (
@@ -35,4 +36,9 @@ func NewTicket() (string, error) {
 func TicketHash(ticket string) string {
 	hash := sha256.Sum256([]byte(ticket))
 	return hex.EncodeToString(hash[:])
+}
+
+// ValidateSocketScope 校验是否是有效的 WebSocket 连接范围
+func ValidateSocketScope(scope string) bool {
+	return scope == consts.SocketScopeProjectAssets || scope == consts.SocketScopeProjectDetection || scope == consts.SocketScopeProjectReport
 }

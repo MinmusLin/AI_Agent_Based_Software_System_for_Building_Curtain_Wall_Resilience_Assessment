@@ -19,7 +19,7 @@ func (s *Service) GetProjectThumbnail(ctx context.Context, req *bizpb.GetProject
 
 func (s *Service) getProjectThumbnail(req *bizpb.GetProjectThumbnailRequest, resp *bizpb.GetProjectThumbnailResponse) error {
 	// 获取项目缩略图下载预签名 URL
-	thumbnailURL, err := minio.PresignProjectThumbnailURL(s.Ctx(), s.MinIO(), s.Redis(), req.UserId, req.ProjectId, s.Config().ProjectImageGetTTL)
+	thumbnailURL, err := minio.PresignProjectThumbnailURL(s.Ctx(), s.MinIO(), s.Redis(), req.ProjectId, s.Config().ProjectImageGetTTL)
 	if err != nil {
 		return err
 	}

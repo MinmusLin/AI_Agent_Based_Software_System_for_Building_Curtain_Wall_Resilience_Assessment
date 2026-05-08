@@ -84,12 +84,6 @@ func NormalizeProjectImageMetadata(metadata string) (string, error) {
 
 // RemoveProjectImageObjects 删除项目图像原图和缩略图对象
 func RemoveProjectImageObjects(ctx context.Context, minioRepo *minio.Repository, redisRepo *redis.Repository, userId, projectId uint64, imageUuid string) error {
-	if redisRepo != nil {
-		// 清除预签名 URL 缓存
-		_ = redisRepo.ClearPresignURL(ctx, redis.GenProjectImageOriginalPresignURLKey(userId, projectId, imageUuid))
-		_ = redisRepo.ClearPresignURL(ctx, redis.GenProjectImageThumbnailPresignURLKey(userId, projectId, imageUuid))
-	}
-
 	originalKey, err := minio.GenProjectImageOriginalKey(projectId, imageUuid)
 	if err != nil {
 		return rpc_error.BadRequestDefault(err.Error())
@@ -97,6 +91,12 @@ func RemoveProjectImageObjects(ctx context.Context, minioRepo *minio.Repository,
 	thumbnailKey, err := minio.GenProjectImageThumbnailKey(projectId, imageUuid)
 	if err != nil {
 		return rpc_error.BadRequestDefault(err.Error())
+	}
+
+	if redisRepo != nil {
+		// 清除预签名 URL 缓存
+		_ = redisRepo.ClearPresignURL(ctx, originalKey)
+		_ = redisRepo.ClearPresignURL(ctx, thumbnailKey)
 	}
 
 	var removeErr error
