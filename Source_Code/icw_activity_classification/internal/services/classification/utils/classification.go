@@ -14,42 +14,43 @@ import (
 	"icw_activity_classification/internal/agent"
 )
 
-// ExecuteClassification 执行图像分类并返回任务代码列表和模型原始输出
+// ExecuteClassification 执行图像分类任务并返回检测任务代码列表和模型原始输出
 func ExecuteClassification(ctx context.Context, req *classificationpb.StartRequest, agentClient *agent.Client, imageSize int) ([]string, string, error) {
 	imageBytes, contentType, err := DownloadAndResizeImage(ctx, req.PresignGetUrl, imageSize)
 	if err != nil {
 		return nil, "", err
 	}
+
 	output, err := agentClient.Chat(ctx, agent.Message{
-		Text:        "图像已上传，请执行分类",
+		Text:        "图像已上传，请根据指令进行符合要求的输出。",
 		Image:       imageBytes,
 		ContentType: contentType,
 	})
 	if err != nil {
 		return nil, output, err
 	}
-	taskCodes, err := ParseTaskCodes(output)
+
+	taskCodes, err := parseTaskCodes(output)
+
 	return taskCodes, output, err
 }
 
-type classificationOutput struct {
-	TaskCodes []string `json:"task_codes"`
-}
-
-// ParseTaskCodes 从模型 JSON 输出中解析任务代码列表
-func ParseTaskCodes(output string) ([]string, error) {
+// parseTaskCodes 从模型 JSON 输出中解析检测任务代码列表
+func parseTaskCodes(output string) ([]string, error) {
 	output = strings.TrimSpace(output)
 	if output == "" {
-		return nil, errors.New("classification output is empty")
+		return nil, errors.New("classification output is required")
 	}
-	result := classificationOutput{}
+	result := struct {
+		TaskCodes []string `json:"task_codes"`
+	}{}
 	if err := json.Unmarshal([]byte(output), &result); err != nil {
 		return nil, err
 	}
 	return normalizeTaskCodes(result.TaskCodes)
 }
 
-// normalizeTaskCodes 标准化并去重任务代码
+// normalizeTaskCodes 标准化并去重检测任务代码
 func normalizeTaskCodes(taskCodes []string) ([]string, error) {
 	seen := map[activitypb.DetectionTaskCode_Value]struct{}{}
 	codes := make([]string, 0, len(taskCodes))

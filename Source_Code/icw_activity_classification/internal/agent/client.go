@@ -1,12 +1,10 @@
 package agent
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -14,18 +12,27 @@ import (
 )
 
 const (
+	// CozeFileUploadURL Coze 文件上传接口地址
 	CozeFileUploadURL = "https://api.coze.cn/v1/files/upload"
-	CozeChatURL       = "https://api.coze.cn/v3/chat"
-	SSEDataPrefix     = "data:"
-	SSEEventPrefix    = "event:"
-	SSEEventDone      = "done"
-	ChatEventDelta    = "conversation.message.delta"
+	// CozeChatURL Coze 对话接口地址
+	CozeChatURL = "https://api.coze.cn/v3/chat"
+	// SSEDataPrefix SSE 数据行前缀
+	SSEDataPrefix = "data:"
+	// SSEEventPrefix SSE 事件行前缀
+	SSEEventPrefix = "event:"
+	// SSEEventDone SSE 结束事件标识
+	SSEEventDone = "done"
+	// ChatEventDelta Coze 对话增量消息事件
+	ChatEventDelta = "conversation.message.delta"
+	// ChatEventComplete Coze 对话完成消息事件
 	ChatEventComplete = "conversation.message.completed"
-	ChatEventFailed   = "conversation.chat.failed"
+	// ChatEventFailed Coze 对话失败事件
+	ChatEventFailed = "conversation.chat.failed"
+	// MessageTypeAnswer Coze 智能体回答消息类型
 	MessageTypeAnswer = "answer"
 )
 
-// Client Agent 客户端
+// Client 智能体客户端
 type Client struct {
 	token  string
 	botId  string
@@ -33,14 +40,14 @@ type Client struct {
 	client *http.Client
 }
 
-// Message Agent 输入消息
+// Message 智能体输入消息
 type Message struct {
 	Text        string
 	Image       []byte
 	ContentType string
 }
 
-// NewClient 创建 Agent 客户端
+// NewClient 创建智能体客户端
 func NewClient(token, botId, userId string) *Client {
 	return &Client{
 		token:  token,
@@ -130,7 +137,7 @@ func (c *Client) uploadFile(ctx context.Context, image []byte, contentType strin
 
 	fileId := firstNotEmpty(uploadResp.Data.Id, uploadResp.Data.FileId, uploadResp.Id, uploadResp.FileId)
 	if fileId == "" {
-		return "", errors.New("agent file id is empty")
+		return "", errors.New("agent file id is required")
 	}
 
 	return fileId, nil
@@ -191,113 +198,4 @@ func (c *Client) streamChat(ctx context.Context, text, fileId string) (string, e
 	}
 
 	return readChatStream(response.Body)
-}
-
-// readChatStream 读取 SSE 响应
-func readChatStream(reader io.Reader) (string, error) {
-	scanner := bufio.NewScanner(reader)
-	scanner.Buffer(make([]byte, 1024), 2<<20)
-
-	event := ""
-	var builder strings.Builder
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, SSEEventPrefix) {
-			event = strings.TrimSpace(strings.TrimPrefix(line, SSEEventPrefix))
-			continue
-		}
-		if !strings.HasPrefix(line, SSEDataPrefix) {
-			continue
-		}
-		data := strings.TrimSpace(strings.TrimPrefix(line, SSEDataPrefix))
-		if data == "" || data == SSEEventDone {
-			continue
-		}
-		content, completedContent, err := parseChatEvent(event, data)
-		if err != nil {
-			return "", err
-		}
-		if completedContent != "" {
-			builder.Reset()
-			builder.WriteString(completedContent)
-			continue
-		}
-		builder.WriteString(content)
-	}
-	if err := scanner.Err(); err != nil {
-		return "", err
-	}
-	output := strings.TrimSpace(builder.String())
-	if output == "" {
-		return "", errors.New("agent output is empty")
-	}
-	return output, nil
-}
-
-// parseChatEvent 解析单条 SSE 事件数据
-func parseChatEvent(event, data string) (string, string, error) {
-	var textPayload string
-	if err := json.Unmarshal([]byte(data), &textPayload); err == nil {
-		switch event {
-		case ChatEventDelta:
-			return textPayload, "", nil
-		case ChatEventComplete:
-			return "", textPayload, nil
-		case ChatEventFailed:
-			return "", "", errors.New(firstNotEmpty(textPayload, "agent chat failed"))
-		default:
-			return "", "", nil
-		}
-	}
-
-	var payload struct {
-		Type      string `json:"type"`
-		Content   string `json:"content"`
-		LastError struct {
-			Code int    `json:"code"`
-			Msg  string `json:"msg"`
-		} `json:"last_error"`
-	}
-	if err := json.Unmarshal([]byte(data), &payload); err != nil {
-		return "", "", err
-	}
-	if event == ChatEventFailed || payload.LastError.Code != 0 {
-		return "", "", errors.New(firstNotEmpty(payload.LastError.Msg, "agent chat failed"))
-	}
-	if payload.Type != "" && payload.Type != MessageTypeAnswer {
-		return "", "", nil
-	}
-	switch event {
-	case ChatEventDelta:
-		return payload.Content, "", nil
-	case ChatEventComplete:
-		return "", payload.Content, nil
-	default:
-		return "", "", nil
-	}
-}
-
-// readAgentError 读取智能体接口错误响应
-func readAgentError(reader io.Reader, status string) error {
-	data, err := io.ReadAll(io.LimitReader(reader, 4096))
-	if err != nil {
-		return err
-	}
-	msg := strings.TrimSpace(string(data))
-	if msg == "" {
-		msg = status
-	}
-	return errors.New(msg)
-}
-
-// firstNotEmpty 返回第一个非空字符串
-func firstNotEmpty(values ...string) string {
-	for _, value := range values {
-		value = strings.TrimSpace(value)
-		if value != "" {
-			return value
-		}
-	}
-	return ""
 }
