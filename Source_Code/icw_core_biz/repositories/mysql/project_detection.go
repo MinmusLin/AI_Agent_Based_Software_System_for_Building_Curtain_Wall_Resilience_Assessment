@@ -546,6 +546,8 @@ func (r *Repository) GetProjectDetectionCorrosionResult(ctx context.Context, tas
 		corrosionRatio    sql.NullFloat64
 		regions           sql.NullString
 		runtimeSeconds    sql.NullFloat64
+		startedAt         sql.NullTime
+		finishedAt        sql.NullTime
 	)
 
 	if err := r.mysql.QueryRowContext(ctx, `
@@ -559,7 +561,9 @@ func (r *Repository) GetProjectDetectionCorrosionResult(ctx context.Context, tas
 			corrosion_pixels,
 			corrosion_ratio,
 			CAST(regions AS CHAR),
-			runtime_seconds
+			runtime_seconds,
+			started_at,
+			finished_at
 		FROM project_detection_corrosion_tasks
 		WHERE id = ?
 		LIMIT 1
@@ -574,6 +578,8 @@ func (r *Repository) GetProjectDetectionCorrosionResult(ctx context.Context, tas
 		&corrosionRatio,
 		&regions,
 		&runtimeSeconds,
+		&startedAt,
+		&finishedAt,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -592,6 +598,8 @@ func (r *Repository) GetProjectDetectionCorrosionResult(ctx context.Context, tas
 		return nil, err
 	}
 	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
+	result.StartedAt = utils.NullTimeString(startedAt)
+	result.FinishedAt = utils.NullTimeString(finishedAt)
 
 	return result, nil
 }
@@ -608,6 +616,8 @@ func (r *Repository) GetProjectDetectionCrackResult(ctx context.Context, taskId 
 		crackRatio     sql.NullFloat64
 		regions        sql.NullString
 		runtimeSeconds sql.NullFloat64
+		startedAt      sql.NullTime
+		finishedAt     sql.NullTime
 	)
 
 	if err := r.mysql.QueryRowContext(ctx, `
@@ -619,7 +629,9 @@ func (r *Repository) GetProjectDetectionCrackResult(ctx context.Context, taskId 
 			crack_pixels,
 			crack_ratio,
 			CAST(regions AS CHAR),
-			runtime_seconds
+			runtime_seconds,
+			started_at,
+			finished_at
 		FROM project_detection_crack_tasks
 		WHERE id = ?
 		LIMIT 1
@@ -632,6 +644,8 @@ func (r *Repository) GetProjectDetectionCrackResult(ctx context.Context, taskId 
 		&crackRatio,
 		&regions,
 		&runtimeSeconds,
+		&startedAt,
+		&finishedAt,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -648,6 +662,8 @@ func (r *Repository) GetProjectDetectionCrackResult(ctx context.Context, taskId 
 		return nil, err
 	}
 	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
+	result.StartedAt = utils.NullTimeString(startedAt)
+	result.FinishedAt = utils.NullTimeString(finishedAt)
 
 	return result, nil
 }
@@ -664,6 +680,8 @@ func (r *Repository) GetProjectDetectionStainResult(ctx context.Context, taskId 
 		maxStainRatio     sql.NullFloat64
 		regions           sql.NullString
 		runtimeSeconds    sql.NullFloat64
+		startedAt         sql.NullTime
+		finishedAt        sql.NullTime
 	)
 
 	if err := r.mysql.QueryRowContext(ctx, `
@@ -675,7 +693,9 @@ func (r *Repository) GetProjectDetectionStainResult(ctx context.Context, taskId 
 			average_stain_ratio,
 			max_stain_ratio,
 			CAST(regions AS CHAR),
-			runtime_seconds
+			runtime_seconds,
+			started_at,
+			finished_at
 		FROM project_detection_stain_tasks
 		WHERE id = ?
 		LIMIT 1
@@ -688,6 +708,8 @@ func (r *Repository) GetProjectDetectionStainResult(ctx context.Context, taskId 
 		&maxStainRatio,
 		&regions,
 		&runtimeSeconds,
+		&startedAt,
+		&finishedAt,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -704,6 +726,8 @@ func (r *Repository) GetProjectDetectionStainResult(ctx context.Context, taskId 
 		return nil, err
 	}
 	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
+	result.StartedAt = utils.NullTimeString(startedAt)
+	result.FinishedAt = utils.NullTimeString(finishedAt)
 
 	return result, nil
 }
@@ -718,6 +742,8 @@ func (r *Repository) GetProjectDetectionFlatnessResult(ctx context.Context, task
 		unevenCount    sql.NullInt64
 		regions        sql.NullString
 		runtimeSeconds sql.NullFloat64
+		startedAt      sql.NullTime
+		finishedAt     sql.NullTime
 	)
 
 	if err := r.mysql.QueryRowContext(ctx, `
@@ -727,7 +753,9 @@ func (r *Repository) GetProjectDetectionFlatnessResult(ctx context.Context, task
 			result,
 			uneven_count,
 			CAST(regions AS CHAR),
-			runtime_seconds
+			runtime_seconds,
+			started_at,
+			finished_at
 		FROM project_detection_flatness_tasks
 		WHERE id = ?
 		LIMIT 1
@@ -738,6 +766,8 @@ func (r *Repository) GetProjectDetectionFlatnessResult(ctx context.Context, task
 		&unevenCount,
 		&regions,
 		&runtimeSeconds,
+		&startedAt,
+		&finishedAt,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -752,6 +782,8 @@ func (r *Repository) GetProjectDetectionFlatnessResult(ctx context.Context, task
 		return nil, err
 	}
 	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
+	result.StartedAt = utils.NullTimeString(startedAt)
+	result.FinishedAt = utils.NullTimeString(finishedAt)
 
 	return result, nil
 }
@@ -765,6 +797,8 @@ func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, task
 		hasSpalling    sql.NullBool
 		confidence     sql.NullFloat64
 		runtimeSeconds sql.NullFloat64
+		startedAt      sql.NullTime
+		finishedAt     sql.NullTime
 	)
 
 	if err := r.mysql.QueryRowContext(ctx, `
@@ -773,7 +807,9 @@ func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, task
 			status,
 			has_spalling,
 			confidence,
-			runtime_seconds
+			runtime_seconds,
+			started_at,
+			finished_at
 		FROM project_detection_spalling_tasks
 		WHERE id = ?
 		LIMIT 1
@@ -783,6 +819,8 @@ func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, task
 		&hasSpalling,
 		&confidence,
 		&runtimeSeconds,
+		&startedAt,
+		&finishedAt,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -794,6 +832,8 @@ func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, task
 	result.HasSpalling = utils.NullBool(hasSpalling)
 	result.Confidence = utils.NullFloat64(confidence)
 	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
+	result.StartedAt = utils.NullTimeString(startedAt)
+	result.FinishedAt = utils.NullTimeString(finishedAt)
 
 	return result, nil
 }
@@ -1205,18 +1245,24 @@ func (r *Repository) queryProjectDetectionSubReportJSON(ctx context.Context, tas
 // GetProjectDetectionSummaryTypedResult 按总结任务 ID 查询图像检测总结结果
 func (r *Repository) GetProjectDetectionSummaryTypedResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionSummaryResult, error) {
 	result := &commonpb.ProjectDetectionSummaryResult{}
-	var status string
+	var (
+		status     string
+		startedAt  sql.NullTime
+		finishedAt sql.NullTime
+	)
 	if err := r.mysql.QueryRowContext(ctx, `
-		SELECT uuid, status, CAST(COALESCE(result_json, JSON_OBJECT()) AS CHAR)
+		SELECT uuid, status, CAST(COALESCE(result_json, JSON_OBJECT()) AS CHAR), started_at, finished_at
 		FROM project_detection_summary_tasks
 		WHERE id = ?
 		LIMIT 1
-	`, taskId).Scan(&result.TaskUuid, &status, &result.ResultJson); err != nil {
+	`, taskId).Scan(&result.TaskUuid, &status, &result.ResultJson, &startedAt, &finishedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
 	}
 	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
+	result.StartedAt = utils.NullTimeString(startedAt)
+	result.FinishedAt = utils.NullTimeString(finishedAt)
 	return result, nil
 }
