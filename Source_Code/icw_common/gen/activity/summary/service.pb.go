@@ -123,7 +123,7 @@ func (*StartDetectionSummaryResponse) Descriptor() ([]byte, []int) {
 type StartProjectSummaryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ReportJson    string                 `protobuf:"bytes,2,opt,name=report_json,json=reportJson,proto3" json:"report_json,omitempty"`
+	SourceUrl     string                 `protobuf:"bytes,2,opt,name=source_url,json=sourceUrl,proto3" json:"source_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -165,9 +165,9 @@ func (x *StartProjectSummaryRequest) GetProjectId() string {
 	return ""
 }
 
-func (x *StartProjectSummaryRequest) GetReportJson() string {
+func (x *StartProjectSummaryRequest) GetSourceUrl() string {
 	if x != nil {
-		return x.ReportJson
+		return x.SourceUrl
 	}
 	return ""
 }
@@ -220,12 +220,12 @@ const file_activity_summary_service_proto_rawDesc = "" +
 	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12\x1f\n" +
 	"\vreport_json\x18\x03 \x01(\tR\n" +
 	"reportJson\"\x1f\n" +
-	"\x1dStartDetectionSummaryResponse\"\\\n" +
+	"\x1dStartDetectionSummaryResponse\"Z\n" +
 	"\x1aStartProjectSummaryRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1f\n" +
-	"\vreport_json\x18\x02 \x01(\tR\n" +
-	"reportJson\"\x1d\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1d\n" +
+	"\n" +
+	"source_url\x18\x02 \x01(\tR\tsourceUrl\"\x1d\n" +
 	"\x1bStartProjectSummaryResponse2\x8f\x02\n" +
 	"\x0eSummaryService\x12\x80\x01\n" +
 	"\x15StartDetectionSummary\x122.icw.activity.summary.StartDetectionSummaryRequest\x1a3.icw.activity.summary.StartDetectionSummaryResponse\x12z\n" +

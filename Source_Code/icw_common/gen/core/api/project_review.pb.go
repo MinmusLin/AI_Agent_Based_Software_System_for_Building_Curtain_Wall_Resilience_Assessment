@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: core/biz/project_review.proto
+// source: core/api/project_review.proto
 
-package bizpb
+package apipb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -25,16 +25,15 @@ const (
 // GetProjectDetectionReview 请求结构体
 type GetProjectDetectionReviewRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	TaskUuid      string                 `protobuf:"bytes,3,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
+	TaskUuid      string                 `protobuf:"bytes,2,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`    // 从 HTTP Query 获取
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetProjectDetectionReviewRequest) Reset() {
 	*x = GetProjectDetectionReviewRequest{}
-	mi := &file_core_biz_project_review_proto_msgTypes[0]
+	mi := &file_core_api_project_review_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +45,7 @@ func (x *GetProjectDetectionReviewRequest) String() string {
 func (*GetProjectDetectionReviewRequest) ProtoMessage() {}
 
 func (x *GetProjectDetectionReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_review_proto_msgTypes[0]
+	mi := &file_core_api_project_review_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,21 +58,14 @@ func (x *GetProjectDetectionReviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectDetectionReviewRequest.ProtoReflect.Descriptor instead.
 func (*GetProjectDetectionReviewRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_review_proto_rawDescGZIP(), []int{0}
+	return file_core_api_project_review_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetProjectDetectionReviewRequest) GetUserId() uint64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *GetProjectDetectionReviewRequest) GetProjectId() uint64 {
+func (x *GetProjectDetectionReviewRequest) GetProjectId() string {
 	if x != nil {
 		return x.ProjectId
 	}
-	return 0
+	return ""
 }
 
 func (x *GetProjectDetectionReviewRequest) GetTaskUuid() string {
@@ -93,7 +85,7 @@ type GetProjectDetectionReviewResponse struct {
 
 func (x *GetProjectDetectionReviewResponse) Reset() {
 	*x = GetProjectDetectionReviewResponse{}
-	mi := &file_core_biz_project_review_proto_msgTypes[1]
+	mi := &file_core_api_project_review_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -105,7 +97,7 @@ func (x *GetProjectDetectionReviewResponse) String() string {
 func (*GetProjectDetectionReviewResponse) ProtoMessage() {}
 
 func (x *GetProjectDetectionReviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_review_proto_msgTypes[1]
+	mi := &file_core_api_project_review_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -118,7 +110,7 @@ func (x *GetProjectDetectionReviewResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetProjectDetectionReviewResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectDetectionReviewResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_review_proto_rawDescGZIP(), []int{1}
+	return file_core_api_project_review_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetProjectDetectionReviewResponse) GetReview() *common.ProjectDetectionReview {
@@ -131,18 +123,17 @@ func (x *GetProjectDetectionReviewResponse) GetReview() *common.ProjectDetection
 // UpdateProjectDetectionReview 请求结构体
 type UpdateProjectDetectionReviewRequest struct {
 	state         protoimpl.MessageState                     `protogen:"open.v1"`
-	UserId        uint64                                     `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ProjectId     uint64                                     `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	TaskUuid      string                                     `protobuf:"bytes,3,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
-	Verdict       common.ProjectDetectionReviewVerdict_Value `protobuf:"varint,4,opt,name=verdict,proto3,enum=icw.core.common.ProjectDetectionReviewVerdict_Value" json:"verdict,omitempty"`
-	Comment       string                                     `protobuf:"bytes,5,opt,name=comment,proto3" json:"comment,omitempty"`
+	ProjectId     string                                     `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	TaskUuid      string                                     `protobuf:"bytes,2,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	Verdict       common.ProjectDetectionReviewVerdict_Value `protobuf:"varint,3,opt,name=verdict,proto3,enum=icw.core.common.ProjectDetectionReviewVerdict_Value" json:"verdict,omitempty"`
+	Comment       string                                     `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateProjectDetectionReviewRequest) Reset() {
 	*x = UpdateProjectDetectionReviewRequest{}
-	mi := &file_core_biz_project_review_proto_msgTypes[2]
+	mi := &file_core_api_project_review_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -154,7 +145,7 @@ func (x *UpdateProjectDetectionReviewRequest) String() string {
 func (*UpdateProjectDetectionReviewRequest) ProtoMessage() {}
 
 func (x *UpdateProjectDetectionReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_review_proto_msgTypes[2]
+	mi := &file_core_api_project_review_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -167,21 +158,14 @@ func (x *UpdateProjectDetectionReviewRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use UpdateProjectDetectionReviewRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProjectDetectionReviewRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_review_proto_rawDescGZIP(), []int{2}
+	return file_core_api_project_review_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *UpdateProjectDetectionReviewRequest) GetUserId() uint64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *UpdateProjectDetectionReviewRequest) GetProjectId() uint64 {
+func (x *UpdateProjectDetectionReviewRequest) GetProjectId() string {
 	if x != nil {
 		return x.ProjectId
 	}
-	return 0
+	return ""
 }
 
 func (x *UpdateProjectDetectionReviewRequest) GetTaskUuid() string {
@@ -215,7 +199,7 @@ type UpdateProjectDetectionReviewResponse struct {
 
 func (x *UpdateProjectDetectionReviewResponse) Reset() {
 	*x = UpdateProjectDetectionReviewResponse{}
-	mi := &file_core_biz_project_review_proto_msgTypes[3]
+	mi := &file_core_api_project_review_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -227,7 +211,7 @@ func (x *UpdateProjectDetectionReviewResponse) String() string {
 func (*UpdateProjectDetectionReviewResponse) ProtoMessage() {}
 
 func (x *UpdateProjectDetectionReviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_review_proto_msgTypes[3]
+	mi := &file_core_api_project_review_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -240,7 +224,7 @@ func (x *UpdateProjectDetectionReviewResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use UpdateProjectDetectionReviewResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProjectDetectionReviewResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_review_proto_rawDescGZIP(), []int{3}
+	return file_core_api_project_review_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *UpdateProjectDetectionReviewResponse) GetReview() *common.ProjectDetectionReview {
@@ -250,87 +234,78 @@ func (x *UpdateProjectDetectionReviewResponse) GetReview() *common.ProjectDetect
 	return nil
 }
 
-var File_core_biz_project_review_proto protoreflect.FileDescriptor
+var File_core_api_project_review_proto protoreflect.FileDescriptor
 
-const file_core_biz_project_review_proto_rawDesc = "" +
+const file_core_api_project_review_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcore/biz/project_review.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"w\n" +
-	" GetProjectDetectionReviewRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
+	"\x1dcore/api/project_review.proto\x12\ficw.core.api\x1a\x11core/common.proto\"^\n" +
+	" GetProjectDetectionReviewRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\x04R\tprojectId\x12\x1b\n" +
-	"\ttask_uuid\x18\x03 \x01(\tR\btaskUuid\"d\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1b\n" +
+	"\ttask_uuid\x18\x02 \x01(\tR\btaskUuid\"d\n" +
 	"!GetProjectDetectionReviewResponse\x12?\n" +
-	"\x06review\x18\x01 \x01(\v2'.icw.core.common.ProjectDetectionReviewR\x06review\"\xe4\x01\n" +
-	"#UpdateProjectDetectionReviewRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
+	"\x06review\x18\x01 \x01(\v2'.icw.core.common.ProjectDetectionReviewR\x06review\"\xcb\x01\n" +
+	"#UpdateProjectDetectionReviewRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\x04R\tprojectId\x12\x1b\n" +
-	"\ttask_uuid\x18\x03 \x01(\tR\btaskUuid\x12N\n" +
-	"\averdict\x18\x04 \x01(\x0e24.icw.core.common.ProjectDetectionReviewVerdict.ValueR\averdict\x12\x18\n" +
-	"\acomment\x18\x05 \x01(\tR\acomment\"g\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1b\n" +
+	"\ttask_uuid\x18\x02 \x01(\tR\btaskUuid\x12N\n" +
+	"\averdict\x18\x03 \x01(\x0e24.icw.core.common.ProjectDetectionReviewVerdict.ValueR\averdict\x12\x18\n" +
+	"\acomment\x18\x04 \x01(\tR\acomment\"g\n" +
 	"$UpdateProjectDetectionReviewResponse\x12?\n" +
-	"\x06review\x18\x01 \x01(\v2'.icw.core.common.ProjectDetectionReviewR\x06review2\x9c\x02\n" +
-	"\x14ProjectReviewService\x12|\n" +
-	"\x19GetProjectDetectionReview\x12..icw.core.biz.GetProjectDetectionReviewRequest\x1a/.icw.core.biz.GetProjectDetectionReviewResponse\x12\x85\x01\n" +
-	"\x1cUpdateProjectDetectionReview\x121.icw.core.biz.UpdateProjectDetectionReviewRequest\x1a2.icw.core.biz.UpdateProjectDetectionReviewResponseB\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
+	"\x06review\x18\x01 \x01(\v2'.icw.core.common.ProjectDetectionReviewR\x06reviewB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
 
 var (
-	file_core_biz_project_review_proto_rawDescOnce sync.Once
-	file_core_biz_project_review_proto_rawDescData []byte
+	file_core_api_project_review_proto_rawDescOnce sync.Once
+	file_core_api_project_review_proto_rawDescData []byte
 )
 
-func file_core_biz_project_review_proto_rawDescGZIP() []byte {
-	file_core_biz_project_review_proto_rawDescOnce.Do(func() {
-		file_core_biz_project_review_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_core_biz_project_review_proto_rawDesc), len(file_core_biz_project_review_proto_rawDesc)))
+func file_core_api_project_review_proto_rawDescGZIP() []byte {
+	file_core_api_project_review_proto_rawDescOnce.Do(func() {
+		file_core_api_project_review_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_core_api_project_review_proto_rawDesc), len(file_core_api_project_review_proto_rawDesc)))
 	})
-	return file_core_biz_project_review_proto_rawDescData
+	return file_core_api_project_review_proto_rawDescData
 }
 
-var file_core_biz_project_review_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_core_biz_project_review_proto_goTypes = []any{
-	(*GetProjectDetectionReviewRequest)(nil),        // 0: icw.core.biz.GetProjectDetectionReviewRequest
-	(*GetProjectDetectionReviewResponse)(nil),       // 1: icw.core.biz.GetProjectDetectionReviewResponse
-	(*UpdateProjectDetectionReviewRequest)(nil),     // 2: icw.core.biz.UpdateProjectDetectionReviewRequest
-	(*UpdateProjectDetectionReviewResponse)(nil),    // 3: icw.core.biz.UpdateProjectDetectionReviewResponse
+var file_core_api_project_review_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_core_api_project_review_proto_goTypes = []any{
+	(*GetProjectDetectionReviewRequest)(nil),        // 0: icw.core.api.GetProjectDetectionReviewRequest
+	(*GetProjectDetectionReviewResponse)(nil),       // 1: icw.core.api.GetProjectDetectionReviewResponse
+	(*UpdateProjectDetectionReviewRequest)(nil),     // 2: icw.core.api.UpdateProjectDetectionReviewRequest
+	(*UpdateProjectDetectionReviewResponse)(nil),    // 3: icw.core.api.UpdateProjectDetectionReviewResponse
 	(*common.ProjectDetectionReview)(nil),           // 4: icw.core.common.ProjectDetectionReview
 	(common.ProjectDetectionReviewVerdict_Value)(0), // 5: icw.core.common.ProjectDetectionReviewVerdict.Value
 }
-var file_core_biz_project_review_proto_depIdxs = []int32{
-	4, // 0: icw.core.biz.GetProjectDetectionReviewResponse.review:type_name -> icw.core.common.ProjectDetectionReview
-	5, // 1: icw.core.biz.UpdateProjectDetectionReviewRequest.verdict:type_name -> icw.core.common.ProjectDetectionReviewVerdict.Value
-	4, // 2: icw.core.biz.UpdateProjectDetectionReviewResponse.review:type_name -> icw.core.common.ProjectDetectionReview
-	0, // 3: icw.core.biz.ProjectReviewService.GetProjectDetectionReview:input_type -> icw.core.biz.GetProjectDetectionReviewRequest
-	2, // 4: icw.core.biz.ProjectReviewService.UpdateProjectDetectionReview:input_type -> icw.core.biz.UpdateProjectDetectionReviewRequest
-	1, // 5: icw.core.biz.ProjectReviewService.GetProjectDetectionReview:output_type -> icw.core.biz.GetProjectDetectionReviewResponse
-	3, // 6: icw.core.biz.ProjectReviewService.UpdateProjectDetectionReview:output_type -> icw.core.biz.UpdateProjectDetectionReviewResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
+var file_core_api_project_review_proto_depIdxs = []int32{
+	4, // 0: icw.core.api.GetProjectDetectionReviewResponse.review:type_name -> icw.core.common.ProjectDetectionReview
+	5, // 1: icw.core.api.UpdateProjectDetectionReviewRequest.verdict:type_name -> icw.core.common.ProjectDetectionReviewVerdict.Value
+	4, // 2: icw.core.api.UpdateProjectDetectionReviewResponse.review:type_name -> icw.core.common.ProjectDetectionReview
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_core_biz_project_review_proto_init() }
-func file_core_biz_project_review_proto_init() {
-	if File_core_biz_project_review_proto != nil {
+func init() { file_core_api_project_review_proto_init() }
+func file_core_api_project_review_proto_init() {
+	if File_core_api_project_review_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_project_review_proto_rawDesc), len(file_core_biz_project_review_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_project_review_proto_rawDesc), len(file_core_api_project_review_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
-		GoTypes:           file_core_biz_project_review_proto_goTypes,
-		DependencyIndexes: file_core_biz_project_review_proto_depIdxs,
-		MessageInfos:      file_core_biz_project_review_proto_msgTypes,
+		GoTypes:           file_core_api_project_review_proto_goTypes,
+		DependencyIndexes: file_core_api_project_review_proto_depIdxs,
+		MessageInfos:      file_core_api_project_review_proto_msgTypes,
 	}.Build()
-	File_core_biz_project_review_proto = out.File
-	file_core_biz_project_review_proto_goTypes = nil
-	file_core_biz_project_review_proto_depIdxs = nil
+	File_core_api_project_review_proto = out.File
+	file_core_api_project_review_proto_goTypes = nil
+	file_core_api_project_review_proto_depIdxs = nil
 }

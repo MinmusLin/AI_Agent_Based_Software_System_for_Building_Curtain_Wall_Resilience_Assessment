@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ProjectReportService_GetProjectReport_FullMethodName           = "/icw.core.biz.ProjectReportService/GetProjectReport"
 	ProjectReportService_ReportProjectSummaryResult_FullMethodName = "/icw.core.biz.ProjectReportService/ReportProjectSummaryResult"
 )
 
@@ -28,6 +29,8 @@ const (
 //
 // 评估报告 RPC 服务
 type ProjectReportServiceClient interface {
+	// 获取项目评估报告
+	GetProjectReport(ctx context.Context, in *GetProjectReportRequest, opts ...grpc.CallOption) (*GetProjectReportResponse, error)
 	// 上报项目总结结果
 	ReportProjectSummaryResult(ctx context.Context, in *ReportProjectSummaryResultRequest, opts ...grpc.CallOption) (*ReportProjectSummaryResultResponse, error)
 }
@@ -38,6 +41,16 @@ type projectReportServiceClient struct {
 
 func NewProjectReportServiceClient(cc grpc.ClientConnInterface) ProjectReportServiceClient {
 	return &projectReportServiceClient{cc}
+}
+
+func (c *projectReportServiceClient) GetProjectReport(ctx context.Context, in *GetProjectReportRequest, opts ...grpc.CallOption) (*GetProjectReportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProjectReportResponse)
+	err := c.cc.Invoke(ctx, ProjectReportService_GetProjectReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *projectReportServiceClient) ReportProjectSummaryResult(ctx context.Context, in *ReportProjectSummaryResultRequest, opts ...grpc.CallOption) (*ReportProjectSummaryResultResponse, error) {
@@ -56,6 +69,8 @@ func (c *projectReportServiceClient) ReportProjectSummaryResult(ctx context.Cont
 //
 // 评估报告 RPC 服务
 type ProjectReportServiceServer interface {
+	// 获取项目评估报告
+	GetProjectReport(context.Context, *GetProjectReportRequest) (*GetProjectReportResponse, error)
 	// 上报项目总结结果
 	ReportProjectSummaryResult(context.Context, *ReportProjectSummaryResultRequest) (*ReportProjectSummaryResultResponse, error)
 	mustEmbedUnimplementedProjectReportServiceServer()
@@ -68,6 +83,9 @@ type ProjectReportServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectReportServiceServer struct{}
 
+func (UnimplementedProjectReportServiceServer) GetProjectReport(context.Context, *GetProjectReportRequest) (*GetProjectReportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProjectReport not implemented")
+}
 func (UnimplementedProjectReportServiceServer) ReportProjectSummaryResult(context.Context, *ReportProjectSummaryResultRequest) (*ReportProjectSummaryResultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReportProjectSummaryResult not implemented")
 }
@@ -90,6 +108,24 @@ func RegisterProjectReportServiceServer(s grpc.ServiceRegistrar, srv ProjectRepo
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ProjectReportService_ServiceDesc, srv)
+}
+
+func _ProjectReportService_GetProjectReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProjectReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectReportServiceServer).GetProjectReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectReportService_GetProjectReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectReportServiceServer).GetProjectReport(ctx, req.(*GetProjectReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ProjectReportService_ReportProjectSummaryResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -117,6 +153,10 @@ var ProjectReportService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "icw.core.biz.ProjectReportService",
 	HandlerType: (*ProjectReportServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetProjectReport",
+			Handler:    _ProjectReportService_GetProjectReport_Handler,
+		},
 		{
 			MethodName: "ReportProjectSummaryResult",
 			Handler:    _ProjectReportService_ReportProjectSummaryResult_Handler,

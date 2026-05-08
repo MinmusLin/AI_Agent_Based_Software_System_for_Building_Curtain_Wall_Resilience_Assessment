@@ -79,11 +79,32 @@ const ProjectDetectionSubTaskStatus_Failed = common.ProjectDetectionSubTaskStatu
 var ProjectDetectionSubTaskStatus_Value_name = common.ProjectDetectionSubTaskStatus_Value_name
 var ProjectDetectionSubTaskStatus_Value_value = common.ProjectDetectionSubTaskStatus_Value_value
 
+type ProjectDetectionReviewVerdict_Value = common.ProjectDetectionReviewVerdict_Value
+
+const ProjectDetectionReviewVerdict_Unknown = common.ProjectDetectionReviewVerdict_Unknown
+const ProjectDetectionReviewVerdict_Accurate = common.ProjectDetectionReviewVerdict_Accurate
+const ProjectDetectionReviewVerdict_Inaccurate = common.ProjectDetectionReviewVerdict_Inaccurate
+
+var ProjectDetectionReviewVerdict_Value_name = common.ProjectDetectionReviewVerdict_Value_name
+var ProjectDetectionReviewVerdict_Value_value = common.ProjectDetectionReviewVerdict_Value_value
+
+type ProjectReportStatus_Value = common.ProjectReportStatus_Value
+
+const ProjectReportStatus_Unknown = common.ProjectReportStatus_Unknown
+const ProjectReportStatus_Pending = common.ProjectReportStatus_Pending
+const ProjectReportStatus_Succeeded = common.ProjectReportStatus_Succeeded
+const ProjectReportStatus_Failed = common.ProjectReportStatus_Failed
+
+var ProjectReportStatus_Value_name = common.ProjectReportStatus_Value_name
+var ProjectReportStatus_Value_value = common.ProjectReportStatus_Value_value
+
 type ProjectStatus = common.ProjectStatus
 type ProjectProgress = common.ProjectProgress
 type ProjectImageStatus = common.ProjectImageStatus
 type ProjectDetectionTaskStatus = common.ProjectDetectionTaskStatus
 type ProjectDetectionSubTaskStatus = common.ProjectDetectionSubTaskStatus
+type ProjectDetectionReviewVerdict = common.ProjectDetectionReviewVerdict
+type ProjectReportStatus = common.ProjectReportStatus
 type User = common.User
 type ProjectImage = common.ProjectImage
 type UploadProjectImageResult = common.UploadProjectImageResult
@@ -99,6 +120,8 @@ type ProjectDetectionFlatnessRegion = common.ProjectDetectionFlatnessRegion
 type ProjectDetectionFlatnessResult = common.ProjectDetectionFlatnessResult
 type ProjectDetectionSpallingResult = common.ProjectDetectionSpallingResult
 type ProjectDetectionSummaryResult = common.ProjectDetectionSummaryResult
+type ProjectDetectionReview = common.ProjectDetectionReview
+type ProjectReport = common.ProjectReport
 
 // 项目信息结构体
 type Project struct {
@@ -650,6 +673,83 @@ func (x *ProjectDetectionTaskStatusChangedMessage) GetOccurredAt() string {
 	return ""
 }
 
+// 项目评估报告状态变化 WebSocket 消息结构体
+type ProjectReportStatusChangedMessage struct {
+	state         protoimpl.MessageState           `protogen:"open.v1"`
+	Type          string                           `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	ProjectId     string                           `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ReportUuid    string                           `protobuf:"bytes,3,opt,name=report_uuid,json=reportUuid,proto3" json:"report_uuid,omitempty"`
+	Status        common.ProjectReportStatus_Value `protobuf:"varint,4,opt,name=status,proto3,enum=icw.core.common.ProjectReportStatus_Value" json:"status,omitempty"`
+	OccurredAt    string                           `protobuf:"bytes,5,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectReportStatusChangedMessage) Reset() {
+	*x = ProjectReportStatusChangedMessage{}
+	mi := &file_core_api_common_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectReportStatusChangedMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectReportStatusChangedMessage) ProtoMessage() {}
+
+func (x *ProjectReportStatusChangedMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_common_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectReportStatusChangedMessage.ProtoReflect.Descriptor instead.
+func (*ProjectReportStatusChangedMessage) Descriptor() ([]byte, []int) {
+	return file_core_api_common_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ProjectReportStatusChangedMessage) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *ProjectReportStatusChangedMessage) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *ProjectReportStatusChangedMessage) GetReportUuid() string {
+	if x != nil {
+		return x.ReportUuid
+	}
+	return ""
+}
+
+func (x *ProjectReportStatusChangedMessage) GetStatus() common.ProjectReportStatus_Value {
+	if x != nil {
+		return x.Status
+	}
+	return common.ProjectReportStatus_Value(0)
+}
+
+func (x *ProjectReportStatusChangedMessage) GetOccurredAt() string {
+	if x != nil {
+		return x.OccurredAt
+	}
+	return ""
+}
+
 var File_core_api_common_proto protoreflect.FileDescriptor
 
 const file_core_api_common_proto_rawDesc = "" +
@@ -714,6 +814,15 @@ const file_core_api_common_proto_rawDesc = "" +
 	"\n" +
 	"sub_status\x18\b \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\x12\x1f\n" +
 	"\voccurred_at\x18\t \x01(\tR\n" +
+	"occurredAt\"\xdc\x01\n" +
+	"!ProjectReportStatusChangedMessage\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1f\n" +
+	"\vreport_uuid\x18\x03 \x01(\tR\n" +
+	"reportUuid\x12B\n" +
+	"\x06status\x18\x04 \x01(\x0e2*.icw.core.common.ProjectReportStatus.ValueR\x06status\x12\x1f\n" +
+	"\voccurred_at\x18\x05 \x01(\tR\n" +
 	"occurredAtB\x1fZ\x1dicw_common/gen/core/api;apipbP\x00b\x06proto3"
 
 var (
@@ -728,7 +837,7 @@ func file_core_api_common_proto_rawDescGZIP() []byte {
 	return file_core_api_common_proto_rawDescData
 }
 
-var file_core_api_common_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_core_api_common_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_core_api_common_proto_goTypes = []any{
 	(*Project)(nil),                                  // 0: icw.core.api.Project
 	(*ProjectListItem)(nil),                          // 1: icw.core.api.ProjectListItem
@@ -736,23 +845,26 @@ var file_core_api_common_proto_goTypes = []any{
 	(*UploadProjectImageItem)(nil),                   // 3: icw.core.api.UploadProjectImageItem
 	(*ProjectImageStatusChangedMessage)(nil),         // 4: icw.core.api.ProjectImageStatusChangedMessage
 	(*ProjectDetectionTaskStatusChangedMessage)(nil), // 5: icw.core.api.ProjectDetectionTaskStatusChangedMessage
-	(common.ProjectProgress_Value)(0),                // 6: icw.core.common.ProjectProgress.Value
-	(*common.ProjectImage)(nil),                      // 7: icw.core.common.ProjectImage
-	(common.ProjectDetectionTaskStatus_Value)(0),     // 8: icw.core.common.ProjectDetectionTaskStatus.Value
-	(common.ProjectDetectionSubTaskStatus_Value)(0),  // 9: icw.core.common.ProjectDetectionSubTaskStatus.Value
+	(*ProjectReportStatusChangedMessage)(nil),        // 6: icw.core.api.ProjectReportStatusChangedMessage
+	(common.ProjectProgress_Value)(0),                // 7: icw.core.common.ProjectProgress.Value
+	(*common.ProjectImage)(nil),                      // 8: icw.core.common.ProjectImage
+	(common.ProjectDetectionTaskStatus_Value)(0),     // 9: icw.core.common.ProjectDetectionTaskStatus.Value
+	(common.ProjectDetectionSubTaskStatus_Value)(0),  // 10: icw.core.common.ProjectDetectionSubTaskStatus.Value
+	(common.ProjectReportStatus_Value)(0),            // 11: icw.core.common.ProjectReportStatus.Value
 }
 var file_core_api_common_proto_depIdxs = []int32{
-	6, // 0: icw.core.api.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
-	6, // 1: icw.core.api.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
-	7, // 2: icw.core.api.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
-	7, // 3: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
-	8, // 4: icw.core.api.ProjectDetectionTaskStatusChangedMessage.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
-	9, // 5: icw.core.api.ProjectDetectionTaskStatusChangedMessage.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	7,  // 0: icw.core.api.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
+	7,  // 1: icw.core.api.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
+	8,  // 2: icw.core.api.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
+	8,  // 3: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
+	9,  // 4: icw.core.api.ProjectDetectionTaskStatusChangedMessage.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
+	10, // 5: icw.core.api.ProjectDetectionTaskStatusChangedMessage.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	11, // 6: icw.core.api.ProjectReportStatusChangedMessage.status:type_name -> icw.core.common.ProjectReportStatus.Value
+	7,  // [7:7] is the sub-list for method output_type
+	7,  // [7:7] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_core_api_common_proto_init() }
@@ -766,7 +878,7 @@ func file_core_api_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_common_proto_rawDesc), len(file_core_api_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

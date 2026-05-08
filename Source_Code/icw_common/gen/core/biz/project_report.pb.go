@@ -10,6 +10,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	activity "icw_common/gen/activity"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -21,6 +22,104 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// GetProjectReport 请求结构体
+type GetProjectReportRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectReportRequest) Reset() {
+	*x = GetProjectReportRequest{}
+	mi := &file_core_biz_project_report_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectReportRequest) ProtoMessage() {}
+
+func (x *GetProjectReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_report_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectReportRequest.ProtoReflect.Descriptor instead.
+func (*GetProjectReportRequest) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_report_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetProjectReportRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *GetProjectReportRequest) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
+// GetProjectReport 响应结构体
+type GetProjectReportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Report        *common.ProjectReport  `protobuf:"bytes,1,opt,name=report,proto3" json:"report,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectReportResponse) Reset() {
+	*x = GetProjectReportResponse{}
+	mi := &file_core_biz_project_report_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectReportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectReportResponse) ProtoMessage() {}
+
+func (x *GetProjectReportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_report_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectReportResponse.ProtoReflect.Descriptor instead.
+func (*GetProjectReportResponse) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_report_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GetProjectReportResponse) GetReport() *common.ProjectReport {
+	if x != nil {
+		return x.Report
+	}
+	return nil
+}
 
 // ReportProjectSummaryResult 请求结构体
 type ReportProjectSummaryResultRequest struct {
@@ -35,7 +134,7 @@ type ReportProjectSummaryResultRequest struct {
 
 func (x *ReportProjectSummaryResultRequest) Reset() {
 	*x = ReportProjectSummaryResultRequest{}
-	mi := &file_core_biz_project_report_proto_msgTypes[0]
+	mi := &file_core_biz_project_report_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +146,7 @@ func (x *ReportProjectSummaryResultRequest) String() string {
 func (*ReportProjectSummaryResultRequest) ProtoMessage() {}
 
 func (x *ReportProjectSummaryResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_report_proto_msgTypes[0]
+	mi := &file_core_biz_project_report_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +159,7 @@ func (x *ReportProjectSummaryResultRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ReportProjectSummaryResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportProjectSummaryResultRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_report_proto_rawDescGZIP(), []int{0}
+	return file_core_biz_project_report_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ReportProjectSummaryResultRequest) GetProjectId() uint64 {
@@ -100,7 +199,7 @@ type ReportProjectSummaryResultResponse struct {
 
 func (x *ReportProjectSummaryResultResponse) Reset() {
 	*x = ReportProjectSummaryResultResponse{}
-	mi := &file_core_biz_project_report_proto_msgTypes[1]
+	mi := &file_core_biz_project_report_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -112,7 +211,7 @@ func (x *ReportProjectSummaryResultResponse) String() string {
 func (*ReportProjectSummaryResultResponse) ProtoMessage() {}
 
 func (x *ReportProjectSummaryResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_report_proto_msgTypes[1]
+	mi := &file_core_biz_project_report_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -125,14 +224,20 @@ func (x *ReportProjectSummaryResultResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ReportProjectSummaryResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportProjectSummaryResultResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_report_proto_rawDescGZIP(), []int{1}
+	return file_core_biz_project_report_proto_rawDescGZIP(), []int{3}
 }
 
 var File_core_biz_project_report_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_report_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcore/biz/project_report.proto\x12\ficw.core.biz\x1a\x15activity/common.proto\"\xc5\x01\n" +
+	"\x1dcore/biz/project_report.proto\x12\ficw.core.biz\x1a\x15activity/common.proto\x1a\x11core/common.proto\"Q\n" +
+	"\x17GetProjectReportRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\"R\n" +
+	"\x18GetProjectReportResponse\x126\n" +
+	"\x06report\x18\x01 \x01(\v2\x1e.icw.core.common.ProjectReportR\x06report\"\xc5\x01\n" +
 	"!ReportProjectSummaryResultRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\x04R\tprojectId\x12;\n" +
@@ -140,8 +245,9 @@ const file_core_biz_project_report_proto_rawDesc = "" +
 	"\vresult_json\x18\x03 \x01(\tR\n" +
 	"resultJson\x12#\n" +
 	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"$\n" +
-	"\"ReportProjectSummaryResultResponse2\x97\x01\n" +
-	"\x14ProjectReportService\x12\x7f\n" +
+	"\"ReportProjectSummaryResultResponse2\xfa\x01\n" +
+	"\x14ProjectReportService\x12a\n" +
+	"\x10GetProjectReport\x12%.icw.core.biz.GetProjectReportRequest\x1a&.icw.core.biz.GetProjectReportResponse\x12\x7f\n" +
 	"\x1aReportProjectSummaryResult\x12/.icw.core.biz.ReportProjectSummaryResultRequest\x1a0.icw.core.biz.ReportProjectSummaryResultResponseB\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
 
 var (
@@ -156,21 +262,27 @@ func file_core_biz_project_report_proto_rawDescGZIP() []byte {
 	return file_core_biz_project_report_proto_rawDescData
 }
 
-var file_core_biz_project_report_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_core_biz_project_report_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_core_biz_project_report_proto_goTypes = []any{
-	(*ReportProjectSummaryResultRequest)(nil),  // 0: icw.core.biz.ReportProjectSummaryResultRequest
-	(*ReportProjectSummaryResultResponse)(nil), // 1: icw.core.biz.ReportProjectSummaryResultResponse
-	(activity.DetectionStatus_Value)(0),        // 2: icw.activity.DetectionStatus.Value
+	(*GetProjectReportRequest)(nil),            // 0: icw.core.biz.GetProjectReportRequest
+	(*GetProjectReportResponse)(nil),           // 1: icw.core.biz.GetProjectReportResponse
+	(*ReportProjectSummaryResultRequest)(nil),  // 2: icw.core.biz.ReportProjectSummaryResultRequest
+	(*ReportProjectSummaryResultResponse)(nil), // 3: icw.core.biz.ReportProjectSummaryResultResponse
+	(*common.ProjectReport)(nil),               // 4: icw.core.common.ProjectReport
+	(activity.DetectionStatus_Value)(0),        // 5: icw.activity.DetectionStatus.Value
 }
 var file_core_biz_project_report_proto_depIdxs = []int32{
-	2, // 0: icw.core.biz.ReportProjectSummaryResultRequest.status:type_name -> icw.activity.DetectionStatus.Value
-	0, // 1: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:input_type -> icw.core.biz.ReportProjectSummaryResultRequest
-	1, // 2: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:output_type -> icw.core.biz.ReportProjectSummaryResultResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	4, // 0: icw.core.biz.GetProjectReportResponse.report:type_name -> icw.core.common.ProjectReport
+	5, // 1: icw.core.biz.ReportProjectSummaryResultRequest.status:type_name -> icw.activity.DetectionStatus.Value
+	0, // 2: icw.core.biz.ProjectReportService.GetProjectReport:input_type -> icw.core.biz.GetProjectReportRequest
+	2, // 3: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:input_type -> icw.core.biz.ReportProjectSummaryResultRequest
+	1, // 4: icw.core.biz.ProjectReportService.GetProjectReport:output_type -> icw.core.biz.GetProjectReportResponse
+	3, // 5: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:output_type -> icw.core.biz.ReportProjectSummaryResultResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_project_report_proto_init() }
@@ -184,7 +296,7 @@ func file_core_biz_project_report_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_project_report_proto_rawDesc), len(file_core_biz_project_report_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -79,11 +79,32 @@ const ProjectDetectionSubTaskStatus_Failed = common.ProjectDetectionSubTaskStatu
 var ProjectDetectionSubTaskStatus_Value_name = common.ProjectDetectionSubTaskStatus_Value_name
 var ProjectDetectionSubTaskStatus_Value_value = common.ProjectDetectionSubTaskStatus_Value_value
 
+type ProjectDetectionReviewVerdict_Value = common.ProjectDetectionReviewVerdict_Value
+
+const ProjectDetectionReviewVerdict_Unknown = common.ProjectDetectionReviewVerdict_Unknown
+const ProjectDetectionReviewVerdict_Accurate = common.ProjectDetectionReviewVerdict_Accurate
+const ProjectDetectionReviewVerdict_Inaccurate = common.ProjectDetectionReviewVerdict_Inaccurate
+
+var ProjectDetectionReviewVerdict_Value_name = common.ProjectDetectionReviewVerdict_Value_name
+var ProjectDetectionReviewVerdict_Value_value = common.ProjectDetectionReviewVerdict_Value_value
+
+type ProjectReportStatus_Value = common.ProjectReportStatus_Value
+
+const ProjectReportStatus_Unknown = common.ProjectReportStatus_Unknown
+const ProjectReportStatus_Pending = common.ProjectReportStatus_Pending
+const ProjectReportStatus_Succeeded = common.ProjectReportStatus_Succeeded
+const ProjectReportStatus_Failed = common.ProjectReportStatus_Failed
+
+var ProjectReportStatus_Value_name = common.ProjectReportStatus_Value_name
+var ProjectReportStatus_Value_value = common.ProjectReportStatus_Value_value
+
 type ProjectStatus = common.ProjectStatus
 type ProjectProgress = common.ProjectProgress
 type ProjectImageStatus = common.ProjectImageStatus
 type ProjectDetectionTaskStatus = common.ProjectDetectionTaskStatus
 type ProjectDetectionSubTaskStatus = common.ProjectDetectionSubTaskStatus
+type ProjectDetectionReviewVerdict = common.ProjectDetectionReviewVerdict
+type ProjectReportStatus = common.ProjectReportStatus
 type User = common.User
 type ProjectImage = common.ProjectImage
 type UploadProjectImageResult = common.UploadProjectImageResult
@@ -99,6 +120,8 @@ type ProjectDetectionFlatnessRegion = common.ProjectDetectionFlatnessRegion
 type ProjectDetectionFlatnessResult = common.ProjectDetectionFlatnessResult
 type ProjectDetectionSpallingResult = common.ProjectDetectionSpallingResult
 type ProjectDetectionSummaryResult = common.ProjectDetectionSummaryResult
+type ProjectDetectionReview = common.ProjectDetectionReview
+type ProjectReport = common.ProjectReport
 
 type EmailCodeScene_Value int32
 
@@ -1017,6 +1040,107 @@ func (x *ProjectDetectionTaskStatusChangedEvent) GetOccurredAt() string {
 	return ""
 }
 
+// 项目评估报告状态变化 RocketMQ 事件结构体
+type ProjectReportStatusChangedEvent struct {
+	state         protoimpl.MessageState           `protogen:"open.v1"`
+	EventId       string                           `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	EventType     string                           `protobuf:"bytes,2,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`
+	ProjectId     uint64                           `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ProjectCode   string                           `protobuf:"bytes,4,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
+	UserId        uint64                           `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ReportUuid    string                           `protobuf:"bytes,6,opt,name=report_uuid,json=reportUuid,proto3" json:"report_uuid,omitempty"`
+	Status        common.ProjectReportStatus_Value `protobuf:"varint,7,opt,name=status,proto3,enum=icw.core.common.ProjectReportStatus_Value" json:"status,omitempty"`
+	OccurredAt    string                           `protobuf:"bytes,8,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectReportStatusChangedEvent) Reset() {
+	*x = ProjectReportStatusChangedEvent{}
+	mi := &file_core_biz_common_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectReportStatusChangedEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectReportStatusChangedEvent) ProtoMessage() {}
+
+func (x *ProjectReportStatusChangedEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_common_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectReportStatusChangedEvent.ProtoReflect.Descriptor instead.
+func (*ProjectReportStatusChangedEvent) Descriptor() ([]byte, []int) {
+	return file_core_biz_common_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ProjectReportStatusChangedEvent) GetEventId() string {
+	if x != nil {
+		return x.EventId
+	}
+	return ""
+}
+
+func (x *ProjectReportStatusChangedEvent) GetEventType() string {
+	if x != nil {
+		return x.EventType
+	}
+	return ""
+}
+
+func (x *ProjectReportStatusChangedEvent) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
+func (x *ProjectReportStatusChangedEvent) GetProjectCode() string {
+	if x != nil {
+		return x.ProjectCode
+	}
+	return ""
+}
+
+func (x *ProjectReportStatusChangedEvent) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *ProjectReportStatusChangedEvent) GetReportUuid() string {
+	if x != nil {
+		return x.ReportUuid
+	}
+	return ""
+}
+
+func (x *ProjectReportStatusChangedEvent) GetStatus() common.ProjectReportStatus_Value {
+	if x != nil {
+		return x.Status
+	}
+	return common.ProjectReportStatus_Value(0)
+}
+
+func (x *ProjectReportStatusChangedEvent) GetOccurredAt() string {
+	if x != nil {
+		return x.OccurredAt
+	}
+	return ""
+}
+
 // 图像检测推理产物上传结果结构体
 type ReasoningArtifactUploadResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1029,7 +1153,7 @@ type ReasoningArtifactUploadResult struct {
 
 func (x *ReasoningArtifactUploadResult) Reset() {
 	*x = ReasoningArtifactUploadResult{}
-	mi := &file_core_biz_common_proto_msgTypes[9]
+	mi := &file_core_biz_common_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1041,7 +1165,7 @@ func (x *ReasoningArtifactUploadResult) String() string {
 func (*ReasoningArtifactUploadResult) ProtoMessage() {}
 
 func (x *ReasoningArtifactUploadResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[9]
+	mi := &file_core_biz_common_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1054,7 +1178,7 @@ func (x *ReasoningArtifactUploadResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReasoningArtifactUploadResult.ProtoReflect.Descriptor instead.
 func (*ReasoningArtifactUploadResult) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{9}
+	return file_core_biz_common_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ReasoningArtifactUploadResult) GetName() string {
@@ -1178,6 +1302,19 @@ const file_core_biz_common_proto_rawDesc = "" +
 	"\n" +
 	"sub_status\x18\v \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\x12\x1f\n" +
 	"\voccurred_at\x18\f \x01(\tR\n" +
+	"occurredAt\"\xbc\x02\n" +
+	"\x1fProjectReportStatusChangedEvent\x12\x19\n" +
+	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1d\n" +
+	"\n" +
+	"event_type\x18\x02 \x01(\tR\teventType\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x03 \x01(\x04R\tprojectId\x12!\n" +
+	"\fproject_code\x18\x04 \x01(\tR\vprojectCode\x12\x17\n" +
+	"\auser_id\x18\x05 \x01(\x04R\x06userId\x12\x1f\n" +
+	"\vreport_uuid\x18\x06 \x01(\tR\n" +
+	"reportUuid\x12B\n" +
+	"\x06status\x18\a \x01(\x0e2*.icw.core.common.ProjectReportStatus.ValueR\x06status\x12\x1f\n" +
+	"\voccurred_at\x18\b \x01(\tR\n" +
 	"occurredAt\"g\n" +
 	"\x1dReasoningArtifactUploadResult\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
@@ -1197,7 +1334,7 @@ func file_core_biz_common_proto_rawDescGZIP() []byte {
 }
 
 var file_core_biz_common_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_core_biz_common_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_core_biz_common_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_core_biz_common_proto_goTypes = []any{
 	(EmailCodeScene_Value)(0),                       // 0: icw.core.biz.EmailCodeScene.Value
 	(LoginScene_Value)(0),                           // 1: icw.core.biz.LoginScene.Value
@@ -1211,24 +1348,27 @@ var file_core_biz_common_proto_goTypes = []any{
 	(*UploadProjectImageItem)(nil),                  // 9: icw.core.biz.UploadProjectImageItem
 	(*ProjectImageStatusChangedEvent)(nil),          // 10: icw.core.biz.ProjectImageStatusChangedEvent
 	(*ProjectDetectionTaskStatusChangedEvent)(nil),  // 11: icw.core.biz.ProjectDetectionTaskStatusChangedEvent
-	(*ReasoningArtifactUploadResult)(nil),           // 12: icw.core.biz.ReasoningArtifactUploadResult
-	(common.ProjectProgress_Value)(0),               // 13: icw.core.common.ProjectProgress.Value
-	(*common.ProjectImage)(nil),                     // 14: icw.core.common.ProjectImage
-	(common.ProjectDetectionTaskStatus_Value)(0),    // 15: icw.core.common.ProjectDetectionTaskStatus.Value
-	(common.ProjectDetectionSubTaskStatus_Value)(0), // 16: icw.core.common.ProjectDetectionSubTaskStatus.Value
+	(*ProjectReportStatusChangedEvent)(nil),         // 12: icw.core.biz.ProjectReportStatusChangedEvent
+	(*ReasoningArtifactUploadResult)(nil),           // 13: icw.core.biz.ReasoningArtifactUploadResult
+	(common.ProjectProgress_Value)(0),               // 14: icw.core.common.ProjectProgress.Value
+	(*common.ProjectImage)(nil),                     // 15: icw.core.common.ProjectImage
+	(common.ProjectDetectionTaskStatus_Value)(0),    // 16: icw.core.common.ProjectDetectionTaskStatus.Value
+	(common.ProjectDetectionSubTaskStatus_Value)(0), // 17: icw.core.common.ProjectDetectionSubTaskStatus.Value
+	(common.ProjectReportStatus_Value)(0),           // 18: icw.core.common.ProjectReportStatus.Value
 }
 var file_core_biz_common_proto_depIdxs = []int32{
-	13, // 0: icw.core.biz.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
-	13, // 1: icw.core.biz.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
-	14, // 2: icw.core.biz.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
-	14, // 3: icw.core.biz.ProjectImageStatusChangedEvent.image:type_name -> icw.core.common.ProjectImage
-	15, // 4: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
-	16, // 5: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	6,  // [6:6] is the sub-list for method output_type
-	6,  // [6:6] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	14, // 0: icw.core.biz.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
+	14, // 1: icw.core.biz.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
+	15, // 2: icw.core.biz.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
+	15, // 3: icw.core.biz.ProjectImageStatusChangedEvent.image:type_name -> icw.core.common.ProjectImage
+	16, // 4: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
+	17, // 5: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	18, // 6: icw.core.biz.ProjectReportStatusChangedEvent.status:type_name -> icw.core.common.ProjectReportStatus.Value
+	7,  // [7:7] is the sub-list for method output_type
+	7,  // [7:7] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_common_proto_init() }
@@ -1242,7 +1382,7 @@ func file_core_biz_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_common_proto_rawDesc), len(file_core_biz_common_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

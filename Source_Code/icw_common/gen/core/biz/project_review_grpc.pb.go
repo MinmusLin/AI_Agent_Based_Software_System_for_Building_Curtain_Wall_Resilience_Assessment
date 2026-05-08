@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectReviewService_Ping_FullMethodName = "/icw.core.biz.ProjectReviewService/Ping"
+	ProjectReviewService_GetProjectDetectionReview_FullMethodName    = "/icw.core.biz.ProjectReviewService/GetProjectDetectionReview"
+	ProjectReviewService_UpdateProjectDetectionReview_FullMethodName = "/icw.core.biz.ProjectReviewService/UpdateProjectDetectionReview"
 )
 
 // ProjectReviewServiceClient is the client API for ProjectReviewService service.
@@ -28,8 +29,10 @@ const (
 //
 // 人工复核 RPC 服务
 type ProjectReviewServiceClient interface {
-	// 人工复核服务探活
-	Ping(ctx context.Context, in *PingReviewRequest, opts ...grpc.CallOption) (*PingReviewResponse, error)
+	// 获取图像检测人工复核信息
+	GetProjectDetectionReview(ctx context.Context, in *GetProjectDetectionReviewRequest, opts ...grpc.CallOption) (*GetProjectDetectionReviewResponse, error)
+	// 更新图像检测人工复核信息
+	UpdateProjectDetectionReview(ctx context.Context, in *UpdateProjectDetectionReviewRequest, opts ...grpc.CallOption) (*UpdateProjectDetectionReviewResponse, error)
 }
 
 type projectReviewServiceClient struct {
@@ -40,10 +43,20 @@ func NewProjectReviewServiceClient(cc grpc.ClientConnInterface) ProjectReviewSer
 	return &projectReviewServiceClient{cc}
 }
 
-func (c *projectReviewServiceClient) Ping(ctx context.Context, in *PingReviewRequest, opts ...grpc.CallOption) (*PingReviewResponse, error) {
+func (c *projectReviewServiceClient) GetProjectDetectionReview(ctx context.Context, in *GetProjectDetectionReviewRequest, opts ...grpc.CallOption) (*GetProjectDetectionReviewResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PingReviewResponse)
-	err := c.cc.Invoke(ctx, ProjectReviewService_Ping_FullMethodName, in, out, cOpts...)
+	out := new(GetProjectDetectionReviewResponse)
+	err := c.cc.Invoke(ctx, ProjectReviewService_GetProjectDetectionReview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectReviewServiceClient) UpdateProjectDetectionReview(ctx context.Context, in *UpdateProjectDetectionReviewRequest, opts ...grpc.CallOption) (*UpdateProjectDetectionReviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProjectDetectionReviewResponse)
+	err := c.cc.Invoke(ctx, ProjectReviewService_UpdateProjectDetectionReview_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +69,10 @@ func (c *projectReviewServiceClient) Ping(ctx context.Context, in *PingReviewReq
 //
 // 人工复核 RPC 服务
 type ProjectReviewServiceServer interface {
-	// 人工复核服务探活
-	Ping(context.Context, *PingReviewRequest) (*PingReviewResponse, error)
+	// 获取图像检测人工复核信息
+	GetProjectDetectionReview(context.Context, *GetProjectDetectionReviewRequest) (*GetProjectDetectionReviewResponse, error)
+	// 更新图像检测人工复核信息
+	UpdateProjectDetectionReview(context.Context, *UpdateProjectDetectionReviewRequest) (*UpdateProjectDetectionReviewResponse, error)
 	mustEmbedUnimplementedProjectReviewServiceServer()
 }
 
@@ -68,8 +83,11 @@ type ProjectReviewServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectReviewServiceServer struct{}
 
-func (UnimplementedProjectReviewServiceServer) Ping(context.Context, *PingReviewRequest) (*PingReviewResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
+func (UnimplementedProjectReviewServiceServer) GetProjectDetectionReview(context.Context, *GetProjectDetectionReviewRequest) (*GetProjectDetectionReviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProjectDetectionReview not implemented")
+}
+func (UnimplementedProjectReviewServiceServer) UpdateProjectDetectionReview(context.Context, *UpdateProjectDetectionReviewRequest) (*UpdateProjectDetectionReviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateProjectDetectionReview not implemented")
 }
 func (UnimplementedProjectReviewServiceServer) mustEmbedUnimplementedProjectReviewServiceServer() {}
 func (UnimplementedProjectReviewServiceServer) testEmbeddedByValue()                              {}
@@ -92,20 +110,38 @@ func RegisterProjectReviewServiceServer(s grpc.ServiceRegistrar, srv ProjectRevi
 	s.RegisterService(&ProjectReviewService_ServiceDesc, srv)
 }
 
-func _ProjectReviewService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PingReviewRequest)
+func _ProjectReviewService_GetProjectDetectionReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProjectDetectionReviewRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProjectReviewServiceServer).Ping(ctx, in)
+		return srv.(ProjectReviewServiceServer).GetProjectDetectionReview(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ProjectReviewService_Ping_FullMethodName,
+		FullMethod: ProjectReviewService_GetProjectDetectionReview_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectReviewServiceServer).Ping(ctx, req.(*PingReviewRequest))
+		return srv.(ProjectReviewServiceServer).GetProjectDetectionReview(ctx, req.(*GetProjectDetectionReviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectReviewService_UpdateProjectDetectionReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProjectDetectionReviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectReviewServiceServer).UpdateProjectDetectionReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectReviewService_UpdateProjectDetectionReview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectReviewServiceServer).UpdateProjectDetectionReview(ctx, req.(*UpdateProjectDetectionReviewRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -118,8 +154,12 @@ var ProjectReviewService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ProjectReviewServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Ping",
-			Handler:    _ProjectReviewService_Ping_Handler,
+			MethodName: "GetProjectDetectionReview",
+			Handler:    _ProjectReviewService_GetProjectDetectionReview_Handler,
+		},
+		{
+			MethodName: "UpdateProjectDetectionReview",
+			Handler:    _ProjectReviewService_UpdateProjectDetectionReview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
