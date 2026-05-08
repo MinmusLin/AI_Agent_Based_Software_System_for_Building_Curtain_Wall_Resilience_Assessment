@@ -105,7 +105,7 @@ func (w *DetectionWorker) processClassification(ctx context.Context, item *detec
 	}
 	ctx = rpc.WithRequestIdToOutgoingContext(ctx, item.requestId)
 
-	task, err := w.mysql.StartProjectDetectionClassification(ctx, item.id)
+	task, err := w.mysql.StartProjectDetectionClassificationTask(ctx, item.id)
 	if err != nil || task == nil {
 		return
 	}
