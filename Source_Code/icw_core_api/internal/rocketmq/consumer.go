@@ -49,7 +49,7 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 				}
 				start := time.Now()
 				if err := dispatchProjectEvent(hub, message); err != nil {
-					MQError("[CONSUME|%s] %s %13v %s msg_id=%s tag=%s err=%s",
+					MQError("[CONSUME|%s] %s %13v %s [%s] tag=%s err=%s",
 						message.Topic,
 						consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 						message.MsgId,
@@ -58,7 +58,7 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 					)
 					continue
 				}
-				MQInfo("[CONSUME|%s] %s %13v %s msg_id=%s tag=%s",
+				MQInfo("[CONSUME|%s] %s %13v %s [%s] tag=%s",
 					message.Topic,
 					consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 					message.MsgId,

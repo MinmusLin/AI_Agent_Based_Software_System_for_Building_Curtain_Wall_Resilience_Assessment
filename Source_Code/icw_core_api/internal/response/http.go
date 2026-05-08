@@ -74,6 +74,7 @@ func marshalProtoData[T any](data T) (any, bool) {
 	}
 	bytes, err := protojson.MarshalOptions{
 		EmitUnpopulated: true,
+		UseEnumNumbers:  true,
 		UseProtoNames:   true,
 	}.Marshal(message)
 	if err != nil {
