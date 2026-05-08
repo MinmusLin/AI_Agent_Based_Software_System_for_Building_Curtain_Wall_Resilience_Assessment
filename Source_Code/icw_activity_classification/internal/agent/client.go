@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/textproto"
 	"strings"
+
+	"icw_activity_classification/utils"
 )
 
 const (
@@ -88,7 +90,7 @@ func (c *Client) uploadFile(ctx context.Context, image []byte, contentType strin
 	writer := multipart.NewWriter(&body)
 	header := make(textproto.MIMEHeader)
 	header.Set("Content-Disposition", `form-data; name="file"; filename="classification.png"`)
-	header.Set("Content-Type", firstNotEmpty(contentType, "application/octet-stream"))
+	header.Set("Content-Type", utils.FirstNotEmpty(contentType, "application/octet-stream"))
 
 	part, err := writer.CreatePart(header)
 	if err != nil {
@@ -135,7 +137,7 @@ func (c *Client) uploadFile(ctx context.Context, image []byte, contentType strin
 		return "", err
 	}
 
-	fileId := firstNotEmpty(uploadResp.Data.Id, uploadResp.Data.FileId, uploadResp.Id, uploadResp.FileId)
+	fileId := utils.FirstNotEmpty(uploadResp.Data.Id, uploadResp.Data.FileId, uploadResp.Id, uploadResp.FileId)
 	if fileId == "" {
 		return "", errors.New("agent file id is required")
 	}

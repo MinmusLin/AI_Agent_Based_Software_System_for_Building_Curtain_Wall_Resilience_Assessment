@@ -23,7 +23,7 @@ import (
 // Start 启动原子检测任务
 func (s *Service) Start(ctx context.Context, req *reasoningpb.StartRequest) (*reasoningpb.StartResponse, error) {
 	resp := &reasoningpb.StartResponse{}
-	err := s.CallRPC(ctx, req, func() error {
+	err := s.CallRPC(req, func() error {
 		if err := reasoningUtils.ValidateRequest(req, s.Registry()); err != nil {
 			return err
 		}
@@ -48,17 +48,18 @@ func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.Start
 		TaskUuid:  req.TaskUuid,
 		ImageUuid: req.ImageUuid,
 	}
+	taskCode := enum.DetectionTaskCodeString(req.TaskCode)
 
 	// 执行原子检测任务
 	artifactCount, detectorCost, err := s.executeDetection(ctx, req, callbackReq)
 	if utils.IsEmptyError(err) {
-		callbackReq.Status = enum.DetectionStatusString(activitypb.DetectionStatus_Succeeded)
+		callbackReq.Status = activitypb.DetectionStatus_Succeeded
 		callbackReq.ErrorMessage = ""
-		common.ReasoningInfo(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost)
+		common.ReasoningInfo(requestId, taskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost)
 	} else {
-		callbackReq.Status = enum.DetectionStatusString(activitypb.DetectionStatus_Failed)
+		callbackReq.Status = activitypb.DetectionStatus_Failed
 		callbackReq.ErrorMessage = err.Error()
-		common.ReasoningError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost, err)
+		common.ReasoningError(requestId, taskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost, err)
 	}
 
 	// 上报图像检测推理结果
@@ -66,16 +67,16 @@ func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.Start
 	callbackResp := &bizpb.ReportReasoningResultResponse{}
 	callbackStart := time.Now()
 	if err := icw_core_biz.ReportReasoningResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); utils.IsEmptyError(err) {
-		common.CallbackInfo(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart)
+		common.CallbackInfo(requestId, taskCode, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart)
 		return
-	} else {
-		common.CallbackError(requestId, req.TaskCode, req.TaskUuid, req.ImageUuid, callbackReq.Status, callbackStart, err)
 	}
+	common.CallbackError(requestId, taskCode, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart, err)
 }
 
 // executeDetection 执行原子检测任务
 func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRequest, callbackReq *bizpb.ReportReasoningResultRequest) (int, time.Duration, error) {
-	taskDir := filepath.Join(s.Config().ReasoningWorkDir, req.TaskCode, req.ImageUuid)
+	taskCode := enum.DetectionTaskCodeString(req.TaskCode)
+	taskDir := filepath.Join(s.Config().ReasoningWorkDir, taskCode, req.ImageUuid)
 	if err := os.RemoveAll(taskDir); err != nil {
 		return 0, 0, err
 	}
@@ -90,7 +91,7 @@ func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRe
 		return 0, 0, err
 	}
 
-	detector, err := s.Registry().Get(req.TaskCode)
+	detector, err := s.Registry().Get(taskCode)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -108,7 +109,7 @@ func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRe
 	}
 
 	callbackReq.ResultJson = reportJSON
-	callbackReq.Artifacts = reasoningUtils.UploadArtifacts(ctx, req.Artifacts, taskDir, s.Config().ArtifactUploadTimeout)
+	callbackReq.Artifacts = reasoningUtils.UploadArtifacts(ctx, req.ArtifactPolicy, taskDir, s.Config().ArtifactUploadTimeout)
 
 	artifactCount := 0
 	for _, artifact := range callbackReq.Artifacts {

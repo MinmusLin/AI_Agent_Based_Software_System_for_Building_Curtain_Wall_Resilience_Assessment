@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"icw_common/consts"
-	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/utils"
 )
 
@@ -37,25 +35,25 @@ func ReasoningError(requestId, taskCode, taskUuid, imageUuid string, artifactCou
 
 // CallbackInfo 输出标准回调日志
 func CallbackInfo(requestId, taskCode, taskUuid, imageUuid, status string, start time.Time) {
-	utils.LogInfo(consts.LogScopeCallback, consts.LogColorBoldBlue, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s status=%s%s%s",
+	utils.LogInfo(consts.LogScopeCallback, consts.LogColorBoldBlue, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s status=%s",
 		utils.If[string](requestId == "", "-", requestId),
 		consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
 		imageUuid,
-		utils.If[string](status == enum.DetectionStatusString(activitypb.DetectionStatus_Succeeded), consts.LogColorBoldGreen, consts.LogColorBoldRed), status, consts.LogColorReset,
+		utils.FormatSuccessLog(status),
 	)
 }
 
 // CallbackError 输出失败回调日志
 func CallbackError(requestId, taskCode, taskUuid, imageUuid, status string, start time.Time, err error) {
-	utils.LogError(consts.LogScopeCallback, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s status=%s%s%s err=%s",
+	utils.LogError(consts.LogScopeCallback, "[%s] %s %13v %s [%s] task_uuid=%s image_uuid=%s status=%s err=%s",
 		utils.If[string](requestId == "", "-", requestId),
 		consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 		strings.ToUpper(strings.TrimSpace(taskCode)),
 		taskUuid,
 		imageUuid,
-		utils.If[string](status == enum.DetectionStatusString(activitypb.DetectionStatus_Succeeded), consts.LogColorBoldGreen, consts.LogColorBoldRed), status, consts.LogColorReset,
+		utils.FormatErrorLog(status),
 		utils.FormatErrorLog(err),
 	)
 }

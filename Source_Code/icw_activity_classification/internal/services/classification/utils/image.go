@@ -10,8 +10,6 @@ import (
 	"net/http"
 
 	"golang.org/x/image/draw"
-
-	"icw_activity_classification/utils"
 )
 
 const (
@@ -44,7 +42,7 @@ func DownloadAndResizeImage(ctx context.Context, imageURL string, size int) ([]b
 		return nil, "", fmt.Errorf("unexpected http status code %d: %s", response.StatusCode, http.StatusText(response.StatusCode))
 	}
 
-	data, err := io.ReadAll(io.LimitReader(response.Body, 32<<20))
+	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, "", err
 	}
@@ -54,16 +52,15 @@ func DownloadAndResizeImage(ctx context.Context, imageURL string, size int) ([]b
 		return nil, "", err
 	}
 
-	if config.Width <= size || config.Height <= size || size <= 0 {
-		return data, utils.FirstNotEmpty(response.Header.Get("Content-Type"), http.DetectContentType(data)), nil
-	}
-
 	source, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
 		return nil, "", err
 	}
 
-	target := resizeImage(source, size)
+	target := source
+	if config.Width > size && config.Height > size && size > 0 {
+		target = resizeImage(source, size)
+	}
 	var buffer bytes.Buffer
 
 	if err := png.Encode(&buffer, target); err != nil {

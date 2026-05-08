@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strings"
 
+	"icw_common/enum"
 	"icw_common/gen/activity/reasoning"
 
 	"icw_activity_reasoning/internal/detectors/common"
@@ -17,22 +18,24 @@ func ValidateRequest(req *reasoningpb.StartRequest, registry *common.Registry) e
 	}
 
 	req.TaskUuid = strings.TrimSpace(req.TaskUuid)
-	req.TaskCode = strings.TrimSpace(req.TaskCode)
-	req.ImageUuid = strings.TrimSpace(req.ImageUuid)
-	req.PresignGetUrl = strings.TrimSpace(req.PresignGetUrl)
-
 	if req.TaskUuid == "" {
 		return errors.New("task uuid is required")
 	}
-	if !isSafePathPart(req.TaskCode) {
+
+	taskCode := enum.DetectionTaskCodeString(req.TaskCode)
+	if !isSafePathPart(taskCode) {
 		return errors.New("task code is invalid")
 	}
-	if _, err := registry.Get(req.TaskCode); err != nil {
+	if _, err := registry.Get(taskCode); err != nil {
 		return err
 	}
+
+	req.ImageUuid = strings.TrimSpace(req.ImageUuid)
 	if !isSafePathPart(req.ImageUuid) {
 		return errors.New("image uuid is invalid")
 	}
+
+	req.PresignGetUrl = strings.TrimSpace(req.PresignGetUrl)
 	if req.PresignGetUrl == "" {
 		return errors.New("presign get url is required")
 	}
@@ -40,32 +43,19 @@ func ValidateRequest(req *reasoningpb.StartRequest, registry *common.Registry) e
 		return err
 	}
 
-	artifactNames := map[string]struct{}{}
-	for _, artifact := range req.Artifacts {
-		if artifact == nil {
-			return errors.New("artifact is nil")
-		}
-
-		artifact.Name = strings.TrimSpace(artifact.Name)
-		artifact.PresignUploadUrl = strings.TrimSpace(artifact.PresignUploadUrl)
-		artifact.ContentType = strings.TrimSpace(artifact.ContentType)
-
-		if !isSafePathPart(artifact.Name) {
-			return errors.New("artifact name is invalid")
-		}
-		if _, ok := artifactNames[artifact.Name]; ok {
-			return errors.New("artifact name is duplicated")
-		}
-		artifactNames[artifact.Name] = struct{}{}
-		if artifact.PresignUploadUrl == "" {
-			return errors.New("artifact presign upload url is required")
-		}
-		if _, err := url.ParseRequestURI(artifact.PresignUploadUrl); err != nil {
-			return err
-		}
-		if artifact.ContentType == "" {
-			return errors.New("artifact content type is required")
-		}
+	if req.ArtifactPolicy == nil {
+		return errors.New("artifact policy is required")
+	}
+	req.ArtifactPolicy.Url = strings.TrimSpace(req.ArtifactPolicy.Url)
+	req.ArtifactPolicy.KeyPrefix = strings.TrimSpace(req.ArtifactPolicy.KeyPrefix)
+	if req.ArtifactPolicy.Url == "" {
+		return errors.New("artifact policy url is required")
+	}
+	if req.ArtifactPolicy.KeyPrefix == "" {
+		return errors.New("artifact policy key prefix is required")
+	}
+	if _, err := url.ParseRequestURI(req.ArtifactPolicy.Url); err != nil {
+		return err
 	}
 
 	return nil
