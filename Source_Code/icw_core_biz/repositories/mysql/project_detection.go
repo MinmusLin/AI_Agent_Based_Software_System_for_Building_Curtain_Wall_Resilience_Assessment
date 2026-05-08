@@ -439,7 +439,7 @@ func (r *Repository) GetProjectDetectionTaskStatus(ctx context.Context, userId, 
 	return item, nil
 }
 
-// projectDetectionTaskToStatusDTO 将项目图像检测主任务记录转换为检测状态 DTO
+// projectDetectionTaskToStatusDTO 将项目图像检测主任务记录转换为检测状态数据结构
 func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*commonpb.ProjectDetectionStatus, error) {
 	item := &commonpb.ProjectDetectionStatus{
 		ImageUuid:       task.ImageUuid,
@@ -509,6 +509,272 @@ func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sq
 	}
 
 	return item, nil
+}
+
+// GetProjectDetectionCorrosionResult 按项目图像检测子任务 ID 查询金属锈蚀检测结果
+func (r *Repository) GetProjectDetectionCorrosionResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionCorrosionResult, error) {
+	result := &commonpb.ProjectDetectionCorrosionResult{}
+
+	var (
+		status            string
+		hasCorrosion      sql.NullBool
+		corrosionCount    sql.NullInt64
+		maxConfidence     sql.NullFloat64
+		averageConfidence sql.NullFloat64
+		corrosionPixels   sql.NullInt64
+		corrosionRatio    sql.NullFloat64
+		regions           sql.NullString
+		runtimeSeconds    sql.NullFloat64
+	)
+
+	if err := r.mysql.QueryRowContext(ctx, `
+		SELECT
+			uuid,
+			status,
+			has_corrosion,
+			corrosion_count,
+			max_confidence,
+			average_confidence,
+			corrosion_pixels,
+			corrosion_ratio,
+			CAST(regions AS CHAR),
+			runtime_seconds
+		FROM project_detection_corrosion_tasks
+		WHERE id = ?
+		LIMIT 1
+	`, taskId).Scan(
+		&result.TaskUuid,
+		&status,
+		&hasCorrosion,
+		&corrosionCount,
+		&maxConfidence,
+		&averageConfidence,
+		&corrosionPixels,
+		&corrosionRatio,
+		&regions,
+		&runtimeSeconds,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
+	result.HasCorrosion = nullBool(hasCorrosion)
+	result.CorrosionCount = nullUint32(corrosionCount)
+	result.MaxConfidence = nullFloat64(maxConfidence)
+	result.AverageConfidence = nullFloat64(averageConfidence)
+	result.CorrosionPixels = nullUint64(corrosionPixels)
+	result.CorrosionRatio = nullFloat64(corrosionRatio)
+	if err := unmarshalRegions(regions, &result.Regions); err != nil {
+		return nil, err
+	}
+	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+
+	return result, nil
+}
+
+// GetProjectDetectionCrackResult 按项目图像检测子任务 ID 查询石材裂缝检测结果
+func (r *Repository) GetProjectDetectionCrackResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionCrackResult, error) {
+	result := &commonpb.ProjectDetectionCrackResult{}
+
+	var (
+		status         string
+		hasCrack       sql.NullBool
+		crackCount     sql.NullInt64
+		crackPixels    sql.NullInt64
+		crackRatio     sql.NullFloat64
+		regions        sql.NullString
+		runtimeSeconds sql.NullFloat64
+	)
+
+	if err := r.mysql.QueryRowContext(ctx, `
+		SELECT
+			uuid,
+			status,
+			has_crack,
+			crack_count,
+			crack_pixels,
+			crack_ratio,
+			CAST(regions AS CHAR),
+			runtime_seconds
+		FROM project_detection_crack_tasks
+		WHERE id = ?
+		LIMIT 1
+	`, taskId).Scan(
+		&result.TaskUuid,
+		&status,
+		&hasCrack,
+		&crackCount,
+		&crackPixels,
+		&crackRatio,
+		&regions,
+		&runtimeSeconds,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
+	result.HasCrack = nullBool(hasCrack)
+	result.CrackCount = nullUint32(crackCount)
+	result.CrackPixels = nullUint64(crackPixels)
+	result.CrackRatio = nullFloat64(crackRatio)
+	if err := unmarshalRegions(regions, &result.Regions); err != nil {
+		return nil, err
+	}
+	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+
+	return result, nil
+}
+
+// GetProjectDetectionStainResult 按项目图像检测子任务 ID 查询石材污渍检测结果
+func (r *Repository) GetProjectDetectionStainResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionStainResult, error) {
+	result := &commonpb.ProjectDetectionStainResult{}
+
+	var (
+		status            string
+		hasStain          sql.NullBool
+		stainCount        sql.NullInt64
+		averageStainRatio sql.NullFloat64
+		maxStainRatio     sql.NullFloat64
+		regions           sql.NullString
+		runtimeSeconds    sql.NullFloat64
+	)
+
+	if err := r.mysql.QueryRowContext(ctx, `
+		SELECT
+			uuid,
+			status,
+			has_stain,
+			stain_count,
+			average_stain_ratio,
+			max_stain_ratio,
+			CAST(regions AS CHAR),
+			runtime_seconds
+		FROM project_detection_stain_tasks
+		WHERE id = ?
+		LIMIT 1
+	`, taskId).Scan(
+		&result.TaskUuid,
+		&status,
+		&hasStain,
+		&stainCount,
+		&averageStainRatio,
+		&maxStainRatio,
+		&regions,
+		&runtimeSeconds,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
+	result.HasStain = nullBool(hasStain)
+	result.StainCount = nullUint32(stainCount)
+	result.AverageStainRatio = nullFloat64(averageStainRatio)
+	result.MaxStainRatio = nullFloat64(maxStainRatio)
+	if err := unmarshalRegions(regions, &result.Regions); err != nil {
+		return nil, err
+	}
+	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+
+	return result, nil
+}
+
+// GetProjectDetectionFlatnessResult 按项目图像检测子任务 ID 查询玻璃平整度检测结果
+func (r *Repository) GetProjectDetectionFlatnessResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionFlatnessResult, error) {
+	result := &commonpb.ProjectDetectionFlatnessResult{}
+
+	var (
+		status         string
+		flatnessResult sql.NullString
+		unevenCount    sql.NullInt64
+		regions        sql.NullString
+		runtimeSeconds sql.NullFloat64
+	)
+
+	if err := r.mysql.QueryRowContext(ctx, `
+		SELECT
+			uuid,
+			status,
+			result,
+			uneven_count,
+			CAST(regions AS CHAR),
+			runtime_seconds
+		FROM project_detection_flatness_tasks
+		WHERE id = ?
+		LIMIT 1
+	`, taskId).Scan(
+		&result.TaskUuid,
+		&status,
+		&flatnessResult,
+		&unevenCount,
+		&regions,
+		&runtimeSeconds,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
+	result.Result = nullString(flatnessResult)
+	result.UnevenCount = nullUint32(unevenCount)
+	if err := unmarshalRegions(regions, &result.Regions); err != nil {
+		return nil, err
+	}
+	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+
+	return result, nil
+}
+
+// GetProjectDetectionSpallingResult 按项目图像检测子任务 ID 查询玻璃爆裂检测结果
+func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionSpallingResult, error) {
+	result := &commonpb.ProjectDetectionSpallingResult{}
+
+	var (
+		status         string
+		hasSpalling    sql.NullBool
+		confidence     sql.NullFloat64
+		runtimeSeconds sql.NullFloat64
+	)
+
+	if err := r.mysql.QueryRowContext(ctx, `
+		SELECT
+			uuid,
+			status,
+			has_spalling,
+			confidence,
+			runtime_seconds
+		FROM project_detection_spalling_tasks
+		WHERE id = ?
+		LIMIT 1
+	`, taskId).Scan(
+		&result.TaskUuid,
+		&status,
+		&hasSpalling,
+		&confidence,
+		&runtimeSeconds,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
+	result.HasSpalling = nullBool(hasSpalling)
+	result.Confidence = nullFloat64(confidence)
+	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+
+	return result, nil
 }
 
 // todo 不要删这一行注释
@@ -588,242 +854,6 @@ func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskC
 	}
 }
 
-// GetProjectDetectionCorrosionResult 按任务 ID 查询金属锈蚀检测结果
-func (r *Repository) GetProjectDetectionCorrosionResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionCorrosionResult, error) {
-	result := &commonpb.ProjectDetectionCorrosionResult{}
-	var status string
-	var hasCorrosion sql.NullBool
-	var corrosionCount sql.NullInt64
-	var maxConfidence sql.NullFloat64
-	var averageConfidence sql.NullFloat64
-	var corrosionPixels sql.NullInt64
-	var corrosionRatio sql.NullFloat64
-	var regions sql.NullString
-	var runtimeSeconds sql.NullFloat64
-	if err := r.mysql.QueryRowContext(ctx, `
-		SELECT
-			uuid,
-			status,
-			has_corrosion,
-			corrosion_count,
-			max_confidence,
-			average_confidence,
-			corrosion_pixels,
-			corrosion_ratio,
-			CAST(regions AS CHAR),
-			runtime_seconds
-		FROM project_detection_corrosion_tasks
-		WHERE id = ?
-		LIMIT 1
-	`, taskId).Scan(
-		&result.TaskUuid,
-		&status,
-		&hasCorrosion,
-		&corrosionCount,
-		&maxConfidence,
-		&averageConfidence,
-		&corrosionPixels,
-		&corrosionRatio,
-		&regions,
-		&runtimeSeconds,
-	); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.HasCorrosion = nullBool(hasCorrosion)
-	result.CorrosionCount = nullUint32(corrosionCount)
-	result.MaxConfidence = nullFloat64(maxConfidence)
-	result.AverageConfidence = nullFloat64(averageConfidence)
-	result.CorrosionPixels = nullUint64(corrosionPixels)
-	result.CorrosionRatio = nullFloat64(corrosionRatio)
-	if err := unmarshalRegions(regions, &result.Regions); err != nil {
-		return nil, err
-	}
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
-	return result, nil
-}
-
-// GetProjectDetectionCrackResult 按任务 ID 查询石材裂缝检测结果
-func (r *Repository) GetProjectDetectionCrackResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionCrackResult, error) {
-	result := &commonpb.ProjectDetectionCrackResult{}
-	var status string
-	var hasCrack sql.NullBool
-	var crackCount sql.NullInt64
-	var crackPixels sql.NullInt64
-	var crackRatio sql.NullFloat64
-	var regions sql.NullString
-	var runtimeSeconds sql.NullFloat64
-	if err := r.mysql.QueryRowContext(ctx, `
-		SELECT
-			uuid,
-			status,
-			has_crack,
-			crack_count,
-			crack_pixels,
-			crack_ratio,
-			CAST(regions AS CHAR),
-			runtime_seconds
-		FROM project_detection_crack_tasks
-		WHERE id = ?
-		LIMIT 1
-	`, taskId).Scan(
-		&result.TaskUuid,
-		&status,
-		&hasCrack,
-		&crackCount,
-		&crackPixels,
-		&crackRatio,
-		&regions,
-		&runtimeSeconds,
-	); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.HasCrack = nullBool(hasCrack)
-	result.CrackCount = nullUint32(crackCount)
-	result.CrackPixels = nullUint64(crackPixels)
-	result.CrackRatio = nullFloat64(crackRatio)
-	if err := unmarshalRegions(regions, &result.Regions); err != nil {
-		return nil, err
-	}
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
-	return result, nil
-}
-
-// GetProjectDetectionStainResult 按任务 ID 查询石材污渍检测结果
-func (r *Repository) GetProjectDetectionStainResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionStainResult, error) {
-	result := &commonpb.ProjectDetectionStainResult{}
-	var status string
-	var hasStain sql.NullBool
-	var stainCount sql.NullInt64
-	var averageStainRatio sql.NullFloat64
-	var maxStainRatio sql.NullFloat64
-	var regions sql.NullString
-	var runtimeSeconds sql.NullFloat64
-	if err := r.mysql.QueryRowContext(ctx, `
-		SELECT
-			uuid,
-			status,
-			has_stain,
-			stain_count,
-			average_stain_ratio,
-			max_stain_ratio,
-			CAST(regions AS CHAR),
-			runtime_seconds
-		FROM project_detection_stain_tasks
-		WHERE id = ?
-		LIMIT 1
-	`, taskId).Scan(
-		&result.TaskUuid,
-		&status,
-		&hasStain,
-		&stainCount,
-		&averageStainRatio,
-		&maxStainRatio,
-		&regions,
-		&runtimeSeconds,
-	); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.HasStain = nullBool(hasStain)
-	result.StainCount = nullUint32(stainCount)
-	result.AverageStainRatio = nullFloat64(averageStainRatio)
-	result.MaxStainRatio = nullFloat64(maxStainRatio)
-	if err := unmarshalRegions(regions, &result.Regions); err != nil {
-		return nil, err
-	}
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
-	return result, nil
-}
-
-// GetProjectDetectionFlatnessResult 按任务 ID 查询玻璃平整度检测结果
-func (r *Repository) GetProjectDetectionFlatnessResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionFlatnessResult, error) {
-	result := &commonpb.ProjectDetectionFlatnessResult{}
-	var status string
-	var flatnessResult sql.NullString
-	var unevenCount sql.NullInt64
-	var regions sql.NullString
-	var runtimeSeconds sql.NullFloat64
-	if err := r.mysql.QueryRowContext(ctx, `
-		SELECT
-			uuid,
-			status,
-			result,
-			uneven_count,
-			CAST(regions AS CHAR),
-			runtime_seconds
-		FROM project_detection_flatness_tasks
-		WHERE id = ?
-		LIMIT 1
-	`, taskId).Scan(
-		&result.TaskUuid,
-		&status,
-		&flatnessResult,
-		&unevenCount,
-		&regions,
-		&runtimeSeconds,
-	); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.Result = nullString(flatnessResult)
-	result.UnevenCount = nullUint32(unevenCount)
-	if err := unmarshalRegions(regions, &result.Regions); err != nil {
-		return nil, err
-	}
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
-	return result, nil
-}
-
-// GetProjectDetectionSpallingResult 按任务 ID 查询玻璃爆裂检测结果
-func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionSpallingResult, error) {
-	result := &commonpb.ProjectDetectionSpallingResult{}
-	var status string
-	var hasSpalling sql.NullBool
-	var confidence sql.NullFloat64
-	var runtimeSeconds sql.NullFloat64
-	if err := r.mysql.QueryRowContext(ctx, `
-		SELECT
-			uuid,
-			status,
-			has_spalling,
-			confidence,
-			runtime_seconds
-		FROM project_detection_spalling_tasks
-		WHERE id = ?
-		LIMIT 1
-	`, taskId).Scan(
-		&result.TaskUuid,
-		&status,
-		&hasSpalling,
-		&confidence,
-		&runtimeSeconds,
-	); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.HasSpalling = nullBool(hasSpalling)
-	result.Confidence = nullFloat64(confidence)
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
-	return result, nil
-}
-
 // GetProjectDetectionSummaryTypedResult 按总结任务 ID 查询图像检测总结结果
 func (r *Repository) GetProjectDetectionSummaryTypedResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionSummaryResult, error) {
 	result := &commonpb.ProjectDetectionSummaryResult{}
@@ -839,7 +869,9 @@ func (r *Repository) GetProjectDetectionSummaryTypedResult(ctx context.Context, 
 		}
 		return nil, err
 	}
+
 	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
+
 	return result, nil
 }
 
