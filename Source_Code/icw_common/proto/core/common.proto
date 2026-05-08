@@ -47,3 +47,118 @@ message ProjectDetectionStatus {
   string main_status = 3;
   repeated ProjectDetectionNodeStatus nodes = 4;
 }
+
+// 项目图像金属锈蚀检测区域结构体
+message ProjectDetectionCorrosionRegion {
+  uint32 id = 1;
+  double confidence = 2;
+  repeated double bbox_xyxy = 3;
+  uint64 mask_pixels = 4;
+  double mask_ratio = 5;
+}
+
+// 项目图像金属锈蚀检测结果结构体
+message ProjectDetectionCorrosionResult {
+  string task_id = 1;
+  string status = 2;
+  bool has_corrosion = 3;
+  uint32 corrosion_count = 4;
+  double max_confidence = 5;
+  double average_confidence = 6;
+  uint64 corrosion_pixels = 7;
+  double corrosion_ratio = 8;
+  repeated ProjectDetectionCorrosionRegion regions = 9;
+  double runtime_seconds = 10;
+  map<string, string> artifacts = 11;
+}
+
+// 项目图像石材裂缝检测区域结构体
+message ProjectDetectionCrackRegion {
+  uint32 id = 1;
+  repeated double bbox_xyxy = 2;
+  uint64 mask_pixels = 3;
+  double mask_ratio = 4;
+}
+
+// 项目图像石材裂缝检测结果结构体
+message ProjectDetectionCrackResult {
+  string task_id = 1;
+  string status = 2;
+  bool has_crack = 3;
+  uint32 crack_count = 4;
+  uint64 crack_pixels = 5;
+  double crack_ratio = 6;
+  repeated ProjectDetectionCrackRegion regions = 7;
+  double runtime_seconds = 8;
+  map<string, string> artifacts = 9;
+}
+
+// 项目图像石材污渍检测区域结构体
+message ProjectDetectionStainRegion {
+  uint32 id = 1;
+  double confidence = 2;
+  repeated double bbox_xyxy = 3;
+  uint32 region_width = 4;
+  uint32 region_height = 5;
+  uint64 stain_pixels = 6;
+  double stain_ratio = 7;
+}
+
+// 项目图像石材污渍检测结果结构体
+message ProjectDetectionStainResult {
+  string task_id = 1;
+  string status = 2;
+  bool has_stain = 3;
+  uint32 stain_count = 4;
+  double average_stain_ratio = 5;
+  double max_stain_ratio = 6;
+  repeated ProjectDetectionStainRegion regions = 7;
+  double runtime_seconds = 8;
+  map<string, string> artifacts = 9;
+}
+
+// 项目图像玻璃平整度检测区域结构体
+message ProjectDetectionFlatnessRegion {
+  uint32 id = 1;
+  repeated double bbox_xyxy = 2;
+  bool edge_uneven_detected = 3;
+  bool line_uneven_detected = 4;
+  bool gradient_uneven_detected = 5;
+  bool frequency_uneven_detected = 6;
+  uint64 edge_count = 7;
+  double laplacian_variance = 8;
+  uint64 line_count = 9;
+  double angle_std = 10;
+  double gradient_mean = 11;
+  double gradient_std = 12;
+  double frequency_min = 13;
+  double frequency_max = 14;
+}
+
+// 项目图像玻璃平整度检测结果结构体
+message ProjectDetectionFlatnessResult {
+  string task_id = 1;
+  string status = 2;
+  string result = 3;
+  uint32 uneven_count = 4;
+  repeated ProjectDetectionFlatnessRegion regions = 5;
+  double runtime_seconds = 6;
+  map<string, string> artifacts = 7;
+}
+
+// 项目图像玻璃爆裂检测结果结构体
+message ProjectDetectionSpallingResult {
+  string task_id = 1;
+  string status = 2;
+  bool has_spalling = 3;
+  double confidence = 4;
+  double runtime_seconds = 5;
+  map<string, string> artifacts = 6;
+}
+
+// 项目图像检测总结结果结构体
+message ProjectDetectionSummaryResult {
+  string task_id = 1;
+  string status = 2;
+  string result_json = 3;
+}

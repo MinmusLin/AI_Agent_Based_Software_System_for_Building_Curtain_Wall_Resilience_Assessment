@@ -6,6 +6,26 @@ option go_package = "icw_common/gen/core/api;apipb";
 
 import "core/common.proto";
 
+// GetImageDetectionResult 请求结构体
+message GetImageDetectionResultRequest {
+  string project_id = 1;
+  string image_uuid = 2;
+}
+
+// GetImageDetectionResult 响应结构体
+message GetImageDetectionResultResponse {
+  .icw.core.common.ProjectImage image = 1;
+  string original_url = 2;
+  .icw.core.common.ProjectDetectionStatus status = 3;
+  repeated string task_codes = 4;
+  .icw.core.common.ProjectDetectionCorrosionResult corrosion = 5;
+  .icw.core.common.ProjectDetectionCrackResult crack = 6;
+  .icw.core.common.ProjectDetectionStainResult stain = 7;
+  .icw.core.common.ProjectDetectionFlatnessResult flatness = 8;
+  .icw.core.common.ProjectDetectionSpallingResult spalling = 9;
+  .icw.core.common.ProjectDetectionSummaryResult summary = 10;
+}
+
 // GetProjectDetectionTasks 请求结构体
 message GetProjectDetectionTasksRequest {
   string project_id = 1;

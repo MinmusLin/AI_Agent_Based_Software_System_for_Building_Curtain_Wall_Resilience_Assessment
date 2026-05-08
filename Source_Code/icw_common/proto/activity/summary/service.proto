@@ -12,9 +12,7 @@ message StartDetectionSummaryRequest {
 }
 
 // StartDetectionSummary 响应结构体
-message StartDetectionSummaryResponse {
-  string result = 1;
-}
+message StartDetectionSummaryResponse {}
 
 // StartProjectSummary 请求结构体
 message StartProjectSummaryRequest {
@@ -23,9 +21,7 @@ message StartProjectSummaryRequest {
 }
 
 // StartProjectSummary 响应结构体
-message StartProjectSummaryResponse {
-  string result = 1;
-}
+message StartProjectSummaryResponse {}
 
 // 总结能力 RPC 服务
 service SummaryService {
