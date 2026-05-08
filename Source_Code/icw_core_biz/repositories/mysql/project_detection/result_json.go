@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 
 	"icw_core_biz/repositories/mysql/model"
 	"icw_core_biz/repositories/mysql/utils"
@@ -17,17 +18,12 @@ func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_corrosion_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
 
-	report := struct {
-		HasCorrosion      bool            `json:"has_corrosion"`
-		CorrosionCount    uint64          `json:"corrosion_count"`
-		MaxConfidence     float64         `json:"max_confidence"`
-		AverageConfidence float64         `json:"average_confidence"`
-		CorrosionPixels   uint64          `json:"corrosion_pixels"`
-		CorrosionRatio    float64         `json:"corrosion_ratio"`
-		Regions           json.RawMessage `json:"regions"`
-		RuntimeSeconds    float64         `json:"runtime_seconds"`
-	}{}
-	if err := json.Unmarshal([]byte(resultJSON), &report); err != nil {
+	report := &commonpb.ProjectDetectionCorrosionResult{}
+	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
+		return err
+	}
+	regionsJSON, err := utils.JsonOrEmptyArray(report.Regions)
+	if err != nil {
 		return err
 	}
 
@@ -43,7 +39,7 @@ func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx
 			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.HasCorrosion, report.CorrosionCount, report.MaxConfidence, report.AverageConfidence, report.CorrosionPixels, report.CorrosionRatio, utils.JsonOrEmptyArray(report.Regions), utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
+	`, report.HasCorrosion, report.CorrosionCount, report.MaxConfidence, report.AverageConfidence, report.CorrosionPixels, report.CorrosionRatio, regionsJSON, utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
@@ -57,15 +53,12 @@ func updateProjectDetectionCrackTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_crack_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
 
-	report := struct {
-		HasCrack       bool            `json:"has_crack"`
-		CrackCount     uint64          `json:"crack_count"`
-		CrackPixels    uint64          `json:"crack_pixels"`
-		CrackRatio     float64         `json:"crack_ratio"`
-		Regions        json.RawMessage `json:"regions"`
-		RuntimeSeconds float64         `json:"runtime_seconds"`
-	}{}
-	if err := json.Unmarshal([]byte(resultJSON), &report); err != nil {
+	report := &commonpb.ProjectDetectionCrackResult{}
+	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
+		return err
+	}
+	regionsJSON, err := utils.JsonOrEmptyArray(report.Regions)
+	if err != nil {
 		return err
 	}
 
@@ -79,7 +72,7 @@ func updateProjectDetectionCrackTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.HasCrack, report.CrackCount, report.CrackPixels, report.CrackRatio, utils.JsonOrEmptyArray(report.Regions), utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
+	`, report.HasCrack, report.CrackCount, report.CrackPixels, report.CrackRatio, regionsJSON, utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
@@ -93,15 +86,12 @@ func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_stain_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
 
-	report := struct {
-		HasStain          bool            `json:"has_stain"`
-		StainCount        uint64          `json:"stain_count"`
-		AverageStainRatio float64         `json:"average_stain_ratio"`
-		MaxStainRatio     float64         `json:"max_stain_ratio"`
-		Regions           json.RawMessage `json:"regions"`
-		RuntimeSeconds    float64         `json:"runtime_seconds"`
-	}{}
-	if err := json.Unmarshal([]byte(resultJSON), &report); err != nil {
+	report := &commonpb.ProjectDetectionStainResult{}
+	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
+		return err
+	}
+	regionsJSON, err := utils.JsonOrEmptyArray(report.Regions)
+	if err != nil {
 		return err
 	}
 
@@ -115,7 +105,7 @@ func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.HasStain, report.StainCount, report.AverageStainRatio, report.MaxStainRatio, utils.JsonOrEmptyArray(report.Regions), utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
+	`, report.HasStain, report.StainCount, report.AverageStainRatio, report.MaxStainRatio, regionsJSON, utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
@@ -129,13 +119,12 @@ func updateProjectDetectionFlatnessTaskResultTx(ctx context.Context, tx *sql.Tx,
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_flatness_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
 
-	report := struct {
-		Result         string          `json:"result"`
-		UnevenCount    uint64          `json:"uneven_count"`
-		Regions        json.RawMessage `json:"regions"`
-		RuntimeSeconds float64         `json:"runtime_seconds"`
-	}{}
-	if err := json.Unmarshal([]byte(resultJSON), &report); err != nil {
+	report := &commonpb.ProjectDetectionFlatnessResult{}
+	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
+		return err
+	}
+	regionsJSON, err := utils.JsonOrEmptyArray(report.Regions)
+	if err != nil {
 		return err
 	}
 
@@ -147,7 +136,7 @@ func updateProjectDetectionFlatnessTaskResultTx(ctx context.Context, tx *sql.Tx,
 			artifact_sha256_map = ?,
 			runtime_seconds = ?
 		WHERE uuid = ?
-	`, report.Result, report.UnevenCount, utils.JsonOrEmptyArray(report.Regions), utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
+	`, report.Result, report.UnevenCount, regionsJSON, utils.JsonStringOrEmptyObject(artifactSha256Map), report.RuntimeSeconds, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
@@ -161,12 +150,8 @@ func updateProjectDetectionSpallingTaskResultTx(ctx context.Context, tx *sql.Tx,
 		return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_spalling_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
 	}
 
-	report := struct {
-		HasSpalling    bool    `json:"has_spalling"`
-		Confidence     float64 `json:"confidence"`
-		RuntimeSeconds float64 `json:"runtime_seconds"`
-	}{}
-	if err := json.Unmarshal([]byte(resultJSON), &report); err != nil {
+	report := &commonpb.ProjectDetectionSpallingResult{}
+	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
 		return err
 	}
 

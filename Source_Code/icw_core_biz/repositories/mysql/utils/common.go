@@ -58,11 +58,15 @@ func LockProjectForUpdate(ctx context.Context, tx *sql.Tx, userId, projectId uin
 }
 
 // JsonOrEmptyArray 将空 JSON 数组字段兜底为 "[]"
-func JsonOrEmptyArray(raw json.RawMessage) string {
-	if len(raw) == 0 {
-		return "[]"
+func JsonOrEmptyArray(raw json.RawMessage) (string, error) {
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return "[]", err
 	}
-	return string(raw)
+	if string(data) == "null" {
+		return "[]", nil
+	}
+	return string(data), nil
 }
 
 // JsonStringOrEmptyObject 将空 JSON 对象字符串兜底为 "{}"
