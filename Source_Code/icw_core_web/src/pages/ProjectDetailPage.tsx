@@ -9,7 +9,13 @@ import { getProjectProfile } from '@/api/project/profile';
 import { ProjectAssetsStage } from '@/components/project/ProjectAssetsStage';
 import { ProjectDetectionStage } from '@/components/project/ProjectDetectionStage';
 import { ProjectProfileStage } from '@/components/project/ProjectProfileStage';
-import { LAST_VISIBLE_PROGRESS, progressFromStageKey, PROJECT_STAGES, stageKeyFromProgress } from '@/constants/project';
+import {
+  LAST_VISIBLE_PROGRESS,
+  normalizeProjectProgress,
+  progressFromStageKey,
+  PROJECT_STAGES,
+  stageKeyFromProgress,
+} from '@/constants/project';
 import type { ProjectProgress } from '@/types/common';
 import {
   PROJECT_PROGRESS_ASSETS_FINISHED,
@@ -56,8 +62,8 @@ function emptyProject(projectId: string): Project {
   };
 }
 
-function currentVisibleProgress(progress: ProjectProgress): ProjectProgress {
-  return Math.min(progress, LAST_VISIBLE_PROGRESS) as ProjectProgress;
+function currentVisibleProgress(progress: unknown): ProjectProgress {
+  return Math.min(normalizeProjectProgress(progress), LAST_VISIBLE_PROGRESS) as ProjectProgress;
 }
 
 function projectRoute(projectId: string, progress: ProjectProgress): string {
@@ -108,7 +114,16 @@ function ProjectStageContent({
   }
 
   if (selectedProgress === PROJECT_PROGRESS_ASSETS_FINISHED) {
-    return <ProjectDetectionStage loading={loading} projectId={projectId} />;
+    return (
+      <ProjectDetectionStage
+        loading={loading}
+        onProgressChange={onProgressChange}
+        onProjectChange={onProjectChange}
+        project={project}
+        projectId={projectId}
+        selectedProgress={selectedProgress}
+      />
+    );
   }
 
   return (
@@ -211,7 +226,7 @@ export default function ProjectDetailPage(): ReactElement {
           onProjectChange={setProject}
           project={loadingProject}
           projectId={projectId}
-          selectedProgress={PROJECT_PROGRESS_INITIALIZATION_FINISHED}
+          selectedProgress={selectedProgress}
         />
       </div>
     );
