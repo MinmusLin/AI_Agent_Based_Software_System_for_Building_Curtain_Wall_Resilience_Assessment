@@ -36,14 +36,14 @@ message UploadProjectImageResult {
 // 项目图像检测节点状态结构体
 message ProjectDetectionNodeStatus {
   string node_code = 1;
-  string sub_task_id = 2;
+  string sub_task_uuid = 2;
   string sub_status = 3;
 }
 
 // 项目图像检测任务状态结构体
 message ProjectDetectionStatus {
   string image_uuid = 1;
-  string main_task_id = 2;
+  string main_task_uuid = 2;
   string main_status = 3;
   repeated ProjectDetectionNodeStatus nodes = 4;
 }
@@ -59,7 +59,7 @@ message ProjectDetectionCorrosionRegion {
 
 // 项目图像金属锈蚀检测结果结构体
 message ProjectDetectionCorrosionResult {
-  string task_id = 1;
+  string task_uuid = 1;
   string status = 2;
   bool has_corrosion = 3;
   uint32 corrosion_count = 4;
@@ -82,7 +82,7 @@ message ProjectDetectionCrackRegion {
 
 // 项目图像石材裂缝检测结果结构体
 message ProjectDetectionCrackResult {
-  string task_id = 1;
+  string task_uuid = 1;
   string status = 2;
   bool has_crack = 3;
   uint32 crack_count = 4;
@@ -106,7 +106,7 @@ message ProjectDetectionStainRegion {
 
 // 项目图像石材污渍检测结果结构体
 message ProjectDetectionStainResult {
-  string task_id = 1;
+  string task_uuid = 1;
   string status = 2;
   bool has_stain = 3;
   uint32 stain_count = 4;
@@ -137,7 +137,7 @@ message ProjectDetectionFlatnessRegion {
 
 // 项目图像玻璃平整度检测结果结构体
 message ProjectDetectionFlatnessResult {
-  string task_id = 1;
+  string task_uuid = 1;
   string status = 2;
   string result = 3;
   uint32 uneven_count = 4;
@@ -148,7 +148,7 @@ message ProjectDetectionFlatnessResult {
 
 // 项目图像玻璃爆裂检测结果结构体
 message ProjectDetectionSpallingResult {
-  string task_id = 1;
+  string task_uuid = 1;
   string status = 2;
   bool has_spalling = 3;
   double confidence = 4;
@@ -158,7 +158,7 @@ message ProjectDetectionSpallingResult {
 
 // 项目图像检测总结结果结构体
 message ProjectDetectionSummaryResult {
-  string task_id = 1;
+  string task_uuid = 1;
   string status = 2;
   string result_json = 3;
 }

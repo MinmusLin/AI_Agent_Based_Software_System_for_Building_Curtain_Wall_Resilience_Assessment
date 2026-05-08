@@ -18,12 +18,12 @@ message GetImageDetectionResultResponse {
   string original_url = 2;
   .icw.core.common.ProjectDetectionStatus status = 3;
   repeated string task_codes = 4;
-  .icw.core.common.ProjectDetectionCorrosionResult corrosion = 5;
-  .icw.core.common.ProjectDetectionCrackResult crack = 6;
-  .icw.core.common.ProjectDetectionStainResult stain = 7;
-  .icw.core.common.ProjectDetectionFlatnessResult flatness = 8;
-  .icw.core.common.ProjectDetectionSpallingResult spalling = 9;
-  .icw.core.common.ProjectDetectionSummaryResult summary = 10;
+  .icw.core.common.ProjectDetectionCorrosionResult corrosion_result = 5;
+  .icw.core.common.ProjectDetectionCrackResult crack_result = 6;
+  .icw.core.common.ProjectDetectionStainResult stain_result = 7;
+  .icw.core.common.ProjectDetectionFlatnessResult flatness_result = 8;
+  .icw.core.common.ProjectDetectionSpallingResult spalling_result = 9;
+  .icw.core.common.ProjectDetectionSummaryResult summary_result = 10;
 }
 
 // GetProjectDetectionTasks 请求结构体
