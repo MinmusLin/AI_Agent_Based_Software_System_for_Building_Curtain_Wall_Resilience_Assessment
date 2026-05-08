@@ -2246,10 +2246,7 @@ type ProjectReport struct {
 	ReportUuid    string                    `protobuf:"bytes,1,opt,name=report_uuid,json=reportUuid,proto3" json:"report_uuid,omitempty"`
 	Status        ProjectReportStatus_Value `protobuf:"varint,2,opt,name=status,proto3,enum=icw.core.common.ProjectReportStatus_Value" json:"status,omitempty"`
 	ResultJson    string                    `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
-	StartedAt     string                    `protobuf:"bytes,4,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
-	FinishedAt    string                    `protobuf:"bytes,5,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
-	CreatedAt     string                    `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     string                    `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UpdatedAt     string                    `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2301,27 +2298,6 @@ func (x *ProjectReport) GetStatus() ProjectReportStatus_Value {
 func (x *ProjectReport) GetResultJson() string {
 	if x != nil {
 		return x.ResultJson
-	}
-	return ""
-}
-
-func (x *ProjectReport) GetStartedAt() string {
-	if x != nil {
-		return x.StartedAt
-	}
-	return ""
-}
-
-func (x *ProjectReport) GetFinishedAt() string {
-	if x != nil {
-		return x.FinishedAt
-	}
-	return ""
-}
-
-func (x *ProjectReport) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
 	}
 	return ""
 }
@@ -2584,7 +2560,7 @@ const file_core_common_proto_rawDesc = "" +
 	"\averdict\x18\x03 \x01(\x0e24.icw.core.common.ProjectDetectionReviewVerdict.ValueR\averdict\x12\x18\n" +
 	"\acomment\x18\x04 \x01(\tR\acomment\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\tR\tupdatedAt\"\x93\x02\n" +
+	"updated_at\x18\x05 \x01(\tR\tupdatedAt\"\xb4\x01\n" +
 	"\rProjectReport\x12\x1f\n" +
 	"\vreport_uuid\x18\x01 \x01(\tR\n" +
 	"reportUuid\x12B\n" +
@@ -2592,13 +2568,7 @@ const file_core_common_proto_rawDesc = "" +
 	"\vresult_json\x18\x03 \x01(\tR\n" +
 	"resultJson\x12\x1d\n" +
 	"\n" +
-	"started_at\x18\x04 \x01(\tR\tstartedAt\x12\x1f\n" +
-	"\vfinished_at\x18\x05 \x01(\tR\n" +
-	"finishedAt\x12\x1d\n" +
-	"\n" +
-	"created_at\x18\x06 \x01(\tR\tcreatedAt\x12\x1d\n" +
-	"\n" +
-	"updated_at\x18\a \x01(\tR\tupdatedAtB%Z#icw_common/gen/core/common;commonpbb\x06proto3"
+	"updated_at\x18\x04 \x01(\tR\tupdatedAtB%Z#icw_common/gen/core/common;commonpbb\x06proto3"
 
 var (
 	file_core_common_proto_rawDescOnce sync.Once
