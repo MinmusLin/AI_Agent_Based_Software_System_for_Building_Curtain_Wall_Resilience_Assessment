@@ -2,6 +2,7 @@ package redis
 
 import (
 	"fmt"
+	"path"
 	"strings"
 
 	"icw_common/utils"
@@ -39,7 +40,12 @@ func genSocketTicketKey(ticketHash string) string {
 
 // genPresignURLKey 按 MinIO 对象 Key 生成预签名 URL 缓存 Key
 func genPresignURLKey(objectKey string) string {
-	objectKey = strings.TrimSpace(objectKey)
+	objectKey = strings.Trim(strings.TrimSpace(objectKey), "/")
+	if objectKey == "" {
+		return ""
+	}
+	objectKey = strings.TrimSuffix(objectKey, path.Ext(objectKey))
+	objectKey = strings.ReplaceAll(objectKey, "/", ":")
 	if objectKey == "" {
 		return ""
 	}
