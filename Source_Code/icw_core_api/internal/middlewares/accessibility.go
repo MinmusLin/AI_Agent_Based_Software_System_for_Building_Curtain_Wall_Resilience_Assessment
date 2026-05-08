@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 	"icw_common/utils"
@@ -69,14 +68,14 @@ func projectAccessRequired(coreBizClient *icw_core_biz.Client, progressCondition
 		}
 
 		// 根据项目进度按需校验项目阶段编辑权限
-		if progressCondition != nil && !progressCondition(enum.ParseProjectProgress(uint8(rpcResp.Progress))) {
+		if progressCondition != nil && !progressCondition(rpcResp.Progress) {
 			response.Error(c, rpc_error.BadRequestDefault("project progress condition is not satisfied"))
 			c.Abort()
 			return
 		}
 
 		// 根据项目状态按需校验项目阶段编辑权限
-		if statusCondition != nil && !statusCondition(enum.ParseProjectStatus(rpcResp.Status)) {
+		if statusCondition != nil && !statusCondition(rpcResp.Status) {
 			response.Error(c, rpc_error.BadRequestDefault("project status condition is not satisfied"))
 			c.Abort()
 			return
