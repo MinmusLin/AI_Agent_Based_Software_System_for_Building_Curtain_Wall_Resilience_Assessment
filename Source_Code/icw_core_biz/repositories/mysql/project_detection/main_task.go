@@ -83,6 +83,7 @@ func UpdateProjectDetectionTaskStatusTx(ctx context.Context, tx *sql.Tx, taskId 
 	if statusText == "" {
 		return model.ErrProjectDetectionTaskStatusInvalid
 	}
+
 	result, err := tx.ExecContext(ctx, `
 		UPDATE project_detection_tasks
 		SET status = ?,
@@ -98,5 +99,6 @@ func UpdateProjectDetectionTaskStatusTx(ctx context.Context, tx *sql.Tx, taskId 
 		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Succeeded),
 		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Failed),
 		taskId)
+
 	return utils.CheckRowsAffected(result, err)
 }

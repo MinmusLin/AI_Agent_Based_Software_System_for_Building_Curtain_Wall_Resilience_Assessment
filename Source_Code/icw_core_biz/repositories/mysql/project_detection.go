@@ -890,6 +890,36 @@ func (r *Repository) StartProjectDetectionSummaryTask(ctx context.Context, taskU
 	return task, subTask, err
 }
 
+// UpdateProjectDetectionTaskStatus 按项目图像检测主任务 ID 更新任务状态
+func (r *Repository) UpdateProjectDetectionTaskStatus(ctx context.Context, taskId uint64, status bizpb.ProjectDetectionTaskStatus_Value) (*model.ProjectDetectionTaskRecord, error) {
+	statusText := enum.ProjectDetectionTaskStatusString(status)
+	if statusText == "" {
+		return nil, model.ErrProjectDetectionTaskStatusInvalid
+	}
+
+	result, err := r.mysql.ExecContext(ctx, `
+		UPDATE project_detection_tasks
+		SET status = ?,
+			started_at = CASE WHEN started_at IS NULL AND ? IN (?, ?, ?) THEN NOW(3) ELSE started_at END,
+			finished_at = CASE WHEN ? IN (?, ?) THEN NOW(3) ELSE finished_at END
+		WHERE id = ?
+	`, statusText,
+		statusText,
+		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Classifying),
+		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Detecting),
+		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Summarizing),
+		statusText,
+		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Succeeded),
+		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Failed),
+		taskId)
+
+	if err := utils.CheckRowsAffected(result, err); err != nil {
+		return nil, err
+	}
+
+	return r.FindProjectDetectionTaskById(ctx, taskId)
+}
+
 // UpdateProjectDetectionClassificationResult 按项目图像检测主任务 UUID 更新分类结果
 func (r *Repository) UpdateProjectDetectionClassificationResult(ctx context.Context, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, taskCodes []string) (*model.ProjectDetectionTaskRecord, map[string]*model.ProjectDetectionSubTaskRecord, error) {
 	tx, err := r.mysql.BeginTx(ctx, nil)
@@ -1085,9 +1115,7 @@ func (r *Repository) UpdateProjectDetectionSummaryResult(ctx context.Context, ta
 	return task, subTask, err
 }
 
-// todo 不要删这一行注释
-
-// GetProjectDetectionSubReportJSON 按子任务代码和子任务 ID 查询项目图像检测子任务报告 JSON
+// GetProjectDetectionSubReportJSON 按项目图像检测子任务代码和子任务 ID 查询检测报告 JSON
 func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskCode string, taskId uint64) (string, error) {
 	switch enum.ParseDetectionTaskCode(taskCode) {
 	case activitypb.DetectionTaskCode_Corrosion:
@@ -1162,6 +1190,18 @@ func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskC
 	}
 }
 
+// queryProjectDetectionSubReportJSON 按项目图像检测子任务 ID 和查询语句查询检测报告 JSON
+func (r *Repository) queryProjectDetectionSubReportJSON(ctx context.Context, taskId uint64, query string) (string, error) {
+	reportJSON := ""
+	if err := r.mysql.QueryRowContext(ctx, query, taskId).Scan(&reportJSON); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", nil
+		}
+		return "", err
+	}
+	return reportJSON, nil
+}
+
 // GetProjectDetectionSummaryTypedResult 按总结任务 ID 查询图像检测总结结果
 func (r *Repository) GetProjectDetectionSummaryTypedResult(ctx context.Context, taskId uint64) (*commonpb.ProjectDetectionSummaryResult, error) {
 	result := &commonpb.ProjectDetectionSummaryResult{}
@@ -1177,47 +1217,6 @@ func (r *Repository) GetProjectDetectionSummaryTypedResult(ctx context.Context, 
 		}
 		return nil, err
 	}
-
 	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-
 	return result, nil
-}
-
-// queryProjectDetectionSubReportJSON 查询项目图像检测子任务报告 JSON
-func (r *Repository) queryProjectDetectionSubReportJSON(ctx context.Context, taskId uint64, query string) (string, error) {
-	reportJSON := ""
-	if err := r.mysql.QueryRowContext(ctx, query, taskId).Scan(&reportJSON); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", nil
-		}
-		return "", err
-	}
-	return reportJSON, nil
-}
-
-// UpdateProjectDetectionTaskStatus 按主任务 ID 更新项目图像检测主任务状态
-func (r *Repository) UpdateProjectDetectionTaskStatus(ctx context.Context, taskId uint64, status bizpb.ProjectDetectionTaskStatus_Value) (*model.ProjectDetectionTaskRecord, error) {
-	statusText := enum.ProjectDetectionTaskStatusString(status)
-	if statusText == "" {
-		return nil, model.ErrProjectDetectionTaskStatusInvalid
-	}
-	result, err := r.mysql.ExecContext(ctx, `
-		UPDATE project_detection_tasks
-		SET status = ?,
-			started_at = CASE WHEN started_at IS NULL AND ? IN (?, ?, ?) THEN NOW(3) ELSE started_at END,
-			finished_at = CASE WHEN ? IN (?, ?) THEN NOW(3) ELSE finished_at END
-		WHERE id = ?
-	`, statusText,
-		statusText,
-		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Classifying),
-		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Detecting),
-		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Summarizing),
-		statusText,
-		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Succeeded),
-		enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Failed),
-		taskId)
-	if err := utils.CheckRowsAffected(result, err); err != nil {
-		return nil, err
-	}
-	return r.FindProjectDetectionTaskById(ctx, taskId)
 }
