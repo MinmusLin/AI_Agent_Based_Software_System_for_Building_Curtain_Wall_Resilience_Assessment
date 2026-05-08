@@ -2,6 +2,7 @@ package redis
 
 import (
 	"fmt"
+	"strings"
 
 	"icw_common/utils"
 )
@@ -36,27 +37,11 @@ func genSocketTicketKey(ticketHash string) string {
 	return fmt.Sprintf("socket:ticket:%s", ticketHash)
 }
 
-// GenDefaultAvatarPresignURLKey 生成用户默认头像预签名 URL 缓存 Key
-func GenDefaultAvatarPresignURLKey(emailHash string) string {
-	return fmt.Sprintf("presign:avatar:default:%s", emailHash)
-}
-
-// GenCustomAvatarPresignURLKey 生成用户自定义头像预签名 URL 缓存 Key
-func GenCustomAvatarPresignURLKey(emailHash string) string {
-	return fmt.Sprintf("presign:avatar:custom:%s", emailHash)
-}
-
-// GenProjectThumbnailPresignURLKey 生成项目缩略图预签名 URL 缓存 Key
-func GenProjectThumbnailPresignURLKey(userId, projectId uint64) string {
-	return fmt.Sprintf("presign:project:thumbnail:%s:%s", utils.Encode(userId), utils.Encode(projectId))
-}
-
-// GenProjectImageOriginalPresignURLKey 生成项目图像原图预签名 URL 缓存 Key
-func GenProjectImageOriginalPresignURLKey(userId, projectId uint64, imageUuid string) string {
-	return fmt.Sprintf("presign:image:original:%s:%s:%s", utils.Encode(userId), utils.Encode(projectId), imageUuid)
-}
-
-// GenProjectImageThumbnailPresignURLKey 生成项目图像缩略图预签名 URL 缓存 Key
-func GenProjectImageThumbnailPresignURLKey(userId, projectId uint64, imageUuid string) string {
-	return fmt.Sprintf("presign:image:thumbnail:%s:%s:%s", utils.Encode(userId), utils.Encode(projectId), imageUuid)
+// genPresignURLKey 按 MinIO 对象 Key 生成预签名 URL 缓存 Key
+func genPresignURLKey(objectKey string) string {
+	objectKey = strings.TrimSpace(objectKey)
+	if objectKey == "" {
+		return ""
+	}
+	return fmt.Sprintf("presign:get:%s", objectKey)
 }

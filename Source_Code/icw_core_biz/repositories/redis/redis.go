@@ -141,7 +141,11 @@ func (r *Repository) ConsumeSocketTicket(ctx context.Context, ticketHash string)
 }
 
 // GetPresignURL 获取预签名 URL 缓存
-func (r *Repository) GetPresignURL(ctx context.Context, key string) (string, error) {
+func (r *Repository) GetPresignURL(ctx context.Context, objectKey string) (string, error) {
+	key := genPresignURLKey(objectKey)
+	if key == "" {
+		return "", nil
+	}
 	presignURL, err := r.redis.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
 		return "", nil
@@ -153,7 +157,8 @@ func (r *Repository) GetPresignURL(ctx context.Context, key string) (string, err
 }
 
 // SavePresignURL 保存预签名 URL 缓存
-func (r *Repository) SavePresignURL(ctx context.Context, key, presignURL string, ttl time.Duration) error {
+func (r *Repository) SavePresignURL(ctx context.Context, objectKey, presignURL string, ttl time.Duration) error {
+	key := genPresignURLKey(objectKey)
 	if key == "" || presignURL == "" || ttl <= 0 {
 		return nil
 	}
@@ -161,7 +166,8 @@ func (r *Repository) SavePresignURL(ctx context.Context, key, presignURL string,
 }
 
 // ClearPresignURL 清除预签名 URL 缓存
-func (r *Repository) ClearPresignURL(ctx context.Context, key string) error {
+func (r *Repository) ClearPresignURL(ctx context.Context, objectKey string) error {
+	key := genPresignURLKey(objectKey)
 	if key == "" {
 		return nil
 	}
