@@ -990,6 +990,8 @@ type ProjectDetectionCorrosionResult struct {
 	Regions           []*ProjectDetectionCorrosionRegion  `protobuf:"bytes,9,rep,name=regions,proto3" json:"regions,omitempty"`
 	RuntimeSeconds    float64                             `protobuf:"fixed64,10,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
 	Artifacts         map[string]string                   `protobuf:"bytes,11,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	StartedAt         string                              `protobuf:"bytes,12,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt        string                              `protobuf:"bytes,13,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -1101,6 +1103,20 @@ func (x *ProjectDetectionCorrosionResult) GetArtifacts() map[string]string {
 	return nil
 }
 
+func (x *ProjectDetectionCorrosionResult) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *ProjectDetectionCorrosionResult) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
+}
+
 // 项目图像石材裂缝检测区域结构体
 type ProjectDetectionCrackRegion struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1182,6 +1198,8 @@ type ProjectDetectionCrackResult struct {
 	Regions        []*ProjectDetectionCrackRegion      `protobuf:"bytes,7,rep,name=regions,proto3" json:"regions,omitempty"`
 	RuntimeSeconds float64                             `protobuf:"fixed64,8,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
 	Artifacts      map[string]string                   `protobuf:"bytes,9,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	StartedAt      string                              `protobuf:"bytes,10,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt     string                              `protobuf:"bytes,11,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1277,6 +1295,20 @@ func (x *ProjectDetectionCrackResult) GetArtifacts() map[string]string {
 		return x.Artifacts
 	}
 	return nil
+}
+
+func (x *ProjectDetectionCrackResult) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *ProjectDetectionCrackResult) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
 }
 
 // 项目图像石材污渍检测区域结构体
@@ -1384,6 +1416,8 @@ type ProjectDetectionStainResult struct {
 	Regions           []*ProjectDetectionStainRegion      `protobuf:"bytes,7,rep,name=regions,proto3" json:"regions,omitempty"`
 	RuntimeSeconds    float64                             `protobuf:"fixed64,8,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
 	Artifacts         map[string]string                   `protobuf:"bytes,9,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	StartedAt         string                              `protobuf:"bytes,10,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt        string                              `protobuf:"bytes,11,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -1479,6 +1513,20 @@ func (x *ProjectDetectionStainResult) GetArtifacts() map[string]string {
 		return x.Artifacts
 	}
 	return nil
+}
+
+func (x *ProjectDetectionStainResult) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *ProjectDetectionStainResult) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
 }
 
 // 项目图像玻璃平整度检测区域结构体
@@ -1640,6 +1688,8 @@ type ProjectDetectionFlatnessResult struct {
 	Regions        []*ProjectDetectionFlatnessRegion   `protobuf:"bytes,5,rep,name=regions,proto3" json:"regions,omitempty"`
 	RuntimeSeconds float64                             `protobuf:"fixed64,6,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
 	Artifacts      map[string]string                   `protobuf:"bytes,7,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	StartedAt      string                              `protobuf:"bytes,8,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt     string                              `protobuf:"bytes,9,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1723,6 +1773,20 @@ func (x *ProjectDetectionFlatnessResult) GetArtifacts() map[string]string {
 	return nil
 }
 
+func (x *ProjectDetectionFlatnessResult) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *ProjectDetectionFlatnessResult) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
+}
+
 // 项目图像玻璃爆裂检测结果结构体
 type ProjectDetectionSpallingResult struct {
 	state          protoimpl.MessageState              `protogen:"open.v1"`
@@ -1732,6 +1796,8 @@ type ProjectDetectionSpallingResult struct {
 	Confidence     float64                             `protobuf:"fixed64,4,opt,name=confidence,proto3" json:"confidence,omitempty"`
 	RuntimeSeconds float64                             `protobuf:"fixed64,5,opt,name=runtime_seconds,json=runtimeSeconds,proto3" json:"runtime_seconds,omitempty"`
 	Artifacts      map[string]string                   `protobuf:"bytes,6,rep,name=artifacts,proto3" json:"artifacts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	StartedAt      string                              `protobuf:"bytes,7,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt     string                              `protobuf:"bytes,8,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1808,12 +1874,28 @@ func (x *ProjectDetectionSpallingResult) GetArtifacts() map[string]string {
 	return nil
 }
 
+func (x *ProjectDetectionSpallingResult) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *ProjectDetectionSpallingResult) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
+}
+
 // 项目图像检测总结结果结构体
 type ProjectDetectionSummaryResult struct {
 	state         protoimpl.MessageState              `protogen:"open.v1"`
 	TaskUuid      string                              `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
 	Status        ProjectDetectionSubTaskStatus_Value `protobuf:"varint,2,opt,name=status,proto3,enum=icw.core.common.ProjectDetectionSubTaskStatus_Value" json:"status,omitempty"`
 	ResultJson    string                              `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
+	StartedAt     string                              `protobuf:"bytes,4,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt    string                              `protobuf:"bytes,5,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1865,6 +1947,20 @@ func (x *ProjectDetectionSummaryResult) GetStatus() ProjectDetectionSubTaskStatu
 func (x *ProjectDetectionSummaryResult) GetResultJson() string {
 	if x != nil {
 		return x.ResultJson
+	}
+	return ""
+}
+
+func (x *ProjectDetectionSummaryResult) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *ProjectDetectionSummaryResult) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
 	}
 	return ""
 }
@@ -1960,7 +2056,7 @@ const file_core_common_proto_rawDesc = "" +
 	"\vmask_pixels\x18\x04 \x01(\x04R\n" +
 	"maskPixels\x12\x1d\n" +
 	"\n" +
-	"mask_ratio\x18\x05 \x01(\x01R\tmaskRatio\"\x96\x05\n" +
+	"mask_ratio\x18\x05 \x01(\x01R\tmaskRatio\"\xd6\x05\n" +
 	"\x1fProjectDetectionCorrosionResult\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12L\n" +
 	"\x06status\x18\x02 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\x06status\x12#\n" +
@@ -1973,7 +2069,11 @@ const file_core_common_proto_rawDesc = "" +
 	"\aregions\x18\t \x03(\v20.icw.core.common.ProjectDetectionCorrosionRegionR\aregions\x12'\n" +
 	"\x0fruntime_seconds\x18\n" +
 	" \x01(\x01R\x0eruntimeSeconds\x12]\n" +
-	"\tartifacts\x18\v \x03(\v2?.icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\tartifacts\x18\v \x03(\v2?.icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntryR\tartifacts\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\f \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\r \x01(\tR\n" +
+	"finishedAt\x1a<\n" +
 	"\x0eArtifactsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8a\x01\n" +
@@ -1983,7 +2083,7 @@ const file_core_common_proto_rawDesc = "" +
 	"\vmask_pixels\x18\x03 \x01(\x04R\n" +
 	"maskPixels\x12\x1d\n" +
 	"\n" +
-	"mask_ratio\x18\x04 \x01(\x01R\tmaskRatio\"\x94\x04\n" +
+	"mask_ratio\x18\x04 \x01(\x01R\tmaskRatio\"\xd4\x04\n" +
 	"\x1bProjectDetectionCrackResult\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12L\n" +
 	"\x06status\x18\x02 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\x06status\x12\x1b\n" +
@@ -1995,7 +2095,12 @@ const file_core_common_proto_rawDesc = "" +
 	"crackRatio\x12F\n" +
 	"\aregions\x18\a \x03(\v2,.icw.core.common.ProjectDetectionCrackRegionR\aregions\x12'\n" +
 	"\x0fruntime_seconds\x18\b \x01(\x01R\x0eruntimeSeconds\x12Y\n" +
-	"\tartifacts\x18\t \x03(\v2;.icw.core.common.ProjectDetectionCrackResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\tartifacts\x18\t \x03(\v2;.icw.core.common.ProjectDetectionCrackResult.ArtifactsEntryR\tartifacts\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\n" +
+	" \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\v \x01(\tR\n" +
+	"finishedAt\x1a<\n" +
 	"\x0eArtifactsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf6\x01\n" +
@@ -2009,7 +2114,7 @@ const file_core_common_proto_rawDesc = "" +
 	"\rregion_height\x18\x05 \x01(\rR\fregionHeight\x12!\n" +
 	"\fstain_pixels\x18\x06 \x01(\x04R\vstainPixels\x12\x1f\n" +
 	"\vstain_ratio\x18\a \x01(\x01R\n" +
-	"stainRatio\"\xa8\x04\n" +
+	"stainRatio\"\xe8\x04\n" +
 	"\x1bProjectDetectionStainResult\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12L\n" +
 	"\x06status\x18\x02 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\x06status\x12\x1b\n" +
@@ -2020,7 +2125,12 @@ const file_core_common_proto_rawDesc = "" +
 	"\x0fmax_stain_ratio\x18\x06 \x01(\x01R\rmaxStainRatio\x12F\n" +
 	"\aregions\x18\a \x03(\v2,.icw.core.common.ProjectDetectionStainRegionR\aregions\x12'\n" +
 	"\x0fruntime_seconds\x18\b \x01(\x01R\x0eruntimeSeconds\x12Y\n" +
-	"\tartifacts\x18\t \x03(\v2;.icw.core.common.ProjectDetectionStainResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\tartifacts\x18\t \x03(\v2;.icw.core.common.ProjectDetectionStainResult.ArtifactsEntryR\tartifacts\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\n" +
+	" \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\v \x01(\tR\n" +
+	"finishedAt\x1a<\n" +
 	"\x0eArtifactsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc3\x04\n" +
@@ -2041,7 +2151,7 @@ const file_core_common_proto_rawDesc = "" +
 	"\rgradient_mean\x18\v \x01(\x01R\fgradientMean\x12!\n" +
 	"\fgradient_std\x18\f \x01(\x01R\vgradientStd\x12#\n" +
 	"\rfrequency_min\x18\r \x01(\x01R\ffrequencyMin\x12#\n" +
-	"\rfrequency_max\x18\x0e \x01(\x01R\ffrequencyMax\"\xd6\x03\n" +
+	"\rfrequency_max\x18\x0e \x01(\x01R\ffrequencyMax\"\x96\x04\n" +
 	"\x1eProjectDetectionFlatnessResult\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12L\n" +
 	"\x06status\x18\x02 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\x06status\x12\x16\n" +
@@ -2049,10 +2159,14 @@ const file_core_common_proto_rawDesc = "" +
 	"\funeven_count\x18\x04 \x01(\rR\vunevenCount\x12I\n" +
 	"\aregions\x18\x05 \x03(\v2/.icw.core.common.ProjectDetectionFlatnessRegionR\aregions\x12'\n" +
 	"\x0fruntime_seconds\x18\x06 \x01(\x01R\x0eruntimeSeconds\x12\\\n" +
-	"\tartifacts\x18\a \x03(\v2>.icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\tartifacts\x18\a \x03(\v2>.icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntryR\tartifacts\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\b \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\t \x01(\tR\n" +
+	"finishedAt\x1a<\n" +
 	"\x0eArtifactsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x93\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\x03\n" +
 	"\x1eProjectDetectionSpallingResult\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12L\n" +
 	"\x06status\x18\x02 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\x06status\x12!\n" +
@@ -2061,15 +2175,23 @@ const file_core_common_proto_rawDesc = "" +
 	"confidence\x18\x04 \x01(\x01R\n" +
 	"confidence\x12'\n" +
 	"\x0fruntime_seconds\x18\x05 \x01(\x01R\x0eruntimeSeconds\x12\\\n" +
-	"\tartifacts\x18\x06 \x03(\v2>.icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntryR\tartifacts\x1a<\n" +
+	"\tartifacts\x18\x06 \x03(\v2>.icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntryR\tartifacts\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\a \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\b \x01(\tR\n" +
+	"finishedAt\x1a<\n" +
 	"\x0eArtifactsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xab\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xeb\x01\n" +
 	"\x1dProjectDetectionSummaryResult\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12L\n" +
 	"\x06status\x18\x02 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\x06status\x12\x1f\n" +
 	"\vresult_json\x18\x03 \x01(\tR\n" +
-	"resultJsonB%Z#icw_common/gen/core/common;commonpbb\x06proto3"
+	"resultJson\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\x04 \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\x05 \x01(\tR\n" +
+	"finishedAtB%Z#icw_common/gen/core/common;commonpbb\x06proto3"
 
 var (
 	file_core_common_proto_rawDescOnce sync.Once

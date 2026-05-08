@@ -152,6 +152,8 @@ message ProjectDetectionCorrosionResult {
   repeated ProjectDetectionCorrosionRegion regions = 9;
   double runtime_seconds = 10;
   map<string, string> artifacts = 11;
+  string started_at = 12;
+  string finished_at = 13;
 }
 
 // 项目图像石材裂缝检测区域结构体
@@ -173,6 +175,8 @@ message ProjectDetectionCrackResult {
   repeated ProjectDetectionCrackRegion regions = 7;
   double runtime_seconds = 8;
   map<string, string> artifacts = 9;
+  string started_at = 10;
+  string finished_at = 11;
 }
 
 // 项目图像石材污渍检测区域结构体
@@ -197,6 +201,8 @@ message ProjectDetectionStainResult {
   repeated ProjectDetectionStainRegion regions = 7;
   double runtime_seconds = 8;
   map<string, string> artifacts = 9;
+  string started_at = 10;
+  string finished_at = 11;
 }
 
 // 项目图像玻璃平整度检测区域结构体
@@ -226,6 +232,8 @@ message ProjectDetectionFlatnessResult {
   repeated ProjectDetectionFlatnessRegion regions = 5;
   double runtime_seconds = 6;
   map<string, string> artifacts = 7;
+  string started_at = 8;
+  string finished_at = 9;
 }
 
 // 项目图像玻璃爆裂检测结果结构体
@@ -236,6 +244,8 @@ message ProjectDetectionSpallingResult {
   double confidence = 4;
   double runtime_seconds = 5;
   map<string, string> artifacts = 6;
+  string started_at = 7;
+  string finished_at = 8;
 }
 
 // 项目图像检测总结结果结构体
@@ -243,4 +253,6 @@ message ProjectDetectionSummaryResult {
   string task_uuid = 1;
   ProjectDetectionSubTaskStatus.Value status = 2;
   string result_json = 3;
+  string started_at = 4;
+  string finished_at = 5;
 }
