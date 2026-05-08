@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect } from 'react';
 
-import { createSocketTicket, setupAssetsWebSocket } from '@/api/socket';
+import { createAssetsSocketTicket, setupAssetsWebSocket } from '@/api/socket';
 import type { ProjectGroup } from '@/types/project/assets';
 import { parseProjectImageStatusChangedMessage, replaceImage, WEBSOCKET_RECONNECT_DELAY_MS } from '@/utils/assetsStage';
 
@@ -51,7 +51,7 @@ export function useProjectAssetsSocket({ projectId, setGroups }: UseProjectAsset
 
     async function connect(): Promise<void> {
       try {
-        const ticket = await createSocketTicket(projectId);
+        const ticket = await createAssetsSocketTicket(projectId);
         if (closed) {
           return;
         }
