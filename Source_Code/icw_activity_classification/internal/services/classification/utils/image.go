@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"image"
-	"image/color"
 	"image/jpeg"
 	"image/png"
 	"io"
@@ -18,6 +17,7 @@ const (
 	classificationImageContentType = "image/png"
 )
 
+// DownloadAndResizeImage 下载图像并按分类输入尺寸规则缩放
 func DownloadAndResizeImage(ctx context.Context, imageURL string, size int) ([]byte, string, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURL, nil)
 	if err != nil {
@@ -33,50 +33,69 @@ func DownloadAndResizeImage(ctx context.Context, imageURL string, size int) ([]b
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return nil, "", errUnexpectedStatus(response.StatusCode)
 	}
-	source, _, err := image.Decode(io.LimitReader(response.Body, 32<<20))
+	data, err := io.ReadAll(io.LimitReader(response.Body, 32<<20))
 	if err != nil {
 		return nil, "", err
 	}
-	thumbnail := squareThumbnail(source, size)
+	config, _, err := image.DecodeConfig(bytes.NewReader(data))
+	if err != nil {
+		return nil, "", err
+	}
+	if config.Width <= size || config.Height <= size || size <= 0 {
+		return data, firstNotEmpty(response.Header.Get("Content-Type"), http.DetectContentType(data)), nil
+	}
+	source, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		return nil, "", err
+	}
+	target := resizeImage(source, size)
 	var buffer bytes.Buffer
-	if err := png.Encode(&buffer, thumbnail); err != nil {
+	if err := png.Encode(&buffer, target); err != nil {
 		return nil, "", err
 	}
 	return buffer.Bytes(), classificationImageContentType, nil
 }
 
-func squareThumbnail(source image.Image, size int) image.Image {
+// resizeImage 将图像短边等比缩放到指定尺寸
+func resizeImage(source image.Image, size int) image.Image {
 	bounds := source.Bounds()
 	sourceWidth := bounds.Dx()
 	sourceHeight := bounds.Dy()
 	if sourceWidth <= 0 || sourceHeight <= 0 || size <= 0 {
-		return image.NewRGBA(image.Rect(0, 0, size, size))
+		return source
+	}
+	if sourceWidth <= size || sourceHeight <= size {
+		return source
 	}
 
-	destination := image.NewRGBA(image.Rect(0, 0, size, size))
-	draw.Draw(destination, destination.Bounds(), &image.Uniform{C: color.White}, image.Point{}, draw.Src)
-
-	scale := float64(size) / float64(max(sourceWidth, sourceHeight))
+	scale := float64(size) / float64(min(sourceWidth, sourceHeight))
 	targetWidth := max(1, int(float64(sourceWidth)*scale))
 	targetHeight := max(1, int(float64(sourceHeight)*scale))
-	targetRect := image.Rect(
-		(size-targetWidth)/2,
-		(size-targetHeight)/2,
-		(size+targetWidth)/2,
-		(size+targetHeight)/2,
-	)
-	draw.CatmullRom.Scale(destination, targetRect, source, bounds, draw.Over, nil)
+	destination := image.NewRGBA(image.Rect(0, 0, targetWidth, targetHeight))
+	draw.CatmullRom.Scale(destination, destination.Bounds(), source, bounds, draw.Over, nil)
 	return destination
 }
 
+// errUnexpectedStatus 创建非 2xx HTTP 状态错误
 func errUnexpectedStatus(statusCode int) error {
 	return &unexpectedStatusError{statusCode: statusCode}
+}
+
+// firstNotEmpty 返回第一个非空字符串
+func firstNotEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 type unexpectedStatusError struct {
 	statusCode int
 }
 
+// Error 返回 HTTP 状态错误文本
 func (e *unexpectedStatusError) Error() string {
 	statusText := http.StatusText(e.statusCode)
 	if statusText == "" {
@@ -85,6 +104,7 @@ func (e *unexpectedStatusError) Error() string {
 	return "unexpected http status: " + statusText
 }
 
+// init 注册分类服务支持的图像解码格式
 func init() {
 	image.RegisterFormat("jpeg", "\xff\xd8", jpeg.Decode, jpeg.DecodeConfig)
 	image.RegisterFormat("png", "\x89PNG\r\n\x1a\n", png.Decode, png.DecodeConfig)
