@@ -15,7 +15,9 @@ import (
 
 // FindProjectDetectionSummaryTaskByUuidTx 按总结任务 UUID 查询图像检测总结任务
 func FindProjectDetectionSummaryTaskByUuidTx(ctx context.Context, tx *sql.Tx, taskUuid string) (*model.ProjectDetectionSummaryTaskRecord, error) {
-	subTask, err := utils.ScanProjectDetectionSubTask(tx.QueryRowContext(ctx, `
+	record := &model.ProjectDetectionSummaryTaskRecord{}
+	var status string
+	if err := tx.QueryRowContext(ctx, `
 		SELECT
 			id,
 			uuid,
@@ -24,6 +26,7 @@ func FindProjectDetectionSummaryTaskByUuidTx(ctx context.Context, tx *sql.Tx, ta
 			project_id,
 			image_id,
 			status,
+			CAST(result_json AS CHAR),
 			started_at,
 			finished_at,
 			created_at,
@@ -31,18 +34,24 @@ func FindProjectDetectionSummaryTaskByUuidTx(ctx context.Context, tx *sql.Tx, ta
 		FROM project_detection_summary_tasks
 		WHERE uuid = ?
 		FOR UPDATE
-	`, taskUuid))
-
-	if err != nil {
+	`, taskUuid).Scan(
+		&record.Id,
+		&record.Uuid,
+		&record.MainTaskId,
+		&record.UserId,
+		&record.ProjectId,
+		&record.ImageId,
+		&status,
+		&record.ResultJson,
+		&record.StartedAt,
+		&record.FinishedAt,
+		&record.CreatedAt,
+		&record.UpdatedAt,
+	); err != nil {
 		return nil, err
 	}
-	if subTask == nil {
-		return nil, nil
-	}
-
-	return &model.ProjectDetectionSummaryTaskRecord{
-		ProjectDetectionSubTaskRecord: *subTask,
-	}, nil
+	record.Status = enum.ParseProjectDetectionSubTaskStatus(status)
+	return record, nil
 }
 
 // CreateProjectDetectionSummaryTaskTx 创建图像检测总结任务
@@ -86,4 +95,18 @@ func CreateProjectDetectionSummaryTaskTx(ctx context.Context, tx *sql.Tx, task *
 // UpdateProjectDetectionSummaryTaskStatusTx 更新图像检测总结任务状态
 func UpdateProjectDetectionSummaryTaskStatusTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, startTime, finishTime bool) error {
 	return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_summary_tasks", taskUuid, status, startTime, finishTime, model.ErrProjectDetectionSummaryTaskStatusInvalid)
+}
+
+// UpdateProjectDetectionSummaryTaskResultTx 更新图像检测总结任务报告与状态
+func UpdateProjectDetectionSummaryTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+	result, err := tx.ExecContext(ctx, `
+		UPDATE project_detection_summary_tasks
+		SET result_json = CASE WHEN ? = ? THEN ? ELSE result_json END
+		WHERE uuid = ?
+	`, enum.ProjectDetectionSubTaskStatusString(status), enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded), utils.JsonStringOrEmptyObject(resultJSON), taskUuid)
+	if err := utils.CheckRowsAffected(result, err); err != nil {
+		return err
+	}
+
+	return UpdateProjectDetectionSummaryTaskStatusTx(ctx, tx, taskUuid, status, false, true)
 }
