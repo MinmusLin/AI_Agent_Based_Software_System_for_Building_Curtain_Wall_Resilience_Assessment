@@ -22,17 +22,17 @@ var (
 	errorType = reflect.TypeOf((*error)(nil)).Elem()
 )
 
-// serviceMeta RPC 服务元数据
-type serviceMeta struct {
+// ServiceMeta RPC 服务元数据
+type ServiceMeta struct {
 	Name        string
 	Description string
 	Service     interface{}
 	Register    func(grpc.ServiceRegistrar, interface{})
-	Methods     []methodMeta
+	Methods     []MethodMeta
 }
 
-// methodMeta RPC 方法元数据
-type methodMeta struct {
+// MethodMeta RPC 方法元数据
+type MethodMeta struct {
 	Name        string
 	Description string
 }
@@ -46,7 +46,7 @@ type registeredMethodMeta struct {
 }
 
 // RegisterServices 注册 gRPC 服务并输出 RPC 注册表
-func RegisterServices(grpcServer *grpc.Server, metas []serviceMeta) {
+func RegisterServices(grpcServer *grpc.Server, metas []ServiceMeta) {
 	registeredMethods := make([]registeredMethodMeta, 0)
 	for _, meta := range metas {
 		methods, err := resolveMethods(meta)
@@ -63,7 +63,7 @@ func RegisterServices(grpcServer *grpc.Server, metas []serviceMeta) {
 }
 
 // resolveMethods 校验并解析 RPC 方法
-func resolveMethods(meta serviceMeta) ([]registeredMethodMeta, error) {
+func resolveMethods(meta ServiceMeta) ([]registeredMethodMeta, error) {
 	serviceType := reflect.TypeOf(meta.Service)
 	if serviceType == nil {
 		return nil, errors.New("service is nil")
