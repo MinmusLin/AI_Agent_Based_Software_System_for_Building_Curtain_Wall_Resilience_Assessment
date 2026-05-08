@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -561,16 +560,16 @@ func (r *Repository) GetProjectDetectionCorrosionResult(ctx context.Context, tas
 	}
 
 	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.HasCorrosion = nullBool(hasCorrosion)
-	result.CorrosionCount = nullUint32(corrosionCount)
-	result.MaxConfidence = nullFloat64(maxConfidence)
-	result.AverageConfidence = nullFloat64(averageConfidence)
-	result.CorrosionPixels = nullUint64(corrosionPixels)
-	result.CorrosionRatio = nullFloat64(corrosionRatio)
-	if err := unmarshalRegions(regions, &result.Regions); err != nil {
+	result.HasCorrosion = utils.NullBool(hasCorrosion)
+	result.CorrosionCount = utils.NullUint32(corrosionCount)
+	result.MaxConfidence = utils.NullFloat64(maxConfidence)
+	result.AverageConfidence = utils.NullFloat64(averageConfidence)
+	result.CorrosionPixels = utils.NullUint64(corrosionPixels)
+	result.CorrosionRatio = utils.NullFloat64(corrosionRatio)
+	if err := utils.UnmarshalRegions(regions, &result.Regions); err != nil {
 		return nil, err
 	}
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
 
 	return result, nil
 }
@@ -619,14 +618,14 @@ func (r *Repository) GetProjectDetectionCrackResult(ctx context.Context, taskId 
 	}
 
 	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.HasCrack = nullBool(hasCrack)
-	result.CrackCount = nullUint32(crackCount)
-	result.CrackPixels = nullUint64(crackPixels)
-	result.CrackRatio = nullFloat64(crackRatio)
-	if err := unmarshalRegions(regions, &result.Regions); err != nil {
+	result.HasCrack = utils.NullBool(hasCrack)
+	result.CrackCount = utils.NullUint32(crackCount)
+	result.CrackPixels = utils.NullUint64(crackPixels)
+	result.CrackRatio = utils.NullFloat64(crackRatio)
+	if err := utils.UnmarshalRegions(regions, &result.Regions); err != nil {
 		return nil, err
 	}
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
 
 	return result, nil
 }
@@ -675,14 +674,14 @@ func (r *Repository) GetProjectDetectionStainResult(ctx context.Context, taskId 
 	}
 
 	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.HasStain = nullBool(hasStain)
-	result.StainCount = nullUint32(stainCount)
-	result.AverageStainRatio = nullFloat64(averageStainRatio)
-	result.MaxStainRatio = nullFloat64(maxStainRatio)
-	if err := unmarshalRegions(regions, &result.Regions); err != nil {
+	result.HasStain = utils.NullBool(hasStain)
+	result.StainCount = utils.NullUint32(stainCount)
+	result.AverageStainRatio = utils.NullFloat64(averageStainRatio)
+	result.MaxStainRatio = utils.NullFloat64(maxStainRatio)
+	if err := utils.UnmarshalRegions(regions, &result.Regions); err != nil {
 		return nil, err
 	}
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
 
 	return result, nil
 }
@@ -725,12 +724,12 @@ func (r *Repository) GetProjectDetectionFlatnessResult(ctx context.Context, task
 	}
 
 	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.Result = nullString(flatnessResult)
-	result.UnevenCount = nullUint32(unevenCount)
-	if err := unmarshalRegions(regions, &result.Regions); err != nil {
+	result.Result = utils.NullString(flatnessResult)
+	result.UnevenCount = utils.NullUint32(unevenCount)
+	if err := utils.UnmarshalRegions(regions, &result.Regions); err != nil {
 		return nil, err
 	}
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
 
 	return result, nil
 }
@@ -770,9 +769,9 @@ func (r *Repository) GetProjectDetectionSpallingResult(ctx context.Context, task
 	}
 
 	result.Status = enum.ParseProjectDetectionSubTaskStatus(status)
-	result.HasSpalling = nullBool(hasSpalling)
-	result.Confidence = nullFloat64(confidence)
-	result.RuntimeSeconds = nullFloat64(runtimeSeconds)
+	result.HasSpalling = utils.NullBool(hasSpalling)
+	result.Confidence = utils.NullFloat64(confidence)
+	result.RuntimeSeconds = utils.NullFloat64(runtimeSeconds)
 
 	return result, nil
 }
@@ -885,49 +884,6 @@ func (r *Repository) queryProjectDetectionSubReportJSON(ctx context.Context, tas
 		return "", err
 	}
 	return reportJSON, nil
-}
-
-func unmarshalRegions[T any](regions sql.NullString, target *[]*T) error {
-	if target == nil {
-		return nil
-	}
-	*target = make([]*T, 0)
-	if !regions.Valid || strings.TrimSpace(regions.String) == "" {
-		return nil
-	}
-	return json.Unmarshal([]byte(regions.String), target)
-}
-
-func nullBool(value sql.NullBool) bool {
-	return value.Valid && value.Bool
-}
-
-func nullFloat64(value sql.NullFloat64) float64 {
-	if !value.Valid {
-		return 0
-	}
-	return value.Float64
-}
-
-func nullString(value sql.NullString) string {
-	if !value.Valid {
-		return ""
-	}
-	return value.String
-}
-
-func nullUint32(value sql.NullInt64) uint32 {
-	if !value.Valid || value.Int64 <= 0 {
-		return 0
-	}
-	return uint32(value.Int64)
-}
-
-func nullUint64(value sql.NullInt64) uint64 {
-	if !value.Valid || value.Int64 <= 0 {
-		return 0
-	}
-	return uint64(value.Int64)
 }
 
 // UpdateProjectDetectionTaskStatus 按主任务 ID 更新项目图像检测主任务状态
