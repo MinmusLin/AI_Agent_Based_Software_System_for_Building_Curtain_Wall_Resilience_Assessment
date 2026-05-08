@@ -1,12 +1,18 @@
 package utils
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"os"
+	"path/filepath"
+	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -15,16 +21,17 @@ import (
 )
 
 // UploadArtifacts 并发上传任务产物
-func UploadArtifacts(ctx context.Context, plans []*reasoningpb.ReasoningArtifactUploadPlan, taskDir string, timeout time.Duration) []*bizpb.ReasoningArtifactUploadResult {
-	results := make([]*bizpb.ReasoningArtifactUploadResult, len(plans))
+func UploadArtifacts(ctx context.Context, policy *reasoningpb.ReasoningArtifactUploadPolicy, taskDir string, timeout time.Duration) []*bizpb.ReasoningArtifactUploadResult {
+	artifactNames := listArtifactNames(taskDir)
+	results := make([]*bizpb.ReasoningArtifactUploadResult, len(artifactNames))
 
 	wg := sync.WaitGroup{}
-	for index, plan := range plans {
+	for index, artifactName := range artifactNames {
 		wg.Add(1)
-		go func(resultIndex int, item *reasoningpb.ReasoningArtifactUploadPlan) {
+		go func(resultIndex int, name string) {
 			defer wg.Done()
-			results[resultIndex] = uploadArtifact(ctx, item, artifactPath(taskDir, item.Name), timeout)
-		}(index, plan)
+			results[resultIndex] = uploadArtifact(ctx, policy, name, artifactPath(taskDir, name), timeout)
+		}(index, artifactName)
 	}
 	wg.Wait()
 
@@ -32,9 +39,12 @@ func UploadArtifacts(ctx context.Context, plans []*reasoningpb.ReasoningArtifact
 }
 
 // uploadArtifact 上传任务产物
-func uploadArtifact(ctx context.Context, plan *reasoningpb.ReasoningArtifactUploadPlan, path string, timeout time.Duration) *bizpb.ReasoningArtifactUploadResult {
+func uploadArtifact(ctx context.Context, policy *reasoningpb.ReasoningArtifactUploadPolicy, name, path string, timeout time.Duration) *bizpb.ReasoningArtifactUploadResult {
 	result := &bizpb.ReasoningArtifactUploadResult{
-		Name: plan.Name,
+		Name: name,
+	}
+	if policy == nil {
+		return result
 	}
 
 	file, err := os.Open(path)
@@ -45,23 +55,50 @@ func uploadArtifact(ctx context.Context, plan *reasoningpb.ReasoningArtifactUplo
 		_ = file.Close()
 	}()
 
-	info, err := file.Stat()
-	if err != nil {
-		return result
-	}
-
 	uploadCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	hash := sha256.New()
-	body := io.TeeReader(file, hash)
-	httpReq, err := http.NewRequestWithContext(uploadCtx, http.MethodPut, plan.PresignUploadUrl, body)
-	if err != nil {
+	bodyReader := io.TeeReader(file, hash)
+	var requestBody bytes.Buffer
+	writer := multipart.NewWriter(&requestBody)
+
+	for key, value := range policy.FormData {
+		if key == "key" || key == "Content-Type" {
+			continue
+		}
+		if err := writer.WriteField(key, value); err != nil {
+			return result
+		}
+	}
+
+	if err := writer.WriteField("key", policy.KeyPrefix+name); err != nil {
+		return result
+	}
+	if err := writer.WriteField("Content-Type", "image/png"); err != nil {
 		return result
 	}
 
-	httpReq.ContentLength = info.Size()
-	httpReq.Header.Set("Content-Type", plan.ContentType)
+	header := make(textproto.MIMEHeader)
+	header.Set("Content-Disposition", `form-data; name="file"; filename="`+name+`"`)
+	header.Set("Content-Type", "image/png")
+
+	part, err := writer.CreatePart(header)
+	if err != nil {
+		return result
+	}
+	if _, err := io.Copy(part, bodyReader); err != nil {
+		return result
+	}
+	if err := writer.Close(); err != nil {
+		return result
+	}
+
+	httpReq, err := http.NewRequestWithContext(uploadCtx, http.MethodPost, policy.Url, bytes.NewReader(requestBody.Bytes()))
+	if err != nil {
+		return result
+	}
+	httpReq.Header.Set("Content-Type", writer.FormDataContentType())
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
@@ -79,4 +116,28 @@ func uploadArtifact(ctx context.Context, plan *reasoningpb.ReasoningArtifactUplo
 	result.Sha256 = hex.EncodeToString(hash.Sum(nil))
 
 	return result
+}
+
+// listArtifactNames 查询需要上传的图像检测产物名称
+func listArtifactNames(taskDir string) []string {
+	entries, err := os.ReadDir(taskDir)
+	if err != nil {
+		return make([]string, 0)
+	}
+	names := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if strings.EqualFold(name, "report.json") {
+			continue
+		}
+		if strings.ToLower(filepath.Ext(name)) != ".png" {
+			continue
+		}
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
