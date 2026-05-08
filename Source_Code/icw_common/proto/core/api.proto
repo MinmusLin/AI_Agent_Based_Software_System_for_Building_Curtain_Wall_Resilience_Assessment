@@ -10,5 +10,7 @@ import public "core/api/project_assets.proto";
 import public "core/api/project_core.proto";
 import public "core/api/project_detection.proto";
 import public "core/api/project_profile.proto";
+import public "core/api/project_report.proto";
+import public "core/api/project_review.proto";
 import public "core/api/socket.proto";
 import public "core/api/user.proto";
