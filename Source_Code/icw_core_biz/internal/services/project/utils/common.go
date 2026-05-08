@@ -9,6 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
 
 	"icw_core_biz/internal/services/project/consts"
@@ -116,4 +117,25 @@ func validateStringMaxLength(value string, maxLength int, detailCode rpc_error.D
 		return rpc_error.BadRequest(detailCode, message)
 	}
 	return nil
+}
+
+// ArtifactSha256MapJSON 将图像检测推理产物上传结果转换为 Sha256 Map JSON
+func ArtifactSha256MapJSON(artifacts []*bizpb.ReasoningArtifactUploadResult) (string, error) {
+	artifactSha256Map := make(map[string]string)
+	for _, artifact := range artifacts {
+		if artifact == nil || !artifact.Uploaded {
+			continue
+		}
+		name := strings.TrimSpace(artifact.Name)
+		sha256 := strings.TrimSpace(artifact.Sha256)
+		if name == "" || sha256 == "" {
+			continue
+		}
+		artifactSha256Map[name] = sha256
+	}
+	bytes, err := json.Marshal(artifactSha256Map)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
 }
