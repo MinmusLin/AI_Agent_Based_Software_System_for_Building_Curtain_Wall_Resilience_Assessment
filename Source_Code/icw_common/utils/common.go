@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"icw_common/consts"
 )
 
 // If 泛型三元运算符
@@ -44,13 +42,4 @@ func IsNil(value interface{}) bool {
 func IsEmptyError(err interface{}) bool {
 	msg := strings.TrimSpace(fmt.Sprint(err))
 	return msg == "" || msg == "nil" || msg == "<nil>"
-}
-
-// FormatErrorLog 格式化错误日志内容
-func FormatErrorLog(err interface{}) string {
-	msg := strings.TrimSpace(fmt.Sprint(err))
-	if IsEmptyError(err) {
-		return msg
-	}
-	return consts.LogColorBoldRed + msg + consts.LogColorReset
 }
