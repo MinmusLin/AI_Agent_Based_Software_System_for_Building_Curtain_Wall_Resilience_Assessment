@@ -57,7 +57,7 @@ func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.Rep
 	}
 
 	// 启动项目图像检测推理子任务
-	s.DetectionWorker().StartReasoningTasks(ctx, task, subTasks)
+	s.DetectionWorker().StartReasoningTasks(ctx, subTasks)
 
 	return nil
 }

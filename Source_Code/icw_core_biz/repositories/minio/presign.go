@@ -9,21 +9,25 @@ import (
 
 // presignExistingObjectURL 获取下载预签名 URL（优先缓存）
 func presignExistingObjectURL(ctx context.Context, repo *Repository, redisRepo *redis.Repository, objectKey string, ttl time.Duration) (string, error) {
-	if redisRepo != nil {
-		// 获取预签名 URL 缓存
-		cachedURL, err := redisRepo.GetPresignURL(ctx, objectKey)
-		if err == nil && cachedURL != "" {
-			return cachedURL, nil
-		}
-	}
-
 	// 判断对象是否存在
 	exists, err := repo.StatObject(ctx, objectKey)
 	if err != nil {
 		return "", err
 	}
 	if !exists {
+		if redisRepo != nil {
+			// 对象不存在时清除预签名 URL 缓存
+			_ = redisRepo.ClearPresignURL(ctx, objectKey)
+		}
 		return "", nil
+	}
+
+	if redisRepo != nil {
+		// 获取预签名 URL 缓存
+		cachedURL, err := redisRepo.GetPresignURL(ctx, objectKey)
+		if err == nil && cachedURL != "" {
+			return cachedURL, nil
+		}
 	}
 
 	// 生成对象下载预签名 URL

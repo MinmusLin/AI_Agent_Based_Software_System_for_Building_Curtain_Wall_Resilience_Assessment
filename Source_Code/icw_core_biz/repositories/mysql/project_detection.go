@@ -364,10 +364,69 @@ func (r *Repository) GetProjectDetectionTasks(ctx context.Context, userId, proje
 		}
 		items = append(items, item)
 	}
+
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
+
 	return items, nil
+}
+
+// projectDetectionTaskToStatusDTO 将项目图像检测主任务记录转换为检测状态 DTO
+func projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*commonpb.ProjectDetectionStatus, error) {
+	item := &commonpb.ProjectDetectionStatus{
+		ImageUuid:    task.ImageUuid,
+		MainTaskUuid: task.Uuid,
+		MainStatus:   enum.ProjectDetectionTaskStatusString(task.Status),
+		Nodes:        make([]*commonpb.ProjectDetectionNodeStatus, 0, 7),
+	}
+
+	if subStatus := utils.ClassificationNodeStatus(task); subStatus != "" {
+		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
+			NodeCode:  "classification",
+			SubStatus: subStatus,
+		})
+	}
+
+	reasoningNodes := []struct {
+		taskCode      string
+		shouldExecute bool
+		taskId        sql.NullInt64
+	}{
+		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion), shouldExecute: task.CorrosionShouldExecute, taskId: task.CorrosionTaskId},
+		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack), shouldExecute: task.CrackShouldExecute, taskId: task.CrackTaskId},
+		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain), shouldExecute: task.StainShouldExecute, taskId: task.StainTaskId},
+		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness), shouldExecute: task.FlatnessShouldExecute, taskId: task.FlatnessTaskId},
+		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling), shouldExecute: task.SpallingShouldExecute, taskId: task.SpallingTaskId},
+	}
+	for _, node := range reasoningNodes {
+		if !node.shouldExecute || !node.taskId.Valid {
+			continue
+		}
+		subTask, err := project_detection.FindProjectDetectionSubTaskByIdTx(ctx, tx, node.taskCode, uint64(node.taskId.Int64))
+		if err != nil {
+			return nil, err
+		}
+		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
+			NodeCode:    "reasoning:" + node.taskCode,
+			SubTaskUuid: subTask.Uuid,
+			SubStatus:   enum.ProjectDetectionSubTaskStatusString(subTask.Status),
+		})
+	}
+
+	if task.SummaryShouldExecute && task.SummaryTaskId.Valid {
+		subTask, err := project_detection.FindProjectDetectionSubTaskByIdFromTableTx(ctx, tx, "project_detection_summary_tasks", uint64(task.SummaryTaskId.Int64))
+		if err != nil {
+			return nil, err
+		}
+		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
+			NodeCode:    "summary",
+			SubTaskUuid: subTask.Uuid,
+			SubStatus:   enum.ProjectDetectionSubTaskStatusString(subTask.Status),
+		})
+	}
+
+	return item, nil
 }
 
 // FindProjectDetectionTaskByImageUuid 按用户 ID、项目 ID 和图像 UUID 查询项目图像检测主任务
@@ -1081,85 +1140,4 @@ func (r *Repository) UpdateProjectDetectionSummaryResult(ctx context.Context, ta
 	}
 	task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
 	return task, subTask, err
-}
-
-// projectDetectionTaskToStatusDTO 将项目图像检测主任务记录转换为检测状态 DTO
-func projectDetectionTaskToStatusDTO(ctx context.Context, tx *sql.Tx, task *model.ProjectDetectionTaskRecord) (*commonpb.ProjectDetectionStatus, error) {
-	item := &commonpb.ProjectDetectionStatus{
-		ImageUuid:    task.ImageUuid,
-		MainTaskUuid: task.Uuid,
-		MainStatus:   enum.ProjectDetectionTaskStatusString(task.Status),
-		Nodes:        make([]*commonpb.ProjectDetectionNodeStatus, 0, 7),
-	}
-
-	if subStatus := classificationNodeStatus(task); subStatus != "" {
-		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
-			NodeCode:  "classification",
-			SubStatus: subStatus,
-		})
-	}
-
-	reasoningNodes := []struct {
-		taskCode      string
-		shouldExecute bool
-		taskId        sql.NullInt64
-	}{
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion), shouldExecute: task.CorrosionShouldExecute, taskId: task.CorrosionTaskId},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack), shouldExecute: task.CrackShouldExecute, taskId: task.CrackTaskId},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain), shouldExecute: task.StainShouldExecute, taskId: task.StainTaskId},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness), shouldExecute: task.FlatnessShouldExecute, taskId: task.FlatnessTaskId},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling), shouldExecute: task.SpallingShouldExecute, taskId: task.SpallingTaskId},
-	}
-	for _, node := range reasoningNodes {
-		if !node.shouldExecute || !node.taskId.Valid {
-			continue
-		}
-		subTask, err := project_detection.FindProjectDetectionSubTaskByIdTx(ctx, tx, node.taskCode, uint64(node.taskId.Int64))
-		if err != nil {
-			return nil, err
-		}
-		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
-			NodeCode:    "reasoning:" + node.taskCode,
-			SubTaskUuid: subTask.Uuid,
-			SubStatus:   enum.ProjectDetectionSubTaskStatusString(subTask.Status),
-		})
-	}
-
-	if task.SummaryShouldExecute && task.SummaryTaskId.Valid {
-		subTask, err := project_detection.FindProjectDetectionSubTaskByIdFromTableTx(ctx, tx, "project_detection_summary_tasks", uint64(task.SummaryTaskId.Int64))
-		if err != nil {
-			return nil, err
-		}
-		item.Nodes = append(item.Nodes, &commonpb.ProjectDetectionNodeStatus{
-			NodeCode:    "summary",
-			SubTaskUuid: subTask.Uuid,
-			SubStatus:   enum.ProjectDetectionSubTaskStatusString(subTask.Status),
-		})
-	}
-
-	return item, nil
-}
-
-// classificationNodeStatus 根据主任务状态推导分类节点状态
-func classificationNodeStatus(task *model.ProjectDetectionTaskRecord) string {
-	switch task.Status {
-	case bizpb.ProjectDetectionTaskStatus_Classifying:
-		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Pending)
-	case bizpb.ProjectDetectionTaskStatus_Detecting,
-		bizpb.ProjectDetectionTaskStatus_Summarizing,
-		bizpb.ProjectDetectionTaskStatus_Succeeded:
-		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded)
-	case bizpb.ProjectDetectionTaskStatus_Failed:
-		if !task.CorrosionShouldExecute &&
-			!task.CrackShouldExecute &&
-			!task.StainShouldExecute &&
-			!task.FlatnessShouldExecute &&
-			!task.SpallingShouldExecute &&
-			!task.SummaryShouldExecute {
-			return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Failed)
-		}
-		return enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Succeeded)
-	default:
-		return ""
-	}
 }
