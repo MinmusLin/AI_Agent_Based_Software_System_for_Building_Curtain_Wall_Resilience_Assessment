@@ -47,10 +47,12 @@ func (r *Repository) CreateProjectDetectionTasks(ctx context.Context, userId, pr
 		if err != nil {
 			return nil, err
 		}
+
 		taskId, err := result.LastInsertId()
 		if err != nil {
 			return nil, err
 		}
+
 		taskIds = append(taskIds, uint64(taskId))
 	}
 
@@ -68,18 +70,12 @@ func (r *Repository) CreateProjectDetectionTasks(ctx context.Context, userId, pr
 			tasks = append(tasks, task)
 		}
 	}
+
 	return tasks, nil
 }
 
-// RetryProjectDetectionTasks 按用户 ID 和项目 ID 重试失败的项目图像检测任务
+// RetryProjectDetectionTasks 按用户 ID 和项目 ID 重试项目图像检测主任务
 func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, projectId uint64) ([]string, []*model.ProjectDetectionTaskRecord, error) {
-	failedStatus := enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Failed)
-	pendingStatus := enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Pending)
-	uploadedStatus := enum.ProjectImageStatusString(bizpb.ProjectImageStatus_Uploaded)
-	if failedStatus == "" || pendingStatus == "" || uploadedStatus == "" {
-		return nil, nil, model.ErrProjectDetectionTaskStatusInvalid
-	}
-
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, nil, err
@@ -94,7 +90,7 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 		WHERE user_id = ? AND project_id = ? AND status = ?
 		ORDER BY created_at ASC, id ASC
 		FOR UPDATE
-	`, userId, projectId, failedStatus)
+	`, userId, projectId, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Failed))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -104,6 +100,7 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 		imageId   uint64
 		imageUuid string
 	}
+
 	failedTasks := make([]*failedTask, 0)
 	for rows.Next() {
 		task := &failedTask{}
@@ -113,6 +110,7 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 		}
 		failedTasks = append(failedTasks, task)
 	}
+
 	if err := rows.Err(); err != nil {
 		_ = rows.Close()
 		return nil, nil, err
@@ -135,7 +133,7 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 		result, err := tx.ExecContext(ctx, `
 			DELETE FROM project_detection_tasks
 			WHERE id = ? AND user_id = ? AND project_id = ? AND status = ?
-		`, task.id, userId, projectId, failedStatus)
+		`, task.id, userId, projectId, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Failed))
 		if err := utils.CheckRowsAffected(result, err); err != nil {
 			return nil, nil, err
 		}
@@ -146,10 +144,11 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 			FROM project_group_images
 			WHERE id = ? AND user_id = ? AND project_id = ? AND status = ?
 			LIMIT 1
-		`, uuid.NewString(), pendingStatus, task.imageId, userId, projectId, uploadedStatus)
+		`, uuid.NewString(), enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Pending), task.imageId, userId, projectId, enum.ProjectImageStatusString(bizpb.ProjectImageStatus_Uploaded))
 		if err != nil {
 			return nil, nil, err
 		}
+
 		affected, err := result.RowsAffected()
 		if err != nil {
 			return nil, nil, err
@@ -157,10 +156,12 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 		if affected == 0 {
 			continue
 		}
+
 		taskId, err := result.LastInsertId()
 		if err != nil {
 			return nil, nil, err
 		}
+
 		taskIds = append(taskIds, uint64(taskId))
 	}
 
@@ -178,6 +179,7 @@ func (r *Repository) RetryProjectDetectionTasks(ctx context.Context, userId, pro
 			tasks = append(tasks, task)
 		}
 	}
+
 	return imageUuids, tasks, nil
 }
 
