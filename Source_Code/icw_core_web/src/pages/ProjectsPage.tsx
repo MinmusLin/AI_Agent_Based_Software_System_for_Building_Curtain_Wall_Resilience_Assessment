@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { getErrorMessage } from '@/api/http';
 import { createProject, deleteProject, listProjects } from '@/api/project/core';
-import { stageKeyFromProgress } from '@/constants/project';
+import { normalizeProjectProgress, stageKeyFromProgress } from '@/constants/project';
 import type { Project, ProjectListItem } from '@/types/project/core';
 import { formatDateTime } from '@/utils/datetime';
 
@@ -14,8 +14,8 @@ const PROJECT_CARD_CLASS = 'h-full border-slate-200 shadow-none [&_.ant-card-bod
 const PROJECT_CARD_BODY_CLASS = 'flex h-[9.8rem] flex-col';
 const EMPTY_PROJECT_COUNT = 0;
 
-function displayText(value: string, fallback: string): string {
-  const trimmedValue = value.trim();
+function displayText(value: string | undefined, fallback: string): string {
+  const trimmedValue = value?.trim() ?? '';
   if (trimmedValue === '') {
     return fallback;
   }
@@ -30,7 +30,7 @@ function projectToListItem(project: Project): ProjectListItem {
     id: project.id,
     name: project.name,
     thumbnail_url: project.thumbnail_url,
-    progress: project.progress,
+    progress: normalizeProjectProgress(project.progress),
   };
 }
 

@@ -2,6 +2,8 @@ import type { ProjectProgress, ProjectStageKey } from '@/types/common';
 import {
   LAST_VISIBLE_PROJECT_PROGRESS,
   PROJECT_PROGRESS_INITIALIZATION_FINISHED,
+  PROJECT_PROGRESS_VALUES,
+  PROJECT_STAGE_KEY_PROFILE,
   PROJECT_STAGE_KEYS,
 } from '@/types/common';
 
@@ -35,9 +37,21 @@ export const PROJECT_STAGES: ProjectStageMeta[] = [
 
 export const LAST_VISIBLE_PROGRESS = LAST_VISIBLE_PROJECT_PROGRESS;
 
-export function stageKeyFromProgress(progress: ProjectProgress): ProjectStageKey {
-  const visibleProgress = Math.min(Math.max(progress, PROJECT_PROGRESS_INITIALIZATION_FINISHED), LAST_VISIBLE_PROGRESS);
-  return PROJECT_STAGE_KEYS[visibleProgress];
+export function normalizeProjectProgress(progress: unknown): ProjectProgress {
+  const numericProgress = typeof progress === 'number' ? progress : Number(progress);
+  if (PROJECT_PROGRESS_VALUES.includes(numericProgress as ProjectProgress)) {
+    return numericProgress as ProjectProgress;
+  }
+  return PROJECT_PROGRESS_INITIALIZATION_FINISHED;
+}
+
+export function stageKeyFromProgress(progress: unknown): ProjectStageKey {
+  const normalizedProgress = normalizeProjectProgress(progress);
+  const visibleProgress = Math.min(
+    Math.max(normalizedProgress, PROJECT_PROGRESS_INITIALIZATION_FINISHED),
+    LAST_VISIBLE_PROGRESS,
+  );
+  return PROJECT_STAGE_KEYS[visibleProgress] ?? PROJECT_STAGE_KEY_PROFILE;
 }
 
 export function progressFromStageKey(stageKey: string | undefined): ProjectProgress | null {
