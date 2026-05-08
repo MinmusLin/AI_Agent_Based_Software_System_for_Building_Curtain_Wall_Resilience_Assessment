@@ -32,6 +32,14 @@ var (
 	DetectionNodeStatusFailed = enum.ProjectDetectionSubTaskStatusString(bizpb.ProjectDetectionSubTaskStatus_Failed)
 )
 
+// ReasoningNodeCode 生成推理阶段检测任务节点代码
+func ReasoningNodeCode(taskCode string) string {
+	if taskCode == "" {
+		return DetectionNodeCodeReasoning
+	}
+	return DetectionNodeCodeReasoning + ":" + taskCode
+}
+
 // PublishProjectImageStatusChangedEvent 发布项目图像状态变化事件
 func PublishProjectImageStatusChangedEvent(ctx context.Context, rocketMQ *rocketmq.Producer, userId, projectId uint64, image *bizpb.ProjectImage) {
 	if image == nil {
@@ -66,12 +74,4 @@ func PublishProjectDetectionNodeStatusChangedEvent(ctx context.Context, rocketMQ
 		OccurredAt:   time.Now().Format("2006-01-02 15:04:05"),
 	}
 	_ = rocketMQ.PublishProjectDetectionTaskStatusChangedEvent(ctx, event)
-}
-
-// ReasoningNodeCode 生成推理阶段检测任务节点代码
-func ReasoningNodeCode(taskCode string) string {
-	if taskCode == "" {
-		return DetectionNodeCodeReasoning
-	}
-	return DetectionNodeCodeReasoning + ":" + taskCode
 }
