@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	detectionSummaryType = "detection"
-	projectSummaryType   = "project"
+	// DetectionSummaryType 图像检测总结任务
+	DetectionSummaryType = "detection"
 )
 
 // StartDetectionSummary 启动图像检测总结任务
@@ -58,22 +58,22 @@ func (s *Service) asyncExecuteDetectionSummary(requestId string, req *summarypb.
 		callbackReq.Status = commonpb.TaskStatus_Succeeded
 		callbackReq.ResultJson = result
 		callbackReq.ErrorMessage = ""
-		common.SummaryInfo(requestId, detectionSummaryType, req.TaskUuid, cost, result)
+		common.SummaryInfo(requestId, DetectionSummaryType, req.TaskUuid, cost, result)
 	} else {
 		callbackReq.Status = commonpb.TaskStatus_Failed
 		callbackReq.ResultJson = ""
 		callbackReq.ErrorMessage = err.Error()
-		common.SummaryError(requestId, detectionSummaryType, req.TaskUuid, cost, result, err)
+		common.SummaryError(requestId, DetectionSummaryType, req.TaskUuid, cost, result, err)
 	}
 
 	callbackCtx := rpc.WithRequestIdToOutgoingContext(context.Background(), requestId)
 	callbackResp := &bizpb.ReportDetectionSummaryResultResponse{}
 	callbackStart := time.Now()
 	if err := icw_core_biz.ReportDetectionSummaryResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); utils.IsEmptyError(err) {
-		common.CallbackInfo(requestId, detectionSummaryType, req.TaskUuid, enum.TaskStatusString(callbackReq.Status), callbackStart)
+		common.CallbackInfo(requestId, DetectionSummaryType, req.TaskUuid, enum.TaskStatusString(callbackReq.Status), callbackStart)
 		return
 	}
-	common.CallbackError(requestId, detectionSummaryType, req.TaskUuid, enum.TaskStatusString(callbackReq.Status), callbackStart, err)
+	common.CallbackError(requestId, DetectionSummaryType, req.TaskUuid, enum.TaskStatusString(callbackReq.Status), callbackStart, err)
 }
 
 // executeDetectionSummary 执行图像检测总结任务

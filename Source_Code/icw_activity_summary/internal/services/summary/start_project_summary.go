@@ -22,6 +22,11 @@ import (
 	"icw_activity_summary/rpc/icw_core_biz"
 )
 
+const (
+	// ProjectSummaryType 项目总结任务
+	ProjectSummaryType = "project"
+)
+
 const maxSummarySourceBytes = 32 << 20
 
 // StartProjectSummary 启动项目总结任务
@@ -58,22 +63,22 @@ func (s *Service) asyncExecuteProjectSummary(requestId string, req *summarypb.St
 		callbackReq.Status = commonpb.TaskStatus_Succeeded
 		callbackReq.ResultJson = result
 		callbackReq.ErrorMessage = ""
-		common.SummaryInfo(requestId, projectSummaryType, req.ProjectId, cost, result)
+		common.SummaryInfo(requestId, ProjectSummaryType, req.ProjectId, cost, result)
 	} else {
 		callbackReq.Status = commonpb.TaskStatus_Failed
 		callbackReq.ResultJson = ""
 		callbackReq.ErrorMessage = err.Error()
-		common.SummaryError(requestId, projectSummaryType, req.ProjectId, cost, result, err)
+		common.SummaryError(requestId, ProjectSummaryType, req.ProjectId, cost, result, err)
 	}
 
 	callbackCtx := rpc.WithRequestIdToOutgoingContext(context.Background(), requestId)
 	callbackResp := &bizpb.ReportProjectSummaryResultResponse{}
 	callbackStart := time.Now()
 	if err := icw_core_biz.ReportProjectSummaryResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); utils.IsEmptyError(err) {
-		common.CallbackInfo(requestId, projectSummaryType, req.ProjectId, enum.TaskStatusString(callbackReq.Status), callbackStart)
+		common.CallbackInfo(requestId, ProjectSummaryType, req.ProjectId, enum.TaskStatusString(callbackReq.Status), callbackStart)
 		return
 	}
-	common.CallbackError(requestId, projectSummaryType, req.ProjectId, enum.TaskStatusString(callbackReq.Status), callbackStart, err)
+	common.CallbackError(requestId, ProjectSummaryType, req.ProjectId, enum.TaskStatusString(callbackReq.Status), callbackStart, err)
 }
 
 // executeProjectSummary 执行项目总结任务
