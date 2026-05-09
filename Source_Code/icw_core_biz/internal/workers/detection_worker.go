@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strconv"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/activity/classification"
 	"icw_common/gen/activity/reasoning"
 	"icw_common/gen/activity/summary"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc"
 
 	"icw_core_biz/configs"
@@ -171,18 +172,108 @@ func (w *DetectionWorker) StartDetectionSummaryTask(ctx context.Context, task *m
 	summaryTask = startedSummaryTask
 	w.publishNode(ctx, task, events.DetectionNodeCodeSummary, summaryTask.Uuid, events.DetectionNodeStatusPending)
 
-	req := &summarypb.StartDetectionSummaryRequest{
-		TaskUuid:  summaryTask.Uuid,
-		ImageUuid: task.ImageUuid,
+	sourceJSON, err := w.detectionSummaryReportJSON(ctx, task)
+	if err != nil {
+		w.failDetectionSummaryTask(ctx, summaryTask.Uuid)
+		return
 	}
-	req.ReportJson, _ = w.detectionSummaryReportJSON(ctx, task)
+
+	req := &summarypb.StartDetectionSummaryRequest{
+		TaskUuid:   summaryTask.Uuid,
+		ImageUuid:  task.ImageUuid,
+		SourceJson: sourceJSON,
+	}
 	resp := &summarypb.StartDetectionSummaryResponse{}
 	if err := icw_activity_summary.StartDetectionSummary(ctx, w.summaryClient, req, resp); err != nil {
-		updatedTask, updatedSummaryTask, updateErr := w.mysql.UpdateProjectDetectionSummaryResult(ctx, summaryTask.Uuid, bizpb.ProjectDetectionSubTaskStatus_Failed, "")
-		if updateErr == nil && updatedTask != nil && updatedSummaryTask != nil {
-			w.publishNode(ctx, updatedTask, events.DetectionNodeCodeSummary, updatedSummaryTask.Uuid, events.DetectionNodeStatusFailed)
-		}
+		w.failDetectionSummaryTask(ctx, summaryTask.Uuid)
 	}
+}
+
+// failDetectionSummaryTask 项目图像检测总结任务失败
+func (w *DetectionWorker) failDetectionSummaryTask(ctx context.Context, taskUuid string) {
+	updatedTask, updatedSummaryTask, updateErr := w.mysql.UpdateProjectDetectionSummaryResult(ctx, taskUuid, bizpb.ProjectDetectionSubTaskStatus_Failed, "")
+	if updateErr == nil && updatedTask != nil && updatedSummaryTask != nil {
+		w.publishNode(ctx, updatedTask, events.DetectionNodeCodeSummary, updatedSummaryTask.Uuid, events.DetectionNodeStatusFailed)
+	}
+}
+
+// StartProjectReportTask 启动项目评估报告生成任务
+func (w *DetectionWorker) StartProjectReportTask(ctx context.Context, userId, projectId uint64) {
+	if w == nil || projectId == 0 {
+		return
+	}
+
+	report, err := w.mysql.CreateProjectReport(ctx, userId, projectId)
+	if err != nil {
+		return
+	}
+
+	events.PublishProjectReportStatusChangedEvent(ctx, w.rocketMQ, report.UserId, report.ProjectId, report.Uuid, report.Status)
+
+	reportJSON, err := w.projectReportSourceJSON(ctx, userId, projectId)
+	if err != nil {
+		w.failProjectReport(ctx, projectId)
+		return
+	}
+
+	sourceKey, err := minio.GenProjectReportSourceKey(projectId)
+	if err != nil {
+		w.failProjectReport(ctx, projectId)
+		return
+	}
+
+	if err := w.minio.PutObject(ctx, sourceKey, "application/json", []byte(reportJSON)); err != nil {
+		w.failProjectReport(ctx, projectId)
+		return
+	}
+
+	sourceURL, err := minio.PresignProjectReportSourceURL(ctx, w.minio, w.redis, projectId, w.cfg.ProjectImageGetTTL)
+	if err != nil || sourceURL == "" {
+		w.failProjectReport(ctx, projectId)
+		return
+	}
+
+	req := &summarypb.StartProjectSummaryRequest{
+		ProjectId: strconv.FormatUint(projectId, 10),
+		SourceUrl: sourceURL,
+	}
+	resp := &summarypb.StartProjectSummaryResponse{}
+	if err := icw_activity_summary.StartProjectSummary(ctx, w.summaryClient, req, resp); err != nil {
+		w.failProjectReport(ctx, projectId)
+	}
+}
+
+// failProjectReport 项目评估报告生成任务失败
+func (w *DetectionWorker) failProjectReport(ctx context.Context, projectId uint64) {
+	report, err := w.mysql.UpdateProjectReportResult(ctx, projectId, bizpb.ProjectReportStatus_Failed, "")
+	if err == nil && report != nil {
+		events.PublishProjectReportStatusChangedEvent(ctx, w.rocketMQ, report.UserId, report.ProjectId, report.Uuid, report.Status)
+	}
+}
+
+func (w *DetectionWorker) projectReportSourceJSON(ctx context.Context, userId, projectId uint64) (string, error) {
+	project, err := w.mysql.FindProjectByIdAndUserId(ctx, userId, projectId)
+	if err != nil {
+		return "", err
+	}
+	images, err := w.mysql.ListProjectImages(ctx, userId, projectId)
+	if err != nil {
+		return "", err
+	}
+	tasks, err := w.mysql.GetProjectDetectionTasksStatus(ctx, userId, projectId)
+	if err != nil {
+		return "", err
+	}
+	payload := map[string]interface{}{
+		"project":         project,
+		"images":          images,
+		"detection_tasks": tasks,
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
 }
 
 func (w *DetectionWorker) detectionSummaryReportJSON(ctx context.Context, task *model.ProjectDetectionTaskRecord) (string, error) {
@@ -192,11 +283,11 @@ func (w *DetectionWorker) detectionSummaryReportJSON(ctx context.Context, task *
 		shouldExecute bool
 		taskId        int64
 	}{
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion), shouldExecute: task.CorrosionShouldExecute && task.CorrosionTaskId.Valid, taskId: task.CorrosionTaskId.Int64},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack), shouldExecute: task.CrackShouldExecute && task.CrackTaskId.Valid, taskId: task.CrackTaskId.Int64},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain), shouldExecute: task.StainShouldExecute && task.StainTaskId.Valid, taskId: task.StainTaskId.Int64},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness), shouldExecute: task.FlatnessShouldExecute && task.FlatnessTaskId.Valid, taskId: task.FlatnessTaskId.Int64},
-		{taskCode: enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling), shouldExecute: task.SpallingShouldExecute && task.SpallingTaskId.Valid, taskId: task.SpallingTaskId.Int64},
+		{taskCode: enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Corrosion), shouldExecute: task.CorrosionShouldExecute && task.CorrosionTaskId.Valid, taskId: task.CorrosionTaskId.Int64},
+		{taskCode: enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Crack), shouldExecute: task.CrackShouldExecute && task.CrackTaskId.Valid, taskId: task.CrackTaskId.Int64},
+		{taskCode: enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Stain), shouldExecute: task.StainShouldExecute && task.StainTaskId.Valid, taskId: task.StainTaskId.Int64},
+		{taskCode: enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Flatness), shouldExecute: task.FlatnessShouldExecute && task.FlatnessTaskId.Valid, taskId: task.FlatnessTaskId.Int64},
+		{taskCode: enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Spalling), shouldExecute: task.SpallingShouldExecute && task.SpallingTaskId.Valid, taskId: task.SpallingTaskId.Int64},
 	}
 	for _, check := range checks {
 		if !check.shouldExecute {
