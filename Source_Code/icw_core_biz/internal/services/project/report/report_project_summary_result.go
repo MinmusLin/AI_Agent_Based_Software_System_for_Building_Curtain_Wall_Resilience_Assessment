@@ -3,8 +3,8 @@ package report
 import (
 	"context"
 
-	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc/error"
 
 	"icw_core_biz/internal/services/project/events"
@@ -22,9 +22,9 @@ func (s *Service) ReportProjectSummaryResult(ctx context.Context, req *bizpb.Rep
 func (s *Service) reportProjectSummaryResult(req *bizpb.ReportProjectSummaryResultRequest) error {
 	var reportStatus bizpb.ProjectReportStatus_Value
 	switch req.Status {
-	case activitypb.DetectionStatus_Succeeded:
+	case commonpb.TaskStatus_Succeeded:
 		reportStatus = bizpb.ProjectReportStatus_Succeeded
-	case activitypb.DetectionStatus_Failed:
+	case commonpb.TaskStatus_Failed:
 		reportStatus = bizpb.ProjectReportStatus_Failed
 	default:
 		return rpc_error.BadRequestDefault("project summary status is invalid")

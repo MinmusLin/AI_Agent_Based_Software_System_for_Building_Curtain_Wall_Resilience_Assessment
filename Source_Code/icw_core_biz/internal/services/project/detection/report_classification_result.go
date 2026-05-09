@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc/error"
 
 	"icw_core_biz/internal/services/project/events"
@@ -23,9 +23,9 @@ func (s *Service) ReportClassificationResult(ctx context.Context, req *bizpb.Rep
 func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.ReportClassificationResultRequest) error {
 	var taskStatus bizpb.ProjectDetectionSubTaskStatus_Value
 	switch req.Status {
-	case activitypb.DetectionStatus_Succeeded:
+	case commonpb.TaskStatus_Succeeded:
 		taskStatus = bizpb.ProjectDetectionSubTaskStatus_Succeeded
-	case activitypb.DetectionStatus_Failed:
+	case commonpb.TaskStatus_Failed:
 		taskStatus = bizpb.ProjectDetectionSubTaskStatus_Failed
 	default:
 		return rpc_error.BadRequestDefault("classification status is invalid")

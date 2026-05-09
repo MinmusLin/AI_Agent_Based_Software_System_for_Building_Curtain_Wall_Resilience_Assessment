@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc/error"
 
 	"icw_core_biz/repositories/minio"
@@ -68,7 +68,7 @@ func (s *Service) getImageDetectionResult(ctx context.Context, req *bizpb.GetIma
 	resp.Image = imageDTO
 	resp.OriginalUrl = originalURL
 	resp.Status = status
-	resp.TaskCodes = make([]activitypb.DetectionTaskCode_Value, 0)
+	resp.TaskCodes = make([]commonpb.DetectionTaskCode_Value, 0)
 
 	// 将项目图像检测任务填充进 HTTP 响应
 	if err := s.fillProjectDetectionTaskResults(ctx, task, resp); err != nil {
@@ -82,7 +82,7 @@ func (s *Service) getImageDetectionResult(ctx context.Context, req *bizpb.GetIma
 // fillProjectDetectionTaskResults 将项目图像检测任务填充进 HTTP 响应
 func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *model.ProjectDetectionTaskRecord, resp *bizpb.GetImageDetectionResultResponse) error {
 	if task.CorrosionShouldExecute && task.CorrosionTaskId.Valid {
-		taskCode := enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion)
+		taskCode := enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Corrosion)
 		result, err := s.MySQL().GetProjectDetectionCorrosionResult(ctx, uint64(task.CorrosionTaskId.Int64))
 		if err != nil {
 			return err
@@ -97,7 +97,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 		}
 	}
 	if task.CrackShouldExecute && task.CrackTaskId.Valid {
-		taskCode := enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack)
+		taskCode := enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Crack)
 		result, err := s.MySQL().GetProjectDetectionCrackResult(ctx, uint64(task.CrackTaskId.Int64))
 		if err != nil {
 			return err
@@ -112,7 +112,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 		}
 	}
 	if task.StainShouldExecute && task.StainTaskId.Valid {
-		taskCode := enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain)
+		taskCode := enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Stain)
 		result, err := s.MySQL().GetProjectDetectionStainResult(ctx, uint64(task.StainTaskId.Int64))
 		if err != nil {
 			return err
@@ -127,7 +127,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 		}
 	}
 	if task.FlatnessShouldExecute && task.FlatnessTaskId.Valid {
-		taskCode := enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness)
+		taskCode := enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Flatness)
 		result, err := s.MySQL().GetProjectDetectionFlatnessResult(ctx, uint64(task.FlatnessTaskId.Int64))
 		if err != nil {
 			return err
@@ -142,7 +142,7 @@ func (s *Service) fillProjectDetectionTaskResults(ctx context.Context, task *mod
 		}
 	}
 	if task.SpallingShouldExecute && task.SpallingTaskId.Valid {
-		taskCode := enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling)
+		taskCode := enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Spalling)
 		result, err := s.MySQL().GetProjectDetectionSpallingResult(ctx, uint64(task.SpallingTaskId.Int64))
 		if err != nil {
 			return err
