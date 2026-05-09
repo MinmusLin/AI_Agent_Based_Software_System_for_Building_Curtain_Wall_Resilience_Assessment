@@ -120,7 +120,8 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []rpc.ServiceMeta {
 				bizpb.RegisterProjectReviewServiceServer(server, service.(*review.Service))
 			},
 			Methods: []rpc.MethodMeta{
-				{Name: "Ping", Description: "人工复核服务探活"},
+				{Name: "GetProjectDetectionReview", Description: "获取图像检测人工复核信息"},
+				{Name: "UpdateProjectDetectionReview", Description: "更新图像检测人工复核信息"},
 			},
 		},
 		{
@@ -131,6 +132,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []rpc.ServiceMeta {
 				bizpb.RegisterProjectReportServiceServer(server, service.(*report.Service))
 			},
 			Methods: []rpc.MethodMeta{
+				{Name: "GetProjectReport", Description: "获取项目评估报告"},
 				{Name: "ReportProjectSummaryResult", Description: "上报项目总结结果"},
 			},
 		},

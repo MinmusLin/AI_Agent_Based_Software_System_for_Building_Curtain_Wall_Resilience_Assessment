@@ -74,3 +74,18 @@ func PublishProjectDetectionNodeStatusChangedEvent(ctx context.Context, rocketMQ
 	}
 	_ = rocketMQ.PublishProjectDetectionTaskStatusChangedEvent(ctx, event)
 }
+
+// PublishProjectReportStatusChangedEvent 发布项目评估报告状态变化事件
+func PublishProjectReportStatusChangedEvent(ctx context.Context, rocketMQ *rocketmq.Producer, userId, projectId uint64, reportUuid string, status bizpb.ProjectReportStatus_Value) {
+	event := &bizpb.ProjectReportStatusChangedEvent{
+		EventId:     uuid.NewString(),
+		EventType:   consts.EventTypeProjectReportStatusChanged,
+		ProjectId:   projectId,
+		ProjectCode: utils.Encode(projectId),
+		UserId:      userId,
+		ReportUuid:  reportUuid,
+		Status:      status,
+		OccurredAt:  time.Now().Format("2006-01-02 15:04:05"),
+	}
+	_ = rocketMQ.PublishProjectReportStatusChangedEvent(ctx, event)
+}
