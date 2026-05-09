@@ -43,3 +43,14 @@ func IsEmptyError(err interface{}) bool {
 	msg := strings.TrimSpace(fmt.Sprint(err))
 	return msg == "" || msg == "nil" || msg == "<nil>"
 }
+
+// FirstNotEmpty 返回第一个非空字符串
+func FirstNotEmpty(values ...string) string {
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			return value
+		}
+	}
+	return ""
+}
