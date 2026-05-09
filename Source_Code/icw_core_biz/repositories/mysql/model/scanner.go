@@ -66,3 +66,23 @@ func ScanProjectDetectionSubTask(scanner sqlScanner) (*ProjectDetectionSubTaskRe
 	record.Status = enum.ParseProjectDetectionSubTaskStatus(status)
 	return record, nil
 }
+
+// ScanProjectReport 扫描项目评估报告记录
+func ScanProjectReport(scanner sqlScanner) (*ProjectReportRecord, error) {
+	report := &ProjectReportRecord{}
+	var status string
+	if err := scanner.Scan(
+		&report.Id,
+		&report.Uuid,
+		&report.UserId,
+		&report.ProjectId,
+		&status,
+		&report.ResultJson,
+		&report.CreatedAt,
+		&report.UpdatedAt,
+	); err != nil {
+		return nil, err
+	}
+	report.Status = enum.ParseProjectReportStatus(status)
+	return report, nil
+}
