@@ -16,6 +16,7 @@ import (
 )
 
 // GetProjectDetectionReview 获取图像检测人工复核信息
+// @router /project/review/detail [GET]
 func (h *Handler) GetProjectDetectionReview(c *gin.Context) {
 	// 从 Gin Context 中获取当前登录用户
 	user, err := apiUtils.GetCurrentUser(c)

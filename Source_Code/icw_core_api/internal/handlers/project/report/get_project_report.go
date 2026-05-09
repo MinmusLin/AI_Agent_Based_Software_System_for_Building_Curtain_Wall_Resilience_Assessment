@@ -14,6 +14,7 @@ import (
 )
 
 // GetProjectReport 获取项目评估报告
+// @router /project/report/detail [GET]
 func (h *Handler) GetProjectReport(c *gin.Context) {
 	// 从 Gin Context 中获取当前登录用户
 	user, err := apiUtils.GetCurrentUser(c)

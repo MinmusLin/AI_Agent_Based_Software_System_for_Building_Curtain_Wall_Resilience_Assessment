@@ -15,16 +15,17 @@ import (
 )
 
 // UpdateProjectDetectionReview 更新图像检测人工复核信息
+// @router /project/review/update [POST]
 func (h *Handler) UpdateProjectDetectionReview(c *gin.Context) {
+	req := &apipb.UpdateProjectDetectionReviewRequest{}
+	if !response.BindJSON(c, req) {
+		return
+	}
+
 	// 从 Gin Context 中获取当前登录用户
 	user, err := apiUtils.GetCurrentUser(c)
 	if err != nil {
 		response.Error(c, err)
-		return
-	}
-
-	req := &apipb.UpdateProjectDetectionReviewRequest{}
-	if !response.BindJSON(c, req) {
 		return
 	}
 
