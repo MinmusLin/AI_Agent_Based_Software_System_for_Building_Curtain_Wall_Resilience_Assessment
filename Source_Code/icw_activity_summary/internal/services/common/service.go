@@ -7,6 +7,7 @@ import (
 	"icw_common/utils"
 
 	"icw_activity_summary/configs"
+	"icw_activity_summary/internal/agent"
 	"icw_activity_summary/rpc/icw_core_biz"
 )
 
@@ -14,6 +15,8 @@ import (
 type Deps struct {
 	Config                    configs.Config
 	CoreBiz                   *icw_core_biz.Client
+	DetectionSummaryAgent     *agent.Client
+	ProjectSummaryAgent       *agent.Client
 	DetectionSummarySemaphore chan struct{}
 	ProjectSummarySemaphore   chan struct{}
 }
@@ -23,6 +26,8 @@ func NewDeps(config configs.Config, coreBiz *icw_core_biz.Client) *Deps {
 	return &Deps{
 		Config:                    config,
 		CoreBiz:                   coreBiz,
+		DetectionSummaryAgent:     agent.NewClient(config.DetectionSummaryAgentSecretToken, config.DetectionSummaryAgentBotId, config.DetectionSummaryAgentUserId),
+		ProjectSummaryAgent:       agent.NewClient(config.ProjectSummaryAgentSecretToken, config.ProjectSummaryAgentBotId, config.ProjectSummaryAgentUserId),
 		DetectionSummarySemaphore: make(chan struct{}, config.DetectionSummaryTaskMaxConcurrency),
 		ProjectSummarySemaphore:   make(chan struct{}, config.ProjectSummaryTaskMaxConcurrency),
 	}
@@ -49,10 +54,7 @@ func NewBaseService(ctx context.Context, deps *Deps) *BaseService {
 }
 
 // CallRPC RPC 服务通用调用
-func (s *BaseService) CallRPC(ctx context.Context, req interface{}, fn func() error) (err error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
+func (s *BaseService) CallRPC(req interface{}, fn func() error) (err error) {
 	if utils.IsNil(req) {
 		return rpc_error.BadRequestDefault("request is nil")
 	}
@@ -84,6 +86,22 @@ func (s *BaseService) CoreBizClient() *icw_core_biz.Client {
 		return nil
 	}
 	return s.deps.CoreBiz
+}
+
+// DetectionSummaryAgentClient 获取图像检测总结智能体 Client
+func (s *BaseService) DetectionSummaryAgentClient() *agent.Client {
+	if s == nil || s.deps == nil {
+		return nil
+	}
+	return s.deps.DetectionSummaryAgent
+}
+
+// ProjectSummaryAgentClient 获取项目总结智能体 Client
+func (s *BaseService) ProjectSummaryAgentClient() *agent.Client {
+	if s == nil || s.deps == nil {
+		return nil
+	}
+	return s.deps.ProjectSummaryAgent
 }
 
 // AcquireDetectionSummary 获取图像检测总结并发执行额度
