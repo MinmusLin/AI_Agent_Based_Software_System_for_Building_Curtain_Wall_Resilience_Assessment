@@ -54,6 +54,7 @@ func (s *Service) asyncExecuteDetectionSummary(requestId string, req *summarypb.
 	start := time.Now()
 	result, err := executeDetectionSummary(ctx, s.DetectionSummaryAgentClient(), req)
 	cost := time.Since(start)
+
 	if utils.IsEmptyError(err) {
 		callbackReq.Status = commonpb.TaskStatus_Succeeded
 		callbackReq.ResultJson = result
@@ -66,6 +67,7 @@ func (s *Service) asyncExecuteDetectionSummary(requestId string, req *summarypb.
 		common.SummaryError(requestId, DetectionSummaryType, req.TaskUuid, cost, result, err)
 	}
 
+	// 上报图像检测总结结果
 	callbackCtx := rpc.WithRequestIdToOutgoingContext(context.Background(), requestId)
 	callbackResp := &bizpb.ReportDetectionSummaryResultResponse{}
 	callbackStart := time.Now()

@@ -27,8 +27,6 @@ const (
 	ProjectSummaryType = "project"
 )
 
-const maxSummarySourceBytes = 32 << 20
-
 // StartProjectSummary 启动项目总结任务
 func (s *Service) StartProjectSummary(ctx context.Context, req *summarypb.StartProjectSummaryRequest) (*summarypb.StartProjectSummaryResponse, error) {
 	resp := &summarypb.StartProjectSummaryResponse{}
@@ -59,6 +57,7 @@ func (s *Service) asyncExecuteProjectSummary(requestId string, req *summarypb.St
 	start := time.Now()
 	result, err := executeProjectSummary(ctx, s.ProjectSummaryAgentClient(), req)
 	cost := time.Since(start)
+
 	if utils.IsEmptyError(err) {
 		callbackReq.Status = commonpb.TaskStatus_Succeeded
 		callbackReq.ResultJson = result
@@ -71,6 +70,7 @@ func (s *Service) asyncExecuteProjectSummary(requestId string, req *summarypb.St
 		common.SummaryError(requestId, ProjectSummaryType, req.ProjectId, cost, result, err)
 	}
 
+	// 上报项目总结结果
 	callbackCtx := rpc.WithRequestIdToOutgoingContext(context.Background(), requestId)
 	callbackResp := &bizpb.ReportProjectSummaryResultResponse{}
 	callbackStart := time.Now()
@@ -92,6 +92,7 @@ func executeProjectSummary(ctx context.Context, client *agent.Client, req *summa
 	})
 }
 
+// downloadSummarySource 下载项目总结原始数据 JSON
 func downloadSummarySource(ctx context.Context, sourceURL string) (string, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, sourceURL, nil)
 	if err != nil {
@@ -107,7 +108,7 @@ func downloadSummarySource(ctx context.Context, sourceURL string) (string, error
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return "", io.ErrUnexpectedEOF
 	}
-	body, err := io.ReadAll(io.LimitReader(response.Body, maxSummarySourceBytes))
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", err
 	}
