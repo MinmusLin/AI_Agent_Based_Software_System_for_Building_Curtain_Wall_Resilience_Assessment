@@ -17,6 +17,9 @@ message AdvanceProjectRequest {
 // AdvanceProject 响应结构体
 message AdvanceProjectResponse {}
 
+// CreateProject 请求结构体
+message CreateProjectRequest {}
+
 // CreateProject 响应结构体
 message CreateProjectResponse {
   Project project = 1;
@@ -32,6 +35,9 @@ message DeleteProjectResponse {
   repeated ProjectListItem active_projects = 1;
   repeated ProjectListItem completed_projects = 2;
 }
+
+// ListProjects 请求结构体
+message ListProjectsRequest {}
 
 // ListProjects 响应结构体
 message ListProjectsResponse {

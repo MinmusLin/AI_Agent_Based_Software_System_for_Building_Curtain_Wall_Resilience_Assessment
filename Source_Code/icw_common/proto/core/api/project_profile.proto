@@ -6,6 +6,11 @@ option go_package = "icw_common/gen/core/api;apipb";
 
 import "core/api/common.proto";
 
+// DeleteProjectThumbnail 请求结构体
+message DeleteProjectThumbnailRequest {
+  string project_id = 1; // 从 HTTP Query 获取
+}
+
 // DeleteProjectThumbnail 响应结构体
 message DeleteProjectThumbnailResponse {}
 

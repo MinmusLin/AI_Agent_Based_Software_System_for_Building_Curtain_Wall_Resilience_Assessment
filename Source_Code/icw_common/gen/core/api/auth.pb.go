@@ -144,6 +144,43 @@ func (x *LoginResponse) GetUser() *common.User {
 	return nil
 }
 
+// Logout 请求结构体
+type LogoutRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutRequest) Reset() {
+	*x = LogoutRequest{}
+	mi := &file_core_api_auth_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutRequest) ProtoMessage() {}
+
+func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_auth_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
+func (*LogoutRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_auth_proto_rawDescGZIP(), []int{2}
+}
+
 // Logout 响应结构体
 type LogoutResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -153,7 +190,7 @@ type LogoutResponse struct {
 
 func (x *LogoutResponse) Reset() {
 	*x = LogoutResponse{}
-	mi := &file_core_api_auth_proto_msgTypes[2]
+	mi := &file_core_api_auth_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -165,7 +202,7 @@ func (x *LogoutResponse) String() string {
 func (*LogoutResponse) ProtoMessage() {}
 
 func (x *LogoutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[2]
+	mi := &file_core_api_auth_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -178,7 +215,44 @@ func (x *LogoutResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogoutResponse.ProtoReflect.Descriptor instead.
 func (*LogoutResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{2}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{3}
+}
+
+// Me 请求结构体
+type MeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MeRequest) Reset() {
+	*x = MeRequest{}
+	mi := &file_core_api_auth_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MeRequest) ProtoMessage() {}
+
+func (x *MeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_auth_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MeRequest.ProtoReflect.Descriptor instead.
+func (*MeRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_auth_proto_rawDescGZIP(), []int{4}
 }
 
 // Me 响应结构体
@@ -191,7 +265,7 @@ type MeResponse struct {
 
 func (x *MeResponse) Reset() {
 	*x = MeResponse{}
-	mi := &file_core_api_auth_proto_msgTypes[3]
+	mi := &file_core_api_auth_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -203,7 +277,7 @@ func (x *MeResponse) String() string {
 func (*MeResponse) ProtoMessage() {}
 
 func (x *MeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[3]
+	mi := &file_core_api_auth_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -216,7 +290,7 @@ func (x *MeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeResponse.ProtoReflect.Descriptor instead.
 func (*MeResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{3}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *MeResponse) GetUser() *common.User {
@@ -224,6 +298,43 @@ func (x *MeResponse) GetUser() *common.User {
 		return x.User
 	}
 	return nil
+}
+
+// Refresh 请求结构体
+type RefreshRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshRequest) Reset() {
+	*x = RefreshRequest{}
+	mi := &file_core_api_auth_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshRequest) ProtoMessage() {}
+
+func (x *RefreshRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_auth_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshRequest.ProtoReflect.Descriptor instead.
+func (*RefreshRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_auth_proto_rawDescGZIP(), []int{6}
 }
 
 // Refresh 响应结构体
@@ -238,7 +349,7 @@ type RefreshResponse struct {
 
 func (x *RefreshResponse) Reset() {
 	*x = RefreshResponse{}
-	mi := &file_core_api_auth_proto_msgTypes[4]
+	mi := &file_core_api_auth_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -250,7 +361,7 @@ func (x *RefreshResponse) String() string {
 func (*RefreshResponse) ProtoMessage() {}
 
 func (x *RefreshResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[4]
+	mi := &file_core_api_auth_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -263,7 +374,7 @@ func (x *RefreshResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshResponse.ProtoReflect.Descriptor instead.
 func (*RefreshResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{4}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RefreshResponse) GetAccessToken() string {
@@ -300,7 +411,7 @@ type RegisterRequest struct {
 
 func (x *RegisterRequest) Reset() {
 	*x = RegisterRequest{}
-	mi := &file_core_api_auth_proto_msgTypes[5]
+	mi := &file_core_api_auth_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -312,7 +423,7 @@ func (x *RegisterRequest) String() string {
 func (*RegisterRequest) ProtoMessage() {}
 
 func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[5]
+	mi := &file_core_api_auth_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -325,7 +436,7 @@ func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
 func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{5}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RegisterRequest) GetEmail() string {
@@ -365,7 +476,7 @@ type RegisterResponse struct {
 
 func (x *RegisterResponse) Reset() {
 	*x = RegisterResponse{}
-	mi := &file_core_api_auth_proto_msgTypes[6]
+	mi := &file_core_api_auth_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -377,7 +488,7 @@ func (x *RegisterResponse) String() string {
 func (*RegisterResponse) ProtoMessage() {}
 
 func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[6]
+	mi := &file_core_api_auth_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,7 +501,7 @@ func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
 func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{6}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{9}
 }
 
 // ResetPassword 请求结构体
@@ -405,7 +516,7 @@ type ResetPasswordRequest struct {
 
 func (x *ResetPasswordRequest) Reset() {
 	*x = ResetPasswordRequest{}
-	mi := &file_core_api_auth_proto_msgTypes[7]
+	mi := &file_core_api_auth_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -417,7 +528,7 @@ func (x *ResetPasswordRequest) String() string {
 func (*ResetPasswordRequest) ProtoMessage() {}
 
 func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[7]
+	mi := &file_core_api_auth_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -430,7 +541,7 @@ func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
 func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{7}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ResetPasswordRequest) GetEmail() string {
@@ -463,7 +574,7 @@ type ResetPasswordResponse struct {
 
 func (x *ResetPasswordResponse) Reset() {
 	*x = ResetPasswordResponse{}
-	mi := &file_core_api_auth_proto_msgTypes[8]
+	mi := &file_core_api_auth_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -475,7 +586,7 @@ func (x *ResetPasswordResponse) String() string {
 func (*ResetPasswordResponse) ProtoMessage() {}
 
 func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[8]
+	mi := &file_core_api_auth_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -488,7 +599,7 @@ func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPasswordResponse.ProtoReflect.Descriptor instead.
 func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{8}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{11}
 }
 
 // SendEmailCode 请求结构体
@@ -502,7 +613,7 @@ type SendEmailCodeRequest struct {
 
 func (x *SendEmailCodeRequest) Reset() {
 	*x = SendEmailCodeRequest{}
-	mi := &file_core_api_auth_proto_msgTypes[9]
+	mi := &file_core_api_auth_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -514,7 +625,7 @@ func (x *SendEmailCodeRequest) String() string {
 func (*SendEmailCodeRequest) ProtoMessage() {}
 
 func (x *SendEmailCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[9]
+	mi := &file_core_api_auth_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -527,7 +638,7 @@ func (x *SendEmailCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendEmailCodeRequest.ProtoReflect.Descriptor instead.
 func (*SendEmailCodeRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{9}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *SendEmailCodeRequest) GetEmail() string {
@@ -554,7 +665,7 @@ type SendEmailCodeResponse struct {
 
 func (x *SendEmailCodeResponse) Reset() {
 	*x = SendEmailCodeResponse{}
-	mi := &file_core_api_auth_proto_msgTypes[10]
+	mi := &file_core_api_auth_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -566,7 +677,7 @@ func (x *SendEmailCodeResponse) String() string {
 func (*SendEmailCodeResponse) ProtoMessage() {}
 
 func (x *SendEmailCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_auth_proto_msgTypes[10]
+	mi := &file_core_api_auth_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -579,7 +690,7 @@ func (x *SendEmailCodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendEmailCodeResponse.ProtoReflect.Descriptor instead.
 func (*SendEmailCodeResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_auth_proto_rawDescGZIP(), []int{10}
+	return file_core_api_auth_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *SendEmailCodeResponse) GetExpiresIn() int32 {
@@ -602,11 +713,14 @@ const file_core_api_auth_proto_rawDesc = "" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1d\n" +
 	"\n" +
 	"expires_in\x18\x02 \x01(\x05R\texpiresIn\x12)\n" +
-	"\x04user\x18\x03 \x01(\v2\x15.icw.core.common.UserR\x04user\"\x10\n" +
-	"\x0eLogoutResponse\"7\n" +
+	"\x04user\x18\x03 \x01(\v2\x15.icw.core.common.UserR\x04user\"\x0f\n" +
+	"\rLogoutRequest\"\x10\n" +
+	"\x0eLogoutResponse\"\v\n" +
+	"\tMeRequest\"7\n" +
 	"\n" +
 	"MeResponse\x12)\n" +
-	"\x04user\x18\x01 \x01(\v2\x15.icw.core.common.UserR\x04user\"~\n" +
+	"\x04user\x18\x01 \x01(\v2\x15.icw.core.common.UserR\x04user\"\x10\n" +
+	"\x0eRefreshRequest\"~\n" +
 	"\x0fRefreshResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1d\n" +
 	"\n" +
@@ -644,29 +758,32 @@ func file_core_api_auth_proto_rawDescGZIP() []byte {
 	return file_core_api_auth_proto_rawDescData
 }
 
-var file_core_api_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_core_api_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_core_api_auth_proto_goTypes = []any{
 	(*LoginRequest)(nil),             // 0: icw.core.api.LoginRequest
 	(*LoginResponse)(nil),            // 1: icw.core.api.LoginResponse
-	(*LogoutResponse)(nil),           // 2: icw.core.api.LogoutResponse
-	(*MeResponse)(nil),               // 3: icw.core.api.MeResponse
-	(*RefreshResponse)(nil),          // 4: icw.core.api.RefreshResponse
-	(*RegisterRequest)(nil),          // 5: icw.core.api.RegisterRequest
-	(*RegisterResponse)(nil),         // 6: icw.core.api.RegisterResponse
-	(*ResetPasswordRequest)(nil),     // 7: icw.core.api.ResetPasswordRequest
-	(*ResetPasswordResponse)(nil),    // 8: icw.core.api.ResetPasswordResponse
-	(*SendEmailCodeRequest)(nil),     // 9: icw.core.api.SendEmailCodeRequest
-	(*SendEmailCodeResponse)(nil),    // 10: icw.core.api.SendEmailCodeResponse
-	(common.LoginScene_Value)(0),     // 11: icw.core.common.LoginScene.Value
-	(*common.User)(nil),              // 12: icw.core.common.User
-	(common.EmailCodeScene_Value)(0), // 13: icw.core.common.EmailCodeScene.Value
+	(*LogoutRequest)(nil),            // 2: icw.core.api.LogoutRequest
+	(*LogoutResponse)(nil),           // 3: icw.core.api.LogoutResponse
+	(*MeRequest)(nil),                // 4: icw.core.api.MeRequest
+	(*MeResponse)(nil),               // 5: icw.core.api.MeResponse
+	(*RefreshRequest)(nil),           // 6: icw.core.api.RefreshRequest
+	(*RefreshResponse)(nil),          // 7: icw.core.api.RefreshResponse
+	(*RegisterRequest)(nil),          // 8: icw.core.api.RegisterRequest
+	(*RegisterResponse)(nil),         // 9: icw.core.api.RegisterResponse
+	(*ResetPasswordRequest)(nil),     // 10: icw.core.api.ResetPasswordRequest
+	(*ResetPasswordResponse)(nil),    // 11: icw.core.api.ResetPasswordResponse
+	(*SendEmailCodeRequest)(nil),     // 12: icw.core.api.SendEmailCodeRequest
+	(*SendEmailCodeResponse)(nil),    // 13: icw.core.api.SendEmailCodeResponse
+	(common.LoginScene_Value)(0),     // 14: icw.core.common.LoginScene.Value
+	(*common.User)(nil),              // 15: icw.core.common.User
+	(common.EmailCodeScene_Value)(0), // 16: icw.core.common.EmailCodeScene.Value
 }
 var file_core_api_auth_proto_depIdxs = []int32{
-	11, // 0: icw.core.api.LoginRequest.scene:type_name -> icw.core.common.LoginScene.Value
-	12, // 1: icw.core.api.LoginResponse.user:type_name -> icw.core.common.User
-	12, // 2: icw.core.api.MeResponse.user:type_name -> icw.core.common.User
-	12, // 3: icw.core.api.RefreshResponse.user:type_name -> icw.core.common.User
-	13, // 4: icw.core.api.SendEmailCodeRequest.scene:type_name -> icw.core.common.EmailCodeScene.Value
+	14, // 0: icw.core.api.LoginRequest.scene:type_name -> icw.core.common.LoginScene.Value
+	15, // 1: icw.core.api.LoginResponse.user:type_name -> icw.core.common.User
+	15, // 2: icw.core.api.MeResponse.user:type_name -> icw.core.common.User
+	15, // 3: icw.core.api.RefreshResponse.user:type_name -> icw.core.common.User
+	16, // 4: icw.core.api.SendEmailCodeRequest.scene:type_name -> icw.core.common.EmailCodeScene.Value
 	5,  // [5:5] is the sub-list for method output_type
 	5,  // [5:5] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
@@ -685,7 +802,7 @@ func file_core_api_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_auth_proto_rawDesc), len(file_core_api_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

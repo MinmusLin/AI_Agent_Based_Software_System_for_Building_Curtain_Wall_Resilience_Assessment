@@ -20,13 +20,22 @@ message LoginResponse {
   .icw.core.common.User user = 3;
 }
 
+// Logout 请求结构体
+message LogoutRequest {}
+
 // Logout 响应结构体
 message LogoutResponse {}
+
+// Me 请求结构体
+message MeRequest {}
 
 // Me 响应结构体
 message MeResponse {
   .icw.core.common.User user = 1;
 }
+
+// Refresh 请求结构体
+message RefreshRequest {}
 
 // Refresh 响应结构体
 message RefreshResponse {

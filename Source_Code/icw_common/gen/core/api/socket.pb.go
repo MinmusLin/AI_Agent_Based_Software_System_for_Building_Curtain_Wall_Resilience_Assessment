@@ -188,6 +188,43 @@ func (x *SetupWebSocketRequest) GetTicket() string {
 	return ""
 }
 
+// SetupWebSocket 响应结构体
+type SetupWebSocketResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetupWebSocketResponse) Reset() {
+	*x = SetupWebSocketResponse{}
+	mi := &file_core_api_socket_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetupWebSocketResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetupWebSocketResponse) ProtoMessage() {}
+
+func (x *SetupWebSocketResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_socket_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetupWebSocketResponse.ProtoReflect.Descriptor instead.
+func (*SetupWebSocketResponse) Descriptor() ([]byte, []int) {
+	return file_core_api_socket_proto_rawDescGZIP(), []int{3}
+}
+
 var File_core_api_socket_proto protoreflect.FileDescriptor
 
 const file_core_api_socket_proto_rawDesc = "" +
@@ -205,7 +242,8 @@ const file_core_api_socket_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
 	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x16\n" +
-	"\x06ticket\x18\x03 \x01(\tR\x06ticketB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
+	"\x06ticket\x18\x03 \x01(\tR\x06ticket\"\x18\n" +
+	"\x16SetupWebSocketResponseB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
 
 var (
 	file_core_api_socket_proto_rawDescOnce sync.Once
@@ -219,11 +257,12 @@ func file_core_api_socket_proto_rawDescGZIP() []byte {
 	return file_core_api_socket_proto_rawDescData
 }
 
-var file_core_api_socket_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_core_api_socket_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_core_api_socket_proto_goTypes = []any{
 	(*CreateSocketTicketRequest)(nil),  // 0: icw.core.api.CreateSocketTicketRequest
 	(*CreateSocketTicketResponse)(nil), // 1: icw.core.api.CreateSocketTicketResponse
 	(*SetupWebSocketRequest)(nil),      // 2: icw.core.api.SetupWebSocketRequest
+	(*SetupWebSocketResponse)(nil),     // 3: icw.core.api.SetupWebSocketResponse
 }
 var file_core_api_socket_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -244,7 +283,7 @@ func file_core_api_socket_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_socket_proto_rawDesc), len(file_core_api_socket_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -21,6 +21,43 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// DeleteAvatar 请求结构体
+type DeleteAvatarRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAvatarRequest) Reset() {
+	*x = DeleteAvatarRequest{}
+	mi := &file_core_api_user_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAvatarRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAvatarRequest) ProtoMessage() {}
+
+func (x *DeleteAvatarRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_user_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAvatarRequest.ProtoReflect.Descriptor instead.
+func (*DeleteAvatarRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_user_proto_rawDescGZIP(), []int{0}
+}
+
 // DeleteAvatar 响应结构体
 type DeleteAvatarResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -30,7 +67,7 @@ type DeleteAvatarResponse struct {
 
 func (x *DeleteAvatarResponse) Reset() {
 	*x = DeleteAvatarResponse{}
-	mi := &file_core_api_user_proto_msgTypes[0]
+	mi := &file_core_api_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +79,7 @@ func (x *DeleteAvatarResponse) String() string {
 func (*DeleteAvatarResponse) ProtoMessage() {}
 
 func (x *DeleteAvatarResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_user_proto_msgTypes[0]
+	mi := &file_core_api_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +92,44 @@ func (x *DeleteAvatarResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAvatarResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAvatarResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_user_proto_rawDescGZIP(), []int{0}
+	return file_core_api_user_proto_rawDescGZIP(), []int{1}
+}
+
+// GetAvatar 请求结构体
+type GetAvatarRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAvatarRequest) Reset() {
+	*x = GetAvatarRequest{}
+	mi := &file_core_api_user_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAvatarRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAvatarRequest) ProtoMessage() {}
+
+func (x *GetAvatarRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_user_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAvatarRequest.ProtoReflect.Descriptor instead.
+func (*GetAvatarRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_user_proto_rawDescGZIP(), []int{2}
 }
 
 // GetAvatar 响应结构体
@@ -69,7 +143,7 @@ type GetAvatarResponse struct {
 
 func (x *GetAvatarResponse) Reset() {
 	*x = GetAvatarResponse{}
-	mi := &file_core_api_user_proto_msgTypes[1]
+	mi := &file_core_api_user_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -81,7 +155,7 @@ func (x *GetAvatarResponse) String() string {
 func (*GetAvatarResponse) ProtoMessage() {}
 
 func (x *GetAvatarResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_user_proto_msgTypes[1]
+	mi := &file_core_api_user_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -94,7 +168,7 @@ func (x *GetAvatarResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAvatarResponse.ProtoReflect.Descriptor instead.
 func (*GetAvatarResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_user_proto_rawDescGZIP(), []int{1}
+	return file_core_api_user_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetAvatarResponse) GetAvatarUrl() string {
@@ -111,6 +185,43 @@ func (x *GetAvatarResponse) GetAvatarType() string {
 	return ""
 }
 
+// UploadAvatar 请求结构体
+type UploadAvatarRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadAvatarRequest) Reset() {
+	*x = UploadAvatarRequest{}
+	mi := &file_core_api_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadAvatarRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadAvatarRequest) ProtoMessage() {}
+
+func (x *UploadAvatarRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadAvatarRequest.ProtoReflect.Descriptor instead.
+func (*UploadAvatarRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_user_proto_rawDescGZIP(), []int{4}
+}
+
 // UploadAvatar 响应结构体
 type UploadAvatarResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -121,7 +232,7 @@ type UploadAvatarResponse struct {
 
 func (x *UploadAvatarResponse) Reset() {
 	*x = UploadAvatarResponse{}
-	mi := &file_core_api_user_proto_msgTypes[2]
+	mi := &file_core_api_user_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -133,7 +244,7 @@ func (x *UploadAvatarResponse) String() string {
 func (*UploadAvatarResponse) ProtoMessage() {}
 
 func (x *UploadAvatarResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_user_proto_msgTypes[2]
+	mi := &file_core_api_user_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -146,7 +257,7 @@ func (x *UploadAvatarResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadAvatarResponse.ProtoReflect.Descriptor instead.
 func (*UploadAvatarResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_user_proto_rawDescGZIP(), []int{2}
+	return file_core_api_user_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UploadAvatarResponse) GetUploadUrl() string {
@@ -160,13 +271,16 @@ var File_core_api_user_proto protoreflect.FileDescriptor
 
 const file_core_api_user_proto_rawDesc = "" +
 	"\n" +
-	"\x13core/api/user.proto\x12\ficw.core.api\"\x16\n" +
-	"\x14DeleteAvatarResponse\"S\n" +
+	"\x13core/api/user.proto\x12\ficw.core.api\"\x15\n" +
+	"\x13DeleteAvatarRequest\"\x16\n" +
+	"\x14DeleteAvatarResponse\"\x12\n" +
+	"\x10GetAvatarRequest\"S\n" +
 	"\x11GetAvatarResponse\x12\x1d\n" +
 	"\n" +
 	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\x12\x1f\n" +
 	"\vavatar_type\x18\x02 \x01(\tR\n" +
-	"avatarType\"5\n" +
+	"avatarType\"\x15\n" +
+	"\x13UploadAvatarRequest\"5\n" +
 	"\x14UploadAvatarResponse\x12\x1d\n" +
 	"\n" +
 	"upload_url\x18\x01 \x01(\tR\tuploadUrlB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
@@ -183,11 +297,14 @@ func file_core_api_user_proto_rawDescGZIP() []byte {
 	return file_core_api_user_proto_rawDescData
 }
 
-var file_core_api_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_core_api_user_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_core_api_user_proto_goTypes = []any{
-	(*DeleteAvatarResponse)(nil), // 0: icw.core.api.DeleteAvatarResponse
-	(*GetAvatarResponse)(nil),    // 1: icw.core.api.GetAvatarResponse
-	(*UploadAvatarResponse)(nil), // 2: icw.core.api.UploadAvatarResponse
+	(*DeleteAvatarRequest)(nil),  // 0: icw.core.api.DeleteAvatarRequest
+	(*DeleteAvatarResponse)(nil), // 1: icw.core.api.DeleteAvatarResponse
+	(*GetAvatarRequest)(nil),     // 2: icw.core.api.GetAvatarRequest
+	(*GetAvatarResponse)(nil),    // 3: icw.core.api.GetAvatarResponse
+	(*UploadAvatarRequest)(nil),  // 4: icw.core.api.UploadAvatarRequest
+	(*UploadAvatarResponse)(nil), // 5: icw.core.api.UploadAvatarResponse
 }
 var file_core_api_user_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -208,7 +325,7 @@ func file_core_api_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_user_proto_rawDesc), len(file_core_api_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

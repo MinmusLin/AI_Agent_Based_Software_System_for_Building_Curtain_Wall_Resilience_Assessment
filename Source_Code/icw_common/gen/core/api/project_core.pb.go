@@ -120,6 +120,43 @@ func (*AdvanceProjectResponse) Descriptor() ([]byte, []int) {
 	return file_core_api_project_core_proto_rawDescGZIP(), []int{1}
 }
 
+// CreateProject 请求结构体
+type CreateProjectRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateProjectRequest) Reset() {
+	*x = CreateProjectRequest{}
+	mi := &file_core_api_project_core_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateProjectRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateProjectRequest) ProtoMessage() {}
+
+func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_project_core_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateProjectRequest.ProtoReflect.Descriptor instead.
+func (*CreateProjectRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{2}
+}
+
 // CreateProject 响应结构体
 type CreateProjectResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -130,7 +167,7 @@ type CreateProjectResponse struct {
 
 func (x *CreateProjectResponse) Reset() {
 	*x = CreateProjectResponse{}
-	mi := &file_core_api_project_core_proto_msgTypes[2]
+	mi := &file_core_api_project_core_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -142,7 +179,7 @@ func (x *CreateProjectResponse) String() string {
 func (*CreateProjectResponse) ProtoMessage() {}
 
 func (x *CreateProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_core_proto_msgTypes[2]
+	mi := &file_core_api_project_core_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -155,7 +192,7 @@ func (x *CreateProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProjectResponse.ProtoReflect.Descriptor instead.
 func (*CreateProjectResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_core_proto_rawDescGZIP(), []int{2}
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateProjectResponse) GetProject() *Project {
@@ -175,7 +212,7 @@ type DeleteProjectRequest struct {
 
 func (x *DeleteProjectRequest) Reset() {
 	*x = DeleteProjectRequest{}
-	mi := &file_core_api_project_core_proto_msgTypes[3]
+	mi := &file_core_api_project_core_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -187,7 +224,7 @@ func (x *DeleteProjectRequest) String() string {
 func (*DeleteProjectRequest) ProtoMessage() {}
 
 func (x *DeleteProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_core_proto_msgTypes[3]
+	mi := &file_core_api_project_core_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -200,7 +237,7 @@ func (x *DeleteProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProjectRequest.ProtoReflect.Descriptor instead.
 func (*DeleteProjectRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_core_proto_rawDescGZIP(), []int{3}
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteProjectRequest) GetProjectId() string {
@@ -221,7 +258,7 @@ type DeleteProjectResponse struct {
 
 func (x *DeleteProjectResponse) Reset() {
 	*x = DeleteProjectResponse{}
-	mi := &file_core_api_project_core_proto_msgTypes[4]
+	mi := &file_core_api_project_core_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +270,7 @@ func (x *DeleteProjectResponse) String() string {
 func (*DeleteProjectResponse) ProtoMessage() {}
 
 func (x *DeleteProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_core_proto_msgTypes[4]
+	mi := &file_core_api_project_core_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +283,7 @@ func (x *DeleteProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProjectResponse.ProtoReflect.Descriptor instead.
 func (*DeleteProjectResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_core_proto_rawDescGZIP(), []int{4}
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeleteProjectResponse) GetActiveProjects() []*ProjectListItem {
@@ -263,6 +300,43 @@ func (x *DeleteProjectResponse) GetCompletedProjects() []*ProjectListItem {
 	return nil
 }
 
+// ListProjects 请求结构体
+type ListProjectsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListProjectsRequest) Reset() {
+	*x = ListProjectsRequest{}
+	mi := &file_core_api_project_core_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListProjectsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProjectsRequest) ProtoMessage() {}
+
+func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_project_core_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProjectsRequest.ProtoReflect.Descriptor instead.
+func (*ListProjectsRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{6}
+}
+
 // ListProjects 响应结构体
 type ListProjectsResponse struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
@@ -274,7 +348,7 @@ type ListProjectsResponse struct {
 
 func (x *ListProjectsResponse) Reset() {
 	*x = ListProjectsResponse{}
-	mi := &file_core_api_project_core_proto_msgTypes[5]
+	mi := &file_core_api_project_core_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -286,7 +360,7 @@ func (x *ListProjectsResponse) String() string {
 func (*ListProjectsResponse) ProtoMessage() {}
 
 func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_core_proto_msgTypes[5]
+	mi := &file_core_api_project_core_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -299,7 +373,7 @@ func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsResponse.ProtoReflect.Descriptor instead.
 func (*ListProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_core_proto_rawDescGZIP(), []int{5}
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListProjectsResponse) GetActiveProjects() []*ProjectListItem {
@@ -327,7 +401,8 @@ const file_core_api_project_core_proto_rawDesc = "" +
 	"\rfrom_progress\x18\x02 \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\ffromProgress\x12G\n" +
 	"\vto_progress\x18\x03 \x01(\x0e2&.icw.core.common.ProjectProgress.ValueR\n" +
 	"toProgress\"\x18\n" +
-	"\x16AdvanceProjectResponse\"H\n" +
+	"\x16AdvanceProjectResponse\"\x16\n" +
+	"\x14CreateProjectRequest\"H\n" +
 	"\x15CreateProjectResponse\x12/\n" +
 	"\aproject\x18\x01 \x01(\v2\x15.icw.core.api.ProjectR\aproject\"5\n" +
 	"\x14DeleteProjectRequest\x12\x1d\n" +
@@ -335,7 +410,8 @@ const file_core_api_project_core_proto_rawDesc = "" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\"\xad\x01\n" +
 	"\x15DeleteProjectResponse\x12F\n" +
 	"\x0factive_projects\x18\x01 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x0eactiveProjects\x12L\n" +
-	"\x12completed_projects\x18\x02 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x11completedProjects\"\xac\x01\n" +
+	"\x12completed_projects\x18\x02 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x11completedProjects\"\x15\n" +
+	"\x13ListProjectsRequest\"\xac\x01\n" +
 	"\x14ListProjectsResponse\x12F\n" +
 	"\x0factive_projects\x18\x01 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x0eactiveProjects\x12L\n" +
 	"\x12completed_projects\x18\x02 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x11completedProjectsB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
@@ -352,31 +428,33 @@ func file_core_api_project_core_proto_rawDescGZIP() []byte {
 	return file_core_api_project_core_proto_rawDescData
 }
 
-var file_core_api_project_core_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_core_api_project_core_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_core_api_project_core_proto_goTypes = []any{
 	(*AdvanceProjectRequest)(nil),     // 0: icw.core.api.AdvanceProjectRequest
 	(*AdvanceProjectResponse)(nil),    // 1: icw.core.api.AdvanceProjectResponse
-	(*CreateProjectResponse)(nil),     // 2: icw.core.api.CreateProjectResponse
-	(*DeleteProjectRequest)(nil),      // 3: icw.core.api.DeleteProjectRequest
-	(*DeleteProjectResponse)(nil),     // 4: icw.core.api.DeleteProjectResponse
-	(*ListProjectsResponse)(nil),      // 5: icw.core.api.ListProjectsResponse
-	(common.ProjectProgress_Value)(0), // 6: icw.core.common.ProjectProgress.Value
-	(*Project)(nil),                   // 7: icw.core.api.Project
-	(*ProjectListItem)(nil),           // 8: icw.core.api.ProjectListItem
+	(*CreateProjectRequest)(nil),      // 2: icw.core.api.CreateProjectRequest
+	(*CreateProjectResponse)(nil),     // 3: icw.core.api.CreateProjectResponse
+	(*DeleteProjectRequest)(nil),      // 4: icw.core.api.DeleteProjectRequest
+	(*DeleteProjectResponse)(nil),     // 5: icw.core.api.DeleteProjectResponse
+	(*ListProjectsRequest)(nil),       // 6: icw.core.api.ListProjectsRequest
+	(*ListProjectsResponse)(nil),      // 7: icw.core.api.ListProjectsResponse
+	(common.ProjectProgress_Value)(0), // 8: icw.core.common.ProjectProgress.Value
+	(*Project)(nil),                   // 9: icw.core.api.Project
+	(*ProjectListItem)(nil),           // 10: icw.core.api.ProjectListItem
 }
 var file_core_api_project_core_proto_depIdxs = []int32{
-	6, // 0: icw.core.api.AdvanceProjectRequest.from_progress:type_name -> icw.core.common.ProjectProgress.Value
-	6, // 1: icw.core.api.AdvanceProjectRequest.to_progress:type_name -> icw.core.common.ProjectProgress.Value
-	7, // 2: icw.core.api.CreateProjectResponse.project:type_name -> icw.core.api.Project
-	8, // 3: icw.core.api.DeleteProjectResponse.active_projects:type_name -> icw.core.api.ProjectListItem
-	8, // 4: icw.core.api.DeleteProjectResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
-	8, // 5: icw.core.api.ListProjectsResponse.active_projects:type_name -> icw.core.api.ProjectListItem
-	8, // 6: icw.core.api.ListProjectsResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	8,  // 0: icw.core.api.AdvanceProjectRequest.from_progress:type_name -> icw.core.common.ProjectProgress.Value
+	8,  // 1: icw.core.api.AdvanceProjectRequest.to_progress:type_name -> icw.core.common.ProjectProgress.Value
+	9,  // 2: icw.core.api.CreateProjectResponse.project:type_name -> icw.core.api.Project
+	10, // 3: icw.core.api.DeleteProjectResponse.active_projects:type_name -> icw.core.api.ProjectListItem
+	10, // 4: icw.core.api.DeleteProjectResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
+	10, // 5: icw.core.api.ListProjectsResponse.active_projects:type_name -> icw.core.api.ProjectListItem
+	10, // 6: icw.core.api.ListProjectsResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
+	7,  // [7:7] is the sub-list for method output_type
+	7,  // [7:7] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_core_api_project_core_proto_init() }
@@ -391,7 +469,7 @@ func file_core_api_project_core_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_project_core_proto_rawDesc), len(file_core_api_project_core_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

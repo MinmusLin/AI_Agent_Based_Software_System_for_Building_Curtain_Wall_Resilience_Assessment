@@ -22,3 +22,6 @@ message SetupWebSocketRequest {
   string scope = 2; // 从 HTTP Query 获取
   string ticket = 3; // 从 HTTP Query 获取
 }
+
+// SetupWebSocket 响应结构体
+message SetupWebSocketResponse {}
