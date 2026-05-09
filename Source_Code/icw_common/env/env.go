@@ -2,6 +2,7 @@ package env
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -11,6 +12,9 @@ import (
 func LoadDotEnv(path string) error {
 	file, err := os.Open(path)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil
+		}
 		return err
 	}
 	defer func() {
