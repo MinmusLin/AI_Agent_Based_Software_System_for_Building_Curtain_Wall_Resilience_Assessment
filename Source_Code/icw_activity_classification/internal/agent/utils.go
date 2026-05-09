@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	"icw_activity_classification/utils"
+	"icw_common/utils"
 )
 
 // readChatStream 读取 SSE 响应
