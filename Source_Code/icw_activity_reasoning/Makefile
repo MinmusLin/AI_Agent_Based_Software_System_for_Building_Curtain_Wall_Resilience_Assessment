@@ -1,6 +1,10 @@
 APP_NAME := icw_activity_reasoning
 GO ?= go
 GOIMPORTS_REVISER ?= goimports-reviser
+DOCKERHUB_NAMESPACE ?= minmuslin
+IMAGE_TAG ?= latest
+IMAGE_PLATFORM ?= linux/amd64
+IMAGE := $(DOCKERHUB_NAMESPACE)/$(APP_NAME):$(IMAGE_TAG)
 UV ?= uv
 MAIN := ./cmd/server
 PKGS := ./...
@@ -12,7 +16,7 @@ COVER_HTML := $(COVER_DIR)/coverage.html
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all verify uv-sync python-check fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-all build-linux-amd64 build-linux-arm64 run clean
+.PHONY: help all verify image uv-sync python-check fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-all build-linux-amd64 build-linux-arm64 run clean
 
 help:
 	@echo "Usage: make <COMMAND>"
@@ -20,6 +24,7 @@ help:
 	@echo "Commands:"
 	@echo "  make all                Run fmt, tidy, vet, test, and build"
 	@echo "  make verify             Run fmt-check, tidy-check, vet, and test"
+	@echo "  make image              Build Docker image and push to Docker Hub"
 	@echo "  make uv-sync            Sync Python dependencies with uv"
 	@echo "  make python-check       Compile Python files with uv"
 	@echo "  make fmt                Format Go files"
@@ -44,6 +49,10 @@ help:
 all: fmt tidy vet test build
 
 verify: fmt-check tidy-check vet test
+
+image:
+	docker login
+	docker buildx build --platform $(IMAGE_PLATFORM) --build-context icw_common=../icw_common -f Dockerfile -t $(IMAGE) --push .
 
 uv-sync:
 	$(UV) sync

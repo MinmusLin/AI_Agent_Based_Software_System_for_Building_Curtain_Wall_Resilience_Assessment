@@ -1,6 +1,10 @@
 APP_NAME := icw_core_biz
 GO ?= go
 GOIMPORTS_REVISER ?= goimports-reviser
+DOCKERHUB_NAMESPACE ?= minmuslin
+IMAGE_TAG ?= latest
+IMAGE_PLATFORM ?= linux/amd64
+IMAGE := $(DOCKERHUB_NAMESPACE)/$(APP_NAME):$(IMAGE_TAG)
 MAIN := ./cmd/server
 PKGS := ./...
 BIN_DIR := bin
@@ -11,7 +15,7 @@ COVER_HTML := $(COVER_DIR)/coverage.html
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all verify fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-all build-linux-amd64 build-linux-arm64 run clean
+.PHONY: help all verify image fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-all build-linux-amd64 build-linux-arm64 run clean
 
 help:
 	@echo "Usage: make <COMMAND>"
@@ -19,6 +23,7 @@ help:
 	@echo "Commands:"
 	@echo "  make all                Run fmt, tidy, vet, test, and build"
 	@echo "  make verify             Run fmt-check, tidy-check, vet, and test"
+	@echo "  make image              Build Docker image and push to Docker Hub"
 	@echo "  make fmt                Format Go files"
 	@echo "  make fmt-check          Check Go formatting without modifying files"
 	@echo "  make tidy               Run go mod tidy"
@@ -41,6 +46,11 @@ help:
 all: fmt tidy vet test build
 
 verify: fmt-check tidy-check vet test
+
+image:
+	docker login
+	docker buildx build --platform $(IMAGE_PLATFORM) --build-context icw_common=../icw_common -f Dockerfile -t $(IMAGE) --push .
+
 
 fmt:
 	$(GO) fmt $(PKGS)
