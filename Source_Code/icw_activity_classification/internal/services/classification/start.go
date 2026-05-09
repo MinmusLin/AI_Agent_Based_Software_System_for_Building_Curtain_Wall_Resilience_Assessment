@@ -7,9 +7,9 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/activity/classification"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc"
 	"icw_common/utils"
 
@@ -52,16 +52,16 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 	classificationCost := time.Since(classificationStart)
 
 	if utils.IsEmptyError(err) {
-		callbackReq.Status = activitypb.DetectionStatus_Succeeded
-		callbackReq.TaskCodes = make([]activitypb.DetectionTaskCode_Value, 0, len(taskCodes))
+		callbackReq.Status = commonpb.TaskStatus_Succeeded
+		callbackReq.TaskCodes = make([]commonpb.DetectionTaskCode_Value, 0, len(taskCodes))
 		for _, taskCode := range taskCodes {
 			callbackReq.TaskCodes = append(callbackReq.TaskCodes, enum.ParseDetectionTaskCode(taskCode))
 		}
 		callbackReq.ErrorMessage = ""
 		common.ClassificationInfo(requestId, req.TaskUuid, req.ImageUuid, taskCodes, output, classificationCost)
 	} else {
-		callbackReq.Status = activitypb.DetectionStatus_Failed
-		callbackReq.TaskCodes = make([]activitypb.DetectionTaskCode_Value, 0)
+		callbackReq.Status = commonpb.TaskStatus_Failed
+		callbackReq.TaskCodes = make([]commonpb.DetectionTaskCode_Value, 0)
 		callbackReq.ErrorMessage = err.Error()
 		common.ClassificationError(requestId, req.TaskUuid, req.ImageUuid, taskCodes, output, classificationCost, err)
 	}
@@ -71,8 +71,8 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 	callbackResp := &bizpb.ReportClassificationResultResponse{}
 	callbackStart := time.Now()
 	if err := icw_core_biz.ReportClassificationResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); utils.IsEmptyError(err) {
-		common.CallbackInfo(requestId, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart)
+		common.CallbackInfo(requestId, req.TaskUuid, req.ImageUuid, enum.TaskStatusString(callbackReq.Status), callbackStart)
 		return
 	}
-	common.CallbackError(requestId, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart, err)
+	common.CallbackError(requestId, req.TaskUuid, req.ImageUuid, enum.TaskStatusString(callbackReq.Status), callbackStart, err)
 }

@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/activity/classification"
+	"icw_common/gen/core/common"
 
 	"icw_activity_classification/internal/agent"
 )
@@ -52,11 +52,11 @@ func parseTaskCodes(output string) ([]string, error) {
 
 // normalizeTaskCodes 标准化并去重检测任务代码
 func normalizeTaskCodes(taskCodes []string) ([]string, error) {
-	seen := map[activitypb.DetectionTaskCode_Value]struct{}{}
+	seen := map[commonpb.DetectionTaskCode_Value]struct{}{}
 	codes := make([]string, 0, len(taskCodes))
 	for _, taskCode := range taskCodes {
 		code := enum.ParseDetectionTaskCode(taskCode)
-		if code == activitypb.DetectionTaskCode_Unknown {
+		if code == commonpb.DetectionTaskCode_Unknown {
 			return nil, errors.New("classification task code is invalid")
 		}
 		if _, ok := seen[code]; ok {
