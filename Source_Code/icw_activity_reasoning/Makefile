@@ -52,7 +52,7 @@ verify: fmt-check tidy-check vet test
 
 image:
 	docker login
-	docker buildx build --platform $(IMAGE_PLATFORM) --build-context icw_common=../icw_common -f Dockerfile -t $(IMAGE) --push .
+	docker buildx build --platform $(IMAGE_PLATFORM) --provenance=false --build-context icw_common=../icw_common -f Dockerfile -t $(IMAGE) --push .
 
 uv-sync:
 	$(UV) sync

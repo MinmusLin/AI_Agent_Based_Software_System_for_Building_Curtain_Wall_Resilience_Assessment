@@ -15,7 +15,10 @@ RUN --mount=type=cache,target=/go/pkg/mod apk add --no-cache ca-certificates && 
 WORKDIR /src
 
 COPY --from=icw_common . ./icw_common
-COPY . ./icw_activity_reasoning
+COPY cmd ./icw_activity_reasoning/cmd
+COPY configs ./icw_activity_reasoning/configs
+COPY internal ./icw_activity_reasoning/internal
+COPY rpc ./icw_activity_reasoning/rpc
 
 WORKDIR /src/icw_activity_reasoning
 
