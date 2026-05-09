@@ -10,7 +10,7 @@ import (
 	"net/textproto"
 	"strings"
 
-	"icw_activity_classification/utils"
+	"icw_common/utils"
 )
 
 const (
