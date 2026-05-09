@@ -31,7 +31,7 @@ func (s *Service) reportDetectionSummaryResult(ctx context.Context, req *bizpb.R
 	}
 
 	// 按总结任务 UUID 更新项目图像检测总结结果
-	task, summaryTask, err := s.MySQL().UpdateProjectDetectionSummaryResult(ctx, req.TaskUuid, taskStatus, req.ResultJson)
+	task, summaryTask, err := s.MySQL().UpdateProjectDetectionSummaryResult(ctx, req.TaskUuid, taskStatus, req.Result)
 	if err != nil || task == nil || summaryTask == nil {
 		return err
 	}

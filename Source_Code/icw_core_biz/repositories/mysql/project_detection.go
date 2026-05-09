@@ -1101,7 +1101,7 @@ func (r *Repository) UpdateProjectDetectionReasoningTaskResult(ctx context.Conte
 }
 
 // UpdateProjectDetectionSummaryResult 按项目图像检测主任务 UUID 更新总结结果
-func (r *Repository) UpdateProjectDetectionSummaryResult(ctx context.Context, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) (*model.ProjectDetectionTaskRecord, *model.ProjectDetectionSummaryTaskRecord, error) {
+func (r *Repository) UpdateProjectDetectionSummaryResult(ctx context.Context, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, result string) (*model.ProjectDetectionTaskRecord, *model.ProjectDetectionSummaryTaskRecord, error) {
 	statusText := enum.ProjectDetectionSubTaskStatusString(status)
 	if statusText == "" {
 		return nil, nil, model.ErrProjectDetectionSummaryTaskStatusInvalid
@@ -1134,7 +1134,7 @@ func (r *Repository) UpdateProjectDetectionSummaryResult(ctx context.Context, ta
 		return task, subTask, err
 	}
 
-	if err := project_detection.UpdateProjectDetectionSummaryTaskResultTx(ctx, tx, taskUuid, status, resultJSON); err != nil {
+	if err := project_detection.UpdateProjectDetectionSummaryTaskResultTx(ctx, tx, taskUuid, status, result); err != nil {
 		return nil, nil, err
 	}
 
@@ -1252,11 +1252,11 @@ func (r *Repository) GetProjectDetectionSummaryTypedResult(ctx context.Context, 
 		finishedAt sql.NullTime
 	)
 	if err := r.mysql.QueryRowContext(ctx, `
-		SELECT uuid, status, CAST(COALESCE(result_json, JSON_OBJECT()) AS CHAR), started_at, finished_at
+		SELECT uuid, status, COALESCE(result, ''), started_at, finished_at
 		FROM project_detection_summary_tasks
 		WHERE id = ?
 		LIMIT 1
-	`, taskId).Scan(&result.TaskUuid, &status, &result.ResultJson, &startedAt, &finishedAt); err != nil {
+	`, taskId).Scan(&result.TaskUuid, &status, &result.Result, &startedAt, &finishedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}

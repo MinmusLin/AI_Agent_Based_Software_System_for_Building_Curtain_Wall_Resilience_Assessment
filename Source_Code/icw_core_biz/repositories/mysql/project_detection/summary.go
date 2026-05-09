@@ -26,7 +26,7 @@ func FindProjectDetectionSummaryTaskByUuidTx(ctx context.Context, tx *sql.Tx, ta
 			project_id,
 			image_id,
 			status,
-			CAST(result_json AS CHAR),
+			result,
 			started_at,
 			finished_at,
 			created_at,
@@ -42,7 +42,7 @@ func FindProjectDetectionSummaryTaskByUuidTx(ctx context.Context, tx *sql.Tx, ta
 		&record.ProjectId,
 		&record.ImageId,
 		&status,
-		&record.ResultJson,
+		&record.Result,
 		&record.StartedAt,
 		&record.FinishedAt,
 		&record.CreatedAt,
@@ -98,16 +98,16 @@ func UpdateProjectDetectionSummaryTaskStatusTx(ctx context.Context, tx *sql.Tx, 
 }
 
 // UpdateProjectDetectionSummaryTaskResultTx 更新图像检测总结任务报告与状态
-func UpdateProjectDetectionSummaryTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON string) error {
+func UpdateProjectDetectionSummaryTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, summaryResult string) error {
 	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
 		return UpdateProjectDetectionSummaryTaskStatusTx(ctx, tx, taskUuid, status, false, true)
 	}
 
 	result, err := tx.ExecContext(ctx, `
 		UPDATE project_detection_summary_tasks
-		SET result_json = ?
+		SET result = ?
 		WHERE uuid = ?
-	`, utils.JsonStringOrEmptyObject(resultJSON), taskUuid)
+	`, summaryResult, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}

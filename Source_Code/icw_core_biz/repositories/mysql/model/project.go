@@ -325,7 +325,7 @@ type ProjectDetectionSpallingTaskRecord struct {
 // ProjectDetectionSummaryTaskRecord 项目图像检测总结任务记录
 type ProjectDetectionSummaryTaskRecord struct {
 	ProjectDetectionSubTaskRecord
-	ResultJson sql.NullString
+	Result sql.NullString
 }
 
 // ProjectReportRecord 项目评估报告记录

@@ -313,7 +313,7 @@ CREATE TABLE `project_detection_summary_tasks` (
   `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
   `image_id` bigint unsigned NOT NULL COMMENT '图像 ID',
   `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '任务状态：pending|succeeded|failed',
-  `result_json` json DEFAULT NULL COMMENT '图像检测总结',
+  `result` text COLLATE utf8mb4_unicode_ci COMMENT '图像检测总结',
   `started_at` datetime(3) DEFAULT NULL COMMENT '开始时间',
   `finished_at` datetime(3) DEFAULT NULL COMMENT '完成时间',
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
