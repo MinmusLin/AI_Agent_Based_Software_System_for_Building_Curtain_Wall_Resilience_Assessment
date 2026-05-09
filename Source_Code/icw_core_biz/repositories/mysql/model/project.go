@@ -242,6 +242,8 @@ type ProjectDetectionTaskRecord struct {
 	SpallingTaskId         sql.NullInt64
 	SummaryShouldExecute   bool
 	SummaryTaskId          sql.NullInt64
+	ReviewVerdict          sql.NullString
+	ReviewComment          sql.NullString
 	StartedAt              sql.NullTime
 	FinishedAt             sql.NullTime
 	CreatedAt              time.Time
@@ -324,4 +326,16 @@ type ProjectDetectionSpallingTaskRecord struct {
 type ProjectDetectionSummaryTaskRecord struct {
 	ProjectDetectionSubTaskRecord
 	ResultJson sql.NullString
+}
+
+// ProjectReportRecord 项目评估报告记录
+type ProjectReportRecord struct {
+	Id         uint64
+	Uuid       string
+	UserId     uint64
+	ProjectId  uint64
+	Status     bizpb.ProjectReportStatus_Value
+	ResultJson sql.NullString
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
