@@ -339,3 +339,16 @@ type ProjectReportRecord struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
+
+// ProjectReportRecordToDTO 将 MySQL 数据模型转换为 RPC 数据模型
+func ProjectReportRecordToDTO(report *ProjectReportRecord) *bizpb.ProjectReport {
+	if report == nil {
+		return nil
+	}
+	return &bizpb.ProjectReport{
+		ReportUuid: report.Uuid,
+		Status:     report.Status,
+		ResultJson: utils.NullString(report.ResultJson),
+		UpdatedAt:  report.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
+}
