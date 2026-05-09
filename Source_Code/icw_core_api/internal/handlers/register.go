@@ -71,9 +71,6 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		projectDetectionEditable := middlewares.ProjectDetectionEditable(coreBizClient)
 		// 校验人工复核确认阶段编辑权限
 		projectReviewEditable := middlewares.ProjectReviewEditable(coreBizClient)
-		// 校验评估报告生成阶段编辑权限
-		projectReportEditable := middlewares.ProjectReportEditable(coreBizClient)
-
 		// 项目核心 Handler
 		projectCoreHandler := core.NewHandler(handlerDeps)
 		projectCoreRouter := projectRouter.Group("/core")
@@ -140,19 +137,18 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		// 人工复核 Handler
 		projectReviewHandler := review.NewHandler(handlerDeps)
 		projectReviewRouter := projectRouter.Group("/review")
+		projectReviewRoutes := common.NewRouteGroup(projectReviewRouter, routeDescriptions)
 		{
-			if projectReviewHandler == nil || projectReviewRouter == nil || projectReviewEditable == nil {
-				// TODO: Prevent errors on unused variables
-			}
+			projectReviewRoutes.GET("/detail", "获取图像检测人工复核信息", projectAccessible, projectReviewHandler.GetProjectDetectionReview)
+			projectReviewRoutes.POST("/update", "更新图像检测人工复核信息", projectReviewEditable, projectReviewHandler.UpdateProjectDetectionReview)
 		}
 
 		// 评估报告 Handler
 		projectReportHandler := report.NewHandler(handlerDeps)
 		projectReportRouter := projectRouter.Group("/report")
+		projectReportRoutes := common.NewRouteGroup(projectReportRouter, routeDescriptions)
 		{
-			if projectReportHandler == nil || projectReportRouter == nil || projectReportEditable == nil {
-				// TODO: Prevent errors on unused variables
-			}
+			projectReportRoutes.GET("/detail", "获取项目评估报告", projectAccessible, projectReportHandler.GetProjectReport)
 		}
 	}
 

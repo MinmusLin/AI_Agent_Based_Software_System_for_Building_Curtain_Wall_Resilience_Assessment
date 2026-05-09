@@ -24,6 +24,8 @@ func dispatchProjectEvent(hub *socket.Hub, message *primitive.MessageExt) error 
 		return dispatchProjectImageStatusChangedEvent(hub, message)
 	case consts.EventTagProjectDetectionTaskStatusChanged:
 		return dispatchProjectDetectionTaskStatusChangedEvent(hub, message)
+	case consts.EventTagProjectReportStatusChanged:
+		return dispatchProjectReportStatusChangedEvent(hub, message)
 	default:
 		return fmt.Errorf("dispatch project event failed: invalid tag %v", message.GetTags())
 	}
@@ -66,5 +68,25 @@ func dispatchProjectDetectionTaskStatusChangedEvent(hub *socket.Hub, message *pr
 	}
 
 	hub.BroadcastProject(event.ProjectId, event.ProjectCode, consts.SocketScopeProjectDetection, messageBytes)
+	return nil
+}
+
+// dispatchProjectReportStatusChangedEvent 分发项目评估报告状态变化事件
+func dispatchProjectReportStatusChangedEvent(hub *socket.Hub, message *primitive.MessageExt) error {
+	var event bizpb.ProjectReportStatusChangedEvent
+	if err := json.Unmarshal(message.Body, &event); err != nil {
+		return err
+	}
+	if event.EventType != consts.EventTypeProjectReportStatusChanged {
+		return fmt.Errorf("unexpected event type: %s", event.EventType)
+	}
+
+	socketMessage := dto.NewProjectReportStatusChangedMessage(&event)
+	messageBytes, err := json.Marshal(socketMessage)
+	if err != nil {
+		return err
+	}
+
+	hub.BroadcastProject(event.ProjectId, event.ProjectCode, consts.SocketScopeProjectReport, messageBytes)
 	return nil
 }

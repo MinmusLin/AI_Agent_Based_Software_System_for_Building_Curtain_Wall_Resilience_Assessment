@@ -81,34 +81,6 @@ func NewProjectListItems(projects []*bizpb.ProjectListItem) []*apipb.ProjectList
 	return items
 }
 
-func NewProjectImageStatusChangedMessage(event *bizpb.ProjectImageStatusChangedEvent) *apipb.ProjectImageStatusChangedMessage {
-	if event == nil {
-		return nil
-	}
-	return &apipb.ProjectImageStatusChangedMessage{
-		Type:      event.EventType,
-		ProjectId: event.ProjectCode,
-		Image:     event.Image,
-	}
-}
-
-func NewProjectDetectionTaskStatusChangedMessage(event *bizpb.ProjectDetectionTaskStatusChangedEvent) *apipb.ProjectDetectionTaskStatusChangedMessage {
-	if event == nil {
-		return nil
-	}
-	return &apipb.ProjectDetectionTaskStatusChangedMessage{
-		Type:         event.EventType,
-		ProjectId:    event.ProjectCode,
-		ImageUuid:    event.ImageUuid,
-		NodeCode:     event.NodeCode,
-		MainTaskUuid: event.MainTaskUuid,
-		MainStatus:   event.MainStatus,
-		SubTaskUuid:  event.SubTaskUuid,
-		SubStatus:    event.SubStatus,
-		OccurredAt:   event.OccurredAt,
-	}
-}
-
 func NewUploadProjectImageItem(image *apipb.UploadProjectImageItem) *bizpb.UploadProjectImageItem {
 	if image == nil {
 		return nil

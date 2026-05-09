@@ -40,6 +40,7 @@ func NewConsumer(cfg configs.Config, hub *socket.Hub) (*Consumer, error) {
 			Expression: strings.Join([]string{
 				consts.EventTagProjectImageStatusChanged,
 				consts.EventTagProjectDetectionTaskStatusChanged,
+				consts.EventTagProjectReportStatusChanged,
 			}, "||"),
 		},
 		func(_ context.Context, messages ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
