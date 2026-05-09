@@ -235,3 +235,55 @@ func ParseProjectDetectionSubTaskStatus(value string) bizpb.ProjectDetectionSubT
 		return bizpb.ProjectDetectionSubTaskStatus_Unknown
 	}
 }
+
+// ProjectDetectionReviewVerdictString 将项目图像检测人工复核结论枚举转换为字符串
+func ProjectDetectionReviewVerdictString(verdict bizpb.ProjectDetectionReviewVerdict_Value) string {
+	switch verdict {
+	case bizpb.ProjectDetectionReviewVerdict_Accurate:
+		return "accurate"
+	case bizpb.ProjectDetectionReviewVerdict_Inaccurate:
+		return "inaccurate"
+	default:
+		return ""
+	}
+}
+
+// ParseProjectDetectionReviewVerdict 将存储值转换为项目图像检测人工复核结论枚举
+func ParseProjectDetectionReviewVerdict(value string) bizpb.ProjectDetectionReviewVerdict_Value {
+	switch strings.TrimSpace(value) {
+	case "accurate":
+		return bizpb.ProjectDetectionReviewVerdict_Accurate
+	case "inaccurate":
+		return bizpb.ProjectDetectionReviewVerdict_Inaccurate
+	default:
+		return bizpb.ProjectDetectionReviewVerdict_Unknown
+	}
+}
+
+// ProjectReportStatusString 将项目评估报告状态枚举转换为字符串
+func ProjectReportStatusString(status bizpb.ProjectReportStatus_Value) string {
+	switch status {
+	case bizpb.ProjectReportStatus_Pending:
+		return "pending"
+	case bizpb.ProjectReportStatus_Succeeded:
+		return "succeeded"
+	case bizpb.ProjectReportStatus_Failed:
+		return "failed"
+	default:
+		return ""
+	}
+}
+
+// ParseProjectReportStatus 将存储值转换为项目评估报告状态枚举
+func ParseProjectReportStatus(value string) bizpb.ProjectReportStatus_Value {
+	switch strings.TrimSpace(value) {
+	case "pending":
+		return bizpb.ProjectReportStatus_Pending
+	case "succeeded":
+		return bizpb.ProjectReportStatus_Succeeded
+	case "failed":
+		return bizpb.ProjectReportStatus_Failed
+	default:
+		return bizpb.ProjectReportStatus_Unknown
+	}
+}
