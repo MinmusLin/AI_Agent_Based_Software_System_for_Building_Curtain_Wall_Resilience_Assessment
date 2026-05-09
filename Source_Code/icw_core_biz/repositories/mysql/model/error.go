@@ -19,4 +19,8 @@ var (
 	ErrProjectDetectionSubTaskStatusInvalid = errors.New("project detection sub task status is invalid")
 	// ErrProjectDetectionSummaryTaskStatusInvalid 项目图像检测总结任务状态非法
 	ErrProjectDetectionSummaryTaskStatusInvalid = errors.New("project detection summary task status is invalid")
+	// ErrProjectDetectionReviewVerdictInvalid 项目图像检测人工复核结论非法
+	ErrProjectDetectionReviewVerdictInvalid = errors.New("project detection review verdict is invalid")
+	// ErrProjectReportStatusInvalid 项目评估报告状态非法
+	ErrProjectReportStatusInvalid = errors.New("project report status is invalid")
 )

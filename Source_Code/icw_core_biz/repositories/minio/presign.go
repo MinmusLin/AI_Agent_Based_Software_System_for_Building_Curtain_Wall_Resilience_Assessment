@@ -85,3 +85,12 @@ func PresignProjectImageThumbnailURL(ctx context.Context, repo *Repository, redi
 func PresignProjectDetectionArtifactURL(ctx context.Context, repo *Repository, redisRepo *redis.Repository, objectKey string, ttl time.Duration) (string, error) {
 	return presignExistingObjectURL(ctx, repo, redisRepo, objectKey, ttl)
 }
+
+// PresignProjectReportSourceURL 获取项目评估报告原始数据下载预签名 URL
+func PresignProjectReportSourceURL(ctx context.Context, repo *Repository, redisRepo *redis.Repository, projectId uint64, ttl time.Duration) (string, error) {
+	sourceKey, err := GenProjectReportSourceKey(projectId)
+	if err != nil {
+		return "", err
+	}
+	return presignExistingObjectURL(ctx, repo, redisRepo, sourceKey, ttl)
+}

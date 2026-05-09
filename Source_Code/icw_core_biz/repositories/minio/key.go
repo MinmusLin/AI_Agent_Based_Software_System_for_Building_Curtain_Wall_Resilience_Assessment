@@ -82,3 +82,12 @@ func GenProjectDetectionArtifactPrefixByTask(projectId uint64, imageUuid, taskCo
 	}
 	return fmt.Sprintf("projects/%s/detections/%s/%s/", projectCode, imageUuid, taskCode), nil
 }
+
+// GenProjectReportSourceKey 生成项目评估报告原始数据对象 Key
+func GenProjectReportSourceKey(projectId uint64) (string, error) {
+	projectCode := utils.Encode(projectId)
+	if projectCode == "" {
+		return "", errors.New("project id is invalid")
+	}
+	return fmt.Sprintf("projects/%s/reports/source.json", projectCode), nil
+}
