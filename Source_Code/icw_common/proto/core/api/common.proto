@@ -50,23 +50,3 @@ message UploadProjectImageItem {
   uint32 height = 5;
   string metadata = 6;
 }
-
-// 项目图像状态变化 WebSocket 消息结构体
-message ProjectImageStatusChangedMessage {
-  string type = 1;
-  string project_id = 2;
-  .icw.core.common.ProjectImage image = 3;
-}
-
-// 项目图像检测任务状态变化 WebSocket 消息结构体
-message ProjectDetectionTaskStatusChangedMessage {
-  string type = 1;
-  string project_id = 2;
-  string image_uuid = 3;
-  string node_code = 4;
-  string main_task_uuid = 5;
-  .icw.core.common.ProjectDetectionTaskStatus.Value main_status = 6;
-  string sub_task_uuid = 7;
-  .icw.core.common.ProjectDetectionSubTaskStatus.Value sub_status = 8;
-  string occurred_at = 9;
-}

@@ -94,33 +94,6 @@ message UploadProjectImageItem {
   string thumbnail_upload_url = 11;
 }
 
-// 项目图像状态变化 RocketMQ 事件结构体
-message ProjectImageStatusChangedEvent {
-  string event_id = 1;
-  string event_type = 2;
-  uint64 project_id = 3;
-  string project_code = 4;
-  uint64 user_id = 5;
-  .icw.core.common.ProjectImage image = 6;
-  string occurred_at = 7;
-}
-
-// 项目图像检测任务状态变化 RocketMQ 事件结构体
-message ProjectDetectionTaskStatusChangedEvent {
-  string event_id = 1;
-  string event_type = 2;
-  uint64 project_id = 3;
-  string project_code = 4;
-  uint64 user_id = 5;
-  string image_uuid = 6;
-  string node_code = 7;
-  string main_task_uuid = 8;
-  .icw.core.common.ProjectDetectionTaskStatus.Value main_status = 9;
-  string sub_task_uuid = 10;
-  .icw.core.common.ProjectDetectionSubTaskStatus.Value sub_status = 11;
-  string occurred_at = 12;
-}
-
 // 图像检测推理产物上传结果结构体
 message ReasoningArtifactUploadResult {
   string name = 1;

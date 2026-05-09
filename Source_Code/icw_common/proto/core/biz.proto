@@ -6,6 +6,7 @@ option go_package = "icw_common/gen/core/biz;bizpb";
 
 import public "core/biz/auth.proto";
 import public "core/biz/common.proto";
+import public "core/biz/events.proto";
 import public "core/biz/project_assets.proto";
 import public "core/biz/project_core.proto";
 import public "core/biz/project_detection.proto";

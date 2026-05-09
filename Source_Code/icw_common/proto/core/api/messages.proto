@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package icw.core.api;
+
+option go_package = "icw_common/gen/core/api;apipb";
+
+import "core/common.proto";
+
+// 项目图像状态变化 WebSocket 消息结构体
+message ProjectImageStatusChangedMessage {
+  string type = 1;
+  string project_id = 2;
+  .icw.core.common.ProjectImage image = 3;
+}
+
+// 项目图像检测任务状态变化 WebSocket 消息结构体
+message ProjectDetectionTaskStatusChangedMessage {
+  string type = 1;
+  string project_id = 2;
+  string image_uuid = 3;
+  string node_code = 4;
+  string main_task_uuid = 5;
+  .icw.core.common.ProjectDetectionTaskStatus.Value main_status = 6;
+  string sub_task_uuid = 7;
+  .icw.core.common.ProjectDetectionSubTaskStatus.Value sub_status = 8;
+  string occurred_at = 9;
+}
+
+// 项目评估报告状态变化 WebSocket 消息结构体
+message ProjectReportStatusChangedMessage {
+  string type = 1;
+  string project_id = 2;
+  string report_uuid = 3;
+  .icw.core.common.ProjectReportStatus.Value status = 4;
+  string occurred_at = 5;
+}

@@ -270,7 +270,7 @@ type ProjectDetectionSubTaskStatus_Value int32
 const (
 	// 未知
 	ProjectDetectionSubTaskStatus_Unknown ProjectDetectionSubTaskStatus_Value = 0
-	// 等待中
+	// 进行中
 	ProjectDetectionSubTaskStatus_Pending ProjectDetectionSubTaskStatus_Value = 1
 	// 成功
 	ProjectDetectionSubTaskStatus_Succeeded ProjectDetectionSubTaskStatus_Value = 2

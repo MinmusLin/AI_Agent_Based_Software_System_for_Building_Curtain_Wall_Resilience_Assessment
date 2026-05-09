@@ -503,253 +503,6 @@ func (x *UploadProjectImageItem) GetMetadata() string {
 	return ""
 }
 
-// 项目图像状态变化 WebSocket 消息结构体
-type ProjectImageStatusChangedMessage struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	ProjectId     string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Image         *common.ProjectImage   `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ProjectImageStatusChangedMessage) Reset() {
-	*x = ProjectImageStatusChangedMessage{}
-	mi := &file_core_api_common_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ProjectImageStatusChangedMessage) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ProjectImageStatusChangedMessage) ProtoMessage() {}
-
-func (x *ProjectImageStatusChangedMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_common_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ProjectImageStatusChangedMessage.ProtoReflect.Descriptor instead.
-func (*ProjectImageStatusChangedMessage) Descriptor() ([]byte, []int) {
-	return file_core_api_common_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ProjectImageStatusChangedMessage) GetType() string {
-	if x != nil {
-		return x.Type
-	}
-	return ""
-}
-
-func (x *ProjectImageStatusChangedMessage) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *ProjectImageStatusChangedMessage) GetImage() *common.ProjectImage {
-	if x != nil {
-		return x.Image
-	}
-	return nil
-}
-
-// 项目图像检测任务状态变化 WebSocket 消息结构体
-type ProjectDetectionTaskStatusChangedMessage struct {
-	state         protoimpl.MessageState                     `protogen:"open.v1"`
-	Type          string                                     `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	ProjectId     string                                     `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ImageUuid     string                                     `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	NodeCode      string                                     `protobuf:"bytes,4,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
-	MainTaskUuid  string                                     `protobuf:"bytes,5,opt,name=main_task_uuid,json=mainTaskUuid,proto3" json:"main_task_uuid,omitempty"`
-	MainStatus    common.ProjectDetectionTaskStatus_Value    `protobuf:"varint,6,opt,name=main_status,json=mainStatus,proto3,enum=icw.core.common.ProjectDetectionTaskStatus_Value" json:"main_status,omitempty"`
-	SubTaskUuid   string                                     `protobuf:"bytes,7,opt,name=sub_task_uuid,json=subTaskUuid,proto3" json:"sub_task_uuid,omitempty"`
-	SubStatus     common.ProjectDetectionSubTaskStatus_Value `protobuf:"varint,8,opt,name=sub_status,json=subStatus,proto3,enum=icw.core.common.ProjectDetectionSubTaskStatus_Value" json:"sub_status,omitempty"`
-	OccurredAt    string                                     `protobuf:"bytes,9,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) Reset() {
-	*x = ProjectDetectionTaskStatusChangedMessage{}
-	mi := &file_core_api_common_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ProjectDetectionTaskStatusChangedMessage) ProtoMessage() {}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_common_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ProjectDetectionTaskStatusChangedMessage.ProtoReflect.Descriptor instead.
-func (*ProjectDetectionTaskStatusChangedMessage) Descriptor() ([]byte, []int) {
-	return file_core_api_common_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetType() string {
-	if x != nil {
-		return x.Type
-	}
-	return ""
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetImageUuid() string {
-	if x != nil {
-		return x.ImageUuid
-	}
-	return ""
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetNodeCode() string {
-	if x != nil {
-		return x.NodeCode
-	}
-	return ""
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetMainTaskUuid() string {
-	if x != nil {
-		return x.MainTaskUuid
-	}
-	return ""
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetMainStatus() common.ProjectDetectionTaskStatus_Value {
-	if x != nil {
-		return x.MainStatus
-	}
-	return common.ProjectDetectionTaskStatus_Value(0)
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetSubTaskUuid() string {
-	if x != nil {
-		return x.SubTaskUuid
-	}
-	return ""
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetSubStatus() common.ProjectDetectionSubTaskStatus_Value {
-	if x != nil {
-		return x.SubStatus
-	}
-	return common.ProjectDetectionSubTaskStatus_Value(0)
-}
-
-func (x *ProjectDetectionTaskStatusChangedMessage) GetOccurredAt() string {
-	if x != nil {
-		return x.OccurredAt
-	}
-	return ""
-}
-
-// 项目评估报告状态变化 WebSocket 消息结构体
-type ProjectReportStatusChangedMessage struct {
-	state         protoimpl.MessageState           `protogen:"open.v1"`
-	Type          string                           `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	ProjectId     string                           `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ReportUuid    string                           `protobuf:"bytes,3,opt,name=report_uuid,json=reportUuid,proto3" json:"report_uuid,omitempty"`
-	Status        common.ProjectReportStatus_Value `protobuf:"varint,4,opt,name=status,proto3,enum=icw.core.common.ProjectReportStatus_Value" json:"status,omitempty"`
-	OccurredAt    string                           `protobuf:"bytes,5,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ProjectReportStatusChangedMessage) Reset() {
-	*x = ProjectReportStatusChangedMessage{}
-	mi := &file_core_api_common_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ProjectReportStatusChangedMessage) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ProjectReportStatusChangedMessage) ProtoMessage() {}
-
-func (x *ProjectReportStatusChangedMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_common_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ProjectReportStatusChangedMessage.ProtoReflect.Descriptor instead.
-func (*ProjectReportStatusChangedMessage) Descriptor() ([]byte, []int) {
-	return file_core_api_common_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *ProjectReportStatusChangedMessage) GetType() string {
-	if x != nil {
-		return x.Type
-	}
-	return ""
-}
-
-func (x *ProjectReportStatusChangedMessage) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *ProjectReportStatusChangedMessage) GetReportUuid() string {
-	if x != nil {
-		return x.ReportUuid
-	}
-	return ""
-}
-
-func (x *ProjectReportStatusChangedMessage) GetStatus() common.ProjectReportStatus_Value {
-	if x != nil {
-		return x.Status
-	}
-	return common.ProjectReportStatus_Value(0)
-}
-
-func (x *ProjectReportStatusChangedMessage) GetOccurredAt() string {
-	if x != nil {
-		return x.OccurredAt
-	}
-	return ""
-}
-
 var File_core_api_common_proto protoreflect.FileDescriptor
 
 const file_core_api_common_proto_rawDesc = "" +
@@ -794,36 +547,7 @@ const file_core_api_common_proto_rawDesc = "" +
 	"size_bytes\x18\x03 \x01(\x04R\tsizeBytes\x12\x14\n" +
 	"\x05width\x18\x04 \x01(\rR\x05width\x12\x16\n" +
 	"\x06height\x18\x05 \x01(\rR\x06height\x12\x1a\n" +
-	"\bmetadata\x18\x06 \x01(\tR\bmetadata\"\x8a\x01\n" +
-	" ProjectImageStatusChangedMessage\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
-	"\n" +
-	"project_id\x18\x02 \x01(\tR\tprojectId\x123\n" +
-	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\"\xad\x03\n" +
-	"(ProjectDetectionTaskStatusChangedMessage\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
-	"\n" +
-	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1d\n" +
-	"\n" +
-	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12\x1b\n" +
-	"\tnode_code\x18\x04 \x01(\tR\bnodeCode\x12$\n" +
-	"\x0emain_task_uuid\x18\x05 \x01(\tR\fmainTaskUuid\x12R\n" +
-	"\vmain_status\x18\x06 \x01(\x0e21.icw.core.common.ProjectDetectionTaskStatus.ValueR\n" +
-	"mainStatus\x12\"\n" +
-	"\rsub_task_uuid\x18\a \x01(\tR\vsubTaskUuid\x12S\n" +
-	"\n" +
-	"sub_status\x18\b \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\x12\x1f\n" +
-	"\voccurred_at\x18\t \x01(\tR\n" +
-	"occurredAt\"\xdc\x01\n" +
-	"!ProjectReportStatusChangedMessage\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
-	"\n" +
-	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1f\n" +
-	"\vreport_uuid\x18\x03 \x01(\tR\n" +
-	"reportUuid\x12B\n" +
-	"\x06status\x18\x04 \x01(\x0e2*.icw.core.common.ProjectReportStatus.ValueR\x06status\x12\x1f\n" +
-	"\voccurred_at\x18\x05 \x01(\tR\n" +
-	"occurredAtB\x1fZ\x1dicw_common/gen/core/api;apipbP\x00b\x06proto3"
+	"\bmetadata\x18\x06 \x01(\tR\bmetadataB\x1fZ\x1dicw_common/gen/core/api;apipbP\x00b\x06proto3"
 
 var (
 	file_core_api_common_proto_rawDescOnce sync.Once
@@ -837,34 +561,24 @@ func file_core_api_common_proto_rawDescGZIP() []byte {
 	return file_core_api_common_proto_rawDescData
 }
 
-var file_core_api_common_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_core_api_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_core_api_common_proto_goTypes = []any{
-	(*Project)(nil),                                  // 0: icw.core.api.Project
-	(*ProjectListItem)(nil),                          // 1: icw.core.api.ProjectListItem
-	(*ProjectGroup)(nil),                             // 2: icw.core.api.ProjectGroup
-	(*UploadProjectImageItem)(nil),                   // 3: icw.core.api.UploadProjectImageItem
-	(*ProjectImageStatusChangedMessage)(nil),         // 4: icw.core.api.ProjectImageStatusChangedMessage
-	(*ProjectDetectionTaskStatusChangedMessage)(nil), // 5: icw.core.api.ProjectDetectionTaskStatusChangedMessage
-	(*ProjectReportStatusChangedMessage)(nil),        // 6: icw.core.api.ProjectReportStatusChangedMessage
-	(common.ProjectProgress_Value)(0),                // 7: icw.core.common.ProjectProgress.Value
-	(*common.ProjectImage)(nil),                      // 8: icw.core.common.ProjectImage
-	(common.ProjectDetectionTaskStatus_Value)(0),     // 9: icw.core.common.ProjectDetectionTaskStatus.Value
-	(common.ProjectDetectionSubTaskStatus_Value)(0),  // 10: icw.core.common.ProjectDetectionSubTaskStatus.Value
-	(common.ProjectReportStatus_Value)(0),            // 11: icw.core.common.ProjectReportStatus.Value
+	(*Project)(nil),                   // 0: icw.core.api.Project
+	(*ProjectListItem)(nil),           // 1: icw.core.api.ProjectListItem
+	(*ProjectGroup)(nil),              // 2: icw.core.api.ProjectGroup
+	(*UploadProjectImageItem)(nil),    // 3: icw.core.api.UploadProjectImageItem
+	(common.ProjectProgress_Value)(0), // 4: icw.core.common.ProjectProgress.Value
+	(*common.ProjectImage)(nil),       // 5: icw.core.common.ProjectImage
 }
 var file_core_api_common_proto_depIdxs = []int32{
-	7,  // 0: icw.core.api.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
-	7,  // 1: icw.core.api.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
-	8,  // 2: icw.core.api.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
-	8,  // 3: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
-	9,  // 4: icw.core.api.ProjectDetectionTaskStatusChangedMessage.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
-	10, // 5: icw.core.api.ProjectDetectionTaskStatusChangedMessage.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	11, // 6: icw.core.api.ProjectReportStatusChangedMessage.status:type_name -> icw.core.common.ProjectReportStatus.Value
-	7,  // [7:7] is the sub-list for method output_type
-	7,  // [7:7] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	4, // 0: icw.core.api.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
+	4, // 1: icw.core.api.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
+	5, // 2: icw.core.api.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_core_api_common_proto_init() }
@@ -878,7 +592,7 @@ func file_core_api_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_common_proto_rawDesc), len(file_core_api_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

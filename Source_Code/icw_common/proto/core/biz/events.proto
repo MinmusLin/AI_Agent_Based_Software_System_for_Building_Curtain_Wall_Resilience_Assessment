@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package icw.core.biz;
+
+option go_package = "icw_common/gen/core/biz;bizpb";
+
+import "core/common.proto";
+
+// 项目图像状态变化 RocketMQ 事件结构体
+message ProjectImageStatusChangedEvent {
+  string event_id = 1;
+  string event_type = 2;
+  uint64 project_id = 3;
+  string project_code = 4;
+  uint64 user_id = 5;
+  .icw.core.common.ProjectImage image = 6;
+  string occurred_at = 7;
+}
+
+// 项目图像检测任务状态变化 RocketMQ 事件结构体
+message ProjectDetectionTaskStatusChangedEvent {
+  string event_id = 1;
+  string event_type = 2;
+  uint64 project_id = 3;
+  string project_code = 4;
+  uint64 user_id = 5;
+  string image_uuid = 6;
+  string node_code = 7;
+  string main_task_uuid = 8;
+  .icw.core.common.ProjectDetectionTaskStatus.Value main_status = 9;
+  string sub_task_uuid = 10;
+  .icw.core.common.ProjectDetectionSubTaskStatus.Value sub_status = 11;
+  string occurred_at = 12;
+}
+
+// 项目评估报告状态变化 RocketMQ 事件结构体
+message ProjectReportStatusChangedEvent {
+  string event_id = 1;
+  string event_type = 2;
+  uint64 project_id = 3;
+  string project_code = 4;
+  uint64 user_id = 5;
+  string report_uuid = 6;
+  .icw.core.common.ProjectReportStatus.Value status = 7;
+  string occurred_at = 8;
+}

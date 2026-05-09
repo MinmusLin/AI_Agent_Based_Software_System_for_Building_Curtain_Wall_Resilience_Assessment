@@ -24,7 +24,8 @@ var File_core_biz_proto protoreflect.FileDescriptor
 
 const file_core_biz_proto_rawDesc = "" +
 	"\n" +
-	"\x0ecore/biz.proto\x12\ficw.core.biz\x1a\x13core/biz/auth.proto\x1a\x15core/biz/common.proto\x1a\x1dcore/biz/project_assets.proto\x1a\x1bcore/biz/project_core.proto\x1a core/biz/project_detection.proto\x1a\x1ecore/biz/project_profile.proto\x1a\x1dcore/biz/project_report.proto\x1a\x1dcore/biz/project_review.proto\x1a\x15core/biz/socket.proto\x1a\x13core/biz/user.protoB\x1fZ\x1dicw_common/gen/core/biz;bizpbP\x00P\x01P\x02P\x03P\x04P\x05P\x06P\aP\bP\tb\x06proto3"
+	"\x0ecore/biz.proto\x12\ficw.core.biz\x1a\x13core/biz/auth.proto\x1a\x15core/biz/common.proto\x1a\x15core/biz/events.proto\x1a\x1dcore/biz/project_assets.proto\x1a\x1bcore/biz/project_core.proto\x1a core/biz/project_detection.proto\x1a\x1ecore/biz/project_profile.proto\x1a\x1dcore/biz/project_report.proto\x1a\x1dcore/biz/project_review.proto\x1a\x15core/biz/socket.proto\x1a\x13core/biz/user.protoB\x1fZ\x1dicw_common/gen/core/biz;bizpbP\x00P\x01P\x02P\x03P\x04P\x05P\x06P\aP\bP\tP\n" +
+	"b\x06proto3"
 
 var file_core_biz_proto_goTypes = []any{}
 var file_core_biz_proto_depIdxs = []int32{
@@ -42,6 +43,7 @@ func file_core_biz_proto_init() {
 	}
 	file_core_biz_auth_proto_init()
 	file_core_biz_common_proto_init()
+	file_core_biz_events_proto_init()
 	file_core_biz_project_assets_proto_init()
 	file_core_biz_project_core_proto_init()
 	file_core_biz_project_detection_proto_init()
