@@ -73,9 +73,6 @@ func Load() (Config, error) {
 		ProjectSummaryAgentUserId:          env.EnvString("PROJECT_SUMMARY_AGENT_USER_ID"),
 		AgentRequestTimeoutSeconds:         env.EnvInt("AGENT_REQUEST_TIMEOUT_SECONDS"),
 	}
-	if cfg.AgentRequestTimeoutSeconds <= 0 {
-		cfg.AgentRequestTimeoutSeconds = 120
-	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err
 	}
