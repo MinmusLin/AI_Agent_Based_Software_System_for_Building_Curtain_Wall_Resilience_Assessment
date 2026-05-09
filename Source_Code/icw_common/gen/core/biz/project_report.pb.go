@@ -9,7 +9,6 @@ package bizpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	activity "icw_common/gen/activity"
 	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
@@ -123,11 +122,11 @@ func (x *GetProjectReportResponse) GetReport() *common.ProjectReport {
 
 // ReportProjectSummaryResult 请求结构体
 type ReportProjectSummaryResultRequest struct {
-	state         protoimpl.MessageState         `protogen:"open.v1"`
-	ProjectId     uint64                         `protobuf:"varint,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Status        activity.DetectionStatus_Value `protobuf:"varint,2,opt,name=status,proto3,enum=icw.activity.DetectionStatus_Value" json:"status,omitempty"`
-	ResultJson    string                         `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
-	ErrorMessage  string                         `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	ProjectId     uint64                  `protobuf:"varint,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Status        common.TaskStatus_Value `protobuf:"varint,2,opt,name=status,proto3,enum=icw.core.common.TaskStatus_Value" json:"status,omitempty"`
+	ResultJson    string                  `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
+	ErrorMessage  string                  `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -169,11 +168,11 @@ func (x *ReportProjectSummaryResultRequest) GetProjectId() uint64 {
 	return 0
 }
 
-func (x *ReportProjectSummaryResultRequest) GetStatus() activity.DetectionStatus_Value {
+func (x *ReportProjectSummaryResultRequest) GetStatus() common.TaskStatus_Value {
 	if x != nil {
 		return x.Status
 	}
-	return activity.DetectionStatus_Value(0)
+	return common.TaskStatus_Value(0)
 }
 
 func (x *ReportProjectSummaryResultRequest) GetResultJson() string {
@@ -231,17 +230,17 @@ var File_core_biz_project_report_proto protoreflect.FileDescriptor
 
 const file_core_biz_project_report_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcore/biz/project_report.proto\x12\ficw.core.biz\x1a\x15activity/common.proto\x1a\x11core/common.proto\"Q\n" +
+	"\x1dcore/biz/project_report.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"Q\n" +
 	"\x17GetProjectReportRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\"R\n" +
 	"\x18GetProjectReportResponse\x126\n" +
-	"\x06report\x18\x01 \x01(\v2\x1e.icw.core.common.ProjectReportR\x06report\"\xc5\x01\n" +
+	"\x06report\x18\x01 \x01(\v2\x1e.icw.core.common.ProjectReportR\x06report\"\xc3\x01\n" +
 	"!ReportProjectSummaryResultRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\x04R\tprojectId\x12;\n" +
-	"\x06status\x18\x02 \x01(\x0e2#.icw.activity.DetectionStatus.ValueR\x06status\x12\x1f\n" +
+	"project_id\x18\x01 \x01(\x04R\tprojectId\x129\n" +
+	"\x06status\x18\x02 \x01(\x0e2!.icw.core.common.TaskStatus.ValueR\x06status\x12\x1f\n" +
 	"\vresult_json\x18\x03 \x01(\tR\n" +
 	"resultJson\x12#\n" +
 	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"$\n" +
@@ -269,11 +268,11 @@ var file_core_biz_project_report_proto_goTypes = []any{
 	(*ReportProjectSummaryResultRequest)(nil),  // 2: icw.core.biz.ReportProjectSummaryResultRequest
 	(*ReportProjectSummaryResultResponse)(nil), // 3: icw.core.biz.ReportProjectSummaryResultResponse
 	(*common.ProjectReport)(nil),               // 4: icw.core.common.ProjectReport
-	(activity.DetectionStatus_Value)(0),        // 5: icw.activity.DetectionStatus.Value
+	(common.TaskStatus_Value)(0),               // 5: icw.core.common.TaskStatus.Value
 }
 var file_core_biz_project_report_proto_depIdxs = []int32{
 	4, // 0: icw.core.biz.GetProjectReportResponse.report:type_name -> icw.core.common.ProjectReport
-	5, // 1: icw.core.biz.ReportProjectSummaryResultRequest.status:type_name -> icw.activity.DetectionStatus.Value
+	5, // 1: icw.core.biz.ReportProjectSummaryResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
 	0, // 2: icw.core.biz.ProjectReportService.GetProjectReport:input_type -> icw.core.biz.GetProjectReportRequest
 	2, // 3: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:input_type -> icw.core.biz.ReportProjectSummaryResultRequest
 	1, // 4: icw.core.biz.ProjectReportService.GetProjectReport:output_type -> icw.core.biz.GetProjectReportResponse

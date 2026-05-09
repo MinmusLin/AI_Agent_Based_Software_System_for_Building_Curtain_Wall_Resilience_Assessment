@@ -9,7 +9,6 @@ package apipb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	activity "icw_common/gen/activity"
 	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
@@ -82,7 +81,7 @@ type GetImageDetectionResultResponse struct {
 	Image           *common.ProjectImage                    `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
 	OriginalUrl     string                                  `protobuf:"bytes,2,opt,name=original_url,json=originalUrl,proto3" json:"original_url,omitempty"`
 	Status          *common.ProjectDetectionStatus          `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	TaskCodes       []activity.DetectionTaskCode_Value      `protobuf:"varint,4,rep,packed,name=task_codes,json=taskCodes,proto3,enum=icw.activity.DetectionTaskCode_Value" json:"task_codes,omitempty"`
+	TaskCodes       []common.DetectionTaskCode_Value        `protobuf:"varint,4,rep,packed,name=task_codes,json=taskCodes,proto3,enum=icw.core.common.DetectionTaskCode_Value" json:"task_codes,omitempty"`
 	CorrosionResult *common.ProjectDetectionCorrosionResult `protobuf:"bytes,5,opt,name=corrosion_result,json=corrosionResult,proto3" json:"corrosion_result,omitempty"`
 	CrackResult     *common.ProjectDetectionCrackResult     `protobuf:"bytes,6,opt,name=crack_result,json=crackResult,proto3" json:"crack_result,omitempty"`
 	StainResult     *common.ProjectDetectionStainResult     `protobuf:"bytes,7,opt,name=stain_result,json=stainResult,proto3" json:"stain_result,omitempty"`
@@ -144,7 +143,7 @@ func (x *GetImageDetectionResultResponse) GetStatus() *common.ProjectDetectionSt
 	return nil
 }
 
-func (x *GetImageDetectionResultResponse) GetTaskCodes() []activity.DetectionTaskCode_Value {
+func (x *GetImageDetectionResultResponse) GetTaskCodes() []common.DetectionTaskCode_Value {
 	if x != nil {
 		return x.TaskCodes
 	}
@@ -467,18 +466,18 @@ var File_core_api_project_detection_proto protoreflect.FileDescriptor
 
 const file_core_api_project_detection_proto_rawDesc = "" +
 	"\n" +
-	" core/api/project_detection.proto\x12\ficw.core.api\x1a\x15activity/common.proto\x1a\x11core/common.proto\"^\n" +
+	" core/api/project_detection.proto\x12\ficw.core.api\x1a\x11core/common.proto\"^\n" +
 	"\x1eGetImageDetectionResultRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x02 \x01(\tR\timageUuid\"\x8a\x06\n" +
+	"image_uuid\x18\x02 \x01(\tR\timageUuid\"\x8d\x06\n" +
 	"\x1fGetImageDetectionResultResponse\x123\n" +
 	"\x05image\x18\x01 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\x12!\n" +
 	"\foriginal_url\x18\x02 \x01(\tR\voriginalUrl\x12?\n" +
-	"\x06status\x18\x03 \x01(\v2'.icw.core.common.ProjectDetectionStatusR\x06status\x12D\n" +
+	"\x06status\x18\x03 \x01(\v2'.icw.core.common.ProjectDetectionStatusR\x06status\x12G\n" +
 	"\n" +
-	"task_codes\x18\x04 \x03(\x0e2%.icw.activity.DetectionTaskCode.ValueR\ttaskCodes\x12[\n" +
+	"task_codes\x18\x04 \x03(\x0e2(.icw.core.common.DetectionTaskCode.ValueR\ttaskCodes\x12[\n" +
 	"\x10corrosion_result\x18\x05 \x01(\v20.icw.core.common.ProjectDetectionCorrosionResultR\x0fcorrosionResult\x12O\n" +
 	"\fcrack_result\x18\x06 \x01(\v2,.icw.core.common.ProjectDetectionCrackResultR\vcrackResult\x12O\n" +
 	"\fstain_result\x18\a \x01(\v2,.icw.core.common.ProjectDetectionStainResultR\vstainResult\x12X\n" +
@@ -528,7 +527,7 @@ var file_core_api_project_detection_proto_goTypes = []any{
 	(*StartProjectDetectionResponse)(nil),          // 7: icw.core.api.StartProjectDetectionResponse
 	(*common.ProjectImage)(nil),                    // 8: icw.core.common.ProjectImage
 	(*common.ProjectDetectionStatus)(nil),          // 9: icw.core.common.ProjectDetectionStatus
-	(activity.DetectionTaskCode_Value)(0),          // 10: icw.activity.DetectionTaskCode.Value
+	(common.DetectionTaskCode_Value)(0),            // 10: icw.core.common.DetectionTaskCode.Value
 	(*common.ProjectDetectionCorrosionResult)(nil), // 11: icw.core.common.ProjectDetectionCorrosionResult
 	(*common.ProjectDetectionCrackResult)(nil),     // 12: icw.core.common.ProjectDetectionCrackResult
 	(*common.ProjectDetectionStainResult)(nil),     // 13: icw.core.common.ProjectDetectionStainResult
@@ -539,7 +538,7 @@ var file_core_api_project_detection_proto_goTypes = []any{
 var file_core_api_project_detection_proto_depIdxs = []int32{
 	8,  // 0: icw.core.api.GetImageDetectionResultResponse.image:type_name -> icw.core.common.ProjectImage
 	9,  // 1: icw.core.api.GetImageDetectionResultResponse.status:type_name -> icw.core.common.ProjectDetectionStatus
-	10, // 2: icw.core.api.GetImageDetectionResultResponse.task_codes:type_name -> icw.activity.DetectionTaskCode.Value
+	10, // 2: icw.core.api.GetImageDetectionResultResponse.task_codes:type_name -> icw.core.common.DetectionTaskCode.Value
 	11, // 3: icw.core.api.GetImageDetectionResultResponse.corrosion_result:type_name -> icw.core.common.ProjectDetectionCorrosionResult
 	12, // 4: icw.core.api.GetImageDetectionResultResponse.crack_result:type_name -> icw.core.common.ProjectDetectionCrackResult
 	13, // 5: icw.core.api.GetImageDetectionResultResponse.stain_result:type_name -> icw.core.common.ProjectDetectionStainResult

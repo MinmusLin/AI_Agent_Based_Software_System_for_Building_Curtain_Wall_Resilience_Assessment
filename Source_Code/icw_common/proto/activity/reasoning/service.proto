@@ -4,13 +4,13 @@ package icw.activity.reasoning;
 
 option go_package = "icw_common/gen/activity/reasoning;reasoningpb";
 
-import "activity/common.proto";
 import "activity/reasoning/common.proto";
+import "core/common.proto";
 
 // Start 请求结构体
 message StartRequest {
   string task_uuid = 1;
-  .icw.activity.DetectionTaskCode.Value task_code = 2;
+  .icw.core.common.DetectionTaskCode.Value task_code = 2;
   string image_uuid = 3;
   string presign_get_url = 4;
   ReasoningArtifactUploadPolicy artifact_policy = 5;

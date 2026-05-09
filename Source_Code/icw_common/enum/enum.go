@@ -82,6 +82,66 @@ func ParseEmailSendStatus(value string) commonpb.EmailSendStatus_Value {
 	}
 }
 
+// TaskStatusString 将任务状态枚举转换为字符串
+func TaskStatusString(status commonpb.TaskStatus_Value) string {
+	switch status {
+	case commonpb.TaskStatus_Succeeded:
+		return "succeeded"
+	case commonpb.TaskStatus_Failed:
+		return "failed"
+	default:
+		return ""
+	}
+}
+
+// ParseTaskStatus 将存储值转换为任务状态枚举
+func ParseTaskStatus(value string) commonpb.TaskStatus_Value {
+	switch strings.TrimSpace(value) {
+	case "succeeded":
+		return commonpb.TaskStatus_Succeeded
+	case "failed":
+		return commonpb.TaskStatus_Failed
+	default:
+		return commonpb.TaskStatus_Unknown
+	}
+}
+
+// DetectionTaskCodeString 将原子检测能力代码枚举转换为字符串
+func DetectionTaskCodeString(code commonpb.DetectionTaskCode_Value) string {
+	switch code {
+	case commonpb.DetectionTaskCode_Corrosion:
+		return "corrosion"
+	case commonpb.DetectionTaskCode_Crack:
+		return "crack"
+	case commonpb.DetectionTaskCode_Stain:
+		return "stain"
+	case commonpb.DetectionTaskCode_Flatness:
+		return "flatness"
+	case commonpb.DetectionTaskCode_Spalling:
+		return "spalling"
+	default:
+		return ""
+	}
+}
+
+// ParseDetectionTaskCode 将存储值转换为原子检测能力代码枚举
+func ParseDetectionTaskCode(value string) commonpb.DetectionTaskCode_Value {
+	switch strings.TrimSpace(value) {
+	case "corrosion":
+		return commonpb.DetectionTaskCode_Corrosion
+	case "crack":
+		return commonpb.DetectionTaskCode_Crack
+	case "stain":
+		return commonpb.DetectionTaskCode_Stain
+	case "flatness":
+		return commonpb.DetectionTaskCode_Flatness
+	case "spalling":
+		return commonpb.DetectionTaskCode_Spalling
+	default:
+		return commonpb.DetectionTaskCode_Unknown
+	}
+}
+
 // ProjectStatusString 将项目状态枚举转换为字符串
 func ProjectStatusString(status commonpb.ProjectStatus_Value) string {
 	switch status {

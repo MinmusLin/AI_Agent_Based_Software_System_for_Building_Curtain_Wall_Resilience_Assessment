@@ -9,7 +9,7 @@ package reasoningpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	activity "icw_common/gen/activity"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -24,12 +24,12 @@ const (
 
 // Start 请求结构体
 type StartRequest struct {
-	state          protoimpl.MessageState           `protogen:"open.v1"`
-	TaskUuid       string                           `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
-	TaskCode       activity.DetectionTaskCode_Value `protobuf:"varint,2,opt,name=task_code,json=taskCode,proto3,enum=icw.activity.DetectionTaskCode_Value" json:"task_code,omitempty"`
-	ImageUuid      string                           `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	PresignGetUrl  string                           `protobuf:"bytes,4,opt,name=presign_get_url,json=presignGetUrl,proto3" json:"presign_get_url,omitempty"`
-	ArtifactPolicy *ReasoningArtifactUploadPolicy   `protobuf:"bytes,5,opt,name=artifact_policy,json=artifactPolicy,proto3" json:"artifact_policy,omitempty"`
+	state          protoimpl.MessageState         `protogen:"open.v1"`
+	TaskUuid       string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	TaskCode       common.DetectionTaskCode_Value `protobuf:"varint,2,opt,name=task_code,json=taskCode,proto3,enum=icw.core.common.DetectionTaskCode_Value" json:"task_code,omitempty"`
+	ImageUuid      string                         `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	PresignGetUrl  string                         `protobuf:"bytes,4,opt,name=presign_get_url,json=presignGetUrl,proto3" json:"presign_get_url,omitempty"`
+	ArtifactPolicy *ReasoningArtifactUploadPolicy `protobuf:"bytes,5,opt,name=artifact_policy,json=artifactPolicy,proto3" json:"artifact_policy,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -71,11 +71,11 @@ func (x *StartRequest) GetTaskUuid() string {
 	return ""
 }
 
-func (x *StartRequest) GetTaskCode() activity.DetectionTaskCode_Value {
+func (x *StartRequest) GetTaskCode() common.DetectionTaskCode_Value {
 	if x != nil {
 		return x.TaskCode
 	}
-	return activity.DetectionTaskCode_Value(0)
+	return common.DetectionTaskCode_Value(0)
 }
 
 func (x *StartRequest) GetImageUuid() string {
@@ -140,10 +140,10 @@ var File_activity_reasoning_service_proto protoreflect.FileDescriptor
 
 const file_activity_reasoning_service_proto_rawDesc = "" +
 	"\n" +
-	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x15activity/common.proto\x1a\x1factivity/reasoning/common.proto\"\x96\x02\n" +
+	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x1factivity/reasoning/common.proto\x1a\x11core/common.proto\"\x99\x02\n" +
 	"\fStartRequest\x12\x1b\n" +
-	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12B\n" +
-	"\ttask_code\x18\x02 \x01(\x0e2%.icw.activity.DetectionTaskCode.ValueR\btaskCode\x12\x1d\n" +
+	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12E\n" +
+	"\ttask_code\x18\x02 \x01(\x0e2(.icw.core.common.DetectionTaskCode.ValueR\btaskCode\x12\x1d\n" +
 	"\n" +
 	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12&\n" +
 	"\x0fpresign_get_url\x18\x04 \x01(\tR\rpresignGetUrl\x12^\n" +
@@ -168,11 +168,11 @@ var file_activity_reasoning_service_proto_msgTypes = make([]protoimpl.MessageInf
 var file_activity_reasoning_service_proto_goTypes = []any{
 	(*StartRequest)(nil),                  // 0: icw.activity.reasoning.StartRequest
 	(*StartResponse)(nil),                 // 1: icw.activity.reasoning.StartResponse
-	(activity.DetectionTaskCode_Value)(0), // 2: icw.activity.DetectionTaskCode.Value
+	(common.DetectionTaskCode_Value)(0),   // 2: icw.core.common.DetectionTaskCode.Value
 	(*ReasoningArtifactUploadPolicy)(nil), // 3: icw.activity.reasoning.ReasoningArtifactUploadPolicy
 }
 var file_activity_reasoning_service_proto_depIdxs = []int32{
-	2, // 0: icw.activity.reasoning.StartRequest.task_code:type_name -> icw.activity.DetectionTaskCode.Value
+	2, // 0: icw.activity.reasoning.StartRequest.task_code:type_name -> icw.core.common.DetectionTaskCode.Value
 	3, // 1: icw.activity.reasoning.StartRequest.artifact_policy:type_name -> icw.activity.reasoning.ReasoningArtifactUploadPolicy
 	0, // 2: icw.activity.reasoning.ReasoningService.Start:input_type -> icw.activity.reasoning.StartRequest
 	1, // 3: icw.activity.reasoning.ReasoningService.Start:output_type -> icw.activity.reasoning.StartResponse

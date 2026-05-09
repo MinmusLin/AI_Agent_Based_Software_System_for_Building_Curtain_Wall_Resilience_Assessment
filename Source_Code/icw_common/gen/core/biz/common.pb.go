@@ -52,6 +52,27 @@ const EmailSendStatus_Failed = common.EmailSendStatus_Failed
 var EmailSendStatus_Value_name = common.EmailSendStatus_Value_name
 var EmailSendStatus_Value_value = common.EmailSendStatus_Value_value
 
+type TaskStatus_Value = common.TaskStatus_Value
+
+const TaskStatus_Unknown = common.TaskStatus_Unknown
+const TaskStatus_Succeeded = common.TaskStatus_Succeeded
+const TaskStatus_Failed = common.TaskStatus_Failed
+
+var TaskStatus_Value_name = common.TaskStatus_Value_name
+var TaskStatus_Value_value = common.TaskStatus_Value_value
+
+type DetectionTaskCode_Value = common.DetectionTaskCode_Value
+
+const DetectionTaskCode_Unknown = common.DetectionTaskCode_Unknown
+const DetectionTaskCode_Corrosion = common.DetectionTaskCode_Corrosion
+const DetectionTaskCode_Crack = common.DetectionTaskCode_Crack
+const DetectionTaskCode_Stain = common.DetectionTaskCode_Stain
+const DetectionTaskCode_Flatness = common.DetectionTaskCode_Flatness
+const DetectionTaskCode_Spalling = common.DetectionTaskCode_Spalling
+
+var DetectionTaskCode_Value_name = common.DetectionTaskCode_Value_name
+var DetectionTaskCode_Value_value = common.DetectionTaskCode_Value_value
+
 type ProjectStatus_Value = common.ProjectStatus_Value
 
 const ProjectStatus_Unknown = common.ProjectStatus_Unknown
@@ -129,6 +150,8 @@ var ProjectReportStatus_Value_value = common.ProjectReportStatus_Value_value
 type EmailCodeScene = common.EmailCodeScene
 type LoginScene = common.LoginScene
 type EmailSendStatus = common.EmailSendStatus
+type TaskStatus = common.TaskStatus
+type DetectionTaskCode = common.DetectionTaskCode
 type ProjectStatus = common.ProjectStatus
 type ProjectProgress = common.ProjectProgress
 type ProjectImageStatus = common.ProjectImageStatus

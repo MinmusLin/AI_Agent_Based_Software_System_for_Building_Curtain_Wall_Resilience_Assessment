@@ -42,6 +42,36 @@ message EmailSendStatus {
   }
 }
 
+// 任务状态
+message TaskStatus {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 成功
+    Succeeded = 1;
+    // 失败
+    Failed = 2;
+  }
+}
+
+// 原子检测能力代码
+message DetectionTaskCode {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 金属锈蚀检测
+    Corrosion = 1;
+    // 石材裂缝检测
+    Crack = 2;
+    // 石材污渍检测
+    Stain = 3;
+    // 玻璃平整度检测
+    Flatness = 4;
+    // 玻璃爆裂检测
+    Spalling = 5;
+  }
+}
+
 // 项目状态
 message ProjectStatus {
   enum Value {

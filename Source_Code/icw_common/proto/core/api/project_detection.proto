@@ -4,7 +4,6 @@ package icw.core.api;
 
 option go_package = "icw_common/gen/core/api;apipb";
 
-import "activity/common.proto";
 import "core/common.proto";
 
 // GetImageDetectionResult 请求结构体
@@ -18,7 +17,7 @@ message GetImageDetectionResultResponse {
   .icw.core.common.ProjectImage image = 1;
   string original_url = 2;
   .icw.core.common.ProjectDetectionStatus status = 3;
-  repeated .icw.activity.DetectionTaskCode.Value task_codes = 4;
+  repeated .icw.core.common.DetectionTaskCode.Value task_codes = 4;
   .icw.core.common.ProjectDetectionCorrosionResult corrosion_result = 5;
   .icw.core.common.ProjectDetectionCrackResult crack_result = 6;
   .icw.core.common.ProjectDetectionStainResult stain_result = 7;
