@@ -8,7 +8,7 @@ option go_package = "icw_common/gen/activity/summary;summarypb";
 message StartDetectionSummaryRequest {
   string task_uuid = 1;
   string image_uuid = 2;
-  string report_json = 3;
+  string source_json = 3;
 }
 
 // StartDetectionSummary 响应结构体
@@ -17,7 +17,7 @@ message StartDetectionSummaryResponse {}
 // StartProjectSummary 请求结构体
 message StartProjectSummaryRequest {
   string project_id = 1;
-  string report_json = 2;
+  string source_url = 2;
 }
 
 // StartProjectSummary 响应结构体

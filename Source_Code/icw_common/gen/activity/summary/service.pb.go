@@ -26,7 +26,7 @@ type StartDetectionSummaryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TaskUuid      string                 `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
 	ImageUuid     string                 `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	ReportJson    string                 `protobuf:"bytes,3,opt,name=report_json,json=reportJson,proto3" json:"report_json,omitempty"`
+	SourceJson    string                 `protobuf:"bytes,3,opt,name=source_json,json=sourceJson,proto3" json:"source_json,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -75,9 +75,9 @@ func (x *StartDetectionSummaryRequest) GetImageUuid() string {
 	return ""
 }
 
-func (x *StartDetectionSummaryRequest) GetReportJson() string {
+func (x *StartDetectionSummaryRequest) GetSourceJson() string {
 	if x != nil {
-		return x.ReportJson
+		return x.SourceJson
 	}
 	return ""
 }
@@ -218,8 +218,8 @@ const file_activity_summary_service_proto_rawDesc = "" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
 	"image_uuid\x18\x02 \x01(\tR\timageUuid\x12\x1f\n" +
-	"\vreport_json\x18\x03 \x01(\tR\n" +
-	"reportJson\"\x1f\n" +
+	"\vsource_json\x18\x03 \x01(\tR\n" +
+	"sourceJson\"\x1f\n" +
 	"\x1dStartDetectionSummaryResponse\"Z\n" +
 	"\x1aStartProjectSummaryRequest\x12\x1d\n" +
 	"\n" +

@@ -75,11 +75,37 @@ message ProjectDetectionSubTaskStatus {
   enum Value {
     // 未知
     Unknown = 0;
-    // 等待中
+    // 进行中
     Pending = 1;
     // 成功
     Succeeded = 2;
     // 失败
+    Failed = 3;
+  }
+}
+
+// 项目图像检测人工复核结论
+message ProjectDetectionReviewVerdict {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 准确
+    Accurate = 1;
+    // 不准确
+    Inaccurate = 2;
+  }
+}
+
+// 项目评估报告状态
+message ProjectReportStatus {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 生成中
+    Pending = 1;
+    // 生成成功
+    Succeeded = 2;
+    // 生成失败
     Failed = 3;
   }
 }
@@ -257,4 +283,21 @@ message ProjectDetectionSummaryResult {
   string result_json = 3;
   string started_at = 4;
   string finished_at = 5;
+}
+
+// 项目图像检测人工复核结构体
+message ProjectDetectionReview {
+  string task_uuid = 1;
+  string image_uuid = 2;
+  ProjectDetectionReviewVerdict.Value verdict = 3;
+  string comment = 4;
+  string updated_at = 5;
+}
+
+// 项目评估报告结构体
+message ProjectReport {
+  string report_uuid = 1;
+  ProjectReportStatus.Value status = 2;
+  string result_json = 3;
+  string updated_at = 4;
 }
