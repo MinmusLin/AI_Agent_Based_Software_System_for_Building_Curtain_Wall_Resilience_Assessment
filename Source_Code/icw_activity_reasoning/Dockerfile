@@ -30,7 +30,7 @@ WORKDIR /app
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /out/icw_activity_reasoning /app/icw_activity_reasoning
 
-EXPOSE 8000
+EXPOSE 8003
 
 USER 65532:65532
 
