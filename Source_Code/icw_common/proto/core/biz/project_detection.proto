@@ -56,7 +56,7 @@ message ReportDetectionSummaryResultRequest {
   string task_uuid = 1;
   string image_uuid = 2;
   .icw.core.common.TaskStatus.Value status = 3;
-  string result_json = 4;
+  string result = 4;
   string error_message = 5;
 }
 

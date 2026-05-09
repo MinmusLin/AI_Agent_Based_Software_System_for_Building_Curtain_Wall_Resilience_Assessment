@@ -2552,7 +2552,7 @@ type ProjectDetectionSummaryResult struct {
 	state         protoimpl.MessageState              `protogen:"open.v1"`
 	TaskUuid      string                              `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
 	Status        ProjectDetectionSubTaskStatus_Value `protobuf:"varint,2,opt,name=status,proto3,enum=icw.core.common.ProjectDetectionSubTaskStatus_Value" json:"status,omitempty"`
-	ResultJson    string                              `protobuf:"bytes,3,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
+	Result        string                              `protobuf:"bytes,3,opt,name=result,proto3" json:"result,omitempty"`
 	StartedAt     string                              `protobuf:"bytes,4,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
 	FinishedAt    string                              `protobuf:"bytes,5,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2603,9 +2603,9 @@ func (x *ProjectDetectionSummaryResult) GetStatus() ProjectDetectionSubTaskStatu
 	return ProjectDetectionSubTaskStatus_Unknown
 }
 
-func (x *ProjectDetectionSummaryResult) GetResultJson() string {
+func (x *ProjectDetectionSummaryResult) GetResult() string {
 	if x != nil {
-		return x.ResultJson
+		return x.Result
 	}
 	return ""
 }
@@ -3037,12 +3037,11 @@ const file_core_common_proto_rawDesc = "" +
 	"finishedAt\x1a<\n" +
 	"\x0eArtifactsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xeb\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe2\x01\n" +
 	"\x1dProjectDetectionSummaryResult\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12L\n" +
-	"\x06status\x18\x02 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\x06status\x12\x1f\n" +
-	"\vresult_json\x18\x03 \x01(\tR\n" +
-	"resultJson\x12\x1d\n" +
+	"\x06status\x18\x02 \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\x06status\x12\x16\n" +
+	"\x06result\x18\x03 \x01(\tR\x06result\x12\x1d\n" +
 	"\n" +
 	"started_at\x18\x04 \x01(\tR\tstartedAt\x12\x1f\n" +
 	"\vfinished_at\x18\x05 \x01(\tR\n" +

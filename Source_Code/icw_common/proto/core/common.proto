@@ -348,7 +348,7 @@ message ProjectDetectionSpallingResult {
 message ProjectDetectionSummaryResult {
   string task_uuid = 1;
   ProjectDetectionSubTaskStatus.Value status = 2;
-  string result_json = 3;
+  string result = 3;
   string started_at = 4;
   string finished_at = 5;
 }

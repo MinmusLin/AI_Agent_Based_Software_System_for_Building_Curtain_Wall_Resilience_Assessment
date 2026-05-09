@@ -418,7 +418,7 @@ type ReportDetectionSummaryResultRequest struct {
 	TaskUuid      string                  `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
 	ImageUuid     string                  `protobuf:"bytes,2,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
 	Status        common.TaskStatus_Value `protobuf:"varint,3,opt,name=status,proto3,enum=icw.core.common.TaskStatus_Value" json:"status,omitempty"`
-	ResultJson    string                  `protobuf:"bytes,4,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
+	Result        string                  `protobuf:"bytes,4,opt,name=result,proto3" json:"result,omitempty"`
 	ErrorMessage  string                  `protobuf:"bytes,5,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -475,9 +475,9 @@ func (x *ReportDetectionSummaryResultRequest) GetStatus() common.TaskStatus_Valu
 	return common.TaskStatus_Value(0)
 }
 
-func (x *ReportDetectionSummaryResultRequest) GetResultJson() string {
+func (x *ReportDetectionSummaryResultRequest) GetResult() string {
 	if x != nil {
-		return x.ResultJson
+		return x.Result
 	}
 	return ""
 }
@@ -890,14 +890,13 @@ const file_core_biz_project_detection_proto_rawDesc = "" +
 	"\n" +
 	"task_codes\x18\x04 \x03(\x0e2(.icw.core.common.DetectionTaskCode.ValueR\ttaskCodes\x12#\n" +
 	"\rerror_message\x18\x05 \x01(\tR\ferrorMessage\"$\n" +
-	"\"ReportClassificationResultResponse\"\xe2\x01\n" +
+	"\"ReportClassificationResultResponse\"\xd9\x01\n" +
 	"#ReportDetectionSummaryResultRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
 	"image_uuid\x18\x02 \x01(\tR\timageUuid\x129\n" +
-	"\x06status\x18\x03 \x01(\x0e2!.icw.core.common.TaskStatus.ValueR\x06status\x12\x1f\n" +
-	"\vresult_json\x18\x04 \x01(\tR\n" +
-	"resultJson\x12#\n" +
+	"\x06status\x18\x03 \x01(\x0e2!.icw.core.common.TaskStatus.ValueR\x06status\x12\x16\n" +
+	"\x06result\x18\x04 \x01(\tR\x06result\x12#\n" +
 	"\rerror_message\x18\x05 \x01(\tR\ferrorMessage\"&\n" +
 	"$ReportDetectionSummaryResultResponse\"\xed\x02\n" +
 	"\x1cReportReasoningResultRequest\x12E\n" +
