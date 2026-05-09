@@ -29,7 +29,7 @@ func (s *Service) reportReasoningResult(ctx context.Context, req *bizpb.ReportRe
 	case activitypb.DetectionStatus_Failed:
 		taskStatus = bizpb.ProjectDetectionSubTaskStatus_Failed
 	default:
-		return rpc_error.BadRequestDefault("detection status is invalid")
+		return rpc_error.BadRequestDefault("reasoning status is invalid")
 	}
 
 	// 将图像检测推理产物上传结果转换为 Sha256 Map JSON

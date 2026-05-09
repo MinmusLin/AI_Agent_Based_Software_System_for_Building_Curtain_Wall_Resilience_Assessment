@@ -28,7 +28,7 @@ func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.Rep
 	case activitypb.DetectionStatus_Failed:
 		taskStatus = bizpb.ProjectDetectionSubTaskStatus_Failed
 	default:
-		return rpc_error.BadRequestDefault("detection status is invalid")
+		return rpc_error.BadRequestDefault("classification status is invalid")
 	}
 	taskCodes := make([]string, 0, len(req.TaskCodes))
 	for _, taskCode := range req.TaskCodes {

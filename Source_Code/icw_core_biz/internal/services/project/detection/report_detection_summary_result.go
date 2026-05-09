@@ -27,7 +27,7 @@ func (s *Service) reportDetectionSummaryResult(ctx context.Context, req *bizpb.R
 	case activitypb.DetectionStatus_Failed:
 		taskStatus = bizpb.ProjectDetectionSubTaskStatus_Failed
 	default:
-		return rpc_error.BadRequestDefault("detection status is invalid")
+		return rpc_error.BadRequestDefault("detection summary status is invalid")
 	}
 
 	// 按总结任务 UUID 更新项目图像检测总结结果
