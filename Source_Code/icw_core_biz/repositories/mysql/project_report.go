@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/google/uuid"
 
@@ -31,7 +30,7 @@ func (r *Repository) CreateProjectReport(ctx context.Context, userId, projectId 
 
 // GetProjectReport 按用户 ID 和项目 ID 查询项目评估报告记录
 func (r *Repository) GetProjectReport(ctx context.Context, userId, projectId uint64) (*model.ProjectReportRecord, error) {
-	return scanProjectReport(r.mysql.QueryRowContext(ctx, `
+	return model.ScanProjectReport(r.mysql.QueryRowContext(ctx, `
 		SELECT id, uuid, user_id, project_id, status, CAST(COALESCE(result_json, JSON_OBJECT()) AS CHAR), created_at, updated_at
 		FROM project_reports
 		WHERE user_id = ? AND project_id = ?
@@ -44,10 +43,12 @@ func (r *Repository) UpdateProjectReportResult(ctx context.Context, projectId ui
 	if statusText == "" {
 		return nil, model.ErrProjectReportStatusInvalid
 	}
+
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
+
 	defer func() {
 		_ = tx.Rollback()
 	}()
@@ -85,24 +86,6 @@ func (r *Repository) UpdateProjectReportResult(ctx context.Context, projectId ui
 	`, projectId).Scan(&reportUserId); err != nil {
 		return nil, err
 	}
-	return r.GetProjectReport(ctx, reportUserId, projectId)
-}
 
-func scanProjectReport(row *sql.Row) (*model.ProjectReportRecord, error) {
-	report := &model.ProjectReportRecord{}
-	var status string
-	if err := row.Scan(
-		&report.Id,
-		&report.Uuid,
-		&report.UserId,
-		&report.ProjectId,
-		&status,
-		&report.ResultJson,
-		&report.CreatedAt,
-		&report.UpdatedAt,
-	); err != nil {
-		return nil, err
-	}
-	report.Status = enum.ParseProjectReportStatus(status)
-	return report, nil
+	return r.GetProjectReport(ctx, reportUserId, projectId)
 }
