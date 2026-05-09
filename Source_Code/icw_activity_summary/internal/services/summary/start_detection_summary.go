@@ -57,12 +57,12 @@ func (s *Service) asyncExecuteDetectionSummary(requestId string, req *summarypb.
 
 	if utils.IsEmptyError(err) {
 		callbackReq.Status = commonpb.TaskStatus_Succeeded
-		callbackReq.ResultJson = result
+		callbackReq.Result = result
 		callbackReq.ErrorMessage = ""
 		common.SummaryInfo(requestId, DetectionSummaryType, req.TaskUuid, cost, result)
 	} else {
 		callbackReq.Status = commonpb.TaskStatus_Failed
-		callbackReq.ResultJson = ""
+		callbackReq.Result = ""
 		callbackReq.ErrorMessage = err.Error()
 		common.SummaryError(requestId, DetectionSummaryType, req.TaskUuid, cost, result, err)
 	}
