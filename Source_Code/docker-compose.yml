@@ -1,0 +1,44 @@
+services:
+  namesrv:
+    image: apache/rocketmq:5.3.2
+    container_name: icw.rocketmq.namesrv
+    ports:
+      - 9876:9876
+    networks:
+      - icw.rocketmq.network
+    command: sh mqnamesrv
+  broker:
+    image: apache/rocketmq:5.3.2
+    container_name: icw.rocketmq.broker
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    environment:
+      - NAMESRV_ADDR=icw.rocketmq.namesrv:9876
+    depends_on:
+      - namesrv
+    networks:
+      - icw.rocketmq.network
+    volumes:
+      - /etc/rocketmq/broker.conf:/home/rocketmq/rocketmq-5.3.2/conf/broker.conf
+    command: sh mqbroker -c /home/rocketmq/rocketmq-5.3.2/conf/broker.conf
+  proxy:
+    image: apache/rocketmq:5.3.2
+    container_name: icw.rocketmq.proxy
+    networks:
+      - icw.rocketmq.network
+    depends_on:
+      - broker
+      - namesrv
+    ports:
+      - 8080:8080
+      - 8081:8081
+    restart: on-failure
+    environment:
+      - NAMESRV_ADDR=icw.rocketmq.namesrv:9876
+      - ROCKETMQ_PROXY_CLUSTER_NAME=ICW_ROCKETMQ_CLUSTER
+    command: sh mqproxy
+networks:
+  icw.rocketmq.network:
+    driver: bridge
