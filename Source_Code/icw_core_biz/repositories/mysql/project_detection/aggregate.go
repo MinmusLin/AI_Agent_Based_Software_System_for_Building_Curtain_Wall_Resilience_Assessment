@@ -5,8 +5,8 @@ import (
 	"database/sql"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 )
 
 // ProjectDetectionSubTaskAggregateStatusTx 统计项目图像检测子任务聚合状态
@@ -23,23 +23,23 @@ func ProjectDetectionSubTaskAggregateStatusTx(ctx context.Context, tx *sql.Tx, m
 	}{{
 		shouldExecute: task.CorrosionShouldExecute,
 		taskId:        task.CorrosionTaskId,
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Corrosion),
 	}, {
 		shouldExecute: task.CrackShouldExecute,
 		taskId:        task.CrackTaskId,
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Crack),
 	}, {
 		shouldExecute: task.StainShouldExecute,
 		taskId:        task.StainTaskId,
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Stain),
 	}, {
 		shouldExecute: task.FlatnessShouldExecute,
 		taskId:        task.FlatnessTaskId,
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Flatness),
 	}, {
 		shouldExecute: task.SpallingShouldExecute,
 		taskId:        task.SpallingTaskId,
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Spalling),
 	}}
 
 	var (

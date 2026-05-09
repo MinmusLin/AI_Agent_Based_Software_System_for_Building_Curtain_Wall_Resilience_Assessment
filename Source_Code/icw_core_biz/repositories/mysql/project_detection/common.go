@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 
 	"icw_core_biz/repositories/mysql/model"
 )
@@ -13,13 +13,13 @@ import (
 // NormalizeDetectionTaskCodes 标准化图像检测子任务代码
 func NormalizeDetectionTaskCodes(taskCodes []string) ([]string, error) {
 	normalized := make([]string, 0, len(taskCodes))
-	seen := map[activitypb.DetectionTaskCode_Value]bool{}
+	seen := map[commonpb.DetectionTaskCode_Value]bool{}
 	for _, taskCode := range taskCodes {
 		if strings.TrimSpace(taskCode) == "" {
 			continue
 		}
 		code := enum.ParseDetectionTaskCode(taskCode)
-		if code == activitypb.DetectionTaskCode_Unknown {
+		if code == commonpb.DetectionTaskCode_Unknown {
 			return nil, model.ErrUnsupportedDetectionTaskCode
 		}
 		if seen[code] {

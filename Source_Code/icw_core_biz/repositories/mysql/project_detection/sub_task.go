@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 
 	"icw_core_biz/repositories/mysql/model"
 	"icw_core_biz/repositories/mysql/utils"
@@ -141,15 +141,15 @@ func UpdateProjectDetectionSubTaskStatusTx(ctx context.Context, tx *sql.Tx, task
 // UpdateProjectDetectionSubTaskResultTx 更新项目图像检测子任务报告与状态
 func UpdateProjectDetectionSubTaskResultTx(ctx context.Context, tx *sql.Tx, taskCode, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, resultJSON, artifactSha256Map string) error {
 	switch enum.ParseDetectionTaskCode(taskCode) {
-	case activitypb.DetectionTaskCode_Corrosion:
+	case commonpb.DetectionTaskCode_Corrosion:
 		return updateProjectDetectionCorrosionTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
-	case activitypb.DetectionTaskCode_Crack:
+	case commonpb.DetectionTaskCode_Crack:
 		return updateProjectDetectionCrackTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
-	case activitypb.DetectionTaskCode_Stain:
+	case commonpb.DetectionTaskCode_Stain:
 		return updateProjectDetectionStainTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
-	case activitypb.DetectionTaskCode_Flatness:
+	case commonpb.DetectionTaskCode_Flatness:
 		return updateProjectDetectionFlatnessTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
-	case activitypb.DetectionTaskCode_Spalling:
+	case commonpb.DetectionTaskCode_Spalling:
 		return updateProjectDetectionSpallingTaskResultTx(ctx, tx, taskUuid, status, resultJSON, artifactSha256Map)
 	default:
 		return model.ErrUnsupportedDetectionTaskCode
