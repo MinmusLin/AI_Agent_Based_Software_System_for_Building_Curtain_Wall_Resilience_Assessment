@@ -3,7 +3,7 @@ GO ?= go
 GOIMPORTS_REVISER ?= goimports-reviser
 DOCKERHUB_NAMESPACE ?= minmuslin
 IMAGE_TAG ?= latest
-IMAGE_PLATFORM ?= linux/amd64
+IMAGE_PLATFORM ?= linux/amd64,linux/arm64
 IMAGE := $(DOCKERHUB_NAMESPACE)/$(APP_NAME):$(IMAGE_TAG)
 MAIN := ./cmd/server
 PKGS := ./...
@@ -50,7 +50,6 @@ verify: fmt-check tidy-check vet test
 image:
 	docker login
 	docker buildx build --platform $(IMAGE_PLATFORM) --build-context icw_common=../icw_common -f Dockerfile -t $(IMAGE) --push .
-
 
 fmt:
 	$(GO) fmt $(PKGS)
