@@ -80,7 +80,5 @@ func (s *Service) asyncExecuteDetectionSummary(requestId string, req *summarypb.
 
 // executeDetectionSummary 执行图像检测总结任务
 func executeDetectionSummary(ctx context.Context, client *agent.Client, req *summarypb.StartDetectionSummaryRequest) (string, error) {
-	return client.Chat(ctx, agent.Message{
-		Text: req.SourceJson,
-	})
+	return client.Chat(ctx, req.SourceJson)
 }

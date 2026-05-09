@@ -5,12 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"mime/multipart"
 	"net/http"
-	"net/textproto"
 	"strings"
-
-	"icw_common/utils"
 )
 
 const (
@@ -42,13 +38,6 @@ type Client struct {
 	client *http.Client
 }
 
-// Message 智能体输入消息
-type Message struct {
-	Text        string
-	Image       []byte
-	ContentType string
-}
-
 // NewClient 创建智能体客户端
 func NewClient(token, botId, userId string) *Client {
 	return &Client{
@@ -60,7 +49,7 @@ func NewClient(token, botId, userId string) *Client {
 }
 
 // Chat 调用智能体并返回模型输出
-func (c *Client) Chat(ctx context.Context, message Message) (string, error) {
+func (c *Client) Chat(ctx context.Context, text string) (string, error) {
 	if c == nil || c.client == nil {
 		return "", errors.New("agent client is nil")
 	}
@@ -71,92 +60,14 @@ func (c *Client) Chat(ctx context.Context, message Message) (string, error) {
 		return "", errors.New("agent bot id is required")
 	}
 
-	fileId := ""
-	if len(message.Image) > 0 {
-		uploadedFileId, err := c.uploadFile(ctx, message.Image, message.ContentType)
-		if err != nil {
-			return "", err
-		}
-		fileId = uploadedFileId
-	}
-
-	return c.streamChat(ctx, strings.TrimSpace(message.Text), fileId)
-}
-
-// uploadFile 上传图像附件并返回文件 ID
-func (c *Client) uploadFile(ctx context.Context, image []byte, contentType string) (string, error) {
-	var body bytes.Buffer
-
-	writer := multipart.NewWriter(&body)
-	header := make(textproto.MIMEHeader)
-	header.Set("Content-Disposition", `form-data; name="file"; filename="classification.png"`)
-	header.Set("Content-Type", utils.FirstNotEmpty(contentType, "application/octet-stream"))
-
-	part, err := writer.CreatePart(header)
-	if err != nil {
-		return "", err
-	}
-	if _, err := part.Write(image); err != nil {
-		return "", err
-	}
-	if err := writer.Close(); err != nil {
-		return "", err
-	}
-
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, CozeFileUploadURL, &body)
-	if err != nil {
-		return "", err
-	}
-
-	request.Header.Set("Authorization", "Bearer "+c.token)
-	request.Header.Set("Content-Type", writer.FormDataContentType())
-
-	response, err := c.client.Do(request)
-	if err != nil {
-		return "", err
-	}
-
-	defer func() {
-		_ = response.Body.Close()
-	}()
-
-	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return "", readAgentError(response.Body, response.Status)
-	}
-
-	var uploadResp struct {
-		Data struct {
-			Id     string `json:"id"`
-			FileId string `json:"file_id"`
-		} `json:"data"`
-		Id     string `json:"id"`
-		FileId string `json:"file_id"`
-	}
-
-	if err := json.NewDecoder(response.Body).Decode(&uploadResp); err != nil {
-		return "", err
-	}
-
-	fileId := utils.FirstNotEmpty(uploadResp.Data.Id, uploadResp.Data.FileId, uploadResp.Id, uploadResp.FileId)
-	if fileId == "" {
-		return "", errors.New("agent file id is required")
-	}
-
-	return fileId, nil
+	return c.streamChat(ctx, strings.TrimSpace(text))
 }
 
 // streamChat 发起流式对话并拼接输出
-func (c *Client) streamChat(ctx context.Context, text, fileId string) (string, error) {
-	if fileId == "" {
-		return "", errors.New("file id is required")
-	}
-
+func (c *Client) streamChat(ctx context.Context, text string) (string, error) {
 	content, err := json.Marshal([]map[string]string{{
 		"type": "text",
 		"text": text,
-	}, {
-		"type":    "image",
-		"file_id": fileId,
 	}})
 	if err != nil {
 		return "", err
