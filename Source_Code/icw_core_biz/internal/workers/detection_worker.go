@@ -89,6 +89,7 @@ func (w *DetectionWorker) Enqueue(ctx context.Context, taskId uint64) {
 	}
 }
 
+// loop 循环消费项目图像检测任务
 func (w *DetectionWorker) loop(ctx context.Context) {
 	for {
 		select {
@@ -100,24 +101,22 @@ func (w *DetectionWorker) loop(ctx context.Context) {
 	}
 }
 
+// processClassification 执行项目图像检测分类任务
 func (w *DetectionWorker) processClassification(ctx context.Context, item *detectionTask) {
 	if item == nil {
 		return
 	}
 	ctx = rpc.WithRequestIdToOutgoingContext(ctx, item.requestId)
-
 	task, err := w.mysql.StartProjectDetectionClassificationTask(ctx, item.id)
 	if err != nil || task == nil {
 		return
 	}
 	w.publishNode(ctx, task, events.DetectionNodeCodeClassification, "", events.DetectionNodeStatusPending)
-
 	originalURL, err := minio.PresignProjectImageOriginalURL(ctx, w.minio, w.redis, task.ProjectId, task.ImageUuid, w.cfg.ProjectImageGetTTL)
 	if err != nil || originalURL == "" {
-		w.failTask(ctx, task)
+		w.failDetectionTask(ctx, task)
 		return
 	}
-
 	req := &classificationpb.StartRequest{
 		TaskUuid:      task.Uuid,
 		ImageUuid:     task.ImageUuid,
@@ -125,11 +124,23 @@ func (w *DetectionWorker) processClassification(ctx context.Context, item *detec
 	}
 	resp := &classificationpb.StartResponse{}
 	if err := icw_activity_classification.Start(ctx, w.classificationClient, req, resp); err != nil {
-		w.failTask(ctx, task)
+		w.failDetectionTask(ctx, task)
 	}
 }
 
-// StartReasoningTasks 启动项目图像检测推理子任务
+// failDetectionTask 将项目图像检测主任务标记为失败
+func (w *DetectionWorker) failDetectionTask(ctx context.Context, task *model.ProjectDetectionTaskRecord) {
+	if task == nil {
+		return
+	}
+	updatedTask, err := w.mysql.UpdateProjectDetectionTaskStatus(ctx, task.Id, bizpb.ProjectDetectionTaskStatus_Failed)
+	if err != nil || updatedTask == nil {
+		return
+	}
+	w.publishNode(ctx, updatedTask, events.DetectionNodeCodeClassification, "", events.DetectionNodeStatusFailed)
+}
+
+// StartReasoningTasks 批量启动项目图像检测推理子任务
 func (w *DetectionWorker) StartReasoningTasks(ctx context.Context, subTasks map[string]*model.ProjectDetectionSubTaskRecord) {
 	if w == nil {
 		return
@@ -156,6 +167,47 @@ func (w *DetectionWorker) StartReasoningTasks(ctx context.Context, subTasks map[
 	}
 }
 
+// startReasoningTask 启动项目图像检测推理子任务
+func (w *DetectionWorker) startReasoningTask(ctx context.Context, task *model.ProjectDetectionTaskRecord, taskCode string, subTask *model.ProjectDetectionSubTaskRecord) error {
+	originalURL, err := minio.PresignProjectImageOriginalURL(ctx, w.minio, w.redis, task.ProjectId, task.ImageUuid, w.cfg.ProjectImageGetTTL)
+	if err != nil {
+		return err
+	}
+	if originalURL == "" {
+		return errors.New("project image original object is not found")
+	}
+	artifactPolicy, err := w.reasoningArtifactPolicy(ctx, task, taskCode)
+	if err != nil {
+		return err
+	}
+	req := &reasoningpb.StartRequest{
+		TaskUuid:       subTask.Uuid,
+		TaskCode:       enum.ParseDetectionTaskCode(taskCode),
+		ImageUuid:      task.ImageUuid,
+		PresignGetUrl:  originalURL,
+		ArtifactPolicy: artifactPolicy,
+	}
+	resp := &reasoningpb.StartResponse{}
+	return icw_activity_reasoning.Start(ctx, w.reasoningClient, req, resp)
+}
+
+// reasoningArtifactPolicy 生成项目图像检测产物上传授权
+func (w *DetectionWorker) reasoningArtifactPolicy(ctx context.Context, task *model.ProjectDetectionTaskRecord, taskCode string) (*reasoningpb.ReasoningArtifactUploadPolicy, error) {
+	keyPrefix, err := minio.GenProjectDetectionArtifactPrefixByTask(task.ProjectId, task.ImageUuid, taskCode)
+	if err != nil {
+		return nil, err
+	}
+	policyURL, formData, err := w.minio.PresignPostPolicy(ctx, keyPrefix, w.cfg.ProjectImageUploadTTL)
+	if err != nil {
+		return nil, err
+	}
+	return &reasoningpb.ReasoningArtifactUploadPolicy{
+		Url:       policyURL,
+		KeyPrefix: keyPrefix,
+		FormData:  formData,
+	}, nil
+}
+
 // StartDetectionSummaryTask 启动项目图像检测总结任务
 func (w *DetectionWorker) StartDetectionSummaryTask(ctx context.Context, task *model.ProjectDetectionTaskRecord, summaryTask *model.ProjectDetectionSummaryTaskRecord) {
 	if w == nil || task == nil || summaryTask == nil {
@@ -171,13 +223,11 @@ func (w *DetectionWorker) StartDetectionSummaryTask(ctx context.Context, task *m
 	task = startedTask
 	summaryTask = startedSummaryTask
 	w.publishNode(ctx, task, events.DetectionNodeCodeSummary, summaryTask.Uuid, events.DetectionNodeStatusPending)
-
 	sourceJSON, err := w.detectionSummaryReportJSON(ctx, task)
 	if err != nil {
 		w.failDetectionSummaryTask(ctx, summaryTask.Uuid)
 		return
 	}
-
 	req := &summarypb.StartDetectionSummaryRequest{
 		TaskUuid:   summaryTask.Uuid,
 		ImageUuid:  task.ImageUuid,
@@ -189,93 +239,7 @@ func (w *DetectionWorker) StartDetectionSummaryTask(ctx context.Context, task *m
 	}
 }
 
-// failDetectionSummaryTask 项目图像检测总结任务失败
-func (w *DetectionWorker) failDetectionSummaryTask(ctx context.Context, taskUuid string) {
-	updatedTask, updatedSummaryTask, updateErr := w.mysql.UpdateProjectDetectionSummaryResult(ctx, taskUuid, bizpb.ProjectDetectionSubTaskStatus_Failed, "")
-	if updateErr == nil && updatedTask != nil && updatedSummaryTask != nil {
-		w.publishNode(ctx, updatedTask, events.DetectionNodeCodeSummary, updatedSummaryTask.Uuid, events.DetectionNodeStatusFailed)
-	}
-}
-
-// StartProjectReportTask 启动项目评估报告生成任务
-func (w *DetectionWorker) StartProjectReportTask(ctx context.Context, userId, projectId uint64) {
-	if w == nil || projectId == 0 {
-		return
-	}
-
-	report, err := w.mysql.CreateProjectReport(ctx, userId, projectId)
-	if err != nil {
-		return
-	}
-
-	events.PublishProjectReportStatusChangedEvent(ctx, w.rocketMQ, report.UserId, report.ProjectId, report.Uuid, report.Status)
-
-	reportJSON, err := w.projectReportSourceJSON(ctx, userId, projectId)
-	if err != nil {
-		w.failProjectReport(ctx, projectId)
-		return
-	}
-
-	sourceKey, err := minio.GenProjectReportSourceKey(projectId)
-	if err != nil {
-		w.failProjectReport(ctx, projectId)
-		return
-	}
-
-	if err := w.minio.PutObject(ctx, sourceKey, "application/json", []byte(reportJSON)); err != nil {
-		w.failProjectReport(ctx, projectId)
-		return
-	}
-
-	sourceURL, err := minio.PresignProjectReportSourceURL(ctx, w.minio, w.redis, projectId, w.cfg.ProjectImageGetTTL)
-	if err != nil || sourceURL == "" {
-		w.failProjectReport(ctx, projectId)
-		return
-	}
-
-	req := &summarypb.StartProjectSummaryRequest{
-		ProjectId: strconv.FormatUint(projectId, 10),
-		SourceUrl: sourceURL,
-	}
-	resp := &summarypb.StartProjectSummaryResponse{}
-	if err := icw_activity_summary.StartProjectSummary(ctx, w.summaryClient, req, resp); err != nil {
-		w.failProjectReport(ctx, projectId)
-	}
-}
-
-// failProjectReport 项目评估报告生成任务失败
-func (w *DetectionWorker) failProjectReport(ctx context.Context, projectId uint64) {
-	report, err := w.mysql.UpdateProjectReportResult(ctx, projectId, bizpb.ProjectReportStatus_Failed, "")
-	if err == nil && report != nil {
-		events.PublishProjectReportStatusChangedEvent(ctx, w.rocketMQ, report.UserId, report.ProjectId, report.Uuid, report.Status)
-	}
-}
-
-func (w *DetectionWorker) projectReportSourceJSON(ctx context.Context, userId, projectId uint64) (string, error) {
-	project, err := w.mysql.FindProjectByIdAndUserId(ctx, userId, projectId)
-	if err != nil {
-		return "", err
-	}
-	images, err := w.mysql.ListProjectImages(ctx, userId, projectId)
-	if err != nil {
-		return "", err
-	}
-	tasks, err := w.mysql.GetProjectDetectionTasksStatus(ctx, userId, projectId)
-	if err != nil {
-		return "", err
-	}
-	payload := map[string]interface{}{
-		"project":         project,
-		"images":          images,
-		"detection_tasks": tasks,
-	}
-	data, err := json.Marshal(payload)
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
-}
-
+// detectionSummaryReportJSON 构建图像检测总结任务原始数据 JSON
 func (w *DetectionWorker) detectionSummaryReportJSON(ctx context.Context, task *model.ProjectDetectionTaskRecord) (string, error) {
 	reports := map[string]string{}
 	checks := []struct {
@@ -308,56 +272,88 @@ func (w *DetectionWorker) detectionSummaryReportJSON(ctx context.Context, task *
 	return string(data), nil
 }
 
-func (w *DetectionWorker) startReasoningTask(ctx context.Context, task *model.ProjectDetectionTaskRecord, taskCode string, subTask *model.ProjectDetectionSubTaskRecord) error {
-	originalURL, err := minio.PresignProjectImageOriginalURL(ctx, w.minio, w.redis, task.ProjectId, task.ImageUuid, w.cfg.ProjectImageGetTTL)
-	if err != nil {
-		return err
+// failDetectionSummaryTask 将项目图像检测总结任务标记为失败
+func (w *DetectionWorker) failDetectionSummaryTask(ctx context.Context, taskUuid string) {
+	updatedTask, updatedSummaryTask, updateErr := w.mysql.UpdateProjectDetectionSummaryResult(ctx, taskUuid, bizpb.ProjectDetectionSubTaskStatus_Failed, "")
+	if updateErr == nil && updatedTask != nil && updatedSummaryTask != nil {
+		w.publishNode(ctx, updatedTask, events.DetectionNodeCodeSummary, updatedSummaryTask.Uuid, events.DetectionNodeStatusFailed)
 	}
-	if originalURL == "" {
-		return errors.New("project image original object is not found")
-	}
-	artifactPolicy, err := w.reasoningArtifactPolicy(ctx, task, taskCode)
-	if err != nil {
-		return err
-	}
-	req := &reasoningpb.StartRequest{
-		TaskUuid:       subTask.Uuid,
-		TaskCode:       enum.ParseDetectionTaskCode(taskCode),
-		ImageUuid:      task.ImageUuid,
-		PresignGetUrl:  originalURL,
-		ArtifactPolicy: artifactPolicy,
-	}
-	resp := &reasoningpb.StartResponse{}
-	return icw_activity_reasoning.Start(ctx, w.reasoningClient, req, resp)
 }
 
-func (w *DetectionWorker) reasoningArtifactPolicy(ctx context.Context, task *model.ProjectDetectionTaskRecord, taskCode string) (*reasoningpb.ReasoningArtifactUploadPolicy, error) {
-	keyPrefix, err := minio.GenProjectDetectionArtifactPrefixByTask(task.ProjectId, task.ImageUuid, taskCode)
-	if err != nil {
-		return nil, err
-	}
-	policyURL, formData, err := w.minio.PresignPostPolicy(ctx, keyPrefix, w.cfg.ProjectImageUploadTTL)
-	if err != nil {
-		return nil, err
-	}
-	return &reasoningpb.ReasoningArtifactUploadPolicy{
-		Url:       policyURL,
-		KeyPrefix: keyPrefix,
-		FormData:  formData,
-	}, nil
-}
-
-func (w *DetectionWorker) failTask(ctx context.Context, task *model.ProjectDetectionTaskRecord) {
-	if task == nil {
+// StartProjectReportTask 启动项目评估报告生成任务
+func (w *DetectionWorker) StartProjectReportTask(ctx context.Context, userId, projectId uint64) {
+	if w == nil || projectId == 0 {
 		return
 	}
-	updatedTask, err := w.mysql.UpdateProjectDetectionTaskStatus(ctx, task.Id, bizpb.ProjectDetectionTaskStatus_Failed)
-	if err != nil || updatedTask == nil {
+	report, err := w.mysql.CreateProjectReport(ctx, userId, projectId)
+	if err != nil {
 		return
 	}
-	w.publishNode(ctx, updatedTask, events.DetectionNodeCodeClassification, "", events.DetectionNodeStatusFailed)
+	events.PublishProjectReportStatusChangedEvent(ctx, w.rocketMQ, report.UserId, report.ProjectId, report.Uuid, report.Status)
+	reportJSON, err := w.projectReportSourceJSON(ctx, userId, projectId)
+	if err != nil {
+		w.failProjectReport(ctx, projectId)
+		return
+	}
+	sourceKey, err := minio.GenProjectReportSourceKey(projectId)
+	if err != nil {
+		w.failProjectReport(ctx, projectId)
+		return
+	}
+	if err := w.minio.PutObject(ctx, sourceKey, "application/json", []byte(reportJSON)); err != nil {
+		w.failProjectReport(ctx, projectId)
+		return
+	}
+	sourceURL, err := minio.PresignProjectReportSourceURL(ctx, w.minio, w.redis, projectId, w.cfg.ProjectImageGetTTL)
+	if err != nil || sourceURL == "" {
+		w.failProjectReport(ctx, projectId)
+		return
+	}
+	req := &summarypb.StartProjectSummaryRequest{
+		ProjectId: strconv.FormatUint(projectId, 10),
+		SourceUrl: sourceURL,
+	}
+	resp := &summarypb.StartProjectSummaryResponse{}
+	if err := icw_activity_summary.StartProjectSummary(ctx, w.summaryClient, req, resp); err != nil {
+		w.failProjectReport(ctx, projectId)
+	}
 }
 
+// projectReportSourceJSON 构建项目评估报告原始数据 JSON
+func (w *DetectionWorker) projectReportSourceJSON(ctx context.Context, userId, projectId uint64) (string, error) {
+	project, err := w.mysql.FindProjectByIdAndUserId(ctx, userId, projectId)
+	if err != nil {
+		return "", err
+	}
+	images, err := w.mysql.ListProjectImages(ctx, userId, projectId)
+	if err != nil {
+		return "", err
+	}
+	tasks, err := w.mysql.GetProjectDetectionTasksStatus(ctx, userId, projectId)
+	if err != nil {
+		return "", err
+	}
+	payload := map[string]interface{}{
+		"project":         project,
+		"images":          images,
+		"detection_tasks": tasks,
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
+// failProjectReport 将项目评估报告生成任务标记为失败
+func (w *DetectionWorker) failProjectReport(ctx context.Context, projectId uint64) {
+	report, err := w.mysql.UpdateProjectReportResult(ctx, projectId, bizpb.ProjectReportStatus_Failed, "")
+	if err == nil && report != nil {
+		events.PublishProjectReportStatusChangedEvent(ctx, w.rocketMQ, report.UserId, report.ProjectId, report.Uuid, report.Status)
+	}
+}
+
+// publishNode 发布项目图像检测节点状态变化事件
 func (w *DetectionWorker) publishNode(ctx context.Context, task *model.ProjectDetectionTaskRecord, nodeCode, subTaskUuid string, subStatus bizpb.ProjectDetectionSubTaskStatus_Value) {
 	if task == nil {
 		return
