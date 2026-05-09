@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/core/biz"
 	"icw_common/gen/core/common"
 
@@ -461,23 +460,23 @@ func (r *Repository) projectDetectionTaskToStatusDTO(ctx context.Context, tx *sq
 		shouldExecute bool
 		taskId        sql.NullInt64
 	}{{
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Corrosion),
 		shouldExecute: task.CorrosionShouldExecute,
 		taskId:        task.CorrosionTaskId,
 	}, {
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Crack),
 		shouldExecute: task.CrackShouldExecute,
 		taskId:        task.CrackTaskId,
 	}, {
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Stain),
 		shouldExecute: task.StainShouldExecute,
 		taskId:        task.StainTaskId,
 	}, {
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Flatness),
 		shouldExecute: task.FlatnessShouldExecute,
 		taskId:        task.FlatnessTaskId,
 	}, {
-		taskCode:      enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling),
+		taskCode:      enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Spalling),
 		shouldExecute: task.SpallingShouldExecute,
 		taskId:        task.SpallingTaskId,
 	}}
@@ -1160,7 +1159,7 @@ func (r *Repository) UpdateProjectDetectionSummaryResult(ctx context.Context, ta
 // GetProjectDetectionSubReportJSON 按项目图像检测子任务代码和子任务 ID 查询检测报告 JSON
 func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskCode string, taskId uint64) (string, error) {
 	switch enum.ParseDetectionTaskCode(taskCode) {
-	case activitypb.DetectionTaskCode_Corrosion:
+	case commonpb.DetectionTaskCode_Corrosion:
 		return r.queryProjectDetectionSubReportJSON(ctx, taskId, `
 			SELECT CAST(JSON_OBJECT(
 				'has_corrosion', COALESCE(has_corrosion, false),
@@ -1176,7 +1175,7 @@ func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskC
 			WHERE id = ?
 			LIMIT 1
 		`)
-	case activitypb.DetectionTaskCode_Crack:
+	case commonpb.DetectionTaskCode_Crack:
 		return r.queryProjectDetectionSubReportJSON(ctx, taskId, `
 			SELECT CAST(JSON_OBJECT(
 				'has_crack', COALESCE(has_crack, false),
@@ -1190,7 +1189,7 @@ func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskC
 			WHERE id = ?
 			LIMIT 1
 		`)
-	case activitypb.DetectionTaskCode_Stain:
+	case commonpb.DetectionTaskCode_Stain:
 		return r.queryProjectDetectionSubReportJSON(ctx, taskId, `
 			SELECT CAST(JSON_OBJECT(
 				'has_stain', COALESCE(has_stain, false),
@@ -1204,7 +1203,7 @@ func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskC
 			WHERE id = ?
 			LIMIT 1
 		`)
-	case activitypb.DetectionTaskCode_Flatness:
+	case commonpb.DetectionTaskCode_Flatness:
 		return r.queryProjectDetectionSubReportJSON(ctx, taskId, `
 			SELECT CAST(JSON_OBJECT(
 				'result', COALESCE(result, ''),
@@ -1216,7 +1215,7 @@ func (r *Repository) GetProjectDetectionSubReportJSON(ctx context.Context, taskC
 			WHERE id = ?
 			LIMIT 1
 		`)
-	case activitypb.DetectionTaskCode_Spalling:
+	case commonpb.DetectionTaskCode_Spalling:
 		return r.queryProjectDetectionSubReportJSON(ctx, taskId, `
 			SELECT CAST(JSON_OBJECT(
 				'has_spalling', COALESCE(has_spalling, false),
