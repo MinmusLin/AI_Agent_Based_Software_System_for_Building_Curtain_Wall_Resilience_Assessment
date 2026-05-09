@@ -65,5 +65,9 @@ func (s *Service) advanceProject(req *bizpb.AdvanceProjectRequest, _ *bizpb.Adva
 		return rpc_error.BadRequestDefault("project status or progress has changed")
 	}
 
+	if fromProgress == bizpb.ProjectProgress_DetectionFinished && toProgress == bizpb.ProjectProgress_ReviewFinished {
+		go s.DetectionWorker().StartProjectReportTask(s.Ctx(), req.UserId, req.ProjectId)
+	}
+
 	return nil
 }
