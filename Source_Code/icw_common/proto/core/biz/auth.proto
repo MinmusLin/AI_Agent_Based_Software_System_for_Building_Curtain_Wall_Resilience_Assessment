@@ -4,12 +4,12 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
-import "core/biz/common.proto";
+import "core/common.proto";
 
 // Login 请求结构体
 message LoginRequest {
   string email = 1;
-  LoginScene.Value scene = 2;
+  .icw.core.common.LoginScene.Value scene = 2;
   string code = 3;
 }
 
@@ -79,7 +79,7 @@ message ResetPasswordResponse {}
 // SendEmailCode 请求结构体
 message SendEmailCodeRequest {
   string email = 1;
-  EmailCodeScene.Value scene = 2;
+  .icw.core.common.EmailCodeScene.Value scene = 2;
 }
 
 // SendEmailCode 响应结构体

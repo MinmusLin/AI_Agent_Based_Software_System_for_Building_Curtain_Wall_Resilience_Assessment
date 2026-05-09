@@ -21,6 +21,166 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type EmailCodeScene_Value int32
+
+const (
+	// 未知
+	EmailCodeScene_Unknown EmailCodeScene_Value = 0
+	// 注册账号
+	EmailCodeScene_Register EmailCodeScene_Value = 1
+	// 登录账号
+	EmailCodeScene_Login EmailCodeScene_Value = 2
+	// 重置密码
+	EmailCodeScene_Reset EmailCodeScene_Value = 3
+)
+
+// Enum value maps for EmailCodeScene_Value.
+var (
+	EmailCodeScene_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Register",
+		2: "Login",
+		3: "Reset",
+	}
+	EmailCodeScene_Value_value = map[string]int32{
+		"Unknown":  0,
+		"Register": 1,
+		"Login":    2,
+		"Reset":    3,
+	}
+)
+
+func (x EmailCodeScene_Value) Enum() *EmailCodeScene_Value {
+	p := new(EmailCodeScene_Value)
+	*p = x
+	return p
+}
+
+func (x EmailCodeScene_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EmailCodeScene_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_common_proto_enumTypes[0].Descriptor()
+}
+
+func (EmailCodeScene_Value) Type() protoreflect.EnumType {
+	return &file_core_common_proto_enumTypes[0]
+}
+
+func (x EmailCodeScene_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EmailCodeScene_Value.Descriptor instead.
+func (EmailCodeScene_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{0, 0}
+}
+
+type LoginScene_Value int32
+
+const (
+	// 未知
+	LoginScene_Unknown LoginScene_Value = 0
+	// 密码登录
+	LoginScene_Password LoginScene_Value = 1
+	// 邮箱验证码登录
+	LoginScene_Email LoginScene_Value = 2
+)
+
+// Enum value maps for LoginScene_Value.
+var (
+	LoginScene_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Password",
+		2: "Email",
+	}
+	LoginScene_Value_value = map[string]int32{
+		"Unknown":  0,
+		"Password": 1,
+		"Email":    2,
+	}
+)
+
+func (x LoginScene_Value) Enum() *LoginScene_Value {
+	p := new(LoginScene_Value)
+	*p = x
+	return p
+}
+
+func (x LoginScene_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoginScene_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_common_proto_enumTypes[1].Descriptor()
+}
+
+func (LoginScene_Value) Type() protoreflect.EnumType {
+	return &file_core_common_proto_enumTypes[1]
+}
+
+func (x LoginScene_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoginScene_Value.Descriptor instead.
+func (LoginScene_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{1, 0}
+}
+
+type EmailSendStatus_Value int32
+
+const (
+	// 未知
+	EmailSendStatus_Unknown EmailSendStatus_Value = 0
+	// 成功
+	EmailSendStatus_Success EmailSendStatus_Value = 1
+	// 失败
+	EmailSendStatus_Failed EmailSendStatus_Value = 2
+)
+
+// Enum value maps for EmailSendStatus_Value.
+var (
+	EmailSendStatus_Value_name = map[int32]string{
+		0: "Unknown",
+		1: "Success",
+		2: "Failed",
+	}
+	EmailSendStatus_Value_value = map[string]int32{
+		"Unknown": 0,
+		"Success": 1,
+		"Failed":  2,
+	}
+)
+
+func (x EmailSendStatus_Value) Enum() *EmailSendStatus_Value {
+	p := new(EmailSendStatus_Value)
+	*p = x
+	return p
+}
+
+func (x EmailSendStatus_Value) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EmailSendStatus_Value) Descriptor() protoreflect.EnumDescriptor {
+	return file_core_common_proto_enumTypes[2].Descriptor()
+}
+
+func (EmailSendStatus_Value) Type() protoreflect.EnumType {
+	return &file_core_common_proto_enumTypes[2]
+}
+
+func (x EmailSendStatus_Value) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EmailSendStatus_Value.Descriptor instead.
+func (EmailSendStatus_Value) EnumDescriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{2, 0}
+}
+
 type ProjectStatus_Value int32
 
 const (
@@ -61,11 +221,11 @@ func (x ProjectStatus_Value) String() string {
 }
 
 func (ProjectStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_common_proto_enumTypes[0].Descriptor()
+	return file_core_common_proto_enumTypes[3].Descriptor()
 }
 
 func (ProjectStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_common_proto_enumTypes[0]
+	return &file_core_common_proto_enumTypes[3]
 }
 
 func (x ProjectStatus_Value) Number() protoreflect.EnumNumber {
@@ -74,7 +234,7 @@ func (x ProjectStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectStatus_Value.Descriptor instead.
 func (ProjectStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{0, 0}
+	return file_core_common_proto_rawDescGZIP(), []int{3, 0}
 }
 
 type ProjectProgress_Value int32
@@ -125,11 +285,11 @@ func (x ProjectProgress_Value) String() string {
 }
 
 func (ProjectProgress_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_common_proto_enumTypes[1].Descriptor()
+	return file_core_common_proto_enumTypes[4].Descriptor()
 }
 
 func (ProjectProgress_Value) Type() protoreflect.EnumType {
-	return &file_core_common_proto_enumTypes[1]
+	return &file_core_common_proto_enumTypes[4]
 }
 
 func (x ProjectProgress_Value) Number() protoreflect.EnumNumber {
@@ -138,7 +298,7 @@ func (x ProjectProgress_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectProgress_Value.Descriptor instead.
 func (ProjectProgress_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{1, 0}
+	return file_core_common_proto_rawDescGZIP(), []int{4, 0}
 }
 
 type ProjectImageStatus_Value int32
@@ -181,11 +341,11 @@ func (x ProjectImageStatus_Value) String() string {
 }
 
 func (ProjectImageStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_common_proto_enumTypes[2].Descriptor()
+	return file_core_common_proto_enumTypes[5].Descriptor()
 }
 
 func (ProjectImageStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_common_proto_enumTypes[2]
+	return &file_core_common_proto_enumTypes[5]
 }
 
 func (x ProjectImageStatus_Value) Number() protoreflect.EnumNumber {
@@ -194,7 +354,7 @@ func (x ProjectImageStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectImageStatus_Value.Descriptor instead.
 func (ProjectImageStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{2, 0}
+	return file_core_common_proto_rawDescGZIP(), []int{5, 0}
 }
 
 type ProjectDetectionTaskStatus_Value int32
@@ -249,11 +409,11 @@ func (x ProjectDetectionTaskStatus_Value) String() string {
 }
 
 func (ProjectDetectionTaskStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_common_proto_enumTypes[3].Descriptor()
+	return file_core_common_proto_enumTypes[6].Descriptor()
 }
 
 func (ProjectDetectionTaskStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_common_proto_enumTypes[3]
+	return &file_core_common_proto_enumTypes[6]
 }
 
 func (x ProjectDetectionTaskStatus_Value) Number() protoreflect.EnumNumber {
@@ -262,7 +422,7 @@ func (x ProjectDetectionTaskStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectDetectionTaskStatus_Value.Descriptor instead.
 func (ProjectDetectionTaskStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{3, 0}
+	return file_core_common_proto_rawDescGZIP(), []int{6, 0}
 }
 
 type ProjectDetectionSubTaskStatus_Value int32
@@ -305,11 +465,11 @@ func (x ProjectDetectionSubTaskStatus_Value) String() string {
 }
 
 func (ProjectDetectionSubTaskStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_common_proto_enumTypes[4].Descriptor()
+	return file_core_common_proto_enumTypes[7].Descriptor()
 }
 
 func (ProjectDetectionSubTaskStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_common_proto_enumTypes[4]
+	return &file_core_common_proto_enumTypes[7]
 }
 
 func (x ProjectDetectionSubTaskStatus_Value) Number() protoreflect.EnumNumber {
@@ -318,7 +478,7 @@ func (x ProjectDetectionSubTaskStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectDetectionSubTaskStatus_Value.Descriptor instead.
 func (ProjectDetectionSubTaskStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{4, 0}
+	return file_core_common_proto_rawDescGZIP(), []int{7, 0}
 }
 
 type ProjectDetectionReviewVerdict_Value int32
@@ -357,11 +517,11 @@ func (x ProjectDetectionReviewVerdict_Value) String() string {
 }
 
 func (ProjectDetectionReviewVerdict_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_common_proto_enumTypes[5].Descriptor()
+	return file_core_common_proto_enumTypes[8].Descriptor()
 }
 
 func (ProjectDetectionReviewVerdict_Value) Type() protoreflect.EnumType {
-	return &file_core_common_proto_enumTypes[5]
+	return &file_core_common_proto_enumTypes[8]
 }
 
 func (x ProjectDetectionReviewVerdict_Value) Number() protoreflect.EnumNumber {
@@ -370,7 +530,7 @@ func (x ProjectDetectionReviewVerdict_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectDetectionReviewVerdict_Value.Descriptor instead.
 func (ProjectDetectionReviewVerdict_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{5, 0}
+	return file_core_common_proto_rawDescGZIP(), []int{8, 0}
 }
 
 type ProjectReportStatus_Value int32
@@ -413,11 +573,11 @@ func (x ProjectReportStatus_Value) String() string {
 }
 
 func (ProjectReportStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_common_proto_enumTypes[6].Descriptor()
+	return file_core_common_proto_enumTypes[9].Descriptor()
 }
 
 func (ProjectReportStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_common_proto_enumTypes[6]
+	return &file_core_common_proto_enumTypes[9]
 }
 
 func (x ProjectReportStatus_Value) Number() protoreflect.EnumNumber {
@@ -426,7 +586,118 @@ func (x ProjectReportStatus_Value) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProjectReportStatus_Value.Descriptor instead.
 func (ProjectReportStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{6, 0}
+	return file_core_common_proto_rawDescGZIP(), []int{9, 0}
+}
+
+// 邮箱验证码业务场景
+type EmailCodeScene struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EmailCodeScene) Reset() {
+	*x = EmailCodeScene{}
+	mi := &file_core_common_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EmailCodeScene) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EmailCodeScene) ProtoMessage() {}
+
+func (x *EmailCodeScene) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EmailCodeScene.ProtoReflect.Descriptor instead.
+func (*EmailCodeScene) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{0}
+}
+
+// 登录方式
+type LoginScene struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginScene) Reset() {
+	*x = LoginScene{}
+	mi := &file_core_common_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginScene) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginScene) ProtoMessage() {}
+
+func (x *LoginScene) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginScene.ProtoReflect.Descriptor instead.
+func (*LoginScene) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{1}
+}
+
+// 邮件发送状态
+type EmailSendStatus struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EmailSendStatus) Reset() {
+	*x = EmailSendStatus{}
+	mi := &file_core_common_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EmailSendStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EmailSendStatus) ProtoMessage() {}
+
+func (x *EmailSendStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_core_common_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EmailSendStatus.ProtoReflect.Descriptor instead.
+func (*EmailSendStatus) Descriptor() ([]byte, []int) {
+	return file_core_common_proto_rawDescGZIP(), []int{2}
 }
 
 // 项目状态
@@ -438,7 +709,7 @@ type ProjectStatus struct {
 
 func (x *ProjectStatus) Reset() {
 	*x = ProjectStatus{}
-	mi := &file_core_common_proto_msgTypes[0]
+	mi := &file_core_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -450,7 +721,7 @@ func (x *ProjectStatus) String() string {
 func (*ProjectStatus) ProtoMessage() {}
 
 func (x *ProjectStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[0]
+	mi := &file_core_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -463,7 +734,7 @@ func (x *ProjectStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectStatus.ProtoReflect.Descriptor instead.
 func (*ProjectStatus) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{0}
+	return file_core_common_proto_rawDescGZIP(), []int{3}
 }
 
 // 项目进度
@@ -475,7 +746,7 @@ type ProjectProgress struct {
 
 func (x *ProjectProgress) Reset() {
 	*x = ProjectProgress{}
-	mi := &file_core_common_proto_msgTypes[1]
+	mi := &file_core_common_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -487,7 +758,7 @@ func (x *ProjectProgress) String() string {
 func (*ProjectProgress) ProtoMessage() {}
 
 func (x *ProjectProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[1]
+	mi := &file_core_common_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -500,7 +771,7 @@ func (x *ProjectProgress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectProgress.ProtoReflect.Descriptor instead.
 func (*ProjectProgress) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{1}
+	return file_core_common_proto_rawDescGZIP(), []int{4}
 }
 
 // 项目图像状态
@@ -512,7 +783,7 @@ type ProjectImageStatus struct {
 
 func (x *ProjectImageStatus) Reset() {
 	*x = ProjectImageStatus{}
-	mi := &file_core_common_proto_msgTypes[2]
+	mi := &file_core_common_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -524,7 +795,7 @@ func (x *ProjectImageStatus) String() string {
 func (*ProjectImageStatus) ProtoMessage() {}
 
 func (x *ProjectImageStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[2]
+	mi := &file_core_common_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -537,7 +808,7 @@ func (x *ProjectImageStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectImageStatus.ProtoReflect.Descriptor instead.
 func (*ProjectImageStatus) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{2}
+	return file_core_common_proto_rawDescGZIP(), []int{5}
 }
 
 // 项目图像检测主任务状态
@@ -549,7 +820,7 @@ type ProjectDetectionTaskStatus struct {
 
 func (x *ProjectDetectionTaskStatus) Reset() {
 	*x = ProjectDetectionTaskStatus{}
-	mi := &file_core_common_proto_msgTypes[3]
+	mi := &file_core_common_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -561,7 +832,7 @@ func (x *ProjectDetectionTaskStatus) String() string {
 func (*ProjectDetectionTaskStatus) ProtoMessage() {}
 
 func (x *ProjectDetectionTaskStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[3]
+	mi := &file_core_common_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -574,7 +845,7 @@ func (x *ProjectDetectionTaskStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionTaskStatus.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionTaskStatus) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{3}
+	return file_core_common_proto_rawDescGZIP(), []int{6}
 }
 
 // 项目图像检测子任务状态
@@ -586,7 +857,7 @@ type ProjectDetectionSubTaskStatus struct {
 
 func (x *ProjectDetectionSubTaskStatus) Reset() {
 	*x = ProjectDetectionSubTaskStatus{}
-	mi := &file_core_common_proto_msgTypes[4]
+	mi := &file_core_common_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -598,7 +869,7 @@ func (x *ProjectDetectionSubTaskStatus) String() string {
 func (*ProjectDetectionSubTaskStatus) ProtoMessage() {}
 
 func (x *ProjectDetectionSubTaskStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[4]
+	mi := &file_core_common_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -611,7 +882,7 @@ func (x *ProjectDetectionSubTaskStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionSubTaskStatus.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionSubTaskStatus) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{4}
+	return file_core_common_proto_rawDescGZIP(), []int{7}
 }
 
 // 项目图像检测人工复核结论
@@ -623,7 +894,7 @@ type ProjectDetectionReviewVerdict struct {
 
 func (x *ProjectDetectionReviewVerdict) Reset() {
 	*x = ProjectDetectionReviewVerdict{}
-	mi := &file_core_common_proto_msgTypes[5]
+	mi := &file_core_common_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -635,7 +906,7 @@ func (x *ProjectDetectionReviewVerdict) String() string {
 func (*ProjectDetectionReviewVerdict) ProtoMessage() {}
 
 func (x *ProjectDetectionReviewVerdict) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[5]
+	mi := &file_core_common_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +919,7 @@ func (x *ProjectDetectionReviewVerdict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionReviewVerdict.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionReviewVerdict) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{5}
+	return file_core_common_proto_rawDescGZIP(), []int{8}
 }
 
 // 项目评估报告状态
@@ -660,7 +931,7 @@ type ProjectReportStatus struct {
 
 func (x *ProjectReportStatus) Reset() {
 	*x = ProjectReportStatus{}
-	mi := &file_core_common_proto_msgTypes[6]
+	mi := &file_core_common_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -672,7 +943,7 @@ func (x *ProjectReportStatus) String() string {
 func (*ProjectReportStatus) ProtoMessage() {}
 
 func (x *ProjectReportStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[6]
+	mi := &file_core_common_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -685,7 +956,7 @@ func (x *ProjectReportStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectReportStatus.ProtoReflect.Descriptor instead.
 func (*ProjectReportStatus) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{6}
+	return file_core_common_proto_rawDescGZIP(), []int{9}
 }
 
 // 用户信息结构体
@@ -700,7 +971,7 @@ type User struct {
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_core_common_proto_msgTypes[7]
+	mi := &file_core_common_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -712,7 +983,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[7]
+	mi := &file_core_common_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -725,7 +996,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{7}
+	return file_core_common_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *User) GetId() uint64 {
@@ -769,7 +1040,7 @@ type ProjectImage struct {
 
 func (x *ProjectImage) Reset() {
 	*x = ProjectImage{}
-	mi := &file_core_common_proto_msgTypes[8]
+	mi := &file_core_common_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -781,7 +1052,7 @@ func (x *ProjectImage) String() string {
 func (*ProjectImage) ProtoMessage() {}
 
 func (x *ProjectImage) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[8]
+	mi := &file_core_common_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -794,7 +1065,7 @@ func (x *ProjectImage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectImage.ProtoReflect.Descriptor instead.
 func (*ProjectImage) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{8}
+	return file_core_common_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ProjectImage) GetUuid() string {
@@ -886,7 +1157,7 @@ type UploadProjectImageResult struct {
 
 func (x *UploadProjectImageResult) Reset() {
 	*x = UploadProjectImageResult{}
-	mi := &file_core_common_proto_msgTypes[9]
+	mi := &file_core_common_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -898,7 +1169,7 @@ func (x *UploadProjectImageResult) String() string {
 func (*UploadProjectImageResult) ProtoMessage() {}
 
 func (x *UploadProjectImageResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[9]
+	mi := &file_core_common_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -911,7 +1182,7 @@ func (x *UploadProjectImageResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadProjectImageResult.ProtoReflect.Descriptor instead.
 func (*UploadProjectImageResult) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{9}
+	return file_core_common_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UploadProjectImageResult) GetImage() *ProjectImage {
@@ -947,7 +1218,7 @@ type ProjectDetectionNodeStatus struct {
 
 func (x *ProjectDetectionNodeStatus) Reset() {
 	*x = ProjectDetectionNodeStatus{}
-	mi := &file_core_common_proto_msgTypes[10]
+	mi := &file_core_common_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -959,7 +1230,7 @@ func (x *ProjectDetectionNodeStatus) String() string {
 func (*ProjectDetectionNodeStatus) ProtoMessage() {}
 
 func (x *ProjectDetectionNodeStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[10]
+	mi := &file_core_common_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -972,7 +1243,7 @@ func (x *ProjectDetectionNodeStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionNodeStatus.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionNodeStatus) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{10}
+	return file_core_common_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ProjectDetectionNodeStatus) GetNodeCode() string {
@@ -1013,7 +1284,7 @@ type ProjectDetectionStatus struct {
 
 func (x *ProjectDetectionStatus) Reset() {
 	*x = ProjectDetectionStatus{}
-	mi := &file_core_common_proto_msgTypes[11]
+	mi := &file_core_common_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1025,7 +1296,7 @@ func (x *ProjectDetectionStatus) String() string {
 func (*ProjectDetectionStatus) ProtoMessage() {}
 
 func (x *ProjectDetectionStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[11]
+	mi := &file_core_common_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1038,7 +1309,7 @@ func (x *ProjectDetectionStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionStatus.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionStatus) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{11}
+	return file_core_common_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ProjectDetectionStatus) GetImageUuid() string {
@@ -1111,7 +1382,7 @@ type ProjectDetectionCorrosionRegion struct {
 
 func (x *ProjectDetectionCorrosionRegion) Reset() {
 	*x = ProjectDetectionCorrosionRegion{}
-	mi := &file_core_common_proto_msgTypes[12]
+	mi := &file_core_common_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1123,7 +1394,7 @@ func (x *ProjectDetectionCorrosionRegion) String() string {
 func (*ProjectDetectionCorrosionRegion) ProtoMessage() {}
 
 func (x *ProjectDetectionCorrosionRegion) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[12]
+	mi := &file_core_common_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1136,7 +1407,7 @@ func (x *ProjectDetectionCorrosionRegion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionCorrosionRegion.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionCorrosionRegion) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{12}
+	return file_core_common_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ProjectDetectionCorrosionRegion) GetId() uint32 {
@@ -1196,7 +1467,7 @@ type ProjectDetectionCorrosionResult struct {
 
 func (x *ProjectDetectionCorrosionResult) Reset() {
 	*x = ProjectDetectionCorrosionResult{}
-	mi := &file_core_common_proto_msgTypes[13]
+	mi := &file_core_common_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1208,7 +1479,7 @@ func (x *ProjectDetectionCorrosionResult) String() string {
 func (*ProjectDetectionCorrosionResult) ProtoMessage() {}
 
 func (x *ProjectDetectionCorrosionResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[13]
+	mi := &file_core_common_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1221,7 +1492,7 @@ func (x *ProjectDetectionCorrosionResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionCorrosionResult.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionCorrosionResult) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{13}
+	return file_core_common_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ProjectDetectionCorrosionResult) GetTaskUuid() string {
@@ -1328,7 +1599,7 @@ type ProjectDetectionCrackRegion struct {
 
 func (x *ProjectDetectionCrackRegion) Reset() {
 	*x = ProjectDetectionCrackRegion{}
-	mi := &file_core_common_proto_msgTypes[14]
+	mi := &file_core_common_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1340,7 +1611,7 @@ func (x *ProjectDetectionCrackRegion) String() string {
 func (*ProjectDetectionCrackRegion) ProtoMessage() {}
 
 func (x *ProjectDetectionCrackRegion) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[14]
+	mi := &file_core_common_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1353,7 +1624,7 @@ func (x *ProjectDetectionCrackRegion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionCrackRegion.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionCrackRegion) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{14}
+	return file_core_common_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ProjectDetectionCrackRegion) GetId() uint32 {
@@ -1404,7 +1675,7 @@ type ProjectDetectionCrackResult struct {
 
 func (x *ProjectDetectionCrackResult) Reset() {
 	*x = ProjectDetectionCrackResult{}
-	mi := &file_core_common_proto_msgTypes[15]
+	mi := &file_core_common_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1416,7 +1687,7 @@ func (x *ProjectDetectionCrackResult) String() string {
 func (*ProjectDetectionCrackResult) ProtoMessage() {}
 
 func (x *ProjectDetectionCrackResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[15]
+	mi := &file_core_common_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1429,7 +1700,7 @@ func (x *ProjectDetectionCrackResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionCrackResult.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionCrackResult) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{15}
+	return file_core_common_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ProjectDetectionCrackResult) GetTaskUuid() string {
@@ -1525,7 +1796,7 @@ type ProjectDetectionStainRegion struct {
 
 func (x *ProjectDetectionStainRegion) Reset() {
 	*x = ProjectDetectionStainRegion{}
-	mi := &file_core_common_proto_msgTypes[16]
+	mi := &file_core_common_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1537,7 +1808,7 @@ func (x *ProjectDetectionStainRegion) String() string {
 func (*ProjectDetectionStainRegion) ProtoMessage() {}
 
 func (x *ProjectDetectionStainRegion) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[16]
+	mi := &file_core_common_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1550,7 +1821,7 @@ func (x *ProjectDetectionStainRegion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionStainRegion.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionStainRegion) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{16}
+	return file_core_common_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ProjectDetectionStainRegion) GetId() uint32 {
@@ -1622,7 +1893,7 @@ type ProjectDetectionStainResult struct {
 
 func (x *ProjectDetectionStainResult) Reset() {
 	*x = ProjectDetectionStainResult{}
-	mi := &file_core_common_proto_msgTypes[17]
+	mi := &file_core_common_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1634,7 +1905,7 @@ func (x *ProjectDetectionStainResult) String() string {
 func (*ProjectDetectionStainResult) ProtoMessage() {}
 
 func (x *ProjectDetectionStainResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[17]
+	mi := &file_core_common_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1647,7 +1918,7 @@ func (x *ProjectDetectionStainResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionStainResult.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionStainResult) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{17}
+	return file_core_common_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ProjectDetectionStainResult) GetTaskUuid() string {
@@ -1750,7 +2021,7 @@ type ProjectDetectionFlatnessRegion struct {
 
 func (x *ProjectDetectionFlatnessRegion) Reset() {
 	*x = ProjectDetectionFlatnessRegion{}
-	mi := &file_core_common_proto_msgTypes[18]
+	mi := &file_core_common_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1762,7 +2033,7 @@ func (x *ProjectDetectionFlatnessRegion) String() string {
 func (*ProjectDetectionFlatnessRegion) ProtoMessage() {}
 
 func (x *ProjectDetectionFlatnessRegion) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[18]
+	mi := &file_core_common_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1775,7 +2046,7 @@ func (x *ProjectDetectionFlatnessRegion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionFlatnessRegion.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionFlatnessRegion) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{18}
+	return file_core_common_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ProjectDetectionFlatnessRegion) GetId() uint32 {
@@ -1894,7 +2165,7 @@ type ProjectDetectionFlatnessResult struct {
 
 func (x *ProjectDetectionFlatnessResult) Reset() {
 	*x = ProjectDetectionFlatnessResult{}
-	mi := &file_core_common_proto_msgTypes[19]
+	mi := &file_core_common_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1906,7 +2177,7 @@ func (x *ProjectDetectionFlatnessResult) String() string {
 func (*ProjectDetectionFlatnessResult) ProtoMessage() {}
 
 func (x *ProjectDetectionFlatnessResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[19]
+	mi := &file_core_common_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1919,7 +2190,7 @@ func (x *ProjectDetectionFlatnessResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionFlatnessResult.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionFlatnessResult) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{19}
+	return file_core_common_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ProjectDetectionFlatnessResult) GetTaskUuid() string {
@@ -2002,7 +2273,7 @@ type ProjectDetectionSpallingResult struct {
 
 func (x *ProjectDetectionSpallingResult) Reset() {
 	*x = ProjectDetectionSpallingResult{}
-	mi := &file_core_common_proto_msgTypes[20]
+	mi := &file_core_common_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2014,7 +2285,7 @@ func (x *ProjectDetectionSpallingResult) String() string {
 func (*ProjectDetectionSpallingResult) ProtoMessage() {}
 
 func (x *ProjectDetectionSpallingResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[20]
+	mi := &file_core_common_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2027,7 +2298,7 @@ func (x *ProjectDetectionSpallingResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionSpallingResult.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionSpallingResult) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{20}
+	return file_core_common_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ProjectDetectionSpallingResult) GetTaskUuid() string {
@@ -2100,7 +2371,7 @@ type ProjectDetectionSummaryResult struct {
 
 func (x *ProjectDetectionSummaryResult) Reset() {
 	*x = ProjectDetectionSummaryResult{}
-	mi := &file_core_common_proto_msgTypes[21]
+	mi := &file_core_common_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2112,7 +2383,7 @@ func (x *ProjectDetectionSummaryResult) String() string {
 func (*ProjectDetectionSummaryResult) ProtoMessage() {}
 
 func (x *ProjectDetectionSummaryResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[21]
+	mi := &file_core_common_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2125,7 +2396,7 @@ func (x *ProjectDetectionSummaryResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionSummaryResult.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionSummaryResult) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{21}
+	return file_core_common_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ProjectDetectionSummaryResult) GetTaskUuid() string {
@@ -2177,7 +2448,7 @@ type ProjectDetectionReview struct {
 
 func (x *ProjectDetectionReview) Reset() {
 	*x = ProjectDetectionReview{}
-	mi := &file_core_common_proto_msgTypes[22]
+	mi := &file_core_common_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2189,7 +2460,7 @@ func (x *ProjectDetectionReview) String() string {
 func (*ProjectDetectionReview) ProtoMessage() {}
 
 func (x *ProjectDetectionReview) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[22]
+	mi := &file_core_common_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2202,7 +2473,7 @@ func (x *ProjectDetectionReview) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDetectionReview.ProtoReflect.Descriptor instead.
 func (*ProjectDetectionReview) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{22}
+	return file_core_common_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ProjectDetectionReview) GetTaskUuid() string {
@@ -2253,7 +2524,7 @@ type ProjectReport struct {
 
 func (x *ProjectReport) Reset() {
 	*x = ProjectReport{}
-	mi := &file_core_common_proto_msgTypes[23]
+	mi := &file_core_common_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2265,7 +2536,7 @@ func (x *ProjectReport) String() string {
 func (*ProjectReport) ProtoMessage() {}
 
 func (x *ProjectReport) ProtoReflect() protoreflect.Message {
-	mi := &file_core_common_proto_msgTypes[23]
+	mi := &file_core_common_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2278,7 +2549,7 @@ func (x *ProjectReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectReport.ProtoReflect.Descriptor instead.
 func (*ProjectReport) Descriptor() ([]byte, []int) {
-	return file_core_common_proto_rawDescGZIP(), []int{23}
+	return file_core_common_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ProjectReport) GetReportUuid() string {
@@ -2313,7 +2584,25 @@ var File_core_common_proto protoreflect.FileDescriptor
 
 const file_core_common_proto_rawDesc = "" +
 	"\n" +
-	"\x11core/common.proto\x12\x0ficw.core.common\"M\n" +
+	"\x11core/common.proto\x12\x0ficw.core.common\"J\n" +
+	"\x0eEmailCodeScene\"8\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\f\n" +
+	"\bRegister\x10\x01\x12\t\n" +
+	"\x05Login\x10\x02\x12\t\n" +
+	"\x05Reset\x10\x03\";\n" +
+	"\n" +
+	"LoginScene\"-\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\f\n" +
+	"\bPassword\x10\x01\x12\t\n" +
+	"\x05Email\x10\x02\"@\n" +
+	"\x0fEmailSendStatus\"-\n" +
+	"\x05Value\x12\v\n" +
+	"\aUnknown\x10\x00\x12\v\n" +
+	"\aSuccess\x10\x01\x12\n" +
+	"\n" +
+	"\x06Failed\x10\x02\"M\n" +
 	"\rProjectStatus\"<\n" +
 	"\x05Value\x12\v\n" +
 	"\aUnknown\x10\x00\x12\n" +
@@ -2582,71 +2871,77 @@ func file_core_common_proto_rawDescGZIP() []byte {
 	return file_core_common_proto_rawDescData
 }
 
-var file_core_common_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
-var file_core_common_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_core_common_proto_enumTypes = make([]protoimpl.EnumInfo, 10)
+var file_core_common_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_core_common_proto_goTypes = []any{
-	(ProjectStatus_Value)(0),                 // 0: icw.core.common.ProjectStatus.Value
-	(ProjectProgress_Value)(0),               // 1: icw.core.common.ProjectProgress.Value
-	(ProjectImageStatus_Value)(0),            // 2: icw.core.common.ProjectImageStatus.Value
-	(ProjectDetectionTaskStatus_Value)(0),    // 3: icw.core.common.ProjectDetectionTaskStatus.Value
-	(ProjectDetectionSubTaskStatus_Value)(0), // 4: icw.core.common.ProjectDetectionSubTaskStatus.Value
-	(ProjectDetectionReviewVerdict_Value)(0), // 5: icw.core.common.ProjectDetectionReviewVerdict.Value
-	(ProjectReportStatus_Value)(0),           // 6: icw.core.common.ProjectReportStatus.Value
-	(*ProjectStatus)(nil),                    // 7: icw.core.common.ProjectStatus
-	(*ProjectProgress)(nil),                  // 8: icw.core.common.ProjectProgress
-	(*ProjectImageStatus)(nil),               // 9: icw.core.common.ProjectImageStatus
-	(*ProjectDetectionTaskStatus)(nil),       // 10: icw.core.common.ProjectDetectionTaskStatus
-	(*ProjectDetectionSubTaskStatus)(nil),    // 11: icw.core.common.ProjectDetectionSubTaskStatus
-	(*ProjectDetectionReviewVerdict)(nil),    // 12: icw.core.common.ProjectDetectionReviewVerdict
-	(*ProjectReportStatus)(nil),              // 13: icw.core.common.ProjectReportStatus
-	(*User)(nil),                             // 14: icw.core.common.User
-	(*ProjectImage)(nil),                     // 15: icw.core.common.ProjectImage
-	(*UploadProjectImageResult)(nil),         // 16: icw.core.common.UploadProjectImageResult
-	(*ProjectDetectionNodeStatus)(nil),       // 17: icw.core.common.ProjectDetectionNodeStatus
-	(*ProjectDetectionStatus)(nil),           // 18: icw.core.common.ProjectDetectionStatus
-	(*ProjectDetectionCorrosionRegion)(nil),  // 19: icw.core.common.ProjectDetectionCorrosionRegion
-	(*ProjectDetectionCorrosionResult)(nil),  // 20: icw.core.common.ProjectDetectionCorrosionResult
-	(*ProjectDetectionCrackRegion)(nil),      // 21: icw.core.common.ProjectDetectionCrackRegion
-	(*ProjectDetectionCrackResult)(nil),      // 22: icw.core.common.ProjectDetectionCrackResult
-	(*ProjectDetectionStainRegion)(nil),      // 23: icw.core.common.ProjectDetectionStainRegion
-	(*ProjectDetectionStainResult)(nil),      // 24: icw.core.common.ProjectDetectionStainResult
-	(*ProjectDetectionFlatnessRegion)(nil),   // 25: icw.core.common.ProjectDetectionFlatnessRegion
-	(*ProjectDetectionFlatnessResult)(nil),   // 26: icw.core.common.ProjectDetectionFlatnessResult
-	(*ProjectDetectionSpallingResult)(nil),   // 27: icw.core.common.ProjectDetectionSpallingResult
-	(*ProjectDetectionSummaryResult)(nil),    // 28: icw.core.common.ProjectDetectionSummaryResult
-	(*ProjectDetectionReview)(nil),           // 29: icw.core.common.ProjectDetectionReview
-	(*ProjectReport)(nil),                    // 30: icw.core.common.ProjectReport
-	nil,                                      // 31: icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntry
-	nil,                                      // 32: icw.core.common.ProjectDetectionCrackResult.ArtifactsEntry
-	nil,                                      // 33: icw.core.common.ProjectDetectionStainResult.ArtifactsEntry
-	nil,                                      // 34: icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntry
-	nil,                                      // 35: icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntry
+	(EmailCodeScene_Value)(0),                // 0: icw.core.common.EmailCodeScene.Value
+	(LoginScene_Value)(0),                    // 1: icw.core.common.LoginScene.Value
+	(EmailSendStatus_Value)(0),               // 2: icw.core.common.EmailSendStatus.Value
+	(ProjectStatus_Value)(0),                 // 3: icw.core.common.ProjectStatus.Value
+	(ProjectProgress_Value)(0),               // 4: icw.core.common.ProjectProgress.Value
+	(ProjectImageStatus_Value)(0),            // 5: icw.core.common.ProjectImageStatus.Value
+	(ProjectDetectionTaskStatus_Value)(0),    // 6: icw.core.common.ProjectDetectionTaskStatus.Value
+	(ProjectDetectionSubTaskStatus_Value)(0), // 7: icw.core.common.ProjectDetectionSubTaskStatus.Value
+	(ProjectDetectionReviewVerdict_Value)(0), // 8: icw.core.common.ProjectDetectionReviewVerdict.Value
+	(ProjectReportStatus_Value)(0),           // 9: icw.core.common.ProjectReportStatus.Value
+	(*EmailCodeScene)(nil),                   // 10: icw.core.common.EmailCodeScene
+	(*LoginScene)(nil),                       // 11: icw.core.common.LoginScene
+	(*EmailSendStatus)(nil),                  // 12: icw.core.common.EmailSendStatus
+	(*ProjectStatus)(nil),                    // 13: icw.core.common.ProjectStatus
+	(*ProjectProgress)(nil),                  // 14: icw.core.common.ProjectProgress
+	(*ProjectImageStatus)(nil),               // 15: icw.core.common.ProjectImageStatus
+	(*ProjectDetectionTaskStatus)(nil),       // 16: icw.core.common.ProjectDetectionTaskStatus
+	(*ProjectDetectionSubTaskStatus)(nil),    // 17: icw.core.common.ProjectDetectionSubTaskStatus
+	(*ProjectDetectionReviewVerdict)(nil),    // 18: icw.core.common.ProjectDetectionReviewVerdict
+	(*ProjectReportStatus)(nil),              // 19: icw.core.common.ProjectReportStatus
+	(*User)(nil),                             // 20: icw.core.common.User
+	(*ProjectImage)(nil),                     // 21: icw.core.common.ProjectImage
+	(*UploadProjectImageResult)(nil),         // 22: icw.core.common.UploadProjectImageResult
+	(*ProjectDetectionNodeStatus)(nil),       // 23: icw.core.common.ProjectDetectionNodeStatus
+	(*ProjectDetectionStatus)(nil),           // 24: icw.core.common.ProjectDetectionStatus
+	(*ProjectDetectionCorrosionRegion)(nil),  // 25: icw.core.common.ProjectDetectionCorrosionRegion
+	(*ProjectDetectionCorrosionResult)(nil),  // 26: icw.core.common.ProjectDetectionCorrosionResult
+	(*ProjectDetectionCrackRegion)(nil),      // 27: icw.core.common.ProjectDetectionCrackRegion
+	(*ProjectDetectionCrackResult)(nil),      // 28: icw.core.common.ProjectDetectionCrackResult
+	(*ProjectDetectionStainRegion)(nil),      // 29: icw.core.common.ProjectDetectionStainRegion
+	(*ProjectDetectionStainResult)(nil),      // 30: icw.core.common.ProjectDetectionStainResult
+	(*ProjectDetectionFlatnessRegion)(nil),   // 31: icw.core.common.ProjectDetectionFlatnessRegion
+	(*ProjectDetectionFlatnessResult)(nil),   // 32: icw.core.common.ProjectDetectionFlatnessResult
+	(*ProjectDetectionSpallingResult)(nil),   // 33: icw.core.common.ProjectDetectionSpallingResult
+	(*ProjectDetectionSummaryResult)(nil),    // 34: icw.core.common.ProjectDetectionSummaryResult
+	(*ProjectDetectionReview)(nil),           // 35: icw.core.common.ProjectDetectionReview
+	(*ProjectReport)(nil),                    // 36: icw.core.common.ProjectReport
+	nil,                                      // 37: icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntry
+	nil,                                      // 38: icw.core.common.ProjectDetectionCrackResult.ArtifactsEntry
+	nil,                                      // 39: icw.core.common.ProjectDetectionStainResult.ArtifactsEntry
+	nil,                                      // 40: icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntry
+	nil,                                      // 41: icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntry
 }
 var file_core_common_proto_depIdxs = []int32{
-	2,  // 0: icw.core.common.ProjectImage.status:type_name -> icw.core.common.ProjectImageStatus.Value
-	15, // 1: icw.core.common.UploadProjectImageResult.image:type_name -> icw.core.common.ProjectImage
-	4,  // 2: icw.core.common.ProjectDetectionNodeStatus.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	3,  // 3: icw.core.common.ProjectDetectionStatus.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
-	17, // 4: icw.core.common.ProjectDetectionStatus.classification_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
-	17, // 5: icw.core.common.ProjectDetectionStatus.detection_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
-	17, // 6: icw.core.common.ProjectDetectionStatus.summary_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
-	4,  // 7: icw.core.common.ProjectDetectionCorrosionResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	19, // 8: icw.core.common.ProjectDetectionCorrosionResult.regions:type_name -> icw.core.common.ProjectDetectionCorrosionRegion
-	31, // 9: icw.core.common.ProjectDetectionCorrosionResult.artifacts:type_name -> icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntry
-	4,  // 10: icw.core.common.ProjectDetectionCrackResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	21, // 11: icw.core.common.ProjectDetectionCrackResult.regions:type_name -> icw.core.common.ProjectDetectionCrackRegion
-	32, // 12: icw.core.common.ProjectDetectionCrackResult.artifacts:type_name -> icw.core.common.ProjectDetectionCrackResult.ArtifactsEntry
-	4,  // 13: icw.core.common.ProjectDetectionStainResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	23, // 14: icw.core.common.ProjectDetectionStainResult.regions:type_name -> icw.core.common.ProjectDetectionStainRegion
-	33, // 15: icw.core.common.ProjectDetectionStainResult.artifacts:type_name -> icw.core.common.ProjectDetectionStainResult.ArtifactsEntry
-	4,  // 16: icw.core.common.ProjectDetectionFlatnessResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	25, // 17: icw.core.common.ProjectDetectionFlatnessResult.regions:type_name -> icw.core.common.ProjectDetectionFlatnessRegion
-	34, // 18: icw.core.common.ProjectDetectionFlatnessResult.artifacts:type_name -> icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntry
-	4,  // 19: icw.core.common.ProjectDetectionSpallingResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	35, // 20: icw.core.common.ProjectDetectionSpallingResult.artifacts:type_name -> icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntry
-	4,  // 21: icw.core.common.ProjectDetectionSummaryResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	5,  // 22: icw.core.common.ProjectDetectionReview.verdict:type_name -> icw.core.common.ProjectDetectionReviewVerdict.Value
-	6,  // 23: icw.core.common.ProjectReport.status:type_name -> icw.core.common.ProjectReportStatus.Value
+	5,  // 0: icw.core.common.ProjectImage.status:type_name -> icw.core.common.ProjectImageStatus.Value
+	21, // 1: icw.core.common.UploadProjectImageResult.image:type_name -> icw.core.common.ProjectImage
+	7,  // 2: icw.core.common.ProjectDetectionNodeStatus.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	6,  // 3: icw.core.common.ProjectDetectionStatus.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
+	23, // 4: icw.core.common.ProjectDetectionStatus.classification_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
+	23, // 5: icw.core.common.ProjectDetectionStatus.detection_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
+	23, // 6: icw.core.common.ProjectDetectionStatus.summary_status:type_name -> icw.core.common.ProjectDetectionNodeStatus
+	7,  // 7: icw.core.common.ProjectDetectionCorrosionResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	25, // 8: icw.core.common.ProjectDetectionCorrosionResult.regions:type_name -> icw.core.common.ProjectDetectionCorrosionRegion
+	37, // 9: icw.core.common.ProjectDetectionCorrosionResult.artifacts:type_name -> icw.core.common.ProjectDetectionCorrosionResult.ArtifactsEntry
+	7,  // 10: icw.core.common.ProjectDetectionCrackResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	27, // 11: icw.core.common.ProjectDetectionCrackResult.regions:type_name -> icw.core.common.ProjectDetectionCrackRegion
+	38, // 12: icw.core.common.ProjectDetectionCrackResult.artifacts:type_name -> icw.core.common.ProjectDetectionCrackResult.ArtifactsEntry
+	7,  // 13: icw.core.common.ProjectDetectionStainResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	29, // 14: icw.core.common.ProjectDetectionStainResult.regions:type_name -> icw.core.common.ProjectDetectionStainRegion
+	39, // 15: icw.core.common.ProjectDetectionStainResult.artifacts:type_name -> icw.core.common.ProjectDetectionStainResult.ArtifactsEntry
+	7,  // 16: icw.core.common.ProjectDetectionFlatnessResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	31, // 17: icw.core.common.ProjectDetectionFlatnessResult.regions:type_name -> icw.core.common.ProjectDetectionFlatnessRegion
+	40, // 18: icw.core.common.ProjectDetectionFlatnessResult.artifacts:type_name -> icw.core.common.ProjectDetectionFlatnessResult.ArtifactsEntry
+	7,  // 19: icw.core.common.ProjectDetectionSpallingResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	41, // 20: icw.core.common.ProjectDetectionSpallingResult.artifacts:type_name -> icw.core.common.ProjectDetectionSpallingResult.ArtifactsEntry
+	7,  // 21: icw.core.common.ProjectDetectionSummaryResult.status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	8,  // 22: icw.core.common.ProjectDetectionReview.verdict:type_name -> icw.core.common.ProjectDetectionReviewVerdict.Value
+	9,  // 23: icw.core.common.ProjectReport.status:type_name -> icw.core.common.ProjectReportStatus.Value
 	24, // [24:24] is the sub-list for method output_type
 	24, // [24:24] is the sub-list for method input_type
 	24, // [24:24] is the sub-list for extension type_name
@@ -2664,8 +2959,8 @@ func file_core_common_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_common_proto_rawDesc), len(file_core_common_proto_rawDesc)),
-			NumEnums:      7,
-			NumMessages:   29,
+			NumEnums:      10,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

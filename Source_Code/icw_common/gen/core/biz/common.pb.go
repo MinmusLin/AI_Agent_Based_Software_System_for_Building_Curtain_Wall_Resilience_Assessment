@@ -24,6 +24,34 @@ const (
 
 // Symbols defined in public import of core/common.proto.
 
+type EmailCodeScene_Value = common.EmailCodeScene_Value
+
+const EmailCodeScene_Unknown = common.EmailCodeScene_Unknown
+const EmailCodeScene_Register = common.EmailCodeScene_Register
+const EmailCodeScene_Login = common.EmailCodeScene_Login
+const EmailCodeScene_Reset = common.EmailCodeScene_Reset
+
+var EmailCodeScene_Value_name = common.EmailCodeScene_Value_name
+var EmailCodeScene_Value_value = common.EmailCodeScene_Value_value
+
+type LoginScene_Value = common.LoginScene_Value
+
+const LoginScene_Unknown = common.LoginScene_Unknown
+const LoginScene_Password = common.LoginScene_Password
+const LoginScene_Email = common.LoginScene_Email
+
+var LoginScene_Value_name = common.LoginScene_Value_name
+var LoginScene_Value_value = common.LoginScene_Value_value
+
+type EmailSendStatus_Value = common.EmailSendStatus_Value
+
+const EmailSendStatus_Unknown = common.EmailSendStatus_Unknown
+const EmailSendStatus_Success = common.EmailSendStatus_Success
+const EmailSendStatus_Failed = common.EmailSendStatus_Failed
+
+var EmailSendStatus_Value_name = common.EmailSendStatus_Value_name
+var EmailSendStatus_Value_value = common.EmailSendStatus_Value_value
+
 type ProjectStatus_Value = common.ProjectStatus_Value
 
 const ProjectStatus_Unknown = common.ProjectStatus_Unknown
@@ -98,6 +126,9 @@ const ProjectReportStatus_Failed = common.ProjectReportStatus_Failed
 var ProjectReportStatus_Value_name = common.ProjectReportStatus_Value_name
 var ProjectReportStatus_Value_value = common.ProjectReportStatus_Value_value
 
+type EmailCodeScene = common.EmailCodeScene
+type LoginScene = common.LoginScene
+type EmailSendStatus = common.EmailSendStatus
 type ProjectStatus = common.ProjectStatus
 type ProjectProgress = common.ProjectProgress
 type ProjectImageStatus = common.ProjectImageStatus
@@ -123,277 +154,6 @@ type ProjectDetectionSummaryResult = common.ProjectDetectionSummaryResult
 type ProjectDetectionReview = common.ProjectDetectionReview
 type ProjectReport = common.ProjectReport
 
-type EmailCodeScene_Value int32
-
-const (
-	// 未知
-	EmailCodeScene_Unknown EmailCodeScene_Value = 0
-	// 注册账号
-	EmailCodeScene_Register EmailCodeScene_Value = 1
-	// 登录账号
-	EmailCodeScene_Login EmailCodeScene_Value = 2
-	// 重置密码
-	EmailCodeScene_Reset EmailCodeScene_Value = 3
-)
-
-// Enum value maps for EmailCodeScene_Value.
-var (
-	EmailCodeScene_Value_name = map[int32]string{
-		0: "Unknown",
-		1: "Register",
-		2: "Login",
-		3: "Reset",
-	}
-	EmailCodeScene_Value_value = map[string]int32{
-		"Unknown":  0,
-		"Register": 1,
-		"Login":    2,
-		"Reset":    3,
-	}
-)
-
-func (x EmailCodeScene_Value) Enum() *EmailCodeScene_Value {
-	p := new(EmailCodeScene_Value)
-	*p = x
-	return p
-}
-
-func (x EmailCodeScene_Value) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (EmailCodeScene_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_common_proto_enumTypes[0].Descriptor()
-}
-
-func (EmailCodeScene_Value) Type() protoreflect.EnumType {
-	return &file_core_biz_common_proto_enumTypes[0]
-}
-
-func (x EmailCodeScene_Value) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use EmailCodeScene_Value.Descriptor instead.
-func (EmailCodeScene_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{0, 0}
-}
-
-type LoginScene_Value int32
-
-const (
-	// 未知
-	LoginScene_Unknown LoginScene_Value = 0
-	// 密码登录
-	LoginScene_Password LoginScene_Value = 1
-	// 邮箱验证码登录
-	LoginScene_Email LoginScene_Value = 2
-)
-
-// Enum value maps for LoginScene_Value.
-var (
-	LoginScene_Value_name = map[int32]string{
-		0: "Unknown",
-		1: "Password",
-		2: "Email",
-	}
-	LoginScene_Value_value = map[string]int32{
-		"Unknown":  0,
-		"Password": 1,
-		"Email":    2,
-	}
-)
-
-func (x LoginScene_Value) Enum() *LoginScene_Value {
-	p := new(LoginScene_Value)
-	*p = x
-	return p
-}
-
-func (x LoginScene_Value) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (LoginScene_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_common_proto_enumTypes[1].Descriptor()
-}
-
-func (LoginScene_Value) Type() protoreflect.EnumType {
-	return &file_core_biz_common_proto_enumTypes[1]
-}
-
-func (x LoginScene_Value) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use LoginScene_Value.Descriptor instead.
-func (LoginScene_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{1, 0}
-}
-
-type EmailSendStatus_Value int32
-
-const (
-	// 未知
-	EmailSendStatus_Unknown EmailSendStatus_Value = 0
-	// 成功
-	EmailSendStatus_Success EmailSendStatus_Value = 1
-	// 失败
-	EmailSendStatus_Failed EmailSendStatus_Value = 2
-)
-
-// Enum value maps for EmailSendStatus_Value.
-var (
-	EmailSendStatus_Value_name = map[int32]string{
-		0: "Unknown",
-		1: "Success",
-		2: "Failed",
-	}
-	EmailSendStatus_Value_value = map[string]int32{
-		"Unknown": 0,
-		"Success": 1,
-		"Failed":  2,
-	}
-)
-
-func (x EmailSendStatus_Value) Enum() *EmailSendStatus_Value {
-	p := new(EmailSendStatus_Value)
-	*p = x
-	return p
-}
-
-func (x EmailSendStatus_Value) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (EmailSendStatus_Value) Descriptor() protoreflect.EnumDescriptor {
-	return file_core_biz_common_proto_enumTypes[2].Descriptor()
-}
-
-func (EmailSendStatus_Value) Type() protoreflect.EnumType {
-	return &file_core_biz_common_proto_enumTypes[2]
-}
-
-func (x EmailSendStatus_Value) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use EmailSendStatus_Value.Descriptor instead.
-func (EmailSendStatus_Value) EnumDescriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{2, 0}
-}
-
-// 邮箱验证码业务场景
-type EmailCodeScene struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *EmailCodeScene) Reset() {
-	*x = EmailCodeScene{}
-	mi := &file_core_biz_common_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *EmailCodeScene) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*EmailCodeScene) ProtoMessage() {}
-
-func (x *EmailCodeScene) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use EmailCodeScene.ProtoReflect.Descriptor instead.
-func (*EmailCodeScene) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{0}
-}
-
-// 登录方式
-type LoginScene struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LoginScene) Reset() {
-	*x = LoginScene{}
-	mi := &file_core_biz_common_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LoginScene) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LoginScene) ProtoMessage() {}
-
-func (x *LoginScene) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LoginScene.ProtoReflect.Descriptor instead.
-func (*LoginScene) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{1}
-}
-
-// 邮件发送状态
-type EmailSendStatus struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *EmailSendStatus) Reset() {
-	*x = EmailSendStatus{}
-	mi := &file_core_biz_common_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *EmailSendStatus) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*EmailSendStatus) ProtoMessage() {}
-
-func (x *EmailSendStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use EmailSendStatus.ProtoReflect.Descriptor instead.
-func (*EmailSendStatus) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{2}
-}
-
 // 项目信息结构体
 type Project struct {
 	state               protoimpl.MessageState       `protogen:"open.v1"`
@@ -415,7 +175,7 @@ type Project struct {
 
 func (x *Project) Reset() {
 	*x = Project{}
-	mi := &file_core_biz_common_proto_msgTypes[3]
+	mi := &file_core_biz_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -427,7 +187,7 @@ func (x *Project) String() string {
 func (*Project) ProtoMessage() {}
 
 func (x *Project) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[3]
+	mi := &file_core_biz_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -440,7 +200,7 @@ func (x *Project) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Project.ProtoReflect.Descriptor instead.
 func (*Project) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{3}
+	return file_core_biz_common_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Project) GetId() uint64 {
@@ -543,7 +303,7 @@ type ProjectListItem struct {
 
 func (x *ProjectListItem) Reset() {
 	*x = ProjectListItem{}
-	mi := &file_core_biz_common_proto_msgTypes[4]
+	mi := &file_core_biz_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -555,7 +315,7 @@ func (x *ProjectListItem) String() string {
 func (*ProjectListItem) ProtoMessage() {}
 
 func (x *ProjectListItem) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[4]
+	mi := &file_core_biz_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -568,7 +328,7 @@ func (x *ProjectListItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectListItem.ProtoReflect.Descriptor instead.
 func (*ProjectListItem) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{4}
+	return file_core_biz_common_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ProjectListItem) GetId() uint64 {
@@ -633,7 +393,7 @@ type ProjectGroup struct {
 
 func (x *ProjectGroup) Reset() {
 	*x = ProjectGroup{}
-	mi := &file_core_biz_common_proto_msgTypes[5]
+	mi := &file_core_biz_common_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -645,7 +405,7 @@ func (x *ProjectGroup) String() string {
 func (*ProjectGroup) ProtoMessage() {}
 
 func (x *ProjectGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[5]
+	mi := &file_core_biz_common_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -658,7 +418,7 @@ func (x *ProjectGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectGroup.ProtoReflect.Descriptor instead.
 func (*ProjectGroup) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{5}
+	return file_core_biz_common_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ProjectGroup) GetId() uint64 {
@@ -709,7 +469,7 @@ type UploadProjectImageItem struct {
 
 func (x *UploadProjectImageItem) Reset() {
 	*x = UploadProjectImageItem{}
-	mi := &file_core_biz_common_proto_msgTypes[6]
+	mi := &file_core_biz_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -721,7 +481,7 @@ func (x *UploadProjectImageItem) String() string {
 func (*UploadProjectImageItem) ProtoMessage() {}
 
 func (x *UploadProjectImageItem) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[6]
+	mi := &file_core_biz_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -734,7 +494,7 @@ func (x *UploadProjectImageItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadProjectImageItem.ProtoReflect.Descriptor instead.
 func (*UploadProjectImageItem) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{6}
+	return file_core_biz_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *UploadProjectImageItem) GetFileName() string {
@@ -826,7 +586,7 @@ type ReasoningArtifactUploadResult struct {
 
 func (x *ReasoningArtifactUploadResult) Reset() {
 	*x = ReasoningArtifactUploadResult{}
-	mi := &file_core_biz_common_proto_msgTypes[7]
+	mi := &file_core_biz_common_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -838,7 +598,7 @@ func (x *ReasoningArtifactUploadResult) String() string {
 func (*ReasoningArtifactUploadResult) ProtoMessage() {}
 
 func (x *ReasoningArtifactUploadResult) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_common_proto_msgTypes[7]
+	mi := &file_core_biz_common_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -851,7 +611,7 @@ func (x *ReasoningArtifactUploadResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReasoningArtifactUploadResult.ProtoReflect.Descriptor instead.
 func (*ReasoningArtifactUploadResult) Descriptor() ([]byte, []int) {
-	return file_core_biz_common_proto_rawDescGZIP(), []int{7}
+	return file_core_biz_common_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ReasoningArtifactUploadResult) GetName() string {
@@ -879,25 +639,7 @@ var File_core_biz_common_proto protoreflect.FileDescriptor
 
 const file_core_biz_common_proto_rawDesc = "" +
 	"\n" +
-	"\x15core/biz/common.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"J\n" +
-	"\x0eEmailCodeScene\"8\n" +
-	"\x05Value\x12\v\n" +
-	"\aUnknown\x10\x00\x12\f\n" +
-	"\bRegister\x10\x01\x12\t\n" +
-	"\x05Login\x10\x02\x12\t\n" +
-	"\x05Reset\x10\x03\";\n" +
-	"\n" +
-	"LoginScene\"-\n" +
-	"\x05Value\x12\v\n" +
-	"\aUnknown\x10\x00\x12\f\n" +
-	"\bPassword\x10\x01\x12\t\n" +
-	"\x05Email\x10\x02\"@\n" +
-	"\x0fEmailSendStatus\"-\n" +
-	"\x05Value\x12\v\n" +
-	"\aUnknown\x10\x00\x12\v\n" +
-	"\aSuccess\x10\x01\x12\n" +
-	"\n" +
-	"\x06Failed\x10\x02\"\xc4\x03\n" +
+	"\x15core/biz/common.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"\xc4\x03\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
@@ -962,32 +704,25 @@ func file_core_biz_common_proto_rawDescGZIP() []byte {
 	return file_core_biz_common_proto_rawDescData
 }
 
-var file_core_biz_common_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_core_biz_common_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_core_biz_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_core_biz_common_proto_goTypes = []any{
-	(EmailCodeScene_Value)(0),             // 0: icw.core.biz.EmailCodeScene.Value
-	(LoginScene_Value)(0),                 // 1: icw.core.biz.LoginScene.Value
-	(EmailSendStatus_Value)(0),            // 2: icw.core.biz.EmailSendStatus.Value
-	(*EmailCodeScene)(nil),                // 3: icw.core.biz.EmailCodeScene
-	(*LoginScene)(nil),                    // 4: icw.core.biz.LoginScene
-	(*EmailSendStatus)(nil),               // 5: icw.core.biz.EmailSendStatus
-	(*Project)(nil),                       // 6: icw.core.biz.Project
-	(*ProjectListItem)(nil),               // 7: icw.core.biz.ProjectListItem
-	(*ProjectGroup)(nil),                  // 8: icw.core.biz.ProjectGroup
-	(*UploadProjectImageItem)(nil),        // 9: icw.core.biz.UploadProjectImageItem
-	(*ReasoningArtifactUploadResult)(nil), // 10: icw.core.biz.ReasoningArtifactUploadResult
-	(common.ProjectProgress_Value)(0),     // 11: icw.core.common.ProjectProgress.Value
-	(*common.ProjectImage)(nil),           // 12: icw.core.common.ProjectImage
+	(*Project)(nil),                       // 0: icw.core.biz.Project
+	(*ProjectListItem)(nil),               // 1: icw.core.biz.ProjectListItem
+	(*ProjectGroup)(nil),                  // 2: icw.core.biz.ProjectGroup
+	(*UploadProjectImageItem)(nil),        // 3: icw.core.biz.UploadProjectImageItem
+	(*ReasoningArtifactUploadResult)(nil), // 4: icw.core.biz.ReasoningArtifactUploadResult
+	(common.ProjectProgress_Value)(0),     // 5: icw.core.common.ProjectProgress.Value
+	(*common.ProjectImage)(nil),           // 6: icw.core.common.ProjectImage
 }
 var file_core_biz_common_proto_depIdxs = []int32{
-	11, // 0: icw.core.biz.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
-	11, // 1: icw.core.biz.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
-	12, // 2: icw.core.biz.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
-	3,  // [3:3] is the sub-list for method output_type
-	3,  // [3:3] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	5, // 0: icw.core.biz.Project.progress:type_name -> icw.core.common.ProjectProgress.Value
+	5, // 1: icw.core.biz.ProjectListItem.progress:type_name -> icw.core.common.ProjectProgress.Value
+	6, // 2: icw.core.biz.ProjectGroup.images:type_name -> icw.core.common.ProjectImage
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_common_proto_init() }
@@ -1000,14 +735,13 @@ func file_core_biz_common_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_common_proto_rawDesc), len(file_core_biz_common_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   8,
+			NumEnums:      0,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_core_biz_common_proto_goTypes,
 		DependencyIndexes: file_core_biz_common_proto_depIdxs,
-		EnumInfos:         file_core_biz_common_proto_enumTypes,
 		MessageInfos:      file_core_biz_common_proto_msgTypes,
 	}.Build()
 	File_core_biz_common_proto = out.File

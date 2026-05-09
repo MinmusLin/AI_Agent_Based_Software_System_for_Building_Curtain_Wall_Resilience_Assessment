@@ -24,6 +24,34 @@ const (
 
 // Symbols defined in public import of core/common.proto.
 
+type EmailCodeScene_Value = common.EmailCodeScene_Value
+
+const EmailCodeScene_Unknown = common.EmailCodeScene_Unknown
+const EmailCodeScene_Register = common.EmailCodeScene_Register
+const EmailCodeScene_Login = common.EmailCodeScene_Login
+const EmailCodeScene_Reset = common.EmailCodeScene_Reset
+
+var EmailCodeScene_Value_name = common.EmailCodeScene_Value_name
+var EmailCodeScene_Value_value = common.EmailCodeScene_Value_value
+
+type LoginScene_Value = common.LoginScene_Value
+
+const LoginScene_Unknown = common.LoginScene_Unknown
+const LoginScene_Password = common.LoginScene_Password
+const LoginScene_Email = common.LoginScene_Email
+
+var LoginScene_Value_name = common.LoginScene_Value_name
+var LoginScene_Value_value = common.LoginScene_Value_value
+
+type EmailSendStatus_Value = common.EmailSendStatus_Value
+
+const EmailSendStatus_Unknown = common.EmailSendStatus_Unknown
+const EmailSendStatus_Success = common.EmailSendStatus_Success
+const EmailSendStatus_Failed = common.EmailSendStatus_Failed
+
+var EmailSendStatus_Value_name = common.EmailSendStatus_Value_name
+var EmailSendStatus_Value_value = common.EmailSendStatus_Value_value
+
 type ProjectStatus_Value = common.ProjectStatus_Value
 
 const ProjectStatus_Unknown = common.ProjectStatus_Unknown
@@ -98,6 +126,9 @@ const ProjectReportStatus_Failed = common.ProjectReportStatus_Failed
 var ProjectReportStatus_Value_name = common.ProjectReportStatus_Value_name
 var ProjectReportStatus_Value_value = common.ProjectReportStatus_Value_value
 
+type EmailCodeScene = common.EmailCodeScene
+type LoginScene = common.LoginScene
+type EmailSendStatus = common.EmailSendStatus
 type ProjectStatus = common.ProjectStatus
 type ProjectProgress = common.ProjectProgress
 type ProjectImageStatus = common.ProjectImageStatus

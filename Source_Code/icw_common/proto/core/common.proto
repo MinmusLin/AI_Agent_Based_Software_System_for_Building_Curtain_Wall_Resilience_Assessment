@@ -4,6 +4,44 @@ package icw.core.common;
 
 option go_package = "icw_common/gen/core/common;commonpb";
 
+// 邮箱验证码业务场景
+message EmailCodeScene {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 注册账号
+    Register = 1;
+    // 登录账号
+    Login = 2;
+    // 重置密码
+    Reset = 3;
+  }
+}
+
+// 登录方式
+message LoginScene {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 密码登录
+    Password = 1;
+    // 邮箱验证码登录
+    Email = 2;
+  }
+}
+
+// 邮件发送状态
+message EmailSendStatus {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 成功
+    Success = 1;
+    // 失败
+    Failed = 2;
+  }
+}
+
 // 项目状态
 message ProjectStatus {
   enum Value {

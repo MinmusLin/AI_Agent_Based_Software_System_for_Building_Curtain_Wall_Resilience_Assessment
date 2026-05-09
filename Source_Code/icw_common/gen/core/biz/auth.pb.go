@@ -24,10 +24,10 @@ const (
 
 // Login 请求结构体
 type LoginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Scene         LoginScene_Value       `protobuf:"varint,2,opt,name=scene,proto3,enum=icw.core.biz.LoginScene_Value" json:"scene,omitempty"`
-	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Email         string                  `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Scene         common.LoginScene_Value `protobuf:"varint,2,opt,name=scene,proto3,enum=icw.core.common.LoginScene_Value" json:"scene,omitempty"`
+	Code          string                  `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -69,11 +69,11 @@ func (x *LoginRequest) GetEmail() string {
 	return ""
 }
 
-func (x *LoginRequest) GetScene() LoginScene_Value {
+func (x *LoginRequest) GetScene() common.LoginScene_Value {
 	if x != nil {
 		return x.Scene
 	}
-	return LoginScene_Unknown
+	return common.LoginScene_Value(0)
 }
 
 func (x *LoginRequest) GetCode() string {
@@ -668,9 +668,9 @@ func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
 
 // SendEmailCode 请求结构体
 type SendEmailCodeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Scene         EmailCodeScene_Value   `protobuf:"varint,2,opt,name=scene,proto3,enum=icw.core.biz.EmailCodeScene_Value" json:"scene,omitempty"`
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Email         string                      `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Scene         common.EmailCodeScene_Value `protobuf:"varint,2,opt,name=scene,proto3,enum=icw.core.common.EmailCodeScene_Value" json:"scene,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -712,11 +712,11 @@ func (x *SendEmailCodeRequest) GetEmail() string {
 	return ""
 }
 
-func (x *SendEmailCodeRequest) GetScene() EmailCodeScene_Value {
+func (x *SendEmailCodeRequest) GetScene() common.EmailCodeScene_Value {
 	if x != nil {
 		return x.Scene
 	}
-	return EmailCodeScene_Unknown
+	return common.EmailCodeScene_Value(0)
 }
 
 // SendEmailCode 响应结构体
@@ -768,10 +768,10 @@ var File_core_biz_auth_proto protoreflect.FileDescriptor
 
 const file_core_biz_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x13core/biz/auth.proto\x12\ficw.core.biz\x1a\x15core/biz/common.proto\"n\n" +
+	"\x13core/biz/auth.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"q\n" +
 	"\fLoginRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x124\n" +
-	"\x05scene\x18\x02 \x01(\x0e2\x1e.icw.core.biz.LoginScene.ValueR\x05scene\x12\x12\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x127\n" +
+	"\x05scene\x18\x02 \x01(\x0e2!.icw.core.common.LoginScene.ValueR\x05scene\x12\x12\n" +
 	"\x04code\x18\x03 \x01(\tR\x04code\"\xf2\x01\n" +
 	"\rLoginResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x125\n" +
@@ -808,10 +808,10 @@ const file_core_biz_auth_proto_rawDesc = "" +
 	"\n" +
 	"email_code\x18\x02 \x01(\tR\temailCode\x12!\n" +
 	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"\x17\n" +
-	"\x15ResetPasswordResponse\"f\n" +
+	"\x15ResetPasswordResponse\"i\n" +
 	"\x14SendEmailCodeRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x128\n" +
-	"\x05scene\x18\x02 \x01(\x0e2\".icw.core.biz.EmailCodeScene.ValueR\x05scene\"E\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12;\n" +
+	"\x05scene\x18\x02 \x01(\x0e2%.icw.core.common.EmailCodeScene.ValueR\x05scene\"E\n" +
 	"\x15SendEmailCodeResponse\x12,\n" +
 	"\x12expires_in_seconds\x18\x01 \x01(\x05R\x10expiresInSeconds2\x94\x04\n" +
 	"\vAuthService\x12@\n" +
@@ -837,30 +837,30 @@ func file_core_biz_auth_proto_rawDescGZIP() []byte {
 
 var file_core_biz_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_core_biz_auth_proto_goTypes = []any{
-	(*LoginRequest)(nil),          // 0: icw.core.biz.LoginRequest
-	(*LoginResponse)(nil),         // 1: icw.core.biz.LoginResponse
-	(*LogoutRequest)(nil),         // 2: icw.core.biz.LogoutRequest
-	(*LogoutResponse)(nil),        // 3: icw.core.biz.LogoutResponse
-	(*MeRequest)(nil),             // 4: icw.core.biz.MeRequest
-	(*MeResponse)(nil),            // 5: icw.core.biz.MeResponse
-	(*RefreshRequest)(nil),        // 6: icw.core.biz.RefreshRequest
-	(*RefreshResponse)(nil),       // 7: icw.core.biz.RefreshResponse
-	(*RegisterRequest)(nil),       // 8: icw.core.biz.RegisterRequest
-	(*RegisterResponse)(nil),      // 9: icw.core.biz.RegisterResponse
-	(*ResetPasswordRequest)(nil),  // 10: icw.core.biz.ResetPasswordRequest
-	(*ResetPasswordResponse)(nil), // 11: icw.core.biz.ResetPasswordResponse
-	(*SendEmailCodeRequest)(nil),  // 12: icw.core.biz.SendEmailCodeRequest
-	(*SendEmailCodeResponse)(nil), // 13: icw.core.biz.SendEmailCodeResponse
-	(LoginScene_Value)(0),         // 14: icw.core.biz.LoginScene.Value
-	(*common.User)(nil),           // 15: icw.core.common.User
-	(EmailCodeScene_Value)(0),     // 16: icw.core.biz.EmailCodeScene.Value
+	(*LoginRequest)(nil),             // 0: icw.core.biz.LoginRequest
+	(*LoginResponse)(nil),            // 1: icw.core.biz.LoginResponse
+	(*LogoutRequest)(nil),            // 2: icw.core.biz.LogoutRequest
+	(*LogoutResponse)(nil),           // 3: icw.core.biz.LogoutResponse
+	(*MeRequest)(nil),                // 4: icw.core.biz.MeRequest
+	(*MeResponse)(nil),               // 5: icw.core.biz.MeResponse
+	(*RefreshRequest)(nil),           // 6: icw.core.biz.RefreshRequest
+	(*RefreshResponse)(nil),          // 7: icw.core.biz.RefreshResponse
+	(*RegisterRequest)(nil),          // 8: icw.core.biz.RegisterRequest
+	(*RegisterResponse)(nil),         // 9: icw.core.biz.RegisterResponse
+	(*ResetPasswordRequest)(nil),     // 10: icw.core.biz.ResetPasswordRequest
+	(*ResetPasswordResponse)(nil),    // 11: icw.core.biz.ResetPasswordResponse
+	(*SendEmailCodeRequest)(nil),     // 12: icw.core.biz.SendEmailCodeRequest
+	(*SendEmailCodeResponse)(nil),    // 13: icw.core.biz.SendEmailCodeResponse
+	(common.LoginScene_Value)(0),     // 14: icw.core.common.LoginScene.Value
+	(*common.User)(nil),              // 15: icw.core.common.User
+	(common.EmailCodeScene_Value)(0), // 16: icw.core.common.EmailCodeScene.Value
 }
 var file_core_biz_auth_proto_depIdxs = []int32{
-	14, // 0: icw.core.biz.LoginRequest.scene:type_name -> icw.core.biz.LoginScene.Value
+	14, // 0: icw.core.biz.LoginRequest.scene:type_name -> icw.core.common.LoginScene.Value
 	15, // 1: icw.core.biz.LoginResponse.user:type_name -> icw.core.common.User
 	15, // 2: icw.core.biz.MeResponse.user:type_name -> icw.core.common.User
 	15, // 3: icw.core.biz.RefreshResponse.user:type_name -> icw.core.common.User
-	16, // 4: icw.core.biz.SendEmailCodeRequest.scene:type_name -> icw.core.biz.EmailCodeScene.Value
+	16, // 4: icw.core.biz.SendEmailCodeRequest.scene:type_name -> icw.core.common.EmailCodeScene.Value
 	0,  // 5: icw.core.biz.AuthService.Login:input_type -> icw.core.biz.LoginRequest
 	2,  // 6: icw.core.biz.AuthService.Logout:input_type -> icw.core.biz.LogoutRequest
 	4,  // 7: icw.core.biz.AuthService.Me:input_type -> icw.core.biz.MeRequest
@@ -887,7 +887,6 @@ func file_core_biz_auth_proto_init() {
 	if File_core_biz_auth_proto != nil {
 		return
 	}
-	file_core_biz_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
