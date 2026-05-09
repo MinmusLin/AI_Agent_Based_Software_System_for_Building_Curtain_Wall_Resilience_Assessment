@@ -10,8 +10,6 @@ import (
 )
 
 const (
-	// CozeFileUploadURL Coze 文件上传接口地址
-	CozeFileUploadURL = "https://api.coze.cn/v1/files/upload"
 	// CozeChatURL Coze 对话接口地址
 	CozeChatURL = "https://api.coze.cn/v3/chat"
 	// SSEDataPrefix SSE 数据行前缀
