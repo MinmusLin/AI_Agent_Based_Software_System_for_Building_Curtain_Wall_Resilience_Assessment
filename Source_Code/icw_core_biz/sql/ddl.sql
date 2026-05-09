@@ -135,6 +135,8 @@ CREATE TABLE `project_detection_tasks` (
   `finished_at` datetime(3) DEFAULT NULL COMMENT '完成时间',
   `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
   `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+  `review_verdict` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '人工复核结论：accurate|inaccurate',
+  `review_comment` text COLLATE utf8mb4_unicode_ci COMMENT '人工复核补充评论',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_project_detection_tasks_uuid` (`uuid`),
   UNIQUE KEY `uk_project_detection_tasks_image_id` (`image_id`),
@@ -327,3 +329,21 @@ CREATE TABLE `project_detection_summary_tasks` (
   CONSTRAINT `fk_project_detection_summary_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_detection_summary_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目图像检测总结任务表';
+
+-- project_reports 项目评估报告表
+CREATE TABLE `project_reports` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '报告 ID',
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '报告 UUID',
+  `user_id` bigint unsigned NOT NULL COMMENT '用户 ID',
+  `project_id` bigint unsigned NOT NULL COMMENT '项目 ID',
+  `status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '报告状态：pending|succeeded|failed',
+  `result_json` json DEFAULT NULL COMMENT '评估报告结果',
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+  `updated_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_project_reports_uuid` (`uuid`),
+  UNIQUE KEY `uk_project_reports_project_id` (`project_id`),
+  KEY `fk_project_reports_user_id` (`user_id`),
+  CONSTRAINT `fk_project_reports_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_project_reports_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目评估报告表'
