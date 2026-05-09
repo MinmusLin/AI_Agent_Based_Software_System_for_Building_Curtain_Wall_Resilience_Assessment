@@ -124,3 +124,22 @@ func (r *Producer) PublishProjectDetectionTaskStatusChangedEvent(ctx context.Con
 	_, err = r.producerSendSync(ctx, message)
 	return err
 }
+
+// PublishProjectReportStatusChangedEvent 发布项目评估报告状态变化事件
+func (r *Producer) PublishProjectReportStatusChangedEvent(ctx context.Context, event *bizpb.ProjectReportStatusChangedEvent) (err error) {
+	if r == nil || r.producer == nil || event == nil {
+		return nil
+	}
+
+	body, err := json.Marshal(event)
+	if err != nil {
+		return err
+	}
+
+	message := primitive.NewMessage(r.topic, body)
+	message.WithTag(consts.EventTagProjectReportStatusChanged)
+	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", event.EventType, event.ProjectId, event.ReportUuid)})
+
+	_, err = r.producerSendSync(ctx, message)
+	return err
+}

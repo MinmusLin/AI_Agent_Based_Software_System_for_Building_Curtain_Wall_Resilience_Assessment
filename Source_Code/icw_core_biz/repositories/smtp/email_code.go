@@ -6,17 +6,17 @@ import (
 	"html"
 
 	"icw_common/enum"
-	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 )
 
 // emailCodeSceneText 根据邮箱验证码业务场景类型生成邮件标题和业务场景名称
 func emailCodeSceneText(scene string) (string, string, error) {
 	switch enum.ParseEmailCodeScene(scene) {
-	case bizpb.EmailCodeScene_Register:
+	case commonpb.EmailCodeScene_Register:
 		return "注册验证码 - 建筑幕墙韧性评估软件系统", "账号注册", nil
-	case bizpb.EmailCodeScene_Login:
+	case commonpb.EmailCodeScene_Login:
 		return "登录验证码 - 建筑幕墙韧性评估软件系统", "账号登录", nil
-	case bizpb.EmailCodeScene_Reset:
+	case commonpb.EmailCodeScene_Reset:
 		return "重置验证码 - 建筑幕墙韧性评估软件系统", "重置密码", nil
 	default:
 		return "", "", errors.New("invalid email code scene")

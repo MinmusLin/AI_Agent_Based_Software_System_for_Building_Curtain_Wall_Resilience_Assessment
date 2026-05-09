@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 )
 
 // RefreshTokenRecord Refresh Token 记录
@@ -27,7 +27,7 @@ type EmailSendLogRecord struct {
 	SenderEmail   string
 	Scene         string
 	EmailCode     string
-	Status        bizpb.EmailSendStatus_Value
+	Status        commonpb.EmailSendStatus_Value
 	ErrorMessage  sql.NullString
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
