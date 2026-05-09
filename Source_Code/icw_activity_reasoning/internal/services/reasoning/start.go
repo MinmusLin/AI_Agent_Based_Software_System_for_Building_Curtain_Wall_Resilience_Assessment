@@ -9,9 +9,9 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"icw_common/enum"
-	"icw_common/gen/activity"
 	"icw_common/gen/activity/reasoning"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc"
 	"icw_common/utils"
 
@@ -53,11 +53,11 @@ func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.Start
 	// 执行原子检测任务
 	artifactCount, detectorCost, err := s.executeDetection(ctx, req, callbackReq)
 	if utils.IsEmptyError(err) {
-		callbackReq.Status = activitypb.DetectionStatus_Succeeded
+		callbackReq.Status = commonpb.TaskStatus_Succeeded
 		callbackReq.ErrorMessage = ""
 		common.ReasoningInfo(requestId, taskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost)
 	} else {
-		callbackReq.Status = activitypb.DetectionStatus_Failed
+		callbackReq.Status = commonpb.TaskStatus_Failed
 		callbackReq.ErrorMessage = err.Error()
 		common.ReasoningError(requestId, taskCode, req.TaskUuid, req.ImageUuid, artifactCount, detectorCost, err)
 	}
@@ -67,10 +67,10 @@ func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.Start
 	callbackResp := &bizpb.ReportReasoningResultResponse{}
 	callbackStart := time.Now()
 	if err := icw_core_biz.ReportReasoningResult(callbackCtx, s.CoreBizClient(), callbackReq, callbackResp); utils.IsEmptyError(err) {
-		common.CallbackInfo(requestId, taskCode, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart)
+		common.CallbackInfo(requestId, taskCode, req.TaskUuid, req.ImageUuid, enum.TaskStatusString(callbackReq.Status), callbackStart)
 		return
 	}
-	common.CallbackError(requestId, taskCode, req.TaskUuid, req.ImageUuid, enum.DetectionStatusString(callbackReq.Status), callbackStart, err)
+	common.CallbackError(requestId, taskCode, req.TaskUuid, req.ImageUuid, enum.TaskStatusString(callbackReq.Status), callbackStart, err)
 }
 
 // executeDetection 执行原子检测任务

@@ -2,7 +2,7 @@ package detectors
 
 import (
 	"icw_common/enum"
-	"icw_common/gen/activity"
+	"icw_common/gen/core/common"
 
 	"icw_activity_reasoning/internal/detectors/common"
 )
@@ -16,23 +16,23 @@ func RegisterDetectors(runtimeRoot string) *common.Registry {
 func registry() []*common.DetectorMeta {
 	return []*common.DetectorMeta{
 		common.NewDetectorMeta(
-			enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Corrosion),
+			enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Corrosion),
 			"金属锈蚀检测能力",
 		),
 		common.NewDetectorMeta(
-			enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Crack),
+			enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Crack),
 			"石材裂缝检测能力",
 		),
 		common.NewDetectorMeta(
-			enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Stain),
+			enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Stain),
 			"石材污渍检测能力",
 		),
 		common.NewDetectorMeta(
-			enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Flatness),
+			enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Flatness),
 			"玻璃平整度检测能力",
 		),
 		common.NewDetectorMeta(
-			enum.DetectionTaskCodeString(activitypb.DetectionTaskCode_Spalling),
+			enum.DetectionTaskCodeString(commonpb.DetectionTaskCode_Spalling),
 			"玻璃爆裂检测能力",
 		),
 	}
