@@ -47,9 +47,8 @@ func ValidateStartProjectSummaryRequest(req *summarypb.StartProjectSummaryReques
 		return errors.New("source url is required")
 	}
 
-	parsedURL, err := url.ParseRequestURI(req.SourceUrl)
-	if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
-		return errors.New("source url is invalid")
+	if _, err := url.ParseRequestURI(req.SourceUrl); err != nil {
+		return err
 	}
 
 	return nil
