@@ -9,25 +9,22 @@ import { getProjectProfile } from '@/api/project/profile';
 import { ProjectAssetsStage } from '@/components/project/ProjectAssetsStage';
 import { ProjectDetectionStage } from '@/components/project/ProjectDetectionStage';
 import { ProjectProfileStage } from '@/components/project/ProjectProfileStage';
+import { ProjectReportStage } from '@/components/project/ProjectReportStage';
+import { ProjectReviewStage } from '@/components/project/ProjectReviewStage';
 import {
   LAST_VISIBLE_PROGRESS,
-  normalizeProjectProgress,
+  normalizeProjectProgressValue,
   progressFromStageKey,
-  PROJECT_STAGES,
-  stageKeyFromProgress,
-} from '@/constants/project';
-import type { ProjectProgress } from '@/types/common';
-import {
-  PROJECT_PROGRESS_ASSETS_FINISHED,
-  PROJECT_PROGRESS_INITIALIZATION_FINISHED,
-  PROJECT_PROGRESS_PROFILE_FINISHED,
   PROJECT_STAGE_KEY_ASSETS,
   PROJECT_STAGE_KEY_DETECTION,
   PROJECT_STAGE_KEY_PROFILE,
   PROJECT_STAGE_KEY_REPORT,
   PROJECT_STAGE_KEY_REVIEW,
-} from '@/types/common';
-import type { Project } from '@/types/project/core';
+  PROJECT_STAGES,
+  stageKeyFromProgress,
+} from '@/constants/common';
+import type { Project } from '@/gen/core/api/common';
+import { ProjectProgress_Value } from '@/gen/core/common';
 
 const PROJECT_STAGE_ICONS: ReactElement[] = [
   <ProfileOutlined key={PROJECT_STAGE_KEY_PROFILE} />,
@@ -56,27 +53,35 @@ function emptyProject(projectId: string): Project {
     known_issues: '',
     assessment_goal: '',
     thumbnail_url: '',
-    progress: PROJECT_PROGRESS_INITIALIZATION_FINISHED,
+    progress: ProjectProgress_Value.InitializationFinished,
     created_at: '',
     updated_at: '',
   };
 }
 
-function currentVisibleProgress(progress: unknown): ProjectProgress {
-  return Math.min(normalizeProjectProgress(progress), LAST_VISIBLE_PROGRESS) as ProjectProgress;
+function currentVisibleProgress(progress: unknown): ProjectProgress_Value {
+  return Math.min(normalizeProjectProgressValue(progress), LAST_VISIBLE_PROGRESS);
 }
 
-function projectRoute(projectId: string, progress: ProjectProgress): string {
+function projectRoute(projectId: string, progress: ProjectProgress_Value): string {
   return `/projects/${projectId}/${stageKeyFromProgress(progress)}`;
+}
+
+function minProjectProgressValue(left: ProjectProgress_Value, right: ProjectProgress_Value): ProjectProgress_Value {
+  return Math.min(left, right);
+}
+
+function projectProgressFromIndex(index: number): ProjectProgress_Value {
+  return index;
 }
 
 interface ProjectStageContentProps {
   loading?: boolean;
-  onProgressChange: (progress: ProjectProgress) => void;
+  onProgressChange: (progress: ProjectProgress_Value) => void;
   onProjectChange: (project: Project) => void;
   project: Project;
   projectId: string;
-  selectedProgress: ProjectProgress;
+  selectedProgress: ProjectProgress_Value;
 }
 
 function ProjectStageContent({
@@ -87,7 +92,7 @@ function ProjectStageContent({
   projectId,
   selectedProgress,
 }: ProjectStageContentProps): ReactElement {
-  if (selectedProgress === PROJECT_PROGRESS_INITIALIZATION_FINISHED) {
+  if (selectedProgress === ProjectProgress_Value.InitializationFinished) {
     return (
       <ProjectProfileStage
         loading={loading}
@@ -100,7 +105,7 @@ function ProjectStageContent({
     );
   }
 
-  if (selectedProgress === PROJECT_PROGRESS_PROFILE_FINISHED) {
+  if (selectedProgress === ProjectProgress_Value.ProfileFinished) {
     return (
       <ProjectAssetsStage
         loading={loading}
@@ -113,7 +118,7 @@ function ProjectStageContent({
     );
   }
 
-  if (selectedProgress === PROJECT_PROGRESS_ASSETS_FINISHED) {
+  if (selectedProgress === ProjectProgress_Value.AssetsFinished) {
     return (
       <ProjectDetectionStage
         loading={loading}
@@ -124,6 +129,22 @@ function ProjectStageContent({
         selectedProgress={selectedProgress}
       />
     );
+  }
+
+  if (selectedProgress === ProjectProgress_Value.DetectionFinished) {
+    return (
+      <ProjectReviewStage
+        loading={loading}
+        onProgressChange={onProgressChange}
+        onProjectChange={onProjectChange}
+        project={project}
+        projectId={projectId}
+      />
+    );
+  }
+
+  if (selectedProgress === ProjectProgress_Value.ReviewFinished) {
+    return <ProjectReportStage loading={loading} project={project} projectId={projectId} />;
   }
 
   return (
@@ -142,7 +163,7 @@ export default function ProjectDetailPage(): ReactElement {
 
   const projectId = useMemo(() => params.projectId?.trim() ?? '', [params.projectId]);
   const routeProgress = useMemo(() => progressFromStageKey(params.stage), [params.stage]);
-  const selectedProgress = routeProgress ?? PROJECT_PROGRESS_INITIALIZATION_FINISHED;
+  const selectedProgress = routeProgress ?? ProjectProgress_Value.InitializationFinished;
 
   const loadProject = useCallback(async (): Promise<void> => {
     if (projectId === '') {
@@ -153,6 +174,9 @@ export default function ProjectDetailPage(): ReactElement {
     setLoading(true);
     try {
       const data = await getProjectProfile(projectId);
+      if (!data.project) {
+        throw new Error('project is empty');
+      }
       setProject(data.project);
     } catch (error: unknown) {
       void messageApi.error(getErrorMessage(error));
@@ -164,16 +188,17 @@ export default function ProjectDetailPage(): ReactElement {
 
   const handleStepChange = useCallback(
     (nextProgress: number): void => {
-      if (!project || projectId === '' || nextProgress > project.progress) {
+      const nextProjectProgressValue = projectProgressFromIndex(nextProgress);
+      if (!project || projectId === '' || nextProjectProgressValue > project.progress) {
         return;
       }
-      void navigate(projectRoute(projectId, nextProgress as ProjectProgress));
+      void navigate(projectRoute(projectId, nextProjectProgressValue));
     },
     [navigate, project, projectId],
   );
 
   const handleProgressChange = useCallback(
-    (nextProgress: ProjectProgress): void => {
+    (nextProgress: ProjectProgress_Value): void => {
       if (projectId === '') {
         return;
       }
@@ -241,10 +266,9 @@ export default function ProjectDetailPage(): ReactElement {
     );
   }
 
+  const projectVisibleProgress = currentVisibleProgress(project.progress);
   const visibleProgress =
-    routeProgress === null
-      ? currentVisibleProgress(project.progress)
-      : (Math.min(selectedProgress, currentVisibleProgress(project.progress)) as ProjectProgress);
+    routeProgress === null ? projectVisibleProgress : minProjectProgressValue(selectedProgress, projectVisibleProgress);
   const visibleStage = PROJECT_STAGES[visibleProgress];
 
   return (
@@ -253,12 +277,15 @@ export default function ProjectDetailPage(): ReactElement {
       <div className="mb-5 rounded-lg border border-slate-200 bg-white px-6 py-5">
         <Steps
           current={visibleProgress}
-          items={PROJECT_STAGES.map((stage, index) => ({
-            disabled: index > project.progress,
-            icon: index === visibleProgress ? selectedStageIcon(index) : undefined,
-            status: index === visibleProgress ? 'process' : 'wait',
-            title: stage.title,
-          }))}
+          items={PROJECT_STAGES.map((stage, index) => {
+            const stageProgress = projectProgressFromIndex(index);
+            return {
+              disabled: stageProgress > project.progress,
+              icon: stageProgress === visibleProgress ? selectedStageIcon(index) : undefined,
+              status: stageProgress === visibleProgress ? 'process' : 'wait',
+              title: stage.title,
+            };
+          })}
           onChange={handleStepChange}
         />
         <p className="mt-4 border-t border-slate-100 pt-4 text-sm leading-6 text-slate-500">
