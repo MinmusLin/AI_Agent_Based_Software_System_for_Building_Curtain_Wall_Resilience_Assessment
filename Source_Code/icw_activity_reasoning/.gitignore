@@ -3,4 +3,5 @@
 .venv/
 bin/
 coverage/
+__pycache__/
 .DS_Store

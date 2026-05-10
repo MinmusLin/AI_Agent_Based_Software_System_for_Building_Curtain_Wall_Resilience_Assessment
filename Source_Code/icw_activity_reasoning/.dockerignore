@@ -1,7 +1,9 @@
 .env
+models/
 .idea/
 .runtime/
 .venv/
 bin/
 coverage/
+__pycache__/
 .DS_Store
