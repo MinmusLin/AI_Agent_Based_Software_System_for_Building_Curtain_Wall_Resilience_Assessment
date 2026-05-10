@@ -153,7 +153,7 @@ func SocketScopeString(scope commonpb.SocketScope_Value) string {
 	}
 }
 
-// ParseSocketScope 将存储值转换为 WebSocket 连接范围枚举
+// ParseSocketScope 将 HTTP Query 中的枚举数值转换为 WebSocket 连接范围枚举
 func ParseSocketScope(value string) commonpb.SocketScope_Value {
 	value = strings.TrimSpace(value)
 	if numericValue, err := strconv.Atoi(value); err == nil {
@@ -166,16 +166,7 @@ func ParseSocketScope(value string) commonpb.SocketScope_Value {
 			return commonpb.SocketScope_Unknown
 		}
 	}
-	switch value {
-	case "ws_project_assets":
-		return commonpb.SocketScope_ProjectAssets
-	case "ws_project_detection":
-		return commonpb.SocketScope_ProjectDetection
-	case "ws_project_report":
-		return commonpb.SocketScope_ProjectReport
-	default:
-		return commonpb.SocketScope_Unknown
-	}
+	return commonpb.SocketScope_Unknown
 }
 
 // TaskStatusString 将任务状态枚举转换为字符串

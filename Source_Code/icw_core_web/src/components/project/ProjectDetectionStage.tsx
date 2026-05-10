@@ -15,12 +15,10 @@ import { ProjectDetectionGroup } from '@/components/project/detection/ProjectDet
 import { ProjectDetectionProgressViewer } from '@/components/project/detection/ProjectDetectionProgressViewer';
 import { ProjectDetectionResultViewer } from '@/components/project/detection/ProjectDetectionResultViewer';
 import { ProjectDetectionToolbar } from '@/components/project/detection/ProjectDetectionToolbar';
+import type { Project, ProjectGroup } from '@/gen/core/api/common';
+import type { GetImageDetectionResultResponse } from '@/gen/core/api/project_detection';
+import { ProjectProgress_Value } from '@/gen/core/common';
 import { useProjectDetectionSocket } from '@/hooks/project/useProjectDetectionSocket';
-import type { ProjectProgress } from '@/types/common';
-import { PROJECT_PROGRESS_ASSETS_FINISHED, PROJECT_PROGRESS_DETECTION_FINISHED } from '@/types/common';
-import type { ProjectGroup } from '@/types/project/assets';
-import type { Project } from '@/types/project/core';
-import type { GetImageDetectionResultResponse } from '@/types/project/detection';
 import { EMPTY_ITEMS_COUNT, flattenUploadedImages, normalizeGroups, NOT_FOUND_INDEX } from '@/utils/assetsStage';
 import type { ProjectDetectionStatusMap } from '@/utils/detectionStage';
 import {
@@ -33,15 +31,13 @@ import {
   isDetectionTaskSucceeded,
 } from '@/utils/detectionStage';
 
-const DEFAULT_TASK_COUNT = 0;
-
 interface ProjectDetectionStageProps {
   loading?: boolean;
-  onProgressChange: (progress: ProjectProgress) => void;
+  onProgressChange: (progress: ProjectProgress_Value) => void;
   onProjectChange: (project: Project) => void;
   project: Project;
   projectId: string;
-  selectedProgress: ProjectProgress;
+  selectedProgress: ProjectProgress_Value;
 }
 
 export function ProjectDetectionStage({
@@ -68,8 +64,8 @@ export function ProjectDetectionStage({
 
   const readOnly =
     loading ||
-    project.progress > PROJECT_PROGRESS_ASSETS_FINISHED ||
-    selectedProgress !== PROJECT_PROGRESS_ASSETS_FINISHED;
+    project.progress > ProjectProgress_Value.AssetsFinished ||
+    selectedProgress !== ProjectProgress_Value.AssetsFinished;
 
   const showError = useCallback(
     (text: string): void => {
@@ -171,7 +167,7 @@ export function ProjectDetectionStage({
     setStartingDetection(true);
     try {
       const data = await startProjectDetection(projectId);
-      void messageApi.success(`已提交 ${String(data.task_count ?? DEFAULT_TASK_COUNT)} 张图像检测任务`);
+      void messageApi.success(`已提交 ${String(data.task_count)} 张图像检测任务`);
       await loadDetectionTasks();
     } catch (error: unknown) {
       showError(getErrorMessage(error));
@@ -188,7 +184,7 @@ export function ProjectDetectionStage({
     setRetryingDetection(true);
     try {
       const data = await retryProjectDetection(projectId);
-      void messageApi.success(`已重新提交 ${String(data.task_count ?? DEFAULT_TASK_COUNT)} 张失败图像检测任务`);
+      void messageApi.success(`已重新提交 ${String(data.task_count)} 张失败图像检测任务`);
       await loadDetectionTasks();
     } catch (error: unknown) {
       showError(getErrorMessage(error));
@@ -203,13 +199,13 @@ export function ProjectDetectionStage({
       await advanceProject({
         from_progress: project.progress,
         project_id: projectId,
-        to_progress: PROJECT_PROGRESS_DETECTION_FINISHED,
+        to_progress: ProjectProgress_Value.DetectionFinished,
       });
       onProjectChange({
         ...project,
-        progress: PROJECT_PROGRESS_DETECTION_FINISHED,
+        progress: ProjectProgress_Value.DetectionFinished,
       });
-      onProgressChange(PROJECT_PROGRESS_DETECTION_FINISHED);
+      onProgressChange(ProjectProgress_Value.DetectionFinished);
     } catch (error: unknown) {
       showError(getErrorMessage(error));
     } finally {
