@@ -203,7 +203,7 @@ const qualityRules = {
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'node_modules'],
+    ignores: ['dist', 'node_modules', 'src/gen/**'],
   },
   ...tseslint.configs.strictTypeChecked.map((config) => ({
     ...config,

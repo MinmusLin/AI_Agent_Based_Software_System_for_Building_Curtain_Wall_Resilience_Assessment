@@ -1,17 +1,9 @@
+import { ProjectDetectionSubTaskStatus_Value, ProjectDetectionTaskStatus_Value } from '@/gen/core/common';
 import type { ProjectDetectionMainStatus, ProjectDetectionNodeCode, ProjectDetectionSubStatus } from '@/types/common';
 import {
-  PROJECT_DETECTION_MAIN_STATUS_CLASSIFYING,
-  PROJECT_DETECTION_MAIN_STATUS_DETECTING,
-  PROJECT_DETECTION_MAIN_STATUS_FAILED,
-  PROJECT_DETECTION_MAIN_STATUS_PENDING,
-  PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED,
-  PROJECT_DETECTION_MAIN_STATUS_SUMMARIZING,
   PROJECT_DETECTION_NODE_CLASSIFICATION,
   PROJECT_DETECTION_NODE_REASONING_PREFIX,
   PROJECT_DETECTION_NODE_SUMMARY,
-  PROJECT_DETECTION_SUB_STATUS_FAILED,
-  PROJECT_DETECTION_SUB_STATUS_PENDING,
-  PROJECT_DETECTION_SUB_STATUS_SUCCEEDED,
   PROJECT_EVENT_TYPE_DETECTION_TASK_STATUS_CHANGED,
 } from '@/types/common';
 import type {
@@ -140,8 +132,8 @@ function shouldReplaceDetectionTask(
   }
   return (
     isDetectionTaskTerminal(currentTask) &&
-    message.main_status !== PROJECT_DETECTION_MAIN_STATUS_FAILED &&
-    message.main_status !== PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED
+    message.main_status !== ProjectDetectionTaskStatus_Value.Failed &&
+    message.main_status !== ProjectDetectionTaskStatus_Value.Succeeded
   );
 }
 
@@ -149,13 +141,13 @@ export function detectionTaskCompletedSteps(task: ProjectDetectionStatus | undef
   if (!task) {
     return EMPTY_DETECTION_STEPS;
   }
-  if (isTaskSucceeded(task) || hasSummaryStatus(task, PROJECT_DETECTION_SUB_STATUS_SUCCEEDED)) {
+  if (isTaskSucceeded(task) || hasSummaryStatus(task, ProjectDetectionSubTaskStatus_Value.Succeeded)) {
     return DETECTION_SUMMARY_COMPLETED_STEPS;
   }
-  if (isTaskFailed(task) || hasSummaryStatus(task, PROJECT_DETECTION_SUB_STATUS_FAILED)) {
+  if (isTaskFailed(task) || hasSummaryStatus(task, ProjectDetectionSubTaskStatus_Value.Failed)) {
     return DETECTION_SUMMARY_COMPLETED_STEPS;
   }
-  if (isTaskSummarizing(task) || hasSummaryStatus(task, PROJECT_DETECTION_SUB_STATUS_PENDING)) {
+  if (isTaskSummarizing(task) || hasSummaryStatus(task, ProjectDetectionSubTaskStatus_Value.Pending)) {
     return DETECTION_REASONING_COMPLETED_STEPS;
   }
 
@@ -165,14 +157,14 @@ export function detectionTaskCompletedSteps(task: ProjectDetectionStatus | undef
   }
 
   const reasoningSucceededSteps = reasoningNodes.filter(
-    (node) => node.sub_status === PROJECT_DETECTION_SUB_STATUS_SUCCEEDED,
+    (node) => node.sub_status === ProjectDetectionSubTaskStatus_Value.Succeeded,
   ).length;
   if (reasoningSucceededSteps > EMPTY_DETECTION_STEPS) {
     return DETECTION_CLASSIFICATION_COMPLETED_STEPS + reasoningSucceededSteps;
   }
   if (
     isTaskDetecting(task) ||
-    hasNodeStatus(task, PROJECT_DETECTION_NODE_CLASSIFICATION, PROJECT_DETECTION_SUB_STATUS_SUCCEEDED)
+    hasNodeStatus(task, PROJECT_DETECTION_NODE_CLASSIFICATION, ProjectDetectionSubTaskStatus_Value.Succeeded)
   ) {
     return DETECTION_CLASSIFICATION_COMPLETED_STEPS;
   }
@@ -185,13 +177,13 @@ export function detectionTaskProgressPercent(task: ProjectDetectionStatus | unde
 
 export function isDetectionTaskTerminal(task: ProjectDetectionStatus | undefined): boolean {
   return (
-    task?.main_status === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED ||
-    task?.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED
+    task?.main_status === ProjectDetectionTaskStatus_Value.Succeeded ||
+    task?.main_status === ProjectDetectionTaskStatus_Value.Failed
   );
 }
 
 export function isDetectionTaskSucceeded(task: ProjectDetectionStatus | undefined): boolean {
-  return task?.main_status === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED;
+  return task?.main_status === ProjectDetectionTaskStatus_Value.Succeeded;
 }
 
 export function isDetectionTaskRunning(task: ProjectDetectionStatus | undefined): boolean {
@@ -203,7 +195,7 @@ export function hasDetectionTasks(taskMap: ProjectDetectionStatusMap): boolean {
 }
 
 export function hasFailedDetectionTask(taskMap: ProjectDetectionStatusMap): boolean {
-  return Object.values(taskMap).some((task) => task?.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED);
+  return Object.values(taskMap).some((task) => task?.main_status === ProjectDetectionTaskStatus_Value.Failed);
 }
 
 export function allDetectionTasksSucceeded(taskMap: ProjectDetectionStatusMap, imageCount: number): boolean {
@@ -211,7 +203,7 @@ export function allDetectionTasksSucceeded(taskMap: ProjectDetectionStatusMap, i
   return (
     imageCount > EMPTY_DETECTION_STEPS &&
     tasks.length >= imageCount &&
-    tasks.every((task) => task?.main_status === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED)
+    tasks.every((task) => task?.main_status === ProjectDetectionTaskStatus_Value.Succeeded)
   );
 }
 
@@ -220,7 +212,7 @@ export function detectionTaskStatusStats(taskMap: ProjectDetectionStatusMap): { 
     (stats, task) => ({
       failed:
         stats.failed +
-        (task?.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED
+        (task?.main_status === ProjectDetectionTaskStatus_Value.Failed
           ? DETECTION_TASK_COUNT_INCREMENT
           : EMPTY_DETECTION_STEPS),
       running: stats.running + (isDetectionTaskRunning(task) ? DETECTION_TASK_COUNT_INCREMENT : EMPTY_DETECTION_STEPS),
@@ -305,19 +297,19 @@ function hasSummaryStatus(task: ProjectDetectionStatus, subStatus: ProjectDetect
 }
 
 function isTaskSucceeded(task: ProjectDetectionStatus): boolean {
-  return task.main_status === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED;
+  return task.main_status === ProjectDetectionTaskStatus_Value.Succeeded;
 }
 
 function isTaskFailed(task: ProjectDetectionStatus): boolean {
-  return task.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED;
+  return task.main_status === ProjectDetectionTaskStatus_Value.Failed;
 }
 
 function isTaskSummarizing(task: ProjectDetectionStatus): boolean {
-  return task.main_status === PROJECT_DETECTION_MAIN_STATUS_SUMMARIZING;
+  return task.main_status === ProjectDetectionTaskStatus_Value.Summarizing;
 }
 
 function isTaskDetecting(task: ProjectDetectionStatus): boolean {
-  return task.main_status === PROJECT_DETECTION_MAIN_STATUS_DETECTING;
+  return task.main_status === ProjectDetectionTaskStatus_Value.Detecting;
 }
 
 function taskReasoningNodes(task: ProjectDetectionStatus): ProjectDetectionNodeStatus[] {
@@ -329,7 +321,7 @@ function taskReasoningNodes(task: ProjectDetectionStatus): ProjectDetectionNodeS
 function areReasoningNodesSucceeded(nodes: ProjectDetectionNodeStatus[]): boolean {
   return (
     nodes.length > EMPTY_DETECTION_STEPS &&
-    nodes.every((node) => node.sub_status === PROJECT_DETECTION_SUB_STATUS_SUCCEEDED)
+    nodes.every((node) => node.sub_status === ProjectDetectionSubTaskStatus_Value.Succeeded)
   );
 }
 
@@ -354,15 +346,15 @@ function assignDetectionNode(task: ProjectDetectionStatus, nextNode: ProjectDete
 
 function inferPreviousDetectionNodes(task: ProjectDetectionStatus): void {
   if (
-    task.main_status === PROJECT_DETECTION_MAIN_STATUS_DETECTING ||
-    task.main_status === PROJECT_DETECTION_MAIN_STATUS_SUMMARIZING ||
-    task.main_status === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED ||
-    (task.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED &&
-      task.classification_status?.sub_status !== PROJECT_DETECTION_SUB_STATUS_FAILED)
+    task.main_status === ProjectDetectionTaskStatus_Value.Detecting ||
+    task.main_status === ProjectDetectionTaskStatus_Value.Summarizing ||
+    task.main_status === ProjectDetectionTaskStatus_Value.Succeeded ||
+    (task.main_status === ProjectDetectionTaskStatus_Value.Failed &&
+      task.classification_status?.sub_status !== ProjectDetectionSubTaskStatus_Value.Failed)
   ) {
     task.classification_status = {
       node_code: PROJECT_DETECTION_NODE_CLASSIFICATION,
-      sub_status: PROJECT_DETECTION_SUB_STATUS_SUCCEEDED,
+      sub_status: ProjectDetectionSubTaskStatus_Value.Succeeded,
       sub_task_uuid: task.classification_status?.sub_task_uuid ?? EMPTY_STRING,
     };
   }
@@ -393,8 +385,8 @@ function mergeProjectDetectionNode(
     return nextNode;
   }
   if (
-    currentNode.sub_status === PROJECT_DETECTION_SUB_STATUS_SUCCEEDED &&
-    nextNode.sub_status === PROJECT_DETECTION_SUB_STATUS_FAILED
+    currentNode.sub_status === ProjectDetectionSubTaskStatus_Value.Succeeded &&
+    nextNode.sub_status === ProjectDetectionSubTaskStatus_Value.Failed
   ) {
     return currentNode;
   }
@@ -408,10 +400,10 @@ function mergeProjectDetectionMainStatus(
   currentStatus: ProjectDetectionMainStatus,
   nextStatus: ProjectDetectionMainStatus,
 ): ProjectDetectionMainStatus {
-  if (nextStatus === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED) {
+  if (nextStatus === ProjectDetectionTaskStatus_Value.Succeeded) {
     return nextStatus;
   }
-  if (currentStatus === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED) {
+  if (currentStatus === ProjectDetectionTaskStatus_Value.Succeeded) {
     return currentStatus;
   }
   const currentRank = projectDetectionMainStatusRank(currentStatus);
@@ -424,17 +416,19 @@ function mergeProjectDetectionMainStatus(
 
 function projectDetectionMainStatusRank(status: ProjectDetectionMainStatus): number {
   switch (status) {
-    case PROJECT_DETECTION_MAIN_STATUS_PENDING:
+    case ProjectDetectionTaskStatus_Value.Pending:
       return STATUS_RANK_PENDING;
-    case PROJECT_DETECTION_MAIN_STATUS_CLASSIFYING:
+    case ProjectDetectionTaskStatus_Value.Classifying:
       return STATUS_RANK_CLASSIFYING;
-    case PROJECT_DETECTION_MAIN_STATUS_DETECTING:
+    case ProjectDetectionTaskStatus_Value.Detecting:
       return STATUS_RANK_DETECTING;
-    case PROJECT_DETECTION_MAIN_STATUS_SUMMARIZING:
+    case ProjectDetectionTaskStatus_Value.Summarizing:
       return STATUS_RANK_SUMMARIZING;
-    case PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED:
-    case PROJECT_DETECTION_MAIN_STATUS_FAILED:
+    case ProjectDetectionTaskStatus_Value.Succeeded:
+    case ProjectDetectionTaskStatus_Value.Failed:
       return STATUS_RANK_TERMINAL;
+    case ProjectDetectionTaskStatus_Value.Unknown:
+    case ProjectDetectionTaskStatus_Value.UNRECOGNIZED:
     default:
       return STATUS_RANK_INITIAL;
   }
@@ -442,11 +436,13 @@ function projectDetectionMainStatusRank(status: ProjectDetectionMainStatus): num
 
 function projectDetectionSubStatusRank(status: ProjectDetectionSubStatus): number {
   switch (status) {
-    case PROJECT_DETECTION_SUB_STATUS_PENDING:
+    case ProjectDetectionSubTaskStatus_Value.Pending:
       return STATUS_RANK_PENDING;
-    case PROJECT_DETECTION_SUB_STATUS_SUCCEEDED:
-    case PROJECT_DETECTION_SUB_STATUS_FAILED:
+    case ProjectDetectionSubTaskStatus_Value.Succeeded:
+    case ProjectDetectionSubTaskStatus_Value.Failed:
       return STATUS_RANK_TERMINAL;
+    case ProjectDetectionSubTaskStatus_Value.Unknown:
+    case ProjectDetectionSubTaskStatus_Value.UNRECOGNIZED:
     default:
       return STATUS_RANK_INITIAL;
   }
@@ -473,19 +469,19 @@ function isProjectDetectionTaskStatusChangedRecord(
 
 function isProjectDetectionMainStatus(value: unknown): value is ProjectDetectionMainStatus {
   return (
-    value === PROJECT_DETECTION_MAIN_STATUS_PENDING ||
-    value === PROJECT_DETECTION_MAIN_STATUS_CLASSIFYING ||
-    value === PROJECT_DETECTION_MAIN_STATUS_DETECTING ||
-    value === PROJECT_DETECTION_MAIN_STATUS_SUMMARIZING ||
-    value === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED ||
-    value === PROJECT_DETECTION_MAIN_STATUS_FAILED
+    value === ProjectDetectionTaskStatus_Value.Pending ||
+    value === ProjectDetectionTaskStatus_Value.Classifying ||
+    value === ProjectDetectionTaskStatus_Value.Detecting ||
+    value === ProjectDetectionTaskStatus_Value.Summarizing ||
+    value === ProjectDetectionTaskStatus_Value.Succeeded ||
+    value === ProjectDetectionTaskStatus_Value.Failed
   );
 }
 
 function isProjectDetectionSubStatus(value: unknown): value is ProjectDetectionSubStatus {
   return (
-    value === PROJECT_DETECTION_SUB_STATUS_PENDING ||
-    value === PROJECT_DETECTION_SUB_STATUS_SUCCEEDED ||
-    value === PROJECT_DETECTION_SUB_STATUS_FAILED
+    value === ProjectDetectionSubTaskStatus_Value.Pending ||
+    value === ProjectDetectionSubTaskStatus_Value.Succeeded ||
+    value === ProjectDetectionSubTaskStatus_Value.Failed
   );
 }

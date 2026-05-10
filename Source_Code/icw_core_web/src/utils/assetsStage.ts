@@ -1,10 +1,6 @@
+import { ProjectImageStatus_Value } from '@/gen/core/common';
 import type { ProjectImageStatus } from '@/types/common';
-import {
-  PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED,
-  PROJECT_IMAGE_STATUS_FAILED,
-  PROJECT_IMAGE_STATUS_PENDING,
-  PROJECT_IMAGE_STATUS_UPLOADED,
-} from '@/types/common';
+import { PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED } from '@/types/common';
 import type { ProjectGroup, ProjectImage, UploadProjectImageItem } from '@/types/project/assets';
 import type { ProjectImageStatusChangedMessage } from '@/types/socket';
 import { buildProjectAssetImageBlobs, PROJECT_ASSET_IMAGE_OUTPUT_CONTENT_TYPE } from '@/utils/images';
@@ -64,7 +60,8 @@ export function projectImageStats(images: ProjectImage[]): ProjectImageStats {
   return images.reduce<ProjectImageStats>(
     (stats, image) => ({
       failed: stats.failed + (isProjectImageUnavailable(image) ? NEXT_INDEX_OFFSET : EMPTY_ITEMS_COUNT),
-      pending: stats.pending + (image.status === PROJECT_IMAGE_STATUS_PENDING ? NEXT_INDEX_OFFSET : EMPTY_ITEMS_COUNT),
+      pending:
+        stats.pending + (image.status === ProjectImageStatus_Value.Pending ? NEXT_INDEX_OFFSET : EMPTY_ITEMS_COUNT),
       total: stats.total + NEXT_INDEX_OFFSET,
     }),
     {
@@ -81,13 +78,13 @@ export function projectGroupImageStats(groups: ProjectGroup[]): ProjectImageStat
 
 export function isProjectImageUnavailable(image: ProjectImage): boolean {
   return (
-    image.status === PROJECT_IMAGE_STATUS_FAILED ||
-    (image.status === PROJECT_IMAGE_STATUS_UPLOADED && image.thumbnail_url.trim() === '')
+    image.status === ProjectImageStatus_Value.Failed ||
+    (image.status === ProjectImageStatus_Value.Uploaded && image.thumbnail_url.trim() === '')
   );
 }
 
 export function canMoveProjectImage(status: ProjectImageStatus): boolean {
-  return status === PROJECT_IMAGE_STATUS_UPLOADED || status === PROJECT_IMAGE_STATUS_FAILED;
+  return status === ProjectImageStatus_Value.Uploaded || status === ProjectImageStatus_Value.Failed;
 }
 
 export function sortProjectImages(images: ProjectImage[]): ProjectImage[] {
@@ -215,7 +212,7 @@ export function moveImagesToGroup(
 export function flattenUploadedImages(groups: ProjectGroup[]): ViewerImage[] {
   return groups.flatMap((group) =>
     group.images
-      .filter((image) => image.status === PROJECT_IMAGE_STATUS_UPLOADED)
+      .filter((image) => image.status === ProjectImageStatus_Value.Uploaded)
       .map((image) => ({
         groupId: group.id,
         image,
@@ -377,9 +374,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isProjectImageStatus(value: unknown): value is ProjectImageStatus {
   return (
-    value === PROJECT_IMAGE_STATUS_PENDING ||
-    value === PROJECT_IMAGE_STATUS_UPLOADED ||
-    value === PROJECT_IMAGE_STATUS_FAILED
+    value === ProjectImageStatus_Value.Pending ||
+    value === ProjectImageStatus_Value.Uploaded ||
+    value === ProjectImageStatus_Value.Failed
   );
 }
 
