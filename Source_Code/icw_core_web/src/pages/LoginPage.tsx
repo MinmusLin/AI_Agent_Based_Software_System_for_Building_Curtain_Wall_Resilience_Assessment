@@ -8,9 +8,8 @@ import { sendEmailCode } from '@/api/auth';
 import { getErrorMessage } from '@/api/http';
 import { AuthShell } from '@/components/AuthShell';
 import { useAuth } from '@/contexts/AuthContext';
+import { EmailCodeScene_Value, LoginScene_Value } from '@/gen/core/common';
 import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
-import type { LoginScene } from '@/types/common';
-import { EMAIL_CODE_SCENE_LOGIN, LOGIN_SCENE_EMAIL, LOGIN_SCENE_PASSWORD } from '@/types/common';
 import {
   EMAIL_MAX_LENGTH,
   normalizeEmailAddress,
@@ -28,7 +27,7 @@ export default function LoginPage(): ReactElement {
   const { message } = App.useApp();
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [mode, setMode] = useState<LoginScene>(LOGIN_SCENE_PASSWORD);
+  const [mode, setMode] = useState<LoginScene_Value>(LoginScene_Value.Password);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const { buttonText, isCounting, startCountdown } = useEmailCodeCountdown();
@@ -42,7 +41,10 @@ export default function LoginPage(): ReactElement {
     }
     setSending(true);
     try {
-      const result = await sendEmailCode(email, EMAIL_CODE_SCENE_LOGIN);
+      const result = await sendEmailCode({
+        email,
+        scene: EmailCodeScene_Value.Login,
+      });
       startCountdown(result.expires_in);
       message.success('已发送邮箱验证码');
     } catch (error: unknown) {
@@ -67,7 +69,7 @@ export default function LoginPage(): ReactElement {
       await login({
         email,
         scene: mode,
-        code: mode === LOGIN_SCENE_PASSWORD ? (values.password ?? '') : (values.email_code ?? ''),
+        code: mode === LoginScene_Value.Password ? (values.password ?? '') : (values.email_code ?? ''),
       });
       void navigate('/dashboard', { replace: true });
     } catch (error: unknown) {
@@ -83,11 +85,11 @@ export default function LoginPage(): ReactElement {
         <Segmented
           block
           onChange={(value) => {
-            setMode(value === LOGIN_SCENE_EMAIL ? LOGIN_SCENE_EMAIL : LOGIN_SCENE_PASSWORD);
+            setMode(value === LoginScene_Value.Email ? LoginScene_Value.Email : LoginScene_Value.Password);
           }}
           options={[
-            { label: '密码登录', value: LOGIN_SCENE_PASSWORD },
-            { label: '邮箱验证码登录', value: LOGIN_SCENE_EMAIL },
+            { label: '密码登录', value: LoginScene_Value.Password },
+            { label: '邮箱验证码登录', value: LoginScene_Value.Email },
           ]}
           value={mode}
         />
@@ -104,7 +106,7 @@ export default function LoginPage(): ReactElement {
         >
           <Input maxLength={EMAIL_MAX_LENGTH} placeholder="user@example.com" prefix={<MailOutlined />} size="large" />
         </Form.Item>
-        {mode === LOGIN_SCENE_PASSWORD ? (
+        {mode === LoginScene_Value.Password ? (
           <Form.Item
             label="密码"
             name="password"
