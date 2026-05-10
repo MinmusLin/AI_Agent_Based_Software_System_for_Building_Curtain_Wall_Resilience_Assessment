@@ -1,0 +1,11 @@
+version: v2
+
+plugins:
+  - local: ../icw_core_web/node_modules/.bin/protoc-gen-ts_proto
+    out: ../icw_core_web/src/gen
+    opt:
+      - outputServices=false
+      - forceLong=number
+      - useExactTypes=false
+      - snakeToCamel=false
+      - esModuleInterop=true

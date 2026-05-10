@@ -120,7 +120,7 @@ export interface ProjectDetectionSpallingResult extends ProjectDetectionBaseResu
 
 export interface ProjectDetectionSummaryResult {
   finished_at?: string;
-  result_json?: string;
+  result?: string;
   status?: ProjectDetectionSubStatus;
   started_at?: string;
   task_uuid?: string;

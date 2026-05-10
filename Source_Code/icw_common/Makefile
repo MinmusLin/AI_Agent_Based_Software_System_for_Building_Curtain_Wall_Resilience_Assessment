@@ -8,7 +8,7 @@ COVER_HTML := $(COVER_DIR)/coverage.html
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all verify gen fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open clean
+.PHONY: help all verify gen-all gen gen-ts fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open clean
 
 help:
 	@echo "Usage: make <COMMAND>"
@@ -16,7 +16,9 @@ help:
 	@echo "Commands:"
 	@echo "  make all          Run gen, fmt, tidy, vet, and test"
 	@echo "  make verify       Run fmt-check, tidy-check, vet, and test"
+	@echo "  make all          Generate Go and TypeScript code from proto files"
 	@echo "  make gen          Generate Go code from proto files"
+	@echo "  make gen-ts       Generate TypeScript code from proto files"
 	@echo "  make fmt          Format Go files"
 	@echo "  make fmt-check    Check Go formatting without modifying files"
 	@echo "  make tidy         Run go mod tidy"
@@ -35,9 +37,15 @@ all: gen fmt tidy vet test
 
 verify: fmt-check tidy-check vet test
 
+gen-all: gen gen-ts
+
 gen:
 	rm -rf gen
 	buf generate
+
+gen-ts:
+	rm -rf ../icw_core_web/src/gen
+	buf generate proto --template buf.gen.ts.yaml --path proto/core/common.proto --path proto/core/api/
 
 fmt:
 	$(GO) fmt $(PKGS)
