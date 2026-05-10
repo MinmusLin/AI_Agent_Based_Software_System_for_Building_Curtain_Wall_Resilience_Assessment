@@ -1,45 +1,35 @@
-\appendixsection{补充数据}\label{sec:appendix-data}
+\appendixsection{系统模块与接口补充说明}\label{sec:appendix-module}
 
-本附录提供正文中未详细列出的补充数据与推导过程，供读者参考。
+本附录补充列出系统主要服务模块和检测任务输出内容，便于读者从工程角度理解系统组成。
 
-\appendixsubsection{数据处理公式推导}
-
-根据同济大学本科生成绩计算方法，课程成绩按五级制评定，成绩等级与课程绩点的对应关系如\cref{tab:grading-system}~所示。
+\appendixsubsection{服务模块}
 
 \begin{table}[!htb]
-  \caption{同济大学本科生成绩等级与绩点对照}\label{tab:grading-system}
+  \caption{系统服务模块说明}\label{tab:service-modules}
   \centering
-  \begin{tabular}{@{}ccccc@{}} \toprule
-    \textbf{课程成绩} & \textbf{成绩等级} & \textbf{课程绩点} & \textbf{百分制折算值} \\ \midrule
-    优（Excellent） & A & 5 & 95 \\
-    良（Good）      & B & 4 & 85 \\
-    中（Fair）      & C & 3 & 75 \\
-    及格（Pass）    & D & 2 & 65 \\
-    不及格（Failed）& F & 0 & 30 \\ \bottomrule
+  \begin{tabular}{@{}p{0.22\linewidth}p{0.68\linewidth}@{}} \toprule
+    \textbf{模块} & \textbf{职责} \\ \midrule
+    Core Web & 提供项目流程页面、图像资产管理、检测进度可视化、复核与报告展示。 \\
+    Core API & 提供 HTTP 和 WebSocket 入口，负责鉴权、请求解析、响应包装和消息广播。 \\
+    Core BIZ & 承载核心业务逻辑、数据库事务、对象存储、任务 Worker 和事件发布。 \\
+    Activity Classification & 调用分类 Agent，输出需要执行的检测任务代码列表。 \\
+    Activity Reasoning & 调用五类 Python 原子检测能力，上传检测产物并回调检测结果。 \\
+    Activity Summary & 调用总结 Agent，完成单图总结和项目级报告生成。 \\
+    ICW Common & 存放共享协议、枚举、gRPC 工具、日志工具和通用错误结构。 \\ \bottomrule
   \end{tabular}
 \end{table}
 
-平均绩点（GPA）计算公式为：
-\begin{equation}\label{eq:gpa}
-  \text{GPA} = \frac{\sum(\text{课程学分} \times \text{课程绩点})}{\sum\text{课程学分}}
-\end{equation}
-全部课程的百分制平均成绩按以下公式折算：
-\begin{equation}\label{eq:avg-score}
-  \text{百分制平均成绩} = \frac{\sum(\text{百分制成绩折算值} \times \text{课程学分})}{\sum\text{课程学分}}
-\end{equation}
-
-\appendixsubsection{补充数据表}
-
-\cref{tab:appendix-sample} 列出了更多测试样本的详细数据。
+\appendixsubsection{原子检测任务}
 
 \begin{table}[!htb]
-  \caption{补充测试数据}\label{tab:appendix-sample}
+  \caption{原子检测任务与输出结果}\label{tab:detection-tasks}
   \centering
-  \begin{tabular}{@{}cccc@{}} \toprule
-    \textbf{样本编号} & \textbf{输入值} & \textbf{输出值} & \textbf{误差} \\ \midrule
-    1 & 0.50 & 0.48 & 0.02 \\
-    2 & 1.00 & 0.97 & 0.03 \\
-    3 & 1.50 & 1.52 & 0.02 \\
-    4 & 2.00 & 1.98 & 0.02 \\ \bottomrule
+  \begin{tabular}{@{}p{0.18\linewidth}p{0.28\linewidth}p{0.44\linewidth}@{}} \toprule
+    \textbf{任务代码} & \textbf{检测对象} & \textbf{主要输出} \\ \midrule
+    corrosion & 金属锈蚀 & 是否存在锈蚀、区域数量、置信度、锈蚀像素、锈蚀占比和区域列表。 \\
+    crack & 石材裂缝 & 是否存在裂缝、裂缝数量、裂缝像素、裂缝占比和区域列表。 \\
+    stain & 石材污渍 & 是否存在污渍、污渍区域统计、污渍占比和区域列表。 \\
+    flatness & 玻璃平整度 & 平整、不平整或非玻璃结论，不平整区域数量和区域指标。 \\
+    spalling & 玻璃爆裂 & 是否存在爆裂和分类置信度。 \\ \bottomrule
   \end{tabular}
 \end{table}

@@ -20,7 +20,7 @@ help:
 	@echo ""
 	@echo "Commands:"
 	@echo "  make all    Build thesis PDF"
-	@echo "  make clean  Remove generated LaTeX files"
+	@echo "  make clean  Remove generated LaTeX auxiliary files"
 	@echo "  make count  Count thesis characters"
 
 all:
@@ -28,7 +28,7 @@ all:
 	@latexmk $(LATEXMK_OPT) $(THESIS).tex
 
 clean:
-	-@latexmk -C -bibtex -silent $(THESIS).tex 2> /dev/null
+	-@latexmk -c -bibtex -silent $(THESIS).tex 2> /dev/null
 
 count:
 	@texcount $(THESIS).tex -inc -chinese | awk '/total/ {getline; print "Total characters:",$$4}'
