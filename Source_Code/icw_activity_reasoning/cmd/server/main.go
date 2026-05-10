@@ -45,7 +45,10 @@ func main() {
 	}()
 
 	// 注册 Python 原子检测能力
-	detectorsRegistry := detectors.RegisterDetectors(cfg.ReasoningRuntimeDir)
+	detectorsRegistry, err := detectors.RegisterDetectors(cfg.ReasoningRuntimeDir, cfg.ReasoningModelDir)
+	if err != nil {
+		utils.LogFatal(consts.LogScopeInit, "Failed to register python detectors: %v", err)
+	}
 	utils.LogInfo(consts.LogScopeReasoning, consts.LogColorBoldPurple, "Python detectors registered, waiting for calls:\n%s", detectorCommon.FormatRegistryTable(detectorsRegistry))
 
 	// 注册 gRPC 服务

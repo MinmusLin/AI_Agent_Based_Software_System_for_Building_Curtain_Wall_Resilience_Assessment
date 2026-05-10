@@ -19,6 +19,7 @@ type pythonWorkerRequest struct {
 	TaskCode    string `json:"task_code"`
 	ImageUuid   string `json:"image_uuid"`
 	RuntimeRoot string `json:"runtime_root"`
+	ModelPath   string `json:"model_path"`
 }
 
 // pythonWorkerResponse Python Worker 响应结构体
@@ -36,6 +37,7 @@ type pythonWorkerReadResult struct {
 // pythonWorker 单个原子检测能力的常驻 Python 进程
 type pythonWorker struct {
 	code        string
+	modelPath   string
 	projectRoot string
 	workerPath  string
 	runtimeRoot string
@@ -46,9 +48,10 @@ type pythonWorker struct {
 }
 
 // newPythonWorker 创建单个原子检测能力的常驻 Python 进程
-func newPythonWorker(code, runtimeRoot string) *pythonWorker {
+func newPythonWorker(code, runtimeRoot, modelPath string) *pythonWorker {
 	return &pythonWorker{
 		code:        code,
+		modelPath:   modelPath,
 		projectRoot: absPath("."),
 		workerPath:  absPath("python/worker.py"),
 		runtimeRoot: absPath(runtimeRoot),
@@ -78,6 +81,7 @@ func (w *pythonWorker) Run(ctx context.Context, imageUuid string) error {
 		TaskCode:    w.code,
 		ImageUuid:   imageUuid,
 		RuntimeRoot: w.runtimeRoot,
+		ModelPath:   w.modelPath,
 	}
 	payload, err := json.Marshal(req)
 	if err != nil {

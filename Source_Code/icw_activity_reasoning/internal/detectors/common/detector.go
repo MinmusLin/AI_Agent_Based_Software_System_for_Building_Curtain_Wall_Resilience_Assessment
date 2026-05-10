@@ -12,17 +12,21 @@ import (
 type PythonDetector struct {
 	code        string
 	description string
+	modelName   string
+	modelPath   string
 	runtimeRoot string
 	worker      *pythonWorker
 }
 
 // NewPythonDetector 创建 Python 原子检测能力执行器
-func NewPythonDetector(code, description, runtimeRoot string) *PythonDetector {
+func NewPythonDetector(code, description, modelName, modelPath, runtimeRoot string) *PythonDetector {
 	return &PythonDetector{
 		code:        code,
 		description: description,
+		modelName:   modelName,
+		modelPath:   modelPath,
 		runtimeRoot: runtimeRoot,
-		worker:      newPythonWorker(code, runtimeRoot),
+		worker:      newPythonWorker(code, runtimeRoot, modelPath),
 	}
 }
 
@@ -40,6 +44,14 @@ func (d *PythonDetector) Description() string {
 		return ""
 	}
 	return d.description
+}
+
+// ModelName 获取原子检测能力模型名称
+func (d *PythonDetector) ModelName() string {
+	if d == nil {
+		return ""
+	}
+	return d.modelName
 }
 
 // Detect 执行 Python 原子检测脚本并读取产物

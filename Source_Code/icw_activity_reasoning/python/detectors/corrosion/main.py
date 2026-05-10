@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from pathlib import Path
 from typing import Any
@@ -8,8 +9,7 @@ import numpy as np
 from ultralytics import YOLO
 
 
-APP_ROOT = Path(__file__).resolve().parent
-MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
+MODEL_PATH = Path(os.environ['REASONING_MODEL_PATH']).expanduser().resolve()
 IMAGE_SIZE = 640
 CONFIDENCE_THRESHOLD = 0.25
 IOU_THRESHOLD = 0.45

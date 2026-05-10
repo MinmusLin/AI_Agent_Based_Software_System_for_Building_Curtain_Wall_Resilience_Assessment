@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from functools import reduce
 from pathlib import Path
@@ -13,8 +14,7 @@ from PIL import Image, ImageDraw
 from torchvision import transforms
 
 
-APP_ROOT = Path(__file__).resolve().parent
-MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
+MODEL_PATH = Path(os.environ['REASONING_MODEL_PATH']).expanduser().resolve()
 INPUT_SIZE = 416
 MASK_THRESHOLD = 200
 MIN_SEGMENT_AREA = 200

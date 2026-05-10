@@ -3,7 +3,10 @@ package common
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"sort"
+	"strings"
 
 	"icw_common/utils"
 )
@@ -12,6 +15,7 @@ import (
 type Detector interface {
 	Code() string
 	Description() string
+	ModelName() string
 	Detect(ctx context.Context, imageUuid string) error
 }
 
@@ -19,13 +23,15 @@ type Detector interface {
 type DetectorMeta struct {
 	Code        string
 	Description string
+	ModelName   string
 }
 
 // NewDetectorMeta 创建原子检测能力元数据
-func NewDetectorMeta(code, description string) *DetectorMeta {
+func NewDetectorMeta(code, description, modelName string) *DetectorMeta {
 	return &DetectorMeta{
 		Code:        code,
 		Description: description,
+		ModelName:   modelName,
 	}
 }
 
@@ -35,13 +41,20 @@ type Registry struct {
 }
 
 // NewRegistry 创建原子检测能力注册表
-func NewRegistry(runtimeRoot string, metas []*DetectorMeta) *Registry {
+func NewRegistry(runtimeRoot, modelRoot string, metas []*DetectorMeta) (*Registry, error) {
 	items := make([]Detector, 0, len(metas))
 	for _, item := range metas {
 		if item == nil {
 			continue
 		}
-		items = append(items, NewPythonDetector(item.Code, item.Description, runtimeRoot))
+		modelPath, err := resolveModelPath(modelRoot, item.Code, item.ModelName)
+		if err != nil {
+			return nil, err
+		}
+		if err := validateModelFile(modelPath); err != nil {
+			return nil, err
+		}
+		items = append(items, NewPythonDetector(item.Code, item.Description, item.ModelName, modelPath, runtimeRoot))
 	}
 	registry := &Registry{
 		detectors: make(map[string]Detector),
@@ -52,7 +65,7 @@ func NewRegistry(runtimeRoot string, metas []*DetectorMeta) *Registry {
 		}
 		registry.detectors[item.Code()] = item
 	}
-	return registry
+	return registry, nil
 }
 
 // Get 获取原子检测能力
@@ -79,6 +92,7 @@ func FormatRegistryTable(registry *Registry) string {
 	sort.Strings(taskCodes)
 	recordsTaskCodes := make([]string, 0, len(taskCodes))
 	recordsDescriptions := make([]string, 0, len(taskCodes))
+	recordsModels := make([]string, 0, len(taskCodes))
 	for _, taskCode := range taskCodes {
 		detector := registry.detectors[taskCode]
 		if detector == nil {
@@ -86,6 +100,7 @@ func FormatRegistryTable(registry *Registry) string {
 		}
 		recordsTaskCodes = append(recordsTaskCodes, detector.Code())
 		recordsDescriptions = append(recordsDescriptions, detector.Description())
+		recordsModels = append(recordsModels, detector.ModelName())
 	}
 	return utils.FormatTable([]*utils.TableColumn{
 		{
@@ -96,5 +111,55 @@ func FormatRegistryTable(registry *Registry) string {
 			Header: "description",
 			Values: recordsDescriptions,
 		},
+		{
+			Header: "model",
+			Values: recordsModels,
+		},
 	})
+}
+
+// resolveModelPath 解析模型路径
+func resolveModelPath(modelRoot, taskCode, modelName string) (string, error) {
+	modelRoot = strings.TrimSpace(modelRoot)
+	taskCode = strings.TrimSpace(taskCode)
+	modelName = strings.TrimSpace(modelName)
+	if modelRoot == "" {
+		return "", fmt.Errorf("model root is required")
+	}
+	if taskCode == "" {
+		return "", fmt.Errorf("task code is required")
+	}
+	if modelName == "" {
+		return "", fmt.Errorf("model name is required")
+	}
+	return filepath.Join(absPath(modelRoot), taskCode, modelName), nil
+}
+
+// validateModelFile 校验模型文件存在
+func validateModelFile(modelPath string) error {
+	info, err := os.Stat(modelPath)
+	if err != nil {
+		return fmt.Errorf("model file not found: %s", modelPath)
+	}
+	if info.IsDir() {
+		return fmt.Errorf("model path is a directory: %s", modelPath)
+	}
+	file, err := os.Open(modelPath)
+	if err != nil {
+		return fmt.Errorf("open model file failed: %s: %v", modelPath, err)
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	buffer := make([]byte, 128)
+	n, err := file.Read(buffer)
+	if err != nil {
+		return fmt.Errorf("read model file failed: %s: %v", modelPath, err)
+	}
+	if strings.HasPrefix(string(buffer[:n]), "version https://git-lfs.github.com/spec/v1") {
+		return fmt.Errorf("model file is git lfs pointer: %s", modelPath)
+	}
+
+	return nil
 }

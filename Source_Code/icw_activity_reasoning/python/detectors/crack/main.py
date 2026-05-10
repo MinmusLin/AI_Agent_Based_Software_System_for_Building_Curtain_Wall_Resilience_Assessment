@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from functools import partial
 from pathlib import Path
@@ -12,8 +13,7 @@ import torch.nn.functional as torch_functional
 from PIL import Image
 
 
-APP_ROOT = Path(__file__).resolve().parent
-MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
+MODEL_PATH = Path(os.environ['REASONING_MODEL_PATH']).expanduser().resolve()
 INPUT_SIZE = 1024
 MIN_REGION_AREA = 20
 NUM_CLASSES = 2

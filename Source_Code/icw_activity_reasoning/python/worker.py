@@ -2,6 +2,7 @@ import contextlib
 import importlib.util
 import io
 import json
+import os
 import sys
 import traceback
 from pathlib import Path
@@ -40,14 +41,18 @@ def run_detector(request: dict[str, Any]) -> None:
     task_code = str(request.get('task_code', '')).strip()
     image_uuid = str(request.get('image_uuid', '')).strip()
     runtime_root = Path(str(request.get('runtime_root', '')).strip()).expanduser().resolve()
+    model_path = str(request.get('model_path', '')).strip()
     if not is_safe_path_part(task_code):
         raise ValueError('task_code is invalid')
     if not is_safe_path_part(image_uuid):
         raise ValueError('image_uuid is invalid')
+    if not model_path:
+        raise ValueError('model_path is required')
     image_path = runtime_root / task_code / image_uuid / 'original.png'
     if not image_path.exists():
         raise FileNotFoundError(f'original image not found: {image_path}')
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+        os.environ['REASONING_MODEL_PATH'] = model_path
         module = load_detector(task_code)
         detect = getattr(module, 'detect', None)
         if detect is None:

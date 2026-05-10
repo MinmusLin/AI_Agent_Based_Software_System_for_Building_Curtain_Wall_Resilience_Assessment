@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from pathlib import Path
 
@@ -9,8 +10,7 @@ from PIL import Image
 from torchvision import transforms
 
 
-APP_ROOT = Path(__file__).resolve().parent
-MODEL_PATH = APP_ROOT / 'model' / 'best_weights_model.pt'
+MODEL_PATH = Path(os.environ['REASONING_MODEL_PATH']).expanduser().resolve()
 INPUT_SIZE = 224
 CLASS_NAMES = ['defect', 'undefect']
 DETECTOR: 'SpallingDetector | None' = None
