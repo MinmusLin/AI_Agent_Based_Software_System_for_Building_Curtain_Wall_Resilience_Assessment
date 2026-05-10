@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS go-builder
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -27,8 +27,8 @@ FROM scratch
 
 WORKDIR /app
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=builder /out/icw_core_api /app/icw_core_api
+COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=go-builder /out/icw_core_api /app/icw_core_api
 
 EXPOSE 8000
 
