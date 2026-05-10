@@ -4,14 +4,15 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 import { getMe, login as loginRequest, logout as logoutRequest } from '@/api/auth';
 import { refreshAccessToken, setAccessToken, setAuthHooks } from '@/api/http';
-import type { LoginRequest } from '@/types/auth';
-import type { AuthStatus, User } from '@/types/common';
+import type { AuthStatus } from '@/constants/common';
 import {
   AUTH_STATUS_ANONYMOUS,
   AUTH_STATUS_AUTHENTICATED,
   AUTH_STATUS_INITIALIZING,
   HTTP_STATUS_UNAUTHORIZED,
-} from '@/types/common';
+} from '@/constants/common';
+import type { LoginRequest } from '@/gen/core/api/auth';
+import type { User } from '@/gen/core/common';
 
 // 登录态分为三个阶段：
 // initializing：应用启动中，正在尝试用 Refresh Token 恢复登录态
@@ -98,6 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
         // 登录成功后 API 返回 Access Token，并通过 HttpOnly Cookie 写入 Refresh Token
         // 前端只保存 Access Token 和用户信息，后续请求由 Axios 拦截器自动添加 Authorization Header
         const result = await loginRequest(payload);
+        if (!result.user) {
+          throw new Error('user is empty');
+        }
         setAccessToken(result.access_token);
         setToken(result.access_token);
         setUser(result.user);

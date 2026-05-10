@@ -2,8 +2,8 @@ import { Empty, Spin } from 'antd';
 import type { DragEvent, ReactElement } from 'react';
 
 import { ProjectAssessGroup } from '@/components/project/assess/ProjectAssessGroup';
-import type { ProjectImageStatus } from '@/types/common';
-import type { ProjectGroup } from '@/types/project/assets';
+import type { ProjectGroup } from '@/gen/core/api/common';
+import type { ProjectImageStatus_Value } from '@/gen/core/common';
 import { EMPTY_ITEMS_COUNT } from '@/utils/assetsStage';
 
 interface ProjectAssessContentProps {
@@ -30,7 +30,7 @@ interface ProjectAssessContentProps {
     event: DragEvent<HTMLDivElement>,
     imageUuid: string,
     sourceGroupId: string,
-    imageStatus: ProjectImageStatus,
+    imageStatus: ProjectImageStatus_Value,
   ) => void;
   onOpenImageViewer: (imageUuid: string) => void;
   onSaveEditGroup: () => void;

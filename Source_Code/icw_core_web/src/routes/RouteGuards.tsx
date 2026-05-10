@@ -3,8 +3,8 @@ import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
+import { AUTH_STATUS_AUTHENTICATED, AUTH_STATUS_INITIALIZING } from '@/constants/common';
 import { useAuth } from '@/contexts/AuthContext';
-import { AUTH_STATUS_AUTHENTICATED, AUTH_STATUS_INITIALIZING } from '@/types/common';
 import { clearPostLogoutRedirect, getPostLogoutRedirect } from '@/utils/redirect';
 
 // 登录态初始化期间的全屏加载态

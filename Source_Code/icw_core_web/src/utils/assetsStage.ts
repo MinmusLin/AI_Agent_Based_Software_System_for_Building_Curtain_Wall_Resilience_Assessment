@@ -1,8 +1,7 @@
-import { ProjectImageStatus_Value } from '@/gen/core/common';
-import type { ProjectImageStatus_Value } from '@/types/common';
-import { PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED } from '@/types/common';
-import type { ProjectGroup, ProjectImage, UploadProjectImageItem } from '@/types/project/assets';
-import type { ProjectImageStatusChangedMessage } from '@/types/socket';
+import { PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED } from '@/constants/common';
+import type { ProjectGroup, UploadProjectImageItem } from '@/gen/core/api/common';
+import type { ProjectImageStatusChangedMessage } from '@/gen/core/api/messages';
+import { type ProjectImage, ProjectImageStatus_Value } from '@/gen/core/common';
 import { buildProjectAssetImageBlobs, PROJECT_ASSET_IMAGE_OUTPUT_CONTENT_TYPE } from '@/utils/images';
 
 export const EMPTY_GROUP_ID = '';
@@ -372,7 +371,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function isProjectImageStatus_Value(value: unknown): value is ProjectImageStatus_Value {
+function isProjectImageStatusValue(value: unknown): value is ProjectImageStatus_Value {
   return (
     value === ProjectImageStatus_Value.Pending ||
     value === ProjectImageStatus_Value.Uploaded ||
@@ -392,7 +391,7 @@ function isProjectImage(value: unknown): value is ProjectImage {
     typeof value.width === 'number' &&
     typeof value.height === 'number' &&
     typeof value.metadata === 'string' &&
-    isProjectImageStatus_Value(value.status) &&
+    isProjectImageStatusValue(value.status) &&
     typeof value.thumbnail_url === 'string' &&
     typeof value.uploaded_at === 'string' &&
     typeof value.created_at === 'string'

@@ -13,13 +13,8 @@ import type { ChangeEvent, DragEvent, ReactElement } from 'react';
 import { useRef } from 'react';
 
 import { ProjectAssessGroupHeaderActions } from '@/components/project/assess/ProjectAssessGroupHeaderActions';
-import type { ProjectImageStatus } from '@/types/common';
-import {
-  PROJECT_IMAGE_STATUS_FAILED,
-  PROJECT_IMAGE_STATUS_PENDING,
-  PROJECT_IMAGE_STATUS_UPLOADED,
-} from '@/types/common';
-import type { ProjectGroup, ProjectImage } from '@/types/project/assets';
+import type { ProjectGroup } from '@/gen/core/api/common';
+import { type ProjectImage, ProjectImageStatus_Value } from '@/gen/core/common';
 import { canMoveProjectImage, EMPTY_ITEMS_COUNT, NEXT_INDEX_OFFSET, projectImageStats } from '@/utils/assetsStage';
 
 interface ProjectAssetImageCardProps {
@@ -28,7 +23,7 @@ interface ProjectAssetImageCardProps {
   image: ProjectImage;
   onDeleteImage: (imageUuid: string) => void;
   onDragEnd: () => void;
-  onDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string, imageStatus: ProjectImageStatus) => void;
+  onDragStart: (event: DragEvent<HTMLDivElement>, imageUuid: string, imageStatus: ProjectImageStatus_Value) => void;
   onOpenImageViewer: (imageUuid: string) => void;
   onToggleSelectedImage: (imageUuid: string, checked?: boolean) => void;
   readOnly: boolean;
@@ -86,7 +81,7 @@ interface ProjectAssessGroupProps {
     event: DragEvent<HTMLDivElement>,
     imageUuid: string,
     sourceGroupId: string,
-    imageStatus: ProjectImageStatus,
+    imageStatus: ProjectImageStatus_Value,
   ) => void;
   onOpenImageViewer: (imageUuid: string) => void;
   onSaveEditGroup: () => void;
@@ -111,22 +106,24 @@ function ImageUnavailableIcon(): ReactElement {
   );
 }
 
-function imageStatusNode(status: ProjectImageStatus): ReactElement {
+function imageStatusNode(status: ProjectImageStatus_Value): ReactElement {
   switch (status) {
-    case PROJECT_IMAGE_STATUS_PENDING:
+    case ProjectImageStatus_Value.Pending:
       return <LoadingOutlined className="text-2xl text-slate-400" />;
-    case PROJECT_IMAGE_STATUS_FAILED:
+    case ProjectImageStatus_Value.Failed:
       return (
         <Tooltip title="图像已失效">
           <ImageUnavailableIcon />
         </Tooltip>
       );
-    case PROJECT_IMAGE_STATUS_UPLOADED:
+    case ProjectImageStatus_Value.Uploaded:
       return (
         <Tooltip title="图像已失效">
           <ImageUnavailableIcon />
         </Tooltip>
       );
+    case ProjectImageStatus_Value.Unknown:
+    case ProjectImageStatus_Value.UNRECOGNIZED:
     default:
       return (
         <Tooltip title="图像状态异常">
@@ -137,12 +134,12 @@ function imageStatusNode(status: ProjectImageStatus): ReactElement {
 }
 
 function projectImageCardState(image: ProjectImage, batchMode: boolean, readOnly: boolean): ProjectImageCardState {
-  const uploaded = image.status === PROJECT_IMAGE_STATUS_UPLOADED;
-  const failed = image.status === PROJECT_IMAGE_STATUS_FAILED;
+  const uploaded = image.status === ProjectImageStatus_Value.Uploaded;
+  const failed = image.status === ProjectImageStatus_Value.Failed;
 
   return {
     actionVisible: !batchMode && (uploaded || (!readOnly && failed)),
-    batchSelectable: batchMode && image.status !== PROJECT_IMAGE_STATUS_PENDING,
+    batchSelectable: batchMode && image.status !== ProjectImageStatus_Value.Pending,
     movable: !readOnly && !batchMode && canMoveProjectImage(image.status),
     ready: uploaded && image.thumbnail_url !== '',
     uploaded,
@@ -344,7 +341,7 @@ export function ProjectAssessGroup({
   const canDeleteGroup = !readOnly && groupCount > NEXT_INDEX_OFFSET;
   const imageStats = projectImageStats(group.images);
   const selectableImageUuids = group.images
-    .filter((image) => image.status !== PROJECT_IMAGE_STATUS_PENDING)
+    .filter((image) => image.status !== ProjectImageStatus_Value.Pending)
     .map((image) => image.uuid);
   const hasSelectableImages = selectableImageUuids.length > EMPTY_ITEMS_COUNT;
   const allSelectableImagesSelected =

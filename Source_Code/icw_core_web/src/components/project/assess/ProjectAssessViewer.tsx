@@ -3,7 +3,7 @@ import { Button, Modal, Spin } from 'antd';
 import type { ReactElement } from 'react';
 import { useState } from 'react';
 
-import type { ProjectImage } from '@/types/project/assets';
+import type { ProjectImage } from '@/gen/core/common';
 import type { ImageViewerState, ViewerImage } from '@/utils/assetsStage';
 import { FIRST_INDEX, formatProjectImageMetadata, KILOBYTE_SIZE_BYTES, NEXT_INDEX_OFFSET } from '@/utils/assetsStage';
 import { formatDateTime } from '@/utils/datetime';

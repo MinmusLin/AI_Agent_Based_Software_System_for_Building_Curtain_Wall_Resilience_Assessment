@@ -1,16 +1,17 @@
-import { ProjectDetectionSubTaskStatus_Value, ProjectDetectionTaskStatus_Value } from '@/gen/core/common';
-import type { ProjectDetectionTaskStatus_Value, ProjectDetectionNodeCode, ProjectDetectionSubTaskStatus_Value } from '@/types/common';
+import type { ProjectDetectionNodeCode } from '@/constants/common';
 import {
   PROJECT_DETECTION_NODE_CLASSIFICATION,
   PROJECT_DETECTION_NODE_REASONING_PREFIX,
   PROJECT_DETECTION_NODE_SUMMARY,
   PROJECT_EVENT_TYPE_DETECTION_TASK_STATUS_CHANGED,
-} from '@/types/common';
-import type {
-  ProjectDetectionNodeStatus,
-  ProjectDetectionStatus,
-  ProjectDetectionTaskStatusChangedMessage,
-} from '@/types/project/detection';
+} from '@/constants/common';
+import type { ProjectDetectionTaskStatusChangedMessage } from '@/gen/core/api/messages';
+import {
+  type ProjectDetectionNodeStatus,
+  type ProjectDetectionStatus,
+  ProjectDetectionSubTaskStatus_Value,
+  ProjectDetectionTaskStatus_Value,
+} from '@/gen/core/common';
 
 export const DETECTION_PROGRESS_TOTAL_STEPS = 7;
 export const DETECTION_CLASSIFICATION_COMPLETED_STEPS = 1;
@@ -81,15 +82,19 @@ export function mergeDetectionTaskMessage(
   const nextTask = normalizeDetectionTask(
     shouldReplaceTask || !currentTask
       ? {
+          classification_status: undefined,
           detection_status: [],
+          finished_at: '',
           image_uuid: message.image_uuid,
           main_status: message.main_status,
           main_task_uuid: message.main_task_uuid,
+          started_at: '',
+          summary_status: undefined,
         }
       : currentTask,
   );
 
-  nextTask.main_status = mergeProjectDetectionTaskStatus_Value(nextTask.main_status, message.main_status);
+  nextTask.main_status = mergeProjectDetectionTaskStatus(nextTask.main_status, message.main_status);
   nextTask.main_task_uuid = message.main_task_uuid;
 
   if (message.node_code !== EMPTY_STRING) {
@@ -313,9 +318,7 @@ function isTaskDetecting(task: ProjectDetectionStatus): boolean {
 }
 
 function taskReasoningNodes(task: ProjectDetectionStatus): ProjectDetectionNodeStatus[] {
-  return (task.detection_status ?? []).filter((node) =>
-    node.node_code.startsWith(PROJECT_DETECTION_NODE_REASONING_PREFIX),
-  );
+  return task.detection_status.filter((node) => node.node_code.startsWith(PROJECT_DETECTION_NODE_REASONING_PREFIX));
 }
 
 function areReasoningNodesSucceeded(nodes: ProjectDetectionNodeStatus[]): boolean {
@@ -328,7 +331,7 @@ function areReasoningNodesSucceeded(nodes: ProjectDetectionNodeStatus[]): boolea
 function normalizeDetectionTask(task: ProjectDetectionStatus): ProjectDetectionStatus {
   return {
     ...task,
-    detection_status: task.detection_status ?? [],
+    detection_status: task.detection_status,
   };
 }
 
@@ -396,7 +399,7 @@ function mergeProjectDetectionNode(
   return currentNode;
 }
 
-function mergeProjectDetectionTaskStatus_Value(
+function mergeProjectDetectionTaskStatus(
   currentStatus: ProjectDetectionTaskStatus_Value,
   nextStatus: ProjectDetectionTaskStatus_Value,
 ): ProjectDetectionTaskStatus_Value {
@@ -460,14 +463,14 @@ function isProjectDetectionTaskStatusChangedRecord(
     typeof value.image_uuid === 'string' &&
     typeof value.node_code === 'string' &&
     typeof value.main_task_uuid === 'string' &&
-    isProjectDetectionTaskStatus_Value(value.main_status) &&
+    isProjectDetectionTaskStatusValue(value.main_status) &&
     typeof value.sub_task_uuid === 'string' &&
-    isProjectDetectionSubTaskStatus_Value(value.sub_status) &&
+    isProjectDetectionSubTaskStatusValue(value.sub_status) &&
     typeof value.occurred_at === 'string'
   );
 }
 
-function isProjectDetectionTaskStatus_Value(value: unknown): value is ProjectDetectionTaskStatus_Value {
+function isProjectDetectionTaskStatusValue(value: unknown): value is ProjectDetectionTaskStatus_Value {
   return (
     value === ProjectDetectionTaskStatus_Value.Pending ||
     value === ProjectDetectionTaskStatus_Value.Classifying ||
@@ -478,7 +481,7 @@ function isProjectDetectionTaskStatus_Value(value: unknown): value is ProjectDet
   );
 }
 
-function isProjectDetectionSubTaskStatus_Value(value: unknown): value is ProjectDetectionSubTaskStatus_Value {
+function isProjectDetectionSubTaskStatusValue(value: unknown): value is ProjectDetectionSubTaskStatus_Value {
   return (
     value === ProjectDetectionSubTaskStatus_Value.Pending ||
     value === ProjectDetectionSubTaskStatus_Value.Succeeded ||

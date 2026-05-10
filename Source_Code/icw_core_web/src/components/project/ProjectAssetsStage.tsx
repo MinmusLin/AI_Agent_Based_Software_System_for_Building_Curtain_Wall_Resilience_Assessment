@@ -5,22 +5,22 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ProjectAssessContent } from '@/components/project/assess/ProjectAssessContent';
 import { ProjectAssessToolbar } from '@/components/project/assess/ProjectAssessToolbar';
 import { ProjectAssessViewer } from '@/components/project/assess/ProjectAssessViewer';
+import type { Project } from '@/gen/core/api/common';
+import type { ProjectProgress_Value } from '@/gen/core/common';
 import { useProjectAssetsActions } from '@/hooks/project/useProjectAssetsActions';
 import { useProjectAssetsBatch } from '@/hooks/project/useProjectAssetsBatch';
 import { useProjectAssetsDrag } from '@/hooks/project/useProjectAssetsDrag';
 import { useProjectAssetsSocket } from '@/hooks/project/useProjectAssetsSocket';
 import { useProjectAssetsViewer } from '@/hooks/project/useProjectAssetsViewer';
-import type { ProjectProgress } from '@/types/common';
-import type { Project } from '@/types/project/core';
 import { flattenUploadedImages, projectGroupImageStats, UPLOAD_ACCEPT } from '@/utils/assetsStage';
 
 interface ProjectAssetsStageProps {
   loading?: boolean;
-  onProgressChange: (progress: ProjectProgress) => void;
+  onProgressChange: (progress: ProjectProgress_Value) => void;
   onProjectChange: (project: Project) => void;
   project: Project;
   projectId: string;
-  selectedProgress: ProjectProgress;
+  selectedProgress: ProjectProgress_Value;
 }
 
 export function ProjectAssetsStage({
