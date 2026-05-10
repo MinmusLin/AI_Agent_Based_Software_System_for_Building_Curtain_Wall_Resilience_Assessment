@@ -80,7 +80,7 @@ const styleRules = {
     },
     {
       selector: String.raw`Literal[value=/^(?:custom|default|none|pending|uploaded|failed|profile|assets|detection|review|report|initializing|authenticated|anonymous)$/]:not(VariableDeclarator > Literal)`,
-      message: 'Enum-like string literals must be defined in src/types/common.ts and imported as constants.',
+      message: 'Enum-like string literals must be defined in src/constants/common.ts and imported as constants.',
     },
   ],
   'perfectionist/sort-jsx-props': ['error', { ignoreCase: true, order: 'asc', type: 'alphabetical' }],
@@ -148,6 +148,17 @@ const qualityRules = {
   ],
   '@typescript-eslint/no-explicit-any': 'error',
   '@typescript-eslint/no-import-type-side-effects': 'error',
+  '@typescript-eslint/no-unused-vars': [
+    'error',
+    {
+      args: 'all',
+      argsIgnorePattern: '^_',
+      caughtErrors: 'all',
+      caughtErrorsIgnorePattern: '^_',
+      ignoreRestSiblings: false,
+      varsIgnorePattern: '^_',
+    },
+  ],
   '@typescript-eslint/no-magic-numbers': [
     'error',
     {
@@ -176,6 +187,7 @@ const qualityRules = {
   'no-debugger': 'error',
   'no-alert': 'error',
   'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
+  'no-unused-vars': 'off',
   'no-else-return': 'error',
   'no-restricted-imports': [
     'error',
