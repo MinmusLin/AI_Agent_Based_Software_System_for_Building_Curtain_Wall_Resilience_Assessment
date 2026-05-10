@@ -18,10 +18,9 @@ import {
   updateProjectProfile,
   uploadProjectThumbnail,
 } from '@/api/project/profile';
-import type { ProjectProgress } from '@/types/common';
-import { PROJECT_PROGRESS_INITIALIZATION_FINISHED, PROJECT_PROGRESS_PROFILE_FINISHED } from '@/types/common';
-import type { Project } from '@/types/project/core';
-import type { UpdateProjectProfileRequest } from '@/types/project/profile';
+import type { Project } from '@/gen/core/api/common';
+import type { UpdateProjectProfileRequest } from '@/gen/core/api/project_profile';
+import { ProjectProgress_Value } from '@/gen/core/common';
 import { formatDateTime } from '@/utils/datetime';
 import {
   isAllowedProjectThumbnailFile,
@@ -300,11 +299,11 @@ function ProjectThumbnailControl({
 
 interface ProjectProfileStageProps {
   loading?: boolean;
-  onProgressChange: (progress: ProjectProgress) => void;
+  onProgressChange: (progress: ProjectProgress_Value) => void;
   onProjectChange: (project: Project) => void;
   project: Project;
   projectId: string;
-  selectedProgress: ProjectProgress;
+  selectedProgress: ProjectProgress_Value;
 }
 
 export function ProjectProfileStage({
@@ -325,12 +324,12 @@ export function ProjectProfileStage({
   const builtYearText = form.builtYear > EMPTY_BUILT_YEAR ? `${String(form.builtYear)} 年` : '';
   const readOnly =
     loading ||
-    project.progress > PROJECT_PROGRESS_INITIALIZATION_FINISHED ||
-    selectedProgress !== PROJECT_PROGRESS_INITIALIZATION_FINISHED;
+    project.progress > ProjectProgress_Value.InitializationFinished ||
+    selectedProgress !== ProjectProgress_Value.InitializationFinished;
   const canComplete =
     loading ||
-    (project.progress === PROJECT_PROGRESS_INITIALIZATION_FINISHED &&
-      selectedProgress === PROJECT_PROGRESS_INITIALIZATION_FINISHED);
+    (project.progress === ProjectProgress_Value.InitializationFinished &&
+      selectedProgress === ProjectProgress_Value.InitializationFinished);
 
   const updateFormField = useCallback(
     <Key extends keyof ProfileFormState>(key: Key, value: ProfileFormState[Key]): void => {
@@ -346,6 +345,9 @@ export function ProjectProfileStage({
     setSaving(true);
     try {
       const data = await updateProjectProfile(formToPayload(projectId, form));
+      if (!data.project) {
+        throw new Error('project is empty');
+      }
       onProjectChange(data.project);
       setForm(projectToForm(data.project));
       void messageApi.success('保存成功');
@@ -362,13 +364,13 @@ export function ProjectProfileStage({
       await advanceProject({
         project_id: projectId,
         from_progress: project.progress,
-        to_progress: PROJECT_PROGRESS_PROFILE_FINISHED,
+        to_progress: ProjectProgress_Value.ProfileFinished,
       });
       onProjectChange({
         ...project,
-        progress: PROJECT_PROGRESS_PROFILE_FINISHED,
+        progress: ProjectProgress_Value.ProfileFinished,
       });
-      onProgressChange(PROJECT_PROGRESS_PROFILE_FINISHED);
+      onProgressChange(ProjectProgress_Value.ProfileFinished);
     } catch (error: unknown) {
       void messageApi.error(getErrorMessage(error));
     } finally {
