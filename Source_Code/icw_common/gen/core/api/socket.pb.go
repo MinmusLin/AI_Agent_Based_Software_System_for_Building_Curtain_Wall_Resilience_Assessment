@@ -9,6 +9,7 @@ package apipb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -23,9 +24,9 @@ const (
 
 // CreateSocketTicket 请求结构体
 type CreateSocketTicketRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Scope         string                 `protobuf:"bytes,2,opt,name=scope,proto3" json:"scope,omitempty"`
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	ProjectId     string                   `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Scope         common.SocketScope_Value `protobuf:"varint,2,opt,name=scope,proto3,enum=icw.core.common.SocketScope_Value" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -67,11 +68,11 @@ func (x *CreateSocketTicketRequest) GetProjectId() string {
 	return ""
 }
 
-func (x *CreateSocketTicketRequest) GetScope() string {
+func (x *CreateSocketTicketRequest) GetScope() common.SocketScope_Value {
 	if x != nil {
 		return x.Scope
 	}
-	return ""
+	return common.SocketScope_Value(0)
 }
 
 // CreateSocketTicket 响应结构体
@@ -129,10 +130,10 @@ func (x *CreateSocketTicketResponse) GetExpiresIn() int64 {
 
 // SetupWebSocket 请求结构体
 type SetupWebSocketRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"` // 从 HTTP Query 获取
-	Scope         string                 `protobuf:"bytes,2,opt,name=scope,proto3" json:"scope,omitempty"`                          // 从 HTTP Query 获取
-	Ticket        string                 `protobuf:"bytes,3,opt,name=ticket,proto3" json:"ticket,omitempty"`                        // 从 HTTP Query 获取
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	ProjectId     string                   `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`                // 从 HTTP Query 获取
+	Scope         common.SocketScope_Value `protobuf:"varint,2,opt,name=scope,proto3,enum=icw.core.common.SocketScope_Value" json:"scope,omitempty"` // 从 HTTP Query 获取
+	Ticket        string                   `protobuf:"bytes,3,opt,name=ticket,proto3" json:"ticket,omitempty"`                                       // 从 HTTP Query 获取
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -174,11 +175,11 @@ func (x *SetupWebSocketRequest) GetProjectId() string {
 	return ""
 }
 
-func (x *SetupWebSocketRequest) GetScope() string {
+func (x *SetupWebSocketRequest) GetScope() common.SocketScope_Value {
 	if x != nil {
 		return x.Scope
 	}
-	return ""
+	return common.SocketScope_Value(0)
 }
 
 func (x *SetupWebSocketRequest) GetTicket() string {
@@ -229,19 +230,19 @@ var File_core_api_socket_proto protoreflect.FileDescriptor
 
 const file_core_api_socket_proto_rawDesc = "" +
 	"\n" +
-	"\x15core/api/socket.proto\x12\ficw.core.api\"P\n" +
+	"\x15core/api/socket.proto\x12\ficw.core.api\x1a\x11core/common.proto\"t\n" +
 	"\x19CreateSocketTicketRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
-	"\x05scope\x18\x02 \x01(\tR\x05scope\"S\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x128\n" +
+	"\x05scope\x18\x02 \x01(\x0e2\".icw.core.common.SocketScope.ValueR\x05scope\"S\n" +
 	"\x1aCreateSocketTicketResponse\x12\x16\n" +
 	"\x06ticket\x18\x01 \x01(\tR\x06ticket\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"d\n" +
+	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"\x88\x01\n" +
 	"\x15SetupWebSocketRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
-	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x16\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x128\n" +
+	"\x05scope\x18\x02 \x01(\x0e2\".icw.core.common.SocketScope.ValueR\x05scope\x12\x16\n" +
 	"\x06ticket\x18\x03 \x01(\tR\x06ticket\"\x18\n" +
 	"\x16SetupWebSocketResponseB\x1fZ\x1dicw_common/gen/core/api;apipbb\x06proto3"
 
@@ -263,13 +264,16 @@ var file_core_api_socket_proto_goTypes = []any{
 	(*CreateSocketTicketResponse)(nil), // 1: icw.core.api.CreateSocketTicketResponse
 	(*SetupWebSocketRequest)(nil),      // 2: icw.core.api.SetupWebSocketRequest
 	(*SetupWebSocketResponse)(nil),     // 3: icw.core.api.SetupWebSocketResponse
+	(common.SocketScope_Value)(0),      // 4: icw.core.common.SocketScope.Value
 }
 var file_core_api_socket_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: icw.core.api.CreateSocketTicketRequest.scope:type_name -> icw.core.common.SocketScope.Value
+	4, // 1: icw.core.api.SetupWebSocketRequest.scope:type_name -> icw.core.common.SocketScope.Value
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_core_api_socket_proto_init() }

@@ -9,6 +9,7 @@ package bizpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -23,11 +24,11 @@ const (
 
 // CreateSocketTicket 请求结构体
 type CreateSocketTicketRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ProjectCode   string                 `protobuf:"bytes,3,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
-	Scope         string                 `protobuf:"bytes,4,opt,name=scope,proto3" json:"scope,omitempty"`
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	UserId        uint64                   `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                   `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ProjectCode   string                   `protobuf:"bytes,3,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
+	Scope         common.SocketScope_Value `protobuf:"varint,4,opt,name=scope,proto3,enum=icw.core.common.SocketScope_Value" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -83,11 +84,11 @@ func (x *CreateSocketTicketRequest) GetProjectCode() string {
 	return ""
 }
 
-func (x *CreateSocketTicketRequest) GetScope() string {
+func (x *CreateSocketTicketRequest) GetScope() common.SocketScope_Value {
 	if x != nil {
 		return x.Scope
 	}
-	return ""
+	return common.SocketScope_Value(0)
 }
 
 // CreateSocketTicket 响应结构体
@@ -145,10 +146,10 @@ func (x *CreateSocketTicketResponse) GetExpiresIn() int64 {
 
 // ValidateSocketTicket 请求结构体
 type ValidateSocketTicketRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectCode   string                 `protobuf:"bytes,1,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
-	Scope         string                 `protobuf:"bytes,2,opt,name=scope,proto3" json:"scope,omitempty"`
-	Ticket        string                 `protobuf:"bytes,3,opt,name=ticket,proto3" json:"ticket,omitempty"`
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	ProjectCode   string                   `protobuf:"bytes,1,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
+	Scope         common.SocketScope_Value `protobuf:"varint,2,opt,name=scope,proto3,enum=icw.core.common.SocketScope_Value" json:"scope,omitempty"`
+	Ticket        string                   `protobuf:"bytes,3,opt,name=ticket,proto3" json:"ticket,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -190,11 +191,11 @@ func (x *ValidateSocketTicketRequest) GetProjectCode() string {
 	return ""
 }
 
-func (x *ValidateSocketTicketRequest) GetScope() string {
+func (x *ValidateSocketTicketRequest) GetScope() common.SocketScope_Value {
 	if x != nil {
 		return x.Scope
 	}
-	return ""
+	return common.SocketScope_Value(0)
 }
 
 func (x *ValidateSocketTicketRequest) GetTicket() string {
@@ -245,20 +246,20 @@ var File_core_biz_socket_proto protoreflect.FileDescriptor
 
 const file_core_biz_socket_proto_rawDesc = "" +
 	"\n" +
-	"\x15core/biz/socket.proto\x12\ficw.core.biz\"\x8c\x01\n" +
+	"\x15core/biz/socket.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"\xb0\x01\n" +
 	"\x19CreateSocketTicketRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\x12!\n" +
-	"\fproject_code\x18\x03 \x01(\tR\vprojectCode\x12\x14\n" +
-	"\x05scope\x18\x04 \x01(\tR\x05scope\"S\n" +
+	"\fproject_code\x18\x03 \x01(\tR\vprojectCode\x128\n" +
+	"\x05scope\x18\x04 \x01(\x0e2\".icw.core.common.SocketScope.ValueR\x05scope\"S\n" +
 	"\x1aCreateSocketTicketResponse\x12\x16\n" +
 	"\x06ticket\x18\x01 \x01(\tR\x06ticket\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"n\n" +
+	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"\x92\x01\n" +
 	"\x1bValidateSocketTicketRequest\x12!\n" +
-	"\fproject_code\x18\x01 \x01(\tR\vprojectCode\x12\x14\n" +
-	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x16\n" +
+	"\fproject_code\x18\x01 \x01(\tR\vprojectCode\x128\n" +
+	"\x05scope\x18\x02 \x01(\x0e2\".icw.core.common.SocketScope.ValueR\x05scope\x12\x16\n" +
 	"\x06ticket\x18\x03 \x01(\tR\x06ticket\"\x1e\n" +
 	"\x1cValidateSocketTicketResponse2\xe7\x01\n" +
 	"\rSocketService\x12g\n" +
@@ -283,17 +284,20 @@ var file_core_biz_socket_proto_goTypes = []any{
 	(*CreateSocketTicketResponse)(nil),   // 1: icw.core.biz.CreateSocketTicketResponse
 	(*ValidateSocketTicketRequest)(nil),  // 2: icw.core.biz.ValidateSocketTicketRequest
 	(*ValidateSocketTicketResponse)(nil), // 3: icw.core.biz.ValidateSocketTicketResponse
+	(common.SocketScope_Value)(0),        // 4: icw.core.common.SocketScope.Value
 }
 var file_core_biz_socket_proto_depIdxs = []int32{
-	0, // 0: icw.core.biz.SocketService.CreateSocketTicket:input_type -> icw.core.biz.CreateSocketTicketRequest
-	2, // 1: icw.core.biz.SocketService.ValidateSocketTicket:input_type -> icw.core.biz.ValidateSocketTicketRequest
-	1, // 2: icw.core.biz.SocketService.CreateSocketTicket:output_type -> icw.core.biz.CreateSocketTicketResponse
-	3, // 3: icw.core.biz.SocketService.ValidateSocketTicket:output_type -> icw.core.biz.ValidateSocketTicketResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: icw.core.biz.CreateSocketTicketRequest.scope:type_name -> icw.core.common.SocketScope.Value
+	4, // 1: icw.core.biz.ValidateSocketTicketRequest.scope:type_name -> icw.core.common.SocketScope.Value
+	0, // 2: icw.core.biz.SocketService.CreateSocketTicket:input_type -> icw.core.biz.CreateSocketTicketRequest
+	2, // 3: icw.core.biz.SocketService.ValidateSocketTicket:input_type -> icw.core.biz.ValidateSocketTicketRequest
+	1, // 4: icw.core.biz.SocketService.CreateSocketTicket:output_type -> icw.core.biz.CreateSocketTicketResponse
+	3, // 5: icw.core.biz.SocketService.ValidateSocketTicket:output_type -> icw.core.biz.ValidateSocketTicketResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_socket_proto_init() }

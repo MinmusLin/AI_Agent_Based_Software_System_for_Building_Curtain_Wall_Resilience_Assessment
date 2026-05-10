@@ -9,7 +9,7 @@ import "core/common.proto";
 // 项目图像状态变化 RocketMQ 事件结构体
 message ProjectImageStatusChangedEvent {
   string event_id = 1;
-  string event_type = 2;
+  .icw.core.common.ProjectEventType.Value event_type = 2;
   uint64 project_id = 3;
   string project_code = 4;
   uint64 user_id = 5;
@@ -20,7 +20,7 @@ message ProjectImageStatusChangedEvent {
 // 项目图像检测任务状态变化 RocketMQ 事件结构体
 message ProjectDetectionTaskStatusChangedEvent {
   string event_id = 1;
-  string event_type = 2;
+  .icw.core.common.ProjectEventType.Value event_type = 2;
   uint64 project_id = 3;
   string project_code = 4;
   uint64 user_id = 5;
@@ -36,7 +36,7 @@ message ProjectDetectionTaskStatusChangedEvent {
 // 项目评估报告状态变化 RocketMQ 事件结构体
 message ProjectReportStatusChangedEvent {
   string event_id = 1;
-  string event_type = 2;
+  .icw.core.common.ProjectEventType.Value event_type = 2;
   uint64 project_id = 3;
   string project_code = 4;
   uint64 user_id = 5;

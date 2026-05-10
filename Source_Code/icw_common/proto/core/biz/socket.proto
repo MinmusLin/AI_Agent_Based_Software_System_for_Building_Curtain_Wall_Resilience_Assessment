@@ -4,12 +4,14 @@ package icw.core.biz;
 
 option go_package = "icw_common/gen/core/biz;bizpb";
 
+import "core/common.proto";
+
 // CreateSocketTicket 请求结构体
 message CreateSocketTicketRequest {
   uint64 user_id = 1;
   uint64 project_id = 2;
   string project_code = 3;
-  string scope = 4;
+  .icw.core.common.SocketScope.Value scope = 4;
 }
 
 // CreateSocketTicket 响应结构体
@@ -21,7 +23,7 @@ message CreateSocketTicketResponse {
 // ValidateSocketTicket 请求结构体
 message ValidateSocketTicketRequest {
   string project_code = 1;
-  string scope = 2;
+  .icw.core.common.SocketScope.Value scope = 2;
   string ticket = 3;
 }
 

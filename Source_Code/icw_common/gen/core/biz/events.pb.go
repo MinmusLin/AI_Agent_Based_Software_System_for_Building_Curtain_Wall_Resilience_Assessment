@@ -24,14 +24,14 @@ const (
 
 // 项目图像状态变化 RocketMQ 事件结构体
 type ProjectImageStatusChangedEvent struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	EventId       string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
-	EventType     string                 `protobuf:"bytes,2,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`
-	ProjectId     uint64                 `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ProjectCode   string                 `protobuf:"bytes,4,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
-	UserId        uint64                 `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Image         *common.ProjectImage   `protobuf:"bytes,6,opt,name=image,proto3" json:"image,omitempty"`
-	OccurredAt    string                 `protobuf:"bytes,7,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	EventId       string                        `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	EventType     common.ProjectEventType_Value `protobuf:"varint,2,opt,name=event_type,json=eventType,proto3,enum=icw.core.common.ProjectEventType_Value" json:"event_type,omitempty"`
+	ProjectId     uint64                        `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ProjectCode   string                        `protobuf:"bytes,4,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
+	UserId        uint64                        `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Image         *common.ProjectImage          `protobuf:"bytes,6,opt,name=image,proto3" json:"image,omitempty"`
+	OccurredAt    string                        `protobuf:"bytes,7,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,11 +73,11 @@ func (x *ProjectImageStatusChangedEvent) GetEventId() string {
 	return ""
 }
 
-func (x *ProjectImageStatusChangedEvent) GetEventType() string {
+func (x *ProjectImageStatusChangedEvent) GetEventType() common.ProjectEventType_Value {
 	if x != nil {
 		return x.EventType
 	}
-	return ""
+	return common.ProjectEventType_Value(0)
 }
 
 func (x *ProjectImageStatusChangedEvent) GetProjectId() uint64 {
@@ -119,7 +119,7 @@ func (x *ProjectImageStatusChangedEvent) GetOccurredAt() string {
 type ProjectDetectionTaskStatusChangedEvent struct {
 	state         protoimpl.MessageState                     `protogen:"open.v1"`
 	EventId       string                                     `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
-	EventType     string                                     `protobuf:"bytes,2,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`
+	EventType     common.ProjectEventType_Value              `protobuf:"varint,2,opt,name=event_type,json=eventType,proto3,enum=icw.core.common.ProjectEventType_Value" json:"event_type,omitempty"`
 	ProjectId     uint64                                     `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	ProjectCode   string                                     `protobuf:"bytes,4,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
 	UserId        uint64                                     `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -171,11 +171,11 @@ func (x *ProjectDetectionTaskStatusChangedEvent) GetEventId() string {
 	return ""
 }
 
-func (x *ProjectDetectionTaskStatusChangedEvent) GetEventType() string {
+func (x *ProjectDetectionTaskStatusChangedEvent) GetEventType() common.ProjectEventType_Value {
 	if x != nil {
 		return x.EventType
 	}
-	return ""
+	return common.ProjectEventType_Value(0)
 }
 
 func (x *ProjectDetectionTaskStatusChangedEvent) GetProjectId() uint64 {
@@ -252,7 +252,7 @@ func (x *ProjectDetectionTaskStatusChangedEvent) GetOccurredAt() string {
 type ProjectReportStatusChangedEvent struct {
 	state         protoimpl.MessageState           `protogen:"open.v1"`
 	EventId       string                           `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
-	EventType     string                           `protobuf:"bytes,2,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`
+	EventType     common.ProjectEventType_Value    `protobuf:"varint,2,opt,name=event_type,json=eventType,proto3,enum=icw.core.common.ProjectEventType_Value" json:"event_type,omitempty"`
 	ProjectId     uint64                           `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	ProjectCode   string                           `protobuf:"bytes,4,opt,name=project_code,json=projectCode,proto3" json:"project_code,omitempty"`
 	UserId        uint64                           `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -300,11 +300,11 @@ func (x *ProjectReportStatusChangedEvent) GetEventId() string {
 	return ""
 }
 
-func (x *ProjectReportStatusChangedEvent) GetEventType() string {
+func (x *ProjectReportStatusChangedEvent) GetEventType() common.ProjectEventType_Value {
 	if x != nil {
 		return x.EventType
 	}
-	return ""
+	return common.ProjectEventType_Value(0)
 }
 
 func (x *ProjectReportStatusChangedEvent) GetProjectId() uint64 {
@@ -353,22 +353,22 @@ var File_core_biz_events_proto protoreflect.FileDescriptor
 
 const file_core_biz_events_proto_rawDesc = "" +
 	"\n" +
-	"\x15core/biz/events.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"\x8b\x02\n" +
+	"\x15core/biz/events.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"\xb4\x02\n" +
 	"\x1eProjectImageStatusChangedEvent\x12\x19\n" +
-	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1d\n" +
+	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12F\n" +
 	"\n" +
-	"event_type\x18\x02 \x01(\tR\teventType\x12\x1d\n" +
+	"event_type\x18\x02 \x01(\x0e2'.icw.core.common.ProjectEventType.ValueR\teventType\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x03 \x01(\x04R\tprojectId\x12!\n" +
 	"\fproject_code\x18\x04 \x01(\tR\vprojectCode\x12\x17\n" +
 	"\auser_id\x18\x05 \x01(\x04R\x06userId\x123\n" +
 	"\x05image\x18\x06 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\x12\x1f\n" +
 	"\voccurred_at\x18\a \x01(\tR\n" +
-	"occurredAt\"\x8d\x04\n" +
+	"occurredAt\"\xb6\x04\n" +
 	"&ProjectDetectionTaskStatusChangedEvent\x12\x19\n" +
-	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1d\n" +
+	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12F\n" +
 	"\n" +
-	"event_type\x18\x02 \x01(\tR\teventType\x12\x1d\n" +
+	"event_type\x18\x02 \x01(\x0e2'.icw.core.common.ProjectEventType.ValueR\teventType\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x03 \x01(\x04R\tprojectId\x12!\n" +
 	"\fproject_code\x18\x04 \x01(\tR\vprojectCode\x12\x17\n" +
@@ -384,11 +384,11 @@ const file_core_biz_events_proto_rawDesc = "" +
 	"\n" +
 	"sub_status\x18\v \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\x12\x1f\n" +
 	"\voccurred_at\x18\f \x01(\tR\n" +
-	"occurredAt\"\xbc\x02\n" +
+	"occurredAt\"\xe5\x02\n" +
 	"\x1fProjectReportStatusChangedEvent\x12\x19\n" +
-	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1d\n" +
+	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12F\n" +
 	"\n" +
-	"event_type\x18\x02 \x01(\tR\teventType\x12\x1d\n" +
+	"event_type\x18\x02 \x01(\x0e2'.icw.core.common.ProjectEventType.ValueR\teventType\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x03 \x01(\x04R\tprojectId\x12!\n" +
 	"\fproject_code\x18\x04 \x01(\tR\vprojectCode\x12\x17\n" +
@@ -416,21 +416,25 @@ var file_core_biz_events_proto_goTypes = []any{
 	(*ProjectImageStatusChangedEvent)(nil),          // 0: icw.core.biz.ProjectImageStatusChangedEvent
 	(*ProjectDetectionTaskStatusChangedEvent)(nil),  // 1: icw.core.biz.ProjectDetectionTaskStatusChangedEvent
 	(*ProjectReportStatusChangedEvent)(nil),         // 2: icw.core.biz.ProjectReportStatusChangedEvent
-	(*common.ProjectImage)(nil),                     // 3: icw.core.common.ProjectImage
-	(common.ProjectDetectionTaskStatus_Value)(0),    // 4: icw.core.common.ProjectDetectionTaskStatus.Value
-	(common.ProjectDetectionSubTaskStatus_Value)(0), // 5: icw.core.common.ProjectDetectionSubTaskStatus.Value
-	(common.ProjectReportStatus_Value)(0),           // 6: icw.core.common.ProjectReportStatus.Value
+	(common.ProjectEventType_Value)(0),              // 3: icw.core.common.ProjectEventType.Value
+	(*common.ProjectImage)(nil),                     // 4: icw.core.common.ProjectImage
+	(common.ProjectDetectionTaskStatus_Value)(0),    // 5: icw.core.common.ProjectDetectionTaskStatus.Value
+	(common.ProjectDetectionSubTaskStatus_Value)(0), // 6: icw.core.common.ProjectDetectionSubTaskStatus.Value
+	(common.ProjectReportStatus_Value)(0),           // 7: icw.core.common.ProjectReportStatus.Value
 }
 var file_core_biz_events_proto_depIdxs = []int32{
-	3, // 0: icw.core.biz.ProjectImageStatusChangedEvent.image:type_name -> icw.core.common.ProjectImage
-	4, // 1: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
-	5, // 2: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	6, // 3: icw.core.biz.ProjectReportStatusChangedEvent.status:type_name -> icw.core.common.ProjectReportStatus.Value
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 0: icw.core.biz.ProjectImageStatusChangedEvent.event_type:type_name -> icw.core.common.ProjectEventType.Value
+	4, // 1: icw.core.biz.ProjectImageStatusChangedEvent.image:type_name -> icw.core.common.ProjectImage
+	3, // 2: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.event_type:type_name -> icw.core.common.ProjectEventType.Value
+	5, // 3: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
+	6, // 4: icw.core.biz.ProjectDetectionTaskStatusChangedEvent.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	3, // 5: icw.core.biz.ProjectReportStatusChangedEvent.event_type:type_name -> icw.core.common.ProjectEventType.Value
+	7, // 6: icw.core.biz.ProjectReportStatusChangedEvent.status:type_name -> icw.core.common.ProjectReportStatus.Value
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_events_proto_init() }

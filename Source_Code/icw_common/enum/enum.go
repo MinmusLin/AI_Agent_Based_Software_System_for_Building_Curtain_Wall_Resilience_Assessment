@@ -1,6 +1,7 @@
 package enum
 
 import (
+	"strconv"
 	"strings"
 
 	"icw_common/gen/core/common"
@@ -82,6 +83,101 @@ func ParseEmailSendStatus(value string) commonpb.EmailSendStatus_Value {
 	}
 }
 
+// AvatarTypeString 将用户头像类型枚举转换为字符串
+func AvatarTypeString(avatarType commonpb.AvatarType_Value) string {
+	switch avatarType {
+	case commonpb.AvatarType_Custom:
+		return "custom"
+	case commonpb.AvatarType_Default:
+		return "default"
+	case commonpb.AvatarType_None:
+		return "none"
+	default:
+		return ""
+	}
+}
+
+// ParseAvatarType 将存储值转换为用户头像类型枚举
+func ParseAvatarType(value string) commonpb.AvatarType_Value {
+	switch strings.TrimSpace(value) {
+	case "custom":
+		return commonpb.AvatarType_Custom
+	case "default":
+		return commonpb.AvatarType_Default
+	case "none":
+		return commonpb.AvatarType_None
+	default:
+		return commonpb.AvatarType_Unknown
+	}
+}
+
+// ProjectEventTypeString 将项目事件类型枚举转换为字符串
+func ProjectEventTypeString(eventType commonpb.ProjectEventType_Value) string {
+	switch eventType {
+	case commonpb.ProjectEventType_ImageStatusChanged:
+		return "project_image_status_changed"
+	case commonpb.ProjectEventType_DetectionTaskStatusChanged:
+		return "project_detection_task_status_changed"
+	case commonpb.ProjectEventType_ReportStatusChanged:
+		return "project_report_status_changed"
+	default:
+		return ""
+	}
+}
+
+// ParseProjectEventType 将存储值转换为项目事件类型枚举
+func ParseProjectEventType(value string) commonpb.ProjectEventType_Value {
+	switch strings.TrimSpace(value) {
+	case "project_image_status_changed":
+		return commonpb.ProjectEventType_ImageStatusChanged
+	case "project_detection_task_status_changed":
+		return commonpb.ProjectEventType_DetectionTaskStatusChanged
+	case "project_report_status_changed":
+		return commonpb.ProjectEventType_ReportStatusChanged
+	default:
+		return commonpb.ProjectEventType_Unknown
+	}
+}
+
+// SocketScopeString 将 WebSocket 连接范围枚举转换为字符串
+func SocketScopeString(scope commonpb.SocketScope_Value) string {
+	switch scope {
+	case commonpb.SocketScope_ProjectAssets:
+		return "ws_project_assets"
+	case commonpb.SocketScope_ProjectDetection:
+		return "ws_project_detection"
+	case commonpb.SocketScope_ProjectReport:
+		return "ws_project_report"
+	default:
+		return ""
+	}
+}
+
+// ParseSocketScope 将存储值转换为 WebSocket 连接范围枚举
+func ParseSocketScope(value string) commonpb.SocketScope_Value {
+	value = strings.TrimSpace(value)
+	if numericValue, err := strconv.Atoi(value); err == nil {
+		switch scope := commonpb.SocketScope_Value(numericValue); scope {
+		case commonpb.SocketScope_ProjectAssets,
+			commonpb.SocketScope_ProjectDetection,
+			commonpb.SocketScope_ProjectReport:
+			return scope
+		default:
+			return commonpb.SocketScope_Unknown
+		}
+	}
+	switch value {
+	case "ws_project_assets":
+		return commonpb.SocketScope_ProjectAssets
+	case "ws_project_detection":
+		return commonpb.SocketScope_ProjectDetection
+	case "ws_project_report":
+		return commonpb.SocketScope_ProjectReport
+	default:
+		return commonpb.SocketScope_Unknown
+	}
+}
+
 // TaskStatusString 将任务状态枚举转换为字符串
 func TaskStatusString(status commonpb.TaskStatus_Value) string {
 	switch status {
@@ -103,6 +199,34 @@ func ParseTaskStatus(value string) commonpb.TaskStatus_Value {
 		return commonpb.TaskStatus_Failed
 	default:
 		return commonpb.TaskStatus_Unknown
+	}
+}
+
+// DetectionNodeCodeString 将项目图像检测节点编码枚举转换为字符串
+func DetectionNodeCodeString(code commonpb.DetectionNodeCode_Value) string {
+	switch code {
+	case commonpb.DetectionNodeCode_Classification:
+		return "classification"
+	case commonpb.DetectionNodeCode_Reasoning:
+		return "reasoning"
+	case commonpb.DetectionNodeCode_Summary:
+		return "summary"
+	default:
+		return ""
+	}
+}
+
+// ParseDetectionNodeCode 将存储值转换为项目图像检测节点编码枚举
+func ParseDetectionNodeCode(value string) commonpb.DetectionNodeCode_Value {
+	switch strings.TrimSpace(value) {
+	case "classification":
+		return commonpb.DetectionNodeCode_Classification
+	case "reasoning":
+		return commonpb.DetectionNodeCode_Reasoning
+	case "summary":
+		return commonpb.DetectionNodeCode_Summary
+	default:
+		return commonpb.DetectionNodeCode_Unknown
 	}
 }
 

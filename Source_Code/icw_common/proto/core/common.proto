@@ -42,6 +42,48 @@ message EmailSendStatus {
   }
 }
 
+// 用户头像类型
+message AvatarType {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 自定义头像
+    Custom = 1;
+    // 默认头像
+    Default = 2;
+    // 无头像
+    None = 3;
+  }
+}
+
+// 项目事件类型
+message ProjectEventType {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 项目图像状态变化
+    ImageStatusChanged = 1;
+    // 项目图像检测任务状态变化
+    DetectionTaskStatusChanged = 2;
+    // 项目评估报告状态变化
+    ReportStatusChanged = 3;
+  }
+}
+
+// WebSocket 连接范围
+message SocketScope {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 图像资产
+    ProjectAssets = 1;
+    // 智能检测
+    ProjectDetection = 2;
+    // 评估报告
+    ProjectReport = 3;
+  }
+}
+
 // 任务状态
 message TaskStatus {
   enum Value {
@@ -51,6 +93,20 @@ message TaskStatus {
     Succeeded = 1;
     // 失败
     Failed = 2;
+  }
+}
+
+// 项目图像检测节点编码
+message DetectionNodeCode {
+  enum Value {
+    // 未知
+    Unknown = 0;
+    // 分类节点
+    Classification = 1;
+    // 推理节点
+    Reasoning = 2;
+    // 总结节点
+    Summary = 3;
   }
 }
 

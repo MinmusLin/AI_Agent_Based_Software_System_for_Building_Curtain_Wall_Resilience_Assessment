@@ -154,6 +154,165 @@ export function emailSendStatus_ValueToJSON(object: EmailSendStatus_Value): stri
   }
 }
 
+/** 用户头像类型 */
+export interface AvatarType {
+}
+
+export enum AvatarType_Value {
+  /** Unknown - 未知 */
+  Unknown = 0,
+  /** Custom - 自定义头像 */
+  Custom = 1,
+  /** Default - 默认头像 */
+  Default = 2,
+  /** None - 无头像 */
+  None = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function avatarType_ValueFromJSON(object: any): AvatarType_Value {
+  switch (object) {
+    case 0:
+    case "Unknown":
+      return AvatarType_Value.Unknown;
+    case 1:
+    case "Custom":
+      return AvatarType_Value.Custom;
+    case 2:
+    case "Default":
+      return AvatarType_Value.Default;
+    case 3:
+    case "None":
+      return AvatarType_Value.None;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return AvatarType_Value.UNRECOGNIZED;
+  }
+}
+
+export function avatarType_ValueToJSON(object: AvatarType_Value): string {
+  switch (object) {
+    case AvatarType_Value.Unknown:
+      return "Unknown";
+    case AvatarType_Value.Custom:
+      return "Custom";
+    case AvatarType_Value.Default:
+      return "Default";
+    case AvatarType_Value.None:
+      return "None";
+    case AvatarType_Value.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+/** 项目事件类型 */
+export interface ProjectEventType {
+}
+
+export enum ProjectEventType_Value {
+  /** Unknown - 未知 */
+  Unknown = 0,
+  /** ImageStatusChanged - 项目图像状态变化 */
+  ImageStatusChanged = 1,
+  /** DetectionTaskStatusChanged - 项目图像检测任务状态变化 */
+  DetectionTaskStatusChanged = 2,
+  /** ReportStatusChanged - 项目评估报告状态变化 */
+  ReportStatusChanged = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function projectEventType_ValueFromJSON(object: any): ProjectEventType_Value {
+  switch (object) {
+    case 0:
+    case "Unknown":
+      return ProjectEventType_Value.Unknown;
+    case 1:
+    case "ImageStatusChanged":
+      return ProjectEventType_Value.ImageStatusChanged;
+    case 2:
+    case "DetectionTaskStatusChanged":
+      return ProjectEventType_Value.DetectionTaskStatusChanged;
+    case 3:
+    case "ReportStatusChanged":
+      return ProjectEventType_Value.ReportStatusChanged;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ProjectEventType_Value.UNRECOGNIZED;
+  }
+}
+
+export function projectEventType_ValueToJSON(object: ProjectEventType_Value): string {
+  switch (object) {
+    case ProjectEventType_Value.Unknown:
+      return "Unknown";
+    case ProjectEventType_Value.ImageStatusChanged:
+      return "ImageStatusChanged";
+    case ProjectEventType_Value.DetectionTaskStatusChanged:
+      return "DetectionTaskStatusChanged";
+    case ProjectEventType_Value.ReportStatusChanged:
+      return "ReportStatusChanged";
+    case ProjectEventType_Value.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+/** WebSocket 连接范围 */
+export interface SocketScope {
+}
+
+export enum SocketScope_Value {
+  /** Unknown - 未知 */
+  Unknown = 0,
+  /** ProjectAssets - 图像资产 */
+  ProjectAssets = 1,
+  /** ProjectDetection - 智能检测 */
+  ProjectDetection = 2,
+  /** ProjectReport - 评估报告 */
+  ProjectReport = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function socketScope_ValueFromJSON(object: any): SocketScope_Value {
+  switch (object) {
+    case 0:
+    case "Unknown":
+      return SocketScope_Value.Unknown;
+    case 1:
+    case "ProjectAssets":
+      return SocketScope_Value.ProjectAssets;
+    case 2:
+    case "ProjectDetection":
+      return SocketScope_Value.ProjectDetection;
+    case 3:
+    case "ProjectReport":
+      return SocketScope_Value.ProjectReport;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return SocketScope_Value.UNRECOGNIZED;
+  }
+}
+
+export function socketScope_ValueToJSON(object: SocketScope_Value): string {
+  switch (object) {
+    case SocketScope_Value.Unknown:
+      return "Unknown";
+    case SocketScope_Value.ProjectAssets:
+      return "ProjectAssets";
+    case SocketScope_Value.ProjectDetection:
+      return "ProjectDetection";
+    case SocketScope_Value.ProjectReport:
+      return "ProjectReport";
+    case SocketScope_Value.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** 任务状态 */
 export interface TaskStatus {
 }
@@ -195,6 +354,59 @@ export function taskStatus_ValueToJSON(object: TaskStatus_Value): string {
     case TaskStatus_Value.Failed:
       return "Failed";
     case TaskStatus_Value.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+/** 项目图像检测节点编码 */
+export interface DetectionNodeCode {
+}
+
+export enum DetectionNodeCode_Value {
+  /** Unknown - 未知 */
+  Unknown = 0,
+  /** Classification - 分类节点 */
+  Classification = 1,
+  /** Reasoning - 推理节点 */
+  Reasoning = 2,
+  /** Summary - 总结节点 */
+  Summary = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function detectionNodeCode_ValueFromJSON(object: any): DetectionNodeCode_Value {
+  switch (object) {
+    case 0:
+    case "Unknown":
+      return DetectionNodeCode_Value.Unknown;
+    case 1:
+    case "Classification":
+      return DetectionNodeCode_Value.Classification;
+    case 2:
+    case "Reasoning":
+      return DetectionNodeCode_Value.Reasoning;
+    case 3:
+    case "Summary":
+      return DetectionNodeCode_Value.Summary;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return DetectionNodeCode_Value.UNRECOGNIZED;
+  }
+}
+
+export function detectionNodeCode_ValueToJSON(object: DetectionNodeCode_Value): string {
+  switch (object) {
+    case DetectionNodeCode_Value.Unknown:
+      return "Unknown";
+    case DetectionNodeCode_Value.Classification:
+      return "Classification";
+    case DetectionNodeCode_Value.Reasoning:
+      return "Reasoning";
+    case DetectionNodeCode_Value.Summary:
+      return "Summary";
+    case DetectionNodeCode_Value.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
@@ -1012,6 +1224,135 @@ export const EmailSendStatus: MessageFns<EmailSendStatus> = {
   },
 };
 
+function createBaseAvatarType(): AvatarType {
+  return {};
+}
+
+export const AvatarType: MessageFns<AvatarType> = {
+  encode(_: AvatarType, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AvatarType {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAvatarType();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): AvatarType {
+    return {};
+  },
+
+  toJSON(_: AvatarType): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create(base?: DeepPartial<AvatarType>): AvatarType {
+    return AvatarType.fromPartial(base ?? {});
+  },
+  fromPartial(_: DeepPartial<AvatarType>): AvatarType {
+    const message = createBaseAvatarType();
+    return message;
+  },
+};
+
+function createBaseProjectEventType(): ProjectEventType {
+  return {};
+}
+
+export const ProjectEventType: MessageFns<ProjectEventType> = {
+  encode(_: ProjectEventType, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProjectEventType {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProjectEventType();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): ProjectEventType {
+    return {};
+  },
+
+  toJSON(_: ProjectEventType): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create(base?: DeepPartial<ProjectEventType>): ProjectEventType {
+    return ProjectEventType.fromPartial(base ?? {});
+  },
+  fromPartial(_: DeepPartial<ProjectEventType>): ProjectEventType {
+    const message = createBaseProjectEventType();
+    return message;
+  },
+};
+
+function createBaseSocketScope(): SocketScope {
+  return {};
+}
+
+export const SocketScope: MessageFns<SocketScope> = {
+  encode(_: SocketScope, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SocketScope {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSocketScope();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): SocketScope {
+    return {};
+  },
+
+  toJSON(_: SocketScope): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create(base?: DeepPartial<SocketScope>): SocketScope {
+    return SocketScope.fromPartial(base ?? {});
+  },
+  fromPartial(_: DeepPartial<SocketScope>): SocketScope {
+    const message = createBaseSocketScope();
+    return message;
+  },
+};
+
 function createBaseTaskStatus(): TaskStatus {
   return {};
 }
@@ -1051,6 +1392,49 @@ export const TaskStatus: MessageFns<TaskStatus> = {
   },
   fromPartial(_: DeepPartial<TaskStatus>): TaskStatus {
     const message = createBaseTaskStatus();
+    return message;
+  },
+};
+
+function createBaseDetectionNodeCode(): DetectionNodeCode {
+  return {};
+}
+
+export const DetectionNodeCode: MessageFns<DetectionNodeCode> = {
+  encode(_: DetectionNodeCode, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DetectionNodeCode {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDetectionNodeCode();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): DetectionNodeCode {
+    return {};
+  },
+
+  toJSON(_: DetectionNodeCode): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create(base?: DeepPartial<DetectionNodeCode>): DetectionNodeCode {
+    return DetectionNodeCode.fromPartial(base ?? {});
+  },
+  fromPartial(_: DeepPartial<DetectionNodeCode>): DetectionNodeCode {
+    const message = createBaseDetectionNodeCode();
     return message;
   },
 };

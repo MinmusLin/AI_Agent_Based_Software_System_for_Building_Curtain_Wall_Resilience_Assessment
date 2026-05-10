@@ -9,6 +9,7 @@ package apipb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -134,9 +135,9 @@ func (*GetAvatarRequest) Descriptor() ([]byte, []int) {
 
 // GetAvatar 响应结构体
 type GetAvatarResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AvatarUrl     string                 `protobuf:"bytes,1,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
-	AvatarType    string                 `protobuf:"bytes,2,opt,name=avatar_type,json=avatarType,proto3" json:"avatar_type,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	AvatarUrl     string                  `protobuf:"bytes,1,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	AvatarType    common.AvatarType_Value `protobuf:"varint,2,opt,name=avatar_type,json=avatarType,proto3,enum=icw.core.common.AvatarType_Value" json:"avatar_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -178,11 +179,11 @@ func (x *GetAvatarResponse) GetAvatarUrl() string {
 	return ""
 }
 
-func (x *GetAvatarResponse) GetAvatarType() string {
+func (x *GetAvatarResponse) GetAvatarType() common.AvatarType_Value {
 	if x != nil {
 		return x.AvatarType
 	}
-	return ""
+	return common.AvatarType_Value(0)
 }
 
 // UploadAvatar 请求结构体
@@ -271,14 +272,14 @@ var File_core_api_user_proto protoreflect.FileDescriptor
 
 const file_core_api_user_proto_rawDesc = "" +
 	"\n" +
-	"\x13core/api/user.proto\x12\ficw.core.api\"\x15\n" +
+	"\x13core/api/user.proto\x12\ficw.core.api\x1a\x11core/common.proto\"\x15\n" +
 	"\x13DeleteAvatarRequest\"\x16\n" +
 	"\x14DeleteAvatarResponse\"\x12\n" +
-	"\x10GetAvatarRequest\"S\n" +
+	"\x10GetAvatarRequest\"v\n" +
 	"\x11GetAvatarResponse\x12\x1d\n" +
 	"\n" +
-	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\x12\x1f\n" +
-	"\vavatar_type\x18\x02 \x01(\tR\n" +
+	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\x12B\n" +
+	"\vavatar_type\x18\x02 \x01(\x0e2!.icw.core.common.AvatarType.ValueR\n" +
 	"avatarType\"\x15\n" +
 	"\x13UploadAvatarRequest\"5\n" +
 	"\x14UploadAvatarResponse\x12\x1d\n" +
@@ -305,13 +306,15 @@ var file_core_api_user_proto_goTypes = []any{
 	(*GetAvatarResponse)(nil),    // 3: icw.core.api.GetAvatarResponse
 	(*UploadAvatarRequest)(nil),  // 4: icw.core.api.UploadAvatarRequest
 	(*UploadAvatarResponse)(nil), // 5: icw.core.api.UploadAvatarResponse
+	(common.AvatarType_Value)(0), // 6: icw.core.common.AvatarType.Value
 }
 var file_core_api_user_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	6, // 0: icw.core.api.GetAvatarResponse.avatar_type:type_name -> icw.core.common.AvatarType.Value
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_core_api_user_proto_init() }

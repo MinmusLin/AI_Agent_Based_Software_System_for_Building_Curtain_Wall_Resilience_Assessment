@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { AvatarType_Value, avatarType_ValueFromJSON, avatarType_ValueToJSON } from "../common";
 
 export const protobufPackage = "icw.core.api";
 
@@ -24,7 +25,7 @@ export interface GetAvatarRequest {
 /** GetAvatar 响应结构体 */
 export interface GetAvatarResponse {
   avatar_url: string;
-  avatar_type: string;
+  avatar_type: AvatarType_Value;
 }
 
 /** UploadAvatar 请求结构体 */
@@ -166,7 +167,7 @@ export const GetAvatarRequest: MessageFns<GetAvatarRequest> = {
 };
 
 function createBaseGetAvatarResponse(): GetAvatarResponse {
-  return { avatar_url: "", avatar_type: "" };
+  return { avatar_url: "", avatar_type: 0 };
 }
 
 export const GetAvatarResponse: MessageFns<GetAvatarResponse> = {
@@ -174,8 +175,8 @@ export const GetAvatarResponse: MessageFns<GetAvatarResponse> = {
     if (message.avatar_url !== "") {
       writer.uint32(10).string(message.avatar_url);
     }
-    if (message.avatar_type !== "") {
-      writer.uint32(18).string(message.avatar_type);
+    if (message.avatar_type !== 0) {
+      writer.uint32(16).int32(message.avatar_type);
     }
     return writer;
   },
@@ -196,11 +197,11 @@ export const GetAvatarResponse: MessageFns<GetAvatarResponse> = {
           continue;
         }
         case 2: {
-          if (tag !== 18) {
+          if (tag !== 16) {
             break;
           }
 
-          message.avatar_type = reader.string();
+          message.avatar_type = reader.int32() as any;
           continue;
         }
       }
@@ -220,10 +221,10 @@ export const GetAvatarResponse: MessageFns<GetAvatarResponse> = {
         ? globalThis.String(object.avatar_url)
         : "",
       avatar_type: isSet(object.avatarType)
-        ? globalThis.String(object.avatarType)
+        ? avatarType_ValueFromJSON(object.avatarType)
         : isSet(object.avatar_type)
-        ? globalThis.String(object.avatar_type)
-        : "",
+        ? avatarType_ValueFromJSON(object.avatar_type)
+        : 0,
     };
   },
 
@@ -232,8 +233,8 @@ export const GetAvatarResponse: MessageFns<GetAvatarResponse> = {
     if (message.avatar_url !== "") {
       obj.avatarUrl = message.avatar_url;
     }
-    if (message.avatar_type !== "") {
-      obj.avatarType = message.avatar_type;
+    if (message.avatar_type !== 0) {
+      obj.avatarType = avatarType_ValueToJSON(message.avatar_type);
     }
     return obj;
   },
@@ -244,7 +245,7 @@ export const GetAvatarResponse: MessageFns<GetAvatarResponse> = {
   fromPartial(object: DeepPartial<GetAvatarResponse>): GetAvatarResponse {
     const message = createBaseGetAvatarResponse();
     message.avatar_url = object.avatar_url ?? "";
-    message.avatar_type = object.avatar_type ?? "";
+    message.avatar_type = object.avatar_type ?? 0;
     return message;
   },
 };

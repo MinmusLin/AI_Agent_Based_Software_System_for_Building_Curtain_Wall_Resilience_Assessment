@@ -9,6 +9,7 @@ package bizpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "icw_common/gen/core/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -166,9 +167,9 @@ func (x *GetAvatarRequest) GetEmail() string {
 
 // GetAvatar 响应结构体
 type GetAvatarResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AvatarUrl     string                 `protobuf:"bytes,1,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
-	AvatarType    string                 `protobuf:"bytes,2,opt,name=avatar_type,json=avatarType,proto3" json:"avatar_type,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	AvatarUrl     string                  `protobuf:"bytes,1,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	AvatarType    common.AvatarType_Value `protobuf:"varint,2,opt,name=avatar_type,json=avatarType,proto3,enum=icw.core.common.AvatarType_Value" json:"avatar_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -210,11 +211,11 @@ func (x *GetAvatarResponse) GetAvatarUrl() string {
 	return ""
 }
 
-func (x *GetAvatarResponse) GetAvatarType() string {
+func (x *GetAvatarResponse) GetAvatarType() common.AvatarType_Value {
 	if x != nil {
 		return x.AvatarType
 	}
-	return ""
+	return common.AvatarType_Value(0)
 }
 
 // UploadAvatar 请求结构体
@@ -327,18 +328,18 @@ var File_core_biz_user_proto protoreflect.FileDescriptor
 
 const file_core_biz_user_proto_rawDesc = "" +
 	"\n" +
-	"\x13core/biz/user.proto\x12\ficw.core.biz\"D\n" +
+	"\x13core/biz/user.proto\x12\ficw.core.biz\x1a\x11core/common.proto\"D\n" +
 	"\x13DeleteAvatarRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\"\x16\n" +
 	"\x14DeleteAvatarResponse\"A\n" +
 	"\x10GetAvatarRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\"S\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\"v\n" +
 	"\x11GetAvatarResponse\x12\x1d\n" +
 	"\n" +
-	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\x12\x1f\n" +
-	"\vavatar_type\x18\x02 \x01(\tR\n" +
+	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\x12B\n" +
+	"\vavatar_type\x18\x02 \x01(\x0e2!.icw.core.common.AvatarType.ValueR\n" +
 	"avatarType\"g\n" +
 	"\x13UploadAvatarRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x14\n" +
@@ -372,19 +373,21 @@ var file_core_biz_user_proto_goTypes = []any{
 	(*GetAvatarResponse)(nil),    // 3: icw.core.biz.GetAvatarResponse
 	(*UploadAvatarRequest)(nil),  // 4: icw.core.biz.UploadAvatarRequest
 	(*UploadAvatarResponse)(nil), // 5: icw.core.biz.UploadAvatarResponse
+	(common.AvatarType_Value)(0), // 6: icw.core.common.AvatarType.Value
 }
 var file_core_biz_user_proto_depIdxs = []int32{
-	0, // 0: icw.core.biz.UserService.DeleteAvatar:input_type -> icw.core.biz.DeleteAvatarRequest
-	2, // 1: icw.core.biz.UserService.GetAvatar:input_type -> icw.core.biz.GetAvatarRequest
-	4, // 2: icw.core.biz.UserService.UploadAvatar:input_type -> icw.core.biz.UploadAvatarRequest
-	1, // 3: icw.core.biz.UserService.DeleteAvatar:output_type -> icw.core.biz.DeleteAvatarResponse
-	3, // 4: icw.core.biz.UserService.GetAvatar:output_type -> icw.core.biz.GetAvatarResponse
-	5, // 5: icw.core.biz.UserService.UploadAvatar:output_type -> icw.core.biz.UploadAvatarResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	6, // 0: icw.core.biz.GetAvatarResponse.avatar_type:type_name -> icw.core.common.AvatarType.Value
+	0, // 1: icw.core.biz.UserService.DeleteAvatar:input_type -> icw.core.biz.DeleteAvatarRequest
+	2, // 2: icw.core.biz.UserService.GetAvatar:input_type -> icw.core.biz.GetAvatarRequest
+	4, // 3: icw.core.biz.UserService.UploadAvatar:input_type -> icw.core.biz.UploadAvatarRequest
+	1, // 4: icw.core.biz.UserService.DeleteAvatar:output_type -> icw.core.biz.DeleteAvatarResponse
+	3, // 5: icw.core.biz.UserService.GetAvatar:output_type -> icw.core.biz.GetAvatarResponse
+	5, // 6: icw.core.biz.UserService.UploadAvatar:output_type -> icw.core.biz.UploadAvatarResponse
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_user_proto_init() }

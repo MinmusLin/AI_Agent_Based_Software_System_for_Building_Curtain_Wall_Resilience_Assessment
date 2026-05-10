@@ -6,13 +6,14 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { SocketScope_Value, socketScope_ValueFromJSON, socketScope_ValueToJSON } from "../common";
 
 export const protobufPackage = "icw.core.api";
 
 /** CreateSocketTicket 请求结构体 */
 export interface CreateSocketTicketRequest {
   project_id: string;
-  scope: string;
+  scope: SocketScope_Value;
 }
 
 /** CreateSocketTicket 响应结构体 */
@@ -26,7 +27,7 @@ export interface SetupWebSocketRequest {
   /** 从 HTTP Query 获取 */
   project_id: string;
   /** 从 HTTP Query 获取 */
-  scope: string;
+  scope: SocketScope_Value;
   /** 从 HTTP Query 获取 */
   ticket: string;
 }
@@ -36,7 +37,7 @@ export interface SetupWebSocketResponse {
 }
 
 function createBaseCreateSocketTicketRequest(): CreateSocketTicketRequest {
-  return { project_id: "", scope: "" };
+  return { project_id: "", scope: 0 };
 }
 
 export const CreateSocketTicketRequest: MessageFns<CreateSocketTicketRequest> = {
@@ -44,8 +45,8 @@ export const CreateSocketTicketRequest: MessageFns<CreateSocketTicketRequest> = 
     if (message.project_id !== "") {
       writer.uint32(10).string(message.project_id);
     }
-    if (message.scope !== "") {
-      writer.uint32(18).string(message.scope);
+    if (message.scope !== 0) {
+      writer.uint32(16).int32(message.scope);
     }
     return writer;
   },
@@ -66,11 +67,11 @@ export const CreateSocketTicketRequest: MessageFns<CreateSocketTicketRequest> = 
           continue;
         }
         case 2: {
-          if (tag !== 18) {
+          if (tag !== 16) {
             break;
           }
 
-          message.scope = reader.string();
+          message.scope = reader.int32() as any;
           continue;
         }
       }
@@ -89,7 +90,7 @@ export const CreateSocketTicketRequest: MessageFns<CreateSocketTicketRequest> = 
         : isSet(object.project_id)
         ? globalThis.String(object.project_id)
         : "",
-      scope: isSet(object.scope) ? globalThis.String(object.scope) : "",
+      scope: isSet(object.scope) ? socketScope_ValueFromJSON(object.scope) : 0,
     };
   },
 
@@ -98,8 +99,8 @@ export const CreateSocketTicketRequest: MessageFns<CreateSocketTicketRequest> = 
     if (message.project_id !== "") {
       obj.projectId = message.project_id;
     }
-    if (message.scope !== "") {
-      obj.scope = message.scope;
+    if (message.scope !== 0) {
+      obj.scope = socketScope_ValueToJSON(message.scope);
     }
     return obj;
   },
@@ -110,7 +111,7 @@ export const CreateSocketTicketRequest: MessageFns<CreateSocketTicketRequest> = 
   fromPartial(object: DeepPartial<CreateSocketTicketRequest>): CreateSocketTicketRequest {
     const message = createBaseCreateSocketTicketRequest();
     message.project_id = object.project_id ?? "";
-    message.scope = object.scope ?? "";
+    message.scope = object.scope ?? 0;
     return message;
   },
 };
@@ -196,7 +197,7 @@ export const CreateSocketTicketResponse: MessageFns<CreateSocketTicketResponse> 
 };
 
 function createBaseSetupWebSocketRequest(): SetupWebSocketRequest {
-  return { project_id: "", scope: "", ticket: "" };
+  return { project_id: "", scope: 0, ticket: "" };
 }
 
 export const SetupWebSocketRequest: MessageFns<SetupWebSocketRequest> = {
@@ -204,8 +205,8 @@ export const SetupWebSocketRequest: MessageFns<SetupWebSocketRequest> = {
     if (message.project_id !== "") {
       writer.uint32(10).string(message.project_id);
     }
-    if (message.scope !== "") {
-      writer.uint32(18).string(message.scope);
+    if (message.scope !== 0) {
+      writer.uint32(16).int32(message.scope);
     }
     if (message.ticket !== "") {
       writer.uint32(26).string(message.ticket);
@@ -229,11 +230,11 @@ export const SetupWebSocketRequest: MessageFns<SetupWebSocketRequest> = {
           continue;
         }
         case 2: {
-          if (tag !== 18) {
+          if (tag !== 16) {
             break;
           }
 
-          message.scope = reader.string();
+          message.scope = reader.int32() as any;
           continue;
         }
         case 3: {
@@ -260,7 +261,7 @@ export const SetupWebSocketRequest: MessageFns<SetupWebSocketRequest> = {
         : isSet(object.project_id)
         ? globalThis.String(object.project_id)
         : "",
-      scope: isSet(object.scope) ? globalThis.String(object.scope) : "",
+      scope: isSet(object.scope) ? socketScope_ValueFromJSON(object.scope) : 0,
       ticket: isSet(object.ticket) ? globalThis.String(object.ticket) : "",
     };
   },
@@ -270,8 +271,8 @@ export const SetupWebSocketRequest: MessageFns<SetupWebSocketRequest> = {
     if (message.project_id !== "") {
       obj.projectId = message.project_id;
     }
-    if (message.scope !== "") {
-      obj.scope = message.scope;
+    if (message.scope !== 0) {
+      obj.scope = socketScope_ValueToJSON(message.scope);
     }
     if (message.ticket !== "") {
       obj.ticket = message.ticket;
@@ -285,7 +286,7 @@ export const SetupWebSocketRequest: MessageFns<SetupWebSocketRequest> = {
   fromPartial(object: DeepPartial<SetupWebSocketRequest>): SetupWebSocketRequest {
     const message = createBaseSetupWebSocketRequest();
     message.project_id = object.project_id ?? "";
-    message.scope = object.scope ?? "";
+    message.scope = object.scope ?? 0;
     message.ticket = object.ticket ?? "";
     return message;
   },

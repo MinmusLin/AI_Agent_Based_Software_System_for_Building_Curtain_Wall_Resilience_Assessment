@@ -4,6 +4,8 @@ package icw.core.api;
 
 option go_package = "icw_common/gen/core/api;apipb";
 
+import "core/common.proto";
+
 // DeleteAvatar 请求结构体
 message DeleteAvatarRequest {}
 
@@ -16,7 +18,7 @@ message GetAvatarRequest {}
 // GetAvatar 响应结构体
 message GetAvatarResponse {
   string avatar_url = 1;
-  string avatar_type = 2;
+  .icw.core.common.AvatarType.Value avatar_type = 2;
 }
 
 // UploadAvatar 请求结构体

@@ -24,10 +24,10 @@ const (
 
 // 项目图像状态变化 WebSocket 消息结构体
 type ProjectImageStatusChangedMessage struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	ProjectId     string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Image         *common.ProjectImage   `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty"`
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	Type          common.ProjectEventType_Value `protobuf:"varint,1,opt,name=type,proto3,enum=icw.core.common.ProjectEventType_Value" json:"type,omitempty"`
+	ProjectId     string                        `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Image         *common.ProjectImage          `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -62,11 +62,11 @@ func (*ProjectImageStatusChangedMessage) Descriptor() ([]byte, []int) {
 	return file_core_api_messages_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ProjectImageStatusChangedMessage) GetType() string {
+func (x *ProjectImageStatusChangedMessage) GetType() common.ProjectEventType_Value {
 	if x != nil {
 		return x.Type
 	}
-	return ""
+	return common.ProjectEventType_Value(0)
 }
 
 func (x *ProjectImageStatusChangedMessage) GetProjectId() string {
@@ -86,7 +86,7 @@ func (x *ProjectImageStatusChangedMessage) GetImage() *common.ProjectImage {
 // 项目图像检测任务状态变化 WebSocket 消息结构体
 type ProjectDetectionTaskStatusChangedMessage struct {
 	state         protoimpl.MessageState                     `protogen:"open.v1"`
-	Type          string                                     `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Type          common.ProjectEventType_Value              `protobuf:"varint,1,opt,name=type,proto3,enum=icw.core.common.ProjectEventType_Value" json:"type,omitempty"`
 	ProjectId     string                                     `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	ImageUuid     string                                     `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
 	NodeCode      string                                     `protobuf:"bytes,4,opt,name=node_code,json=nodeCode,proto3" json:"node_code,omitempty"`
@@ -129,11 +129,11 @@ func (*ProjectDetectionTaskStatusChangedMessage) Descriptor() ([]byte, []int) {
 	return file_core_api_messages_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ProjectDetectionTaskStatusChangedMessage) GetType() string {
+func (x *ProjectDetectionTaskStatusChangedMessage) GetType() common.ProjectEventType_Value {
 	if x != nil {
 		return x.Type
 	}
-	return ""
+	return common.ProjectEventType_Value(0)
 }
 
 func (x *ProjectDetectionTaskStatusChangedMessage) GetProjectId() string {
@@ -195,7 +195,7 @@ func (x *ProjectDetectionTaskStatusChangedMessage) GetOccurredAt() string {
 // 项目评估报告状态变化 WebSocket 消息结构体
 type ProjectReportStatusChangedMessage struct {
 	state         protoimpl.MessageState           `protogen:"open.v1"`
-	Type          string                           `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Type          common.ProjectEventType_Value    `protobuf:"varint,1,opt,name=type,proto3,enum=icw.core.common.ProjectEventType_Value" json:"type,omitempty"`
 	ProjectId     string                           `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	ReportUuid    string                           `protobuf:"bytes,3,opt,name=report_uuid,json=reportUuid,proto3" json:"report_uuid,omitempty"`
 	Status        common.ProjectReportStatus_Value `protobuf:"varint,4,opt,name=status,proto3,enum=icw.core.common.ProjectReportStatus_Value" json:"status,omitempty"`
@@ -234,11 +234,11 @@ func (*ProjectReportStatusChangedMessage) Descriptor() ([]byte, []int) {
 	return file_core_api_messages_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ProjectReportStatusChangedMessage) GetType() string {
+func (x *ProjectReportStatusChangedMessage) GetType() common.ProjectEventType_Value {
 	if x != nil {
 		return x.Type
 	}
-	return ""
+	return common.ProjectEventType_Value(0)
 }
 
 func (x *ProjectReportStatusChangedMessage) GetProjectId() string {
@@ -273,14 +273,14 @@ var File_core_api_messages_proto protoreflect.FileDescriptor
 
 const file_core_api_messages_proto_rawDesc = "" +
 	"\n" +
-	"\x17core/api/messages.proto\x12\ficw.core.api\x1a\x11core/common.proto\"\x8a\x01\n" +
-	" ProjectImageStatusChangedMessage\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
+	"\x17core/api/messages.proto\x12\ficw.core.api\x1a\x11core/common.proto\"\xb3\x01\n" +
+	" ProjectImageStatusChangedMessage\x12;\n" +
+	"\x04type\x18\x01 \x01(\x0e2'.icw.core.common.ProjectEventType.ValueR\x04type\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\x123\n" +
-	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\"\xad\x03\n" +
-	"(ProjectDetectionTaskStatusChangedMessage\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
+	"\x05image\x18\x03 \x01(\v2\x1d.icw.core.common.ProjectImageR\x05image\"\xd6\x03\n" +
+	"(ProjectDetectionTaskStatusChangedMessage\x12;\n" +
+	"\x04type\x18\x01 \x01(\x0e2'.icw.core.common.ProjectEventType.ValueR\x04type\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1d\n" +
 	"\n" +
@@ -293,9 +293,9 @@ const file_core_api_messages_proto_rawDesc = "" +
 	"\n" +
 	"sub_status\x18\b \x01(\x0e24.icw.core.common.ProjectDetectionSubTaskStatus.ValueR\tsubStatus\x12\x1f\n" +
 	"\voccurred_at\x18\t \x01(\tR\n" +
-	"occurredAt\"\xdc\x01\n" +
-	"!ProjectReportStatusChangedMessage\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
+	"occurredAt\"\x85\x02\n" +
+	"!ProjectReportStatusChangedMessage\x12;\n" +
+	"\x04type\x18\x01 \x01(\x0e2'.icw.core.common.ProjectEventType.ValueR\x04type\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1f\n" +
 	"\vreport_uuid\x18\x03 \x01(\tR\n" +
@@ -321,21 +321,25 @@ var file_core_api_messages_proto_goTypes = []any{
 	(*ProjectImageStatusChangedMessage)(nil),         // 0: icw.core.api.ProjectImageStatusChangedMessage
 	(*ProjectDetectionTaskStatusChangedMessage)(nil), // 1: icw.core.api.ProjectDetectionTaskStatusChangedMessage
 	(*ProjectReportStatusChangedMessage)(nil),        // 2: icw.core.api.ProjectReportStatusChangedMessage
-	(*common.ProjectImage)(nil),                      // 3: icw.core.common.ProjectImage
-	(common.ProjectDetectionTaskStatus_Value)(0),     // 4: icw.core.common.ProjectDetectionTaskStatus.Value
-	(common.ProjectDetectionSubTaskStatus_Value)(0),  // 5: icw.core.common.ProjectDetectionSubTaskStatus.Value
-	(common.ProjectReportStatus_Value)(0),            // 6: icw.core.common.ProjectReportStatus.Value
+	(common.ProjectEventType_Value)(0),               // 3: icw.core.common.ProjectEventType.Value
+	(*common.ProjectImage)(nil),                      // 4: icw.core.common.ProjectImage
+	(common.ProjectDetectionTaskStatus_Value)(0),     // 5: icw.core.common.ProjectDetectionTaskStatus.Value
+	(common.ProjectDetectionSubTaskStatus_Value)(0),  // 6: icw.core.common.ProjectDetectionSubTaskStatus.Value
+	(common.ProjectReportStatus_Value)(0),            // 7: icw.core.common.ProjectReportStatus.Value
 }
 var file_core_api_messages_proto_depIdxs = []int32{
-	3, // 0: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
-	4, // 1: icw.core.api.ProjectDetectionTaskStatusChangedMessage.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
-	5, // 2: icw.core.api.ProjectDetectionTaskStatusChangedMessage.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
-	6, // 3: icw.core.api.ProjectReportStatusChangedMessage.status:type_name -> icw.core.common.ProjectReportStatus.Value
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 0: icw.core.api.ProjectImageStatusChangedMessage.type:type_name -> icw.core.common.ProjectEventType.Value
+	4, // 1: icw.core.api.ProjectImageStatusChangedMessage.image:type_name -> icw.core.common.ProjectImage
+	3, // 2: icw.core.api.ProjectDetectionTaskStatusChangedMessage.type:type_name -> icw.core.common.ProjectEventType.Value
+	5, // 3: icw.core.api.ProjectDetectionTaskStatusChangedMessage.main_status:type_name -> icw.core.common.ProjectDetectionTaskStatus.Value
+	6, // 4: icw.core.api.ProjectDetectionTaskStatusChangedMessage.sub_status:type_name -> icw.core.common.ProjectDetectionSubTaskStatus.Value
+	3, // 5: icw.core.api.ProjectReportStatusChangedMessage.type:type_name -> icw.core.common.ProjectEventType.Value
+	7, // 6: icw.core.api.ProjectReportStatusChangedMessage.status:type_name -> icw.core.common.ProjectReportStatus.Value
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_core_api_messages_proto_init() }

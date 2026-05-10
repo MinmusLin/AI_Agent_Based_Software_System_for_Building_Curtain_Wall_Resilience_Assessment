@@ -13,6 +13,9 @@ import {
   ProjectDetectionTaskStatus_Value,
   projectDetectionTaskStatus_ValueFromJSON,
   projectDetectionTaskStatus_ValueToJSON,
+  ProjectEventType_Value,
+  projectEventType_ValueFromJSON,
+  projectEventType_ValueToJSON,
   ProjectImage,
   ProjectReportStatus_Value,
   projectReportStatus_ValueFromJSON,
@@ -23,14 +26,14 @@ export const protobufPackage = "icw.core.api";
 
 /** 项目图像状态变化 WebSocket 消息结构体 */
 export interface ProjectImageStatusChangedMessage {
-  type: string;
+  type: ProjectEventType_Value;
   project_id: string;
   image: ProjectImage | undefined;
 }
 
 /** 项目图像检测任务状态变化 WebSocket 消息结构体 */
 export interface ProjectDetectionTaskStatusChangedMessage {
-  type: string;
+  type: ProjectEventType_Value;
   project_id: string;
   image_uuid: string;
   node_code: string;
@@ -43,7 +46,7 @@ export interface ProjectDetectionTaskStatusChangedMessage {
 
 /** 项目评估报告状态变化 WebSocket 消息结构体 */
 export interface ProjectReportStatusChangedMessage {
-  type: string;
+  type: ProjectEventType_Value;
   project_id: string;
   report_uuid: string;
   status: ProjectReportStatus_Value;
@@ -51,13 +54,13 @@ export interface ProjectReportStatusChangedMessage {
 }
 
 function createBaseProjectImageStatusChangedMessage(): ProjectImageStatusChangedMessage {
-  return { type: "", project_id: "", image: undefined };
+  return { type: 0, project_id: "", image: undefined };
 }
 
 export const ProjectImageStatusChangedMessage: MessageFns<ProjectImageStatusChangedMessage> = {
   encode(message: ProjectImageStatusChangedMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.type !== "") {
-      writer.uint32(10).string(message.type);
+    if (message.type !== 0) {
+      writer.uint32(8).int32(message.type);
     }
     if (message.project_id !== "") {
       writer.uint32(18).string(message.project_id);
@@ -76,11 +79,11 @@ export const ProjectImageStatusChangedMessage: MessageFns<ProjectImageStatusChan
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 10) {
+          if (tag !== 8) {
             break;
           }
 
-          message.type = reader.string();
+          message.type = reader.int32() as any;
           continue;
         }
         case 2: {
@@ -110,7 +113,7 @@ export const ProjectImageStatusChangedMessage: MessageFns<ProjectImageStatusChan
 
   fromJSON(object: any): ProjectImageStatusChangedMessage {
     return {
-      type: isSet(object.type) ? globalThis.String(object.type) : "",
+      type: isSet(object.type) ? projectEventType_ValueFromJSON(object.type) : 0,
       project_id: isSet(object.projectId)
         ? globalThis.String(object.projectId)
         : isSet(object.project_id)
@@ -122,8 +125,8 @@ export const ProjectImageStatusChangedMessage: MessageFns<ProjectImageStatusChan
 
   toJSON(message: ProjectImageStatusChangedMessage): unknown {
     const obj: any = {};
-    if (message.type !== "") {
-      obj.type = message.type;
+    if (message.type !== 0) {
+      obj.type = projectEventType_ValueToJSON(message.type);
     }
     if (message.project_id !== "") {
       obj.projectId = message.project_id;
@@ -139,7 +142,7 @@ export const ProjectImageStatusChangedMessage: MessageFns<ProjectImageStatusChan
   },
   fromPartial(object: DeepPartial<ProjectImageStatusChangedMessage>): ProjectImageStatusChangedMessage {
     const message = createBaseProjectImageStatusChangedMessage();
-    message.type = object.type ?? "";
+    message.type = object.type ?? 0;
     message.project_id = object.project_id ?? "";
     message.image = (object.image !== undefined && object.image !== null)
       ? ProjectImage.fromPartial(object.image)
@@ -150,7 +153,7 @@ export const ProjectImageStatusChangedMessage: MessageFns<ProjectImageStatusChan
 
 function createBaseProjectDetectionTaskStatusChangedMessage(): ProjectDetectionTaskStatusChangedMessage {
   return {
-    type: "",
+    type: 0,
     project_id: "",
     image_uuid: "",
     node_code: "",
@@ -164,8 +167,8 @@ function createBaseProjectDetectionTaskStatusChangedMessage(): ProjectDetectionT
 
 export const ProjectDetectionTaskStatusChangedMessage: MessageFns<ProjectDetectionTaskStatusChangedMessage> = {
   encode(message: ProjectDetectionTaskStatusChangedMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.type !== "") {
-      writer.uint32(10).string(message.type);
+    if (message.type !== 0) {
+      writer.uint32(8).int32(message.type);
     }
     if (message.project_id !== "") {
       writer.uint32(18).string(message.project_id);
@@ -202,11 +205,11 @@ export const ProjectDetectionTaskStatusChangedMessage: MessageFns<ProjectDetecti
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 10) {
+          if (tag !== 8) {
             break;
           }
 
-          message.type = reader.string();
+          message.type = reader.int32() as any;
           continue;
         }
         case 2: {
@@ -284,7 +287,7 @@ export const ProjectDetectionTaskStatusChangedMessage: MessageFns<ProjectDetecti
 
   fromJSON(object: any): ProjectDetectionTaskStatusChangedMessage {
     return {
-      type: isSet(object.type) ? globalThis.String(object.type) : "",
+      type: isSet(object.type) ? projectEventType_ValueFromJSON(object.type) : 0,
       project_id: isSet(object.projectId)
         ? globalThis.String(object.projectId)
         : isSet(object.project_id)
@@ -330,8 +333,8 @@ export const ProjectDetectionTaskStatusChangedMessage: MessageFns<ProjectDetecti
 
   toJSON(message: ProjectDetectionTaskStatusChangedMessage): unknown {
     const obj: any = {};
-    if (message.type !== "") {
-      obj.type = message.type;
+    if (message.type !== 0) {
+      obj.type = projectEventType_ValueToJSON(message.type);
     }
     if (message.project_id !== "") {
       obj.projectId = message.project_id;
@@ -365,7 +368,7 @@ export const ProjectDetectionTaskStatusChangedMessage: MessageFns<ProjectDetecti
   },
   fromPartial(object: DeepPartial<ProjectDetectionTaskStatusChangedMessage>): ProjectDetectionTaskStatusChangedMessage {
     const message = createBaseProjectDetectionTaskStatusChangedMessage();
-    message.type = object.type ?? "";
+    message.type = object.type ?? 0;
     message.project_id = object.project_id ?? "";
     message.image_uuid = object.image_uuid ?? "";
     message.node_code = object.node_code ?? "";
@@ -379,13 +382,13 @@ export const ProjectDetectionTaskStatusChangedMessage: MessageFns<ProjectDetecti
 };
 
 function createBaseProjectReportStatusChangedMessage(): ProjectReportStatusChangedMessage {
-  return { type: "", project_id: "", report_uuid: "", status: 0, occurred_at: "" };
+  return { type: 0, project_id: "", report_uuid: "", status: 0, occurred_at: "" };
 }
 
 export const ProjectReportStatusChangedMessage: MessageFns<ProjectReportStatusChangedMessage> = {
   encode(message: ProjectReportStatusChangedMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.type !== "") {
-      writer.uint32(10).string(message.type);
+    if (message.type !== 0) {
+      writer.uint32(8).int32(message.type);
     }
     if (message.project_id !== "") {
       writer.uint32(18).string(message.project_id);
@@ -410,11 +413,11 @@ export const ProjectReportStatusChangedMessage: MessageFns<ProjectReportStatusCh
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 10) {
+          if (tag !== 8) {
             break;
           }
 
-          message.type = reader.string();
+          message.type = reader.int32() as any;
           continue;
         }
         case 2: {
@@ -460,7 +463,7 @@ export const ProjectReportStatusChangedMessage: MessageFns<ProjectReportStatusCh
 
   fromJSON(object: any): ProjectReportStatusChangedMessage {
     return {
-      type: isSet(object.type) ? globalThis.String(object.type) : "",
+      type: isSet(object.type) ? projectEventType_ValueFromJSON(object.type) : 0,
       project_id: isSet(object.projectId)
         ? globalThis.String(object.projectId)
         : isSet(object.project_id)
@@ -482,8 +485,8 @@ export const ProjectReportStatusChangedMessage: MessageFns<ProjectReportStatusCh
 
   toJSON(message: ProjectReportStatusChangedMessage): unknown {
     const obj: any = {};
-    if (message.type !== "") {
-      obj.type = message.type;
+    if (message.type !== 0) {
+      obj.type = projectEventType_ValueToJSON(message.type);
     }
     if (message.project_id !== "") {
       obj.projectId = message.project_id;
@@ -505,7 +508,7 @@ export const ProjectReportStatusChangedMessage: MessageFns<ProjectReportStatusCh
   },
   fromPartial(object: DeepPartial<ProjectReportStatusChangedMessage>): ProjectReportStatusChangedMessage {
     const message = createBaseProjectReportStatusChangedMessage();
-    message.type = object.type ?? "";
+    message.type = object.type ?? 0;
     message.project_id = object.project_id ?? "";
     message.report_uuid = object.report_uuid ?? "";
     message.status = object.status ?? 0;

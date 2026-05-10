@@ -52,6 +52,36 @@ const EmailSendStatus_Failed = common.EmailSendStatus_Failed
 var EmailSendStatus_Value_name = common.EmailSendStatus_Value_name
 var EmailSendStatus_Value_value = common.EmailSendStatus_Value_value
 
+type AvatarType_Value = common.AvatarType_Value
+
+const AvatarType_Unknown = common.AvatarType_Unknown
+const AvatarType_Custom = common.AvatarType_Custom
+const AvatarType_Default = common.AvatarType_Default
+const AvatarType_None = common.AvatarType_None
+
+var AvatarType_Value_name = common.AvatarType_Value_name
+var AvatarType_Value_value = common.AvatarType_Value_value
+
+type ProjectEventType_Value = common.ProjectEventType_Value
+
+const ProjectEventType_Unknown = common.ProjectEventType_Unknown
+const ProjectEventType_ImageStatusChanged = common.ProjectEventType_ImageStatusChanged
+const ProjectEventType_DetectionTaskStatusChanged = common.ProjectEventType_DetectionTaskStatusChanged
+const ProjectEventType_ReportStatusChanged = common.ProjectEventType_ReportStatusChanged
+
+var ProjectEventType_Value_name = common.ProjectEventType_Value_name
+var ProjectEventType_Value_value = common.ProjectEventType_Value_value
+
+type SocketScope_Value = common.SocketScope_Value
+
+const SocketScope_Unknown = common.SocketScope_Unknown
+const SocketScope_ProjectAssets = common.SocketScope_ProjectAssets
+const SocketScope_ProjectDetection = common.SocketScope_ProjectDetection
+const SocketScope_ProjectReport = common.SocketScope_ProjectReport
+
+var SocketScope_Value_name = common.SocketScope_Value_name
+var SocketScope_Value_value = common.SocketScope_Value_value
+
 type TaskStatus_Value = common.TaskStatus_Value
 
 const TaskStatus_Unknown = common.TaskStatus_Unknown
@@ -60,6 +90,16 @@ const TaskStatus_Failed = common.TaskStatus_Failed
 
 var TaskStatus_Value_name = common.TaskStatus_Value_name
 var TaskStatus_Value_value = common.TaskStatus_Value_value
+
+type DetectionNodeCode_Value = common.DetectionNodeCode_Value
+
+const DetectionNodeCode_Unknown = common.DetectionNodeCode_Unknown
+const DetectionNodeCode_Classification = common.DetectionNodeCode_Classification
+const DetectionNodeCode_Reasoning = common.DetectionNodeCode_Reasoning
+const DetectionNodeCode_Summary = common.DetectionNodeCode_Summary
+
+var DetectionNodeCode_Value_name = common.DetectionNodeCode_Value_name
+var DetectionNodeCode_Value_value = common.DetectionNodeCode_Value_value
 
 type DetectionTaskCode_Value = common.DetectionTaskCode_Value
 
@@ -150,7 +190,11 @@ var ProjectReportStatus_Value_value = common.ProjectReportStatus_Value_value
 type EmailCodeScene = common.EmailCodeScene
 type LoginScene = common.LoginScene
 type EmailSendStatus = common.EmailSendStatus
+type AvatarType = common.AvatarType
+type ProjectEventType = common.ProjectEventType
+type SocketScope = common.SocketScope
 type TaskStatus = common.TaskStatus
+type DetectionNodeCode = common.DetectionNodeCode
 type DetectionTaskCode = common.DetectionTaskCode
 type ProjectStatus = common.ProjectStatus
 type ProjectProgress = common.ProjectProgress
