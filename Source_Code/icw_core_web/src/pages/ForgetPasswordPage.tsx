@@ -7,9 +7,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { resetPassword, sendEmailCode } from '@/api/auth';
 import { getErrorMessage } from '@/api/http';
 import { AuthShell } from '@/components/AuthShell';
+import type { ResetPasswordRequest } from '@/gen/core/api/auth';
+import { EmailCodeScene_Value } from '@/gen/core/common';
 import { useEmailCodeCountdown } from '@/hooks/useEmailCodeCountdown';
-import type { ResetPasswordRequest } from '@/types/auth';
-import { EMAIL_CODE_SCENE_RESET } from '@/types/common';
 import {
   EMAIL_MAX_LENGTH,
   normalizeEmailAddress,
@@ -38,7 +38,10 @@ export default function ForgetPasswordPage(): ReactElement {
     }
     setSending(true);
     try {
-      const result = await sendEmailCode(email, EMAIL_CODE_SCENE_RESET);
+      const result = await sendEmailCode({
+        email,
+        scene: EmailCodeScene_Value.Reset,
+      });
       startCountdown(result.expires_in);
       message.success('已发送邮箱验证码');
     } catch (error: unknown) {
