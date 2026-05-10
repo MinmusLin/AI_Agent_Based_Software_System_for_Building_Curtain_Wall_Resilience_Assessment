@@ -1,5 +1,6 @@
 .env
 models/
+.git/
 .idea/
 .runtime/
 .venv/

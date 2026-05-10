@@ -1,4 +1,5 @@
 .env
+.git/
 .idea/
 bin/
 coverage/

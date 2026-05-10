@@ -1,6 +1,6 @@
 .env
 .git/
 .idea/
-bin/
-coverage/
+dist/
+node_modules/
 .DS_Store
