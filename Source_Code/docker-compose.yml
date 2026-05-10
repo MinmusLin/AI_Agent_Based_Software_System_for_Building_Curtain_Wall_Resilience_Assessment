@@ -1,77 +1,83 @@
 services:
-  rocketmq-namesrv:
+  # icw.rocketmq.namesrv 服务
+  icw-rocketmq-namesrv:
     image: apache/rocketmq:5.3.2
     container_name: icw.rocketmq.namesrv
     restart: unless-stopped
     ports:
       - 9876:9876
     networks:
-      - icw.docker.network
+      - icw-docker-network
     command: sh mqnamesrv
 
-  rocketmq-broker:
+  # icw.rocketmq.broker 服务
+  icw-rocketmq-broker:
     image: apache/rocketmq:5.3.2
     container_name: icw.rocketmq.broker
     restart: unless-stopped
     depends_on:
-      - rocketmq-namesrv
+      - icw-rocketmq-namesrv
     ports:
       - 10909:10909
       - 10911:10911
     networks:
-      - icw.docker.network
-    volumes:
-      - /etc/rocketmq/broker.conf:/home/rocketmq/rocketmq-5.3.2/conf/broker.conf
-    command: sh mqbroker -c /home/rocketmq/rocketmq-5.3.2/conf/broker.conf
+      - icw-docker-network
+    command: |
+      sh -c 'cat > /tmp/broker.conf <<EOF
+      brokerClusterName=ICW_ROCKETMQ_CLUSTER
+      brokerName=ICW_ROCKETMQ_BROKER
+      brokerId=0
+      namesrvAddr=icw-rocketmq-namesrv:9876
+      brokerIP1=47.76.71.221
+      listenPort=10911
+      EOF
+      exec sh mqbroker -c /tmp/broker.conf'
     healthcheck:
-      test: ["CMD-SHELL", "sh mqadmin clusterList -n icw.rocketmq.namesrv:9876 >/dev/null 2>&1"]
+      test: ["CMD-SHELL", "sh mqadmin clusterList -n icw-rocketmq-namesrv:9876 >/dev/null 2>&1"]
       interval: 10s
       timeout: 5s
       retries: 12
       start_period: 20s
 
-  rocketmq-init:
+  # icw.rocketmq.init 服务
+  icw-rocketmq-init:
     image: apache/rocketmq:5.3.2
     container_name: icw.rocketmq.init
     depends_on:
-      rocketmq-broker:
+      icw-rocketmq-broker:
         condition: service_healthy
     networks:
-      - icw.docker.network
+      - icw-docker-network
     command: >
-      sh -c "
-        sh mqadmin updateTopic
-        -n icw.rocketmq.namesrv:9876
-        -c ICW_ROCKETMQ_CLUSTER
-        -t ICW_PROJECT_EVENT
-      "
+      sh -c "sh mqadmin updateTopic -n icw-rocketmq-namesrv:9876 -b icw-rocketmq-broker:10911 -t ICW_PROJECT_EVENT"
 
-  activity-classification:
+  # icw.activity.classification 服务
+  icw-activity-classification:
     image: minmuslin/icw_activity_classification:latest
     container_name: icw.activity.classification
     restart: unless-stopped
     environment:
-      ICW_ACTIVITY_CLASSIFICATION_ADDR: 47.76.71.221:8002
-      ICW_CORE_BIZ_ADDR: 47.76.71.221:8001
+      ICW_ACTIVITY_CLASSIFICATION_ADDR: 0.0.0.0:8002
+      ICW_CORE_BIZ_ADDR: icw-core-biz:8001
       CLASSIFICATION_TASK_MAX_CONCURRENCY: 20
       AGENT_SECRET_TOKEN: pat_uG4j4COtVZQF9jb7uBY47n6EUnhWOMB3mEwHFOruzOdT9p7w81SmzMYjhX6HgV5p
       AGENT_BOT_ID: 7633469965525614634
       AGENT_USER_ID: icw_activity_classification
       AGENT_IMAGE_SIZE: 512
-      AGENT_REQUEST_TIMEOUT_SECONDS: 60
+      AGENT_REQUEST_TIMEOUT_SECONDS: 600
     depends_on:
-      rocketmq-init:
+      icw-rocketmq-init:
         condition: service_completed_successfully
     networks:
-      - icw.docker.network
+      - icw-docker-network
 
-  activity-reasoning:
+  icw-activity-reasoning:
     image: minmuslin/icw_activity_reasoning:latest
     container_name: icw.activity.reasoning
     restart: unless-stopped
     environment:
-      ICW_ACTIVITY_REASONING_ADDR: 47.76.71.221:8003
-      ICW_CORE_BIZ_ADDR: 47.76.71.221:8001
+      ICW_ACTIVITY_REASONING_ADDR: 0.0.0.0:8003
+      ICW_CORE_BIZ_ADDR: icw-core-biz:8001
       REASONING_MODEL_DIR: /app/models
       REASONING_WORK_DIR: /app/.runtime
       REASONING_TASK_MAX_CONCURRENCY: 20
@@ -79,20 +85,20 @@ services:
       ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES: 5
       ARTIFACT_UPLOAD_TIMEOUT_MINUTES: 10
     depends_on:
-      rocketmq-init:
+      icw-rocketmq-init:
         condition: service_completed_successfully
     networks:
-      - icw.docker.network
+      - icw-docker-network
     volumes:
       - /root/models:/app/models:ro
 
-  activity-summary:
+  icw-activity-summary:
     image: minmuslin/icw_activity_summary:latest
     container_name: icw.activity.summary
     restart: unless-stopped
     environment:
-      ICW_ACTIVITY_SUMMARY_ADDR: 47.76.71.221:8004
-      ICW_CORE_BIZ_ADDR: 47.76.71.221:8001
+      ICW_ACTIVITY_SUMMARY_ADDR: 0.0.0.0:8004
+      ICW_CORE_BIZ_ADDR: icw-core-biz:8001
       DETECTION_SUMMARY_TASK_MAX_CONCURRENCY: 20
       DETECTION_SUMMARY_AGENT_SECRET_TOKEN: pat_uG4j4COtVZQF9jb7uBY47n6EUnhWOMB3mEwHFOruzOdT9p7w81SmzMYjhX6HgV5p
       DETECTION_SUMMARY_AGENT_BOT_ID: 7637717111535730723
@@ -101,22 +107,22 @@ services:
       PROJECT_SUMMARY_AGENT_SECRET_TOKEN: pat_uG4j4COtVZQF9jb7uBY47n6EUnhWOMB3mEwHFOruzOdT9p7w81SmzMYjhX6HgV5p
       PROJECT_SUMMARY_AGENT_BOT_ID: 7637717197741342726
       PROJECT_SUMMARY_AGENT_USER_ID: icw_activity_summary
-      AGENT_REQUEST_TIMEOUT_SECONDS: 60
+      AGENT_REQUEST_TIMEOUT_SECONDS: 600
     depends_on:
-      rocketmq-init:
+      icw-rocketmq-init:
         condition: service_completed_successfully
     networks:
-      - icw.docker.network
+      - icw-docker-network
 
-  core-biz:
+  icw-core-biz:
     image: minmuslin/icw_core_biz:latest
     container_name: icw.core.biz
     restart: unless-stopped
     environment:
-      ICW_CORE_BIZ_ADDR: 47.76.71.221:8001
-      ICW_ACTIVITY_CLASSIFICATION_ADDR: 47.76.71.221:8002
-      ICW_ACTIVITY_REASONING_ADDR: 47.76.71.221:8003
-      ICW_ACTIVITY_SUMMARY_ADDR: 47.76.71.221:8004
+      ICW_CORE_BIZ_ADDR: 0.0.0.0:8001
+      ICW_ACTIVITY_CLASSIFICATION_ADDR: icw-activity-classification:8002
+      ICW_ACTIVITY_REASONING_ADDR: icw-activity-reasoning:8003
+      ICW_ACTIVITY_SUMMARY_ADDR: icw-activity-summary:8004
       MYSQL_USERNAME: mysql-user
       MYSQL_PASSWORD: mysql-2250758
       MYSQL_ADDR: 47.76.71.221:3306
@@ -150,38 +156,38 @@ services:
       PENDING_IMAGE_TIMEOUT_JOB_CRON: "0 * * * * *"
       DETECTION_WORKER_MAX_CONCURRENCY: 20
     depends_on:
-      rocketmq-init:
+      icw-rocketmq-init:
         condition: service_completed_successfully
-      activity-classification:
+      icw-activity-classification:
         condition: service_started
-      activity-reasoning:
+      icw-activity-reasoning:
         condition: service_started
-      activity-summary:
+      icw-activity-summary:
         condition: service_started
     networks:
-      - icw.docker.network
+      - icw-docker-network
 
-  core-api:
+  icw-core-api:
     image: minmuslin/icw_core_api:latest
     container_name: icw.core.api
     restart: unless-stopped
     environment:
       GIN_MODE: release
-      ICW_CORE_API_ADDR: 47.76.71.221:8000
-      ICW_CORE_BIZ_ADDR: 47.76.71.221:8001
+      ICW_CORE_API_ADDR: 0.0.0.0:8000
+      ICW_CORE_BIZ_ADDR: icw-core-biz:8001
       ROCKETMQ_NAMESRV_ADDR: 47.76.71.221:9876
       ROCKETMQ_PROJECT_EVENT_TOPIC: ICW_PROJECT_EVENT
       ROCKETMQ_CONSUMER_GROUP: icw_core_api_ws_dispatcher
     depends_on:
-      rocketmq-init:
+      icw-rocketmq-init:
         condition: service_completed_successfully
-      core-biz:
+      icw-core-biz:
         condition: service_started
     ports:
       - 8000:8000
     networks:
-      - icw.docker.network
+      - icw-docker-network
 
 networks:
-  icw.docker.network:
+  icw-docker-network:
     driver: bridge
