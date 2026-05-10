@@ -20,12 +20,13 @@ help:
 	@echo ""
 	@echo "Commands:"
 	@echo "  make all    Build thesis PDF"
-	@echo "  make clean  Remove generated LaTeX auxiliary files"
+	@echo "  make clean  Remove generated LaTeX intermediate files"
 	@echo "  make count  Count thesis characters"
 
 all:
 	@$(MAKE) clean
 	@latexmk $(LATEXMK_OPT) $(THESIS).tex
+	@$(MAKE) clean
 
 clean:
 	-@latexmk -c -bibtex -silent $(THESIS).tex 2> /dev/null

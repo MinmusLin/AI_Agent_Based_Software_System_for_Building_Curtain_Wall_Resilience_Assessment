@@ -1,6 +1,7 @@
 \documentclass[
   oneside,
   degree=bachelor,
+  field=science,
   fullwidthstop=false,
   fontset=fandol,
   times=false,
@@ -8,11 +9,25 @@
   biblatex=true,
 ]{tongjithesis}
 
+
+\documentclass[
+  oneside,
+  degree=bachelor,
+  field=science,
+  fullwidthstop=circle,
+  fontset=fandol,
+  times=false,
+  minted=true,
+  biblatex=true,
+]{tongjithesis}
+
+\tjbibresource{bib/note.bib}  % 指定参考文献数据库文件（支持多文件，逗号分隔）
+
+
 \tjbibresource{bib/note.bib}
 
 \begin{document}
 
-\input{chapters/metadata}
 \MakeCover
 \cleardoublepage
 \MakeInfoPage
