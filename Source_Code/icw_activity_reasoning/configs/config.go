@@ -12,7 +12,8 @@ import (
 type Config struct {
 	ActivityReasoningAddr       string        `env:"ICW_ACTIVITY_REASONING_ADDR"`
 	CoreBizAddr                 string        `env:"ICW_CORE_BIZ_ADDR"`
-	ReasoningWorkDir            string        `env:"REASONING_WORK_DIR"`
+	ReasoningModelDir           string        `env:"REASONING_MODEL_DIR"`
+	ReasoningRuntimeDir         string        `env:"REASONING_RUNTIME_DIR"`
 	ReasoningTaskMaxConcurrency int           `env:"REASONING_TASK_MAX_CONCURRENCY"`
 	ReasoningTaskTimeout        time.Duration `env:"REASONING_TASK_TIMEOUT_MINUTES"`
 	ArtifactDownloadTimeout     time.Duration `env:"ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES"`
@@ -28,7 +29,8 @@ func (cfg *Config) Validate() error {
 	}{
 		{key: "ICW_ACTIVITY_REASONING_ADDR", value: cfg.ActivityReasoningAddr},
 		{key: "ICW_CORE_BIZ_ADDR", value: cfg.CoreBizAddr},
-		{key: "REASONING_WORK_DIR", value: cfg.ReasoningWorkDir},
+		{key: "REASONING_MODEL_DIR", value: cfg.ReasoningModelDir},
+		{key: "REASONING_RUNTIME_DIR", value: cfg.ReasoningRuntimeDir},
 	}
 	for _, item := range required {
 		if strings.TrimSpace(item.value) == "" {
@@ -58,7 +60,8 @@ func Load() (Config, error) {
 	cfg := Config{
 		ActivityReasoningAddr:       env.EnvString("ICW_ACTIVITY_REASONING_ADDR"),
 		CoreBizAddr:                 env.EnvString("ICW_CORE_BIZ_ADDR"),
-		ReasoningWorkDir:            env.EnvString("REASONING_WORK_DIR"),
+		ReasoningModelDir:           env.EnvString("REASONING_MODEL_DIR"),
+		ReasoningRuntimeDir:         env.EnvString("REASONING_RUNTIME_DIR"),
 		ReasoningTaskMaxConcurrency: env.EnvInt("REASONING_TASK_MAX_CONCURRENCY"),
 		ReasoningTaskTimeout:        time.Duration(env.EnvInt("REASONING_TASK_TIMEOUT_MINUTES")) * time.Minute,
 		ArtifactDownloadTimeout:     time.Duration(env.EnvInt("ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES")) * time.Minute,
