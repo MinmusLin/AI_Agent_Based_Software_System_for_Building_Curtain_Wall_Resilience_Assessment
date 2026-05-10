@@ -51,9 +51,10 @@ func (s *Service) asyncExecuteProjectSummary(requestId string, req *summarypb.St
 	callbackReq := &bizpb.ReportProjectSummaryResultRequest{
 		ProjectId: projectId,
 	}
-	ctx, cancel := context.WithTimeout(s.Ctx(), time.Duration(s.Config().AgentRequestTimeoutSeconds)*time.Second)
+	ctx, cancel := context.WithTimeout(s.Ctx(), s.Config().AgentRequestTimeout)
 	defer cancel()
 
+	// 执行项目总结任务
 	start := time.Now()
 	result, err := executeProjectSummary(ctx, s.ProjectSummaryAgentClient(), req)
 	cost := time.Since(start)

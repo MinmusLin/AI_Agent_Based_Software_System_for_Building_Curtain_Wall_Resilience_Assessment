@@ -38,7 +38,7 @@ func (s *Service) asyncExecuteClassification(requestId string, req *classificati
 	s.Acquire()
 	defer s.Release()
 
-	ctx, cancel := context.WithTimeout(s.Ctx(), time.Duration(s.Config().AgentRequestTimeoutSeconds)*time.Second)
+	ctx, cancel := context.WithTimeout(s.Ctx(), s.Config().AgentRequestTimeout)
 	defer cancel()
 
 	callbackReq := &bizpb.ReportClassificationResultRequest{

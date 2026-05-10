@@ -3,23 +3,24 @@ package configs
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"icw_common/env"
 )
 
 // Config 服务配置
 type Config struct {
-	ActivitySummaryAddr                string `env:"ICW_ACTIVITY_SUMMARY_ADDR"`
-	CoreBizAddr                        string `env:"ICW_CORE_BIZ_ADDR"`
-	DetectionSummaryTaskMaxConcurrency int    `env:"DETECTION_SUMMARY_TASK_MAX_CONCURRENCY"`
-	DetectionSummaryAgentSecretToken   string `env:"DETECTION_SUMMARY_AGENT_SECRET_TOKEN"`
-	DetectionSummaryAgentBotId         string `env:"DETECTION_SUMMARY_AGENT_BOT_ID"`
-	DetectionSummaryAgentUserId        string `env:"DETECTION_SUMMARY_AGENT_USER_ID"`
-	ProjectSummaryTaskMaxConcurrency   int    `env:"PROJECT_SUMMARY_TASK_MAX_CONCURRENCY"`
-	ProjectSummaryAgentSecretToken     string `env:"PROJECT_SUMMARY_AGENT_SECRET_TOKEN"`
-	ProjectSummaryAgentBotId           string `env:"PROJECT_SUMMARY_AGENT_BOT_ID"`
-	ProjectSummaryAgentUserId          string `env:"PROJECT_SUMMARY_AGENT_USER_ID"`
-	AgentRequestTimeoutSeconds         int    `env:"AGENT_REQUEST_TIMEOUT_SECONDS"`
+	ActivitySummaryAddr                string        `env:"ICW_ACTIVITY_SUMMARY_ADDR"`
+	CoreBizAddr                        string        `env:"ICW_CORE_BIZ_ADDR"`
+	DetectionSummaryTaskMaxConcurrency int           `env:"DETECTION_SUMMARY_TASK_MAX_CONCURRENCY"`
+	DetectionSummaryAgentSecretToken   string        `env:"DETECTION_SUMMARY_AGENT_SECRET_TOKEN"`
+	DetectionSummaryAgentBotId         string        `env:"DETECTION_SUMMARY_AGENT_BOT_ID"`
+	DetectionSummaryAgentUserId        string        `env:"DETECTION_SUMMARY_AGENT_USER_ID"`
+	ProjectSummaryTaskMaxConcurrency   int           `env:"PROJECT_SUMMARY_TASK_MAX_CONCURRENCY"`
+	ProjectSummaryAgentSecretToken     string        `env:"PROJECT_SUMMARY_AGENT_SECRET_TOKEN"`
+	ProjectSummaryAgentBotId           string        `env:"PROJECT_SUMMARY_AGENT_BOT_ID"`
+	ProjectSummaryAgentUserId          string        `env:"PROJECT_SUMMARY_AGENT_USER_ID"`
+	AgentRequestTimeout                time.Duration `env:"AGENT_REQUEST_TIMEOUT_MINUTES"`
 }
 
 // Validate 校验服务配置
@@ -52,8 +53,8 @@ func (cfg *Config) Validate() error {
 	if cfg.ProjectSummaryTaskMaxConcurrency <= 0 {
 		return errors.New("PROJECT_SUMMARY_TASK_MAX_CONCURRENCY must be greater than 0")
 	}
-	if cfg.AgentRequestTimeoutSeconds <= 0 {
-		return errors.New("AGENT_REQUEST_TIMEOUT_SECONDS must be greater than 0")
+	if cfg.AgentRequestTimeout <= 0 {
+		return errors.New("AGENT_REQUEST_TIMEOUT_MINUTES must be greater than 0")
 	}
 	return nil
 }
@@ -71,7 +72,7 @@ func Load() (Config, error) {
 		ProjectSummaryAgentSecretToken:     env.EnvString("PROJECT_SUMMARY_AGENT_SECRET_TOKEN"),
 		ProjectSummaryAgentBotId:           env.EnvString("PROJECT_SUMMARY_AGENT_BOT_ID"),
 		ProjectSummaryAgentUserId:          env.EnvString("PROJECT_SUMMARY_AGENT_USER_ID"),
-		AgentRequestTimeoutSeconds:         env.EnvInt("AGENT_REQUEST_TIMEOUT_SECONDS"),
+		AgentRequestTimeout:                time.Duration(env.EnvInt("AGENT_REQUEST_TIMEOUT_MINUTES")) * time.Minute,
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err

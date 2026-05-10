@@ -3,20 +3,21 @@ package configs
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"icw_common/env"
 )
 
 // Config 服务配置
 type Config struct {
-	ActivityClassificationAddr       string `env:"ICW_ACTIVITY_CLASSIFICATION_ADDR"`
-	CoreBizAddr                      string `env:"ICW_CORE_BIZ_ADDR"`
-	ClassificationTaskMaxConcurrency int    `env:"CLASSIFICATION_TASK_MAX_CONCURRENCY"`
-	AgentSecretToken                 string `env:"AGENT_SECRET_TOKEN"`
-	AgentBotId                       string `env:"AGENT_BOT_ID"`
-	AgentUserId                      string `env:"AGENT_USER_ID"`
-	AgentImageSize                   int    `env:"AGENT_IMAGE_SIZE"`
-	AgentRequestTimeoutSeconds       int    `env:"AGENT_REQUEST_TIMEOUT_SECONDS"`
+	ActivityClassificationAddr       string        `env:"ICW_ACTIVITY_CLASSIFICATION_ADDR"`
+	CoreBizAddr                      string        `env:"ICW_CORE_BIZ_ADDR"`
+	ClassificationTaskMaxConcurrency int           `env:"CLASSIFICATION_TASK_MAX_CONCURRENCY"`
+	AgentSecretToken                 string        `env:"AGENT_SECRET_TOKEN"`
+	AgentBotId                       string        `env:"AGENT_BOT_ID"`
+	AgentUserId                      string        `env:"AGENT_USER_ID"`
+	AgentImageSize                   int           `env:"AGENT_IMAGE_SIZE"`
+	AgentRequestTimeout              time.Duration `env:"AGENT_REQUEST_TIMEOUT_MINUTES"`
 }
 
 // Validate 校验服务配置
@@ -46,8 +47,8 @@ func (cfg *Config) Validate() error {
 	if cfg.AgentImageSize <= 0 {
 		return errors.New("AGENT_IMAGE_SIZE must be greater than 0")
 	}
-	if cfg.AgentRequestTimeoutSeconds <= 0 {
-		return errors.New("AGENT_REQUEST_TIMEOUT_SECONDS must be greater than 0")
+	if cfg.AgentRequestTimeout <= 0 {
+		return errors.New("AGENT_REQUEST_TIMEOUT_MINUTES must be greater than 0")
 	}
 	return nil
 }
@@ -62,7 +63,7 @@ func Load() (Config, error) {
 		AgentBotId:                       env.EnvString("AGENT_BOT_ID"),
 		AgentUserId:                      env.EnvString("AGENT_USER_ID"),
 		AgentImageSize:                   env.EnvInt("AGENT_IMAGE_SIZE"),
-		AgentRequestTimeoutSeconds:       env.EnvInt("AGENT_REQUEST_TIMEOUT_SECONDS"),
+		AgentRequestTimeout:              time.Duration(env.EnvInt("AGENT_REQUEST_TIMEOUT_MINUTES")) * time.Minute,
 	}
 	if err := cfg.Validate(); err != nil {
 		return cfg, err

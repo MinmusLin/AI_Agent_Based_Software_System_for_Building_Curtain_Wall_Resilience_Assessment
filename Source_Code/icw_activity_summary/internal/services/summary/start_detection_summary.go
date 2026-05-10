@@ -48,9 +48,10 @@ func (s *Service) asyncExecuteDetectionSummary(requestId string, req *summarypb.
 		TaskUuid:  req.TaskUuid,
 		ImageUuid: req.ImageUuid,
 	}
-	ctx, cancel := context.WithTimeout(s.Ctx(), time.Duration(s.Config().AgentRequestTimeoutSeconds)*time.Second)
+	ctx, cancel := context.WithTimeout(s.Ctx(), s.Config().AgentRequestTimeout)
 	defer cancel()
 
+	// 执行图像检测总结任务
 	start := time.Now()
 	result, err := executeDetectionSummary(ctx, s.DetectionSummaryAgentClient(), req)
 	cost := time.Since(start)
