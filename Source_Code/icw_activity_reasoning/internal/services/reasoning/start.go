@@ -76,7 +76,7 @@ func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.Start
 // executeDetection 执行原子检测任务
 func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRequest, callbackReq *bizpb.ReportReasoningResultRequest) (int, time.Duration, error) {
 	taskCode := enum.DetectionTaskCodeString(req.TaskCode)
-	taskDir := filepath.Join(s.Config().ReasoningWorkDir, taskCode, req.ImageUuid)
+	taskDir := filepath.Join(s.Config().ReasoningRuntimeDir, taskCode, req.ImageUuid)
 	if err := os.RemoveAll(taskDir); err != nil {
 		return 0, 0, err
 	}
