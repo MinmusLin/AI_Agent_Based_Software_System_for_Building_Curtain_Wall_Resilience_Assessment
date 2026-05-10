@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect } from 'react';
 
 import { createAssetsSocketTicket, setupAssetsWebSocket } from '@/api/socket';
-import type { ProjectGroup } from '@/types/project/assets';
+import type { ProjectGroup } from '@/gen/core/api/common';
 import { parseProjectImageStatusChangedMessage, replaceImage, WEBSOCKET_RECONNECT_DELAY_MS } from '@/utils/assetsStage';
 
 interface UseProjectAssetsSocketParams {
@@ -14,10 +14,11 @@ export function useProjectAssetsSocket({ projectId, setGroups }: UseProjectAsset
   const handleSocketMessage = useCallback(
     (data: unknown): void => {
       const socketMessage = parseProjectImageStatusChangedMessage(data);
-      if (socketMessage?.project_id !== projectId) {
+      if (socketMessage?.project_id !== projectId || !socketMessage.image) {
         return;
       }
-      setGroups((currentGroups) => replaceImage(currentGroups, socketMessage.image));
+      const { image } = socketMessage;
+      setGroups((currentGroups) => replaceImage(currentGroups, image));
     },
     [projectId, setGroups],
   );
@@ -51,11 +52,18 @@ export function useProjectAssetsSocket({ projectId, setGroups }: UseProjectAsset
 
     async function connect(): Promise<void> {
       try {
-        const ticket = await createAssetsSocketTicket(projectId);
+        const ticket = await createAssetsSocketTicket({
+          project_id: projectId,
+        });
         if (closed) {
           return;
         }
-        socket = new WebSocket(setupAssetsWebSocket(projectId, ticket.ticket));
+        socket = new WebSocket(
+          setupAssetsWebSocket({
+            project_id: projectId,
+            ticket: ticket.ticket,
+          }),
+        );
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           handleSocketMessage(event.data);
         };

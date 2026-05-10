@@ -3,8 +3,8 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { getErrorMessage } from '@/api/http';
 import { moveProjectGroup, moveProjectImage } from '@/api/project/assets';
-import type { ProjectImageStatus } from '@/types/common';
-import type { ProjectGroup } from '@/types/project/assets';
+import type { ProjectGroup } from '@/gen/core/api/common';
+import type { ProjectImageStatus_Value } from '@/gen/core/common';
 import type { DraggingImage } from '@/utils/assetsStage';
 import {
   canMoveProjectImage,
@@ -43,7 +43,7 @@ interface UseProjectAssetsDragResult {
     event: DragEvent<HTMLDivElement>,
     imageUuid: string,
     sourceGroupId: string,
-    imageStatus: ProjectImageStatus,
+    imageStatus: ProjectImageStatus_Value,
   ) => void;
   handleCollapseAllGroups: () => void;
   handleExpandAllGroups: () => void;
@@ -177,7 +177,11 @@ export function useProjectAssetsDrag({
     try {
       const payload = groupMovePayload(projectId, draggingGroupId, groups);
       const data = await moveProjectGroup(payload);
-      setGroups((currentGroups) => replaceGroup(currentGroups, data.group));
+      const { group } = data;
+      if (!group) {
+        throw new Error('group is empty');
+      }
+      setGroups((currentGroups) => replaceGroup(currentGroups, group));
     } catch (error: unknown) {
       setGroups(originalGroups);
       onError(getErrorMessage(error));
@@ -246,7 +250,7 @@ export function useProjectAssetsDrag({
       event: DragEvent<HTMLDivElement>,
       imageUuid: string,
       sourceGroupId: string,
-      imageStatus: ProjectImageStatus,
+      imageStatus: ProjectImageStatus_Value,
     ): void => {
       if (readOnly || batchMode || !canMoveProjectImage(imageStatus)) {
         event.preventDefault();

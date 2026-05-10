@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
 import { createReportSocketTicket, setupReportWebSocket } from '@/api/socket';
-import { PROJECT_EVENT_TYPE_REPORT_STATUS_CHANGED } from '@/types/common';
-import type { ProjectReportStatusChangedMessage } from '@/types/project/report';
+import { PROJECT_EVENT_TYPE_REPORT_STATUS_CHANGED } from '@/constants/common';
+import type { ProjectReportStatusChangedMessage } from '@/gen/core/api/messages';
 import { WEBSOCKET_RECONNECT_DELAY_MS } from '@/utils/assetsStage';
 
 interface UseProjectReportSocketParams {
@@ -56,11 +56,18 @@ export function useProjectReportSocket({ enabled, onReportChanged, projectId }: 
 
     async function connect(): Promise<void> {
       try {
-        const ticket = await createReportSocketTicket(projectId);
+        const ticket = await createReportSocketTicket({
+          project_id: projectId,
+        });
         if (closed) {
           return;
         }
-        socket = new WebSocket(setupReportWebSocket(projectId, ticket.ticket));
+        socket = new WebSocket(
+          setupReportWebSocket({
+            project_id: projectId,
+            ticket: ticket.ticket,
+          }),
+        );
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           const message = parseProjectReportStatusChangedMessage(event.data);
           if (message?.project_id !== projectId) {

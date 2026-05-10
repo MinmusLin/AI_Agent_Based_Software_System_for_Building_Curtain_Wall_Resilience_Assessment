@@ -12,15 +12,13 @@ import {
   uploadProjectImage,
 } from '@/api/project/assets';
 import { advanceProject } from '@/api/project/core';
-import type { ProjectImageStatus, ProjectProgress } from '@/types/common';
+import type { Project, ProjectGroup } from '@/gen/core/api/common';
 import {
-  PROJECT_IMAGE_STATUS_FAILED,
-  PROJECT_IMAGE_STATUS_UPLOADED,
-  PROJECT_PROGRESS_ASSETS_FINISHED,
-  PROJECT_PROGRESS_PROFILE_FINISHED,
-} from '@/types/common';
-import type { ProjectGroup, UploadProjectImageResult } from '@/types/project/assets';
-import type { Project } from '@/types/project/core';
+  type ProjectImage,
+  ProjectImageStatus_Value,
+  ProjectProgress_Value,
+  type UploadProjectImageResult,
+} from '@/gen/core/common';
 import type { PreparedImageUpload } from '@/utils/assetsStage';
 import {
   appendImagesToGroup,
@@ -43,11 +41,11 @@ import {
 interface UseProjectAssetsActionsParams {
   loading: boolean;
   onError: (message: string) => void;
-  onProgressChange: (progress: ProjectProgress) => void;
+  onProgressChange: (progress: ProjectProgress_Value) => void;
   onProjectChange: (project: Project) => void;
   project: Project;
   projectId: string;
-  selectedProgress: ProjectProgress;
+  selectedProgress: ProjectProgress_Value;
 }
 
 interface UseProjectAssetsActionsResult {
@@ -100,12 +98,12 @@ export function useProjectAssetsActions({
 
   const readOnly =
     loading ||
-    project.progress > PROJECT_PROGRESS_PROFILE_FINISHED ||
-    selectedProgress !== PROJECT_PROGRESS_PROFILE_FINISHED;
+    project.progress > ProjectProgress_Value.ProfileFinished ||
+    selectedProgress !== ProjectProgress_Value.ProfileFinished;
   const canComplete =
     !loading &&
-    project.progress === PROJECT_PROGRESS_PROFILE_FINISHED &&
-    selectedProgress === PROJECT_PROGRESS_PROFILE_FINISHED;
+    project.progress === ProjectProgress_Value.ProfileFinished &&
+    selectedProgress === ProjectProgress_Value.ProfileFinished;
 
   const loadAssets = useCallback(async (): Promise<void> => {
     if (projectId === '') {
@@ -127,7 +125,11 @@ export function useProjectAssetsActions({
     setCreatingGroup(true);
     try {
       const data = await createProjectGroup(projectId);
-      setGroups((currentGroups) => [...currentGroups, data.group]);
+      const { group } = data;
+      if (!group) {
+        throw new Error('group is empty');
+      }
+      setGroups((currentGroups) => [...currentGroups, group]);
     } catch (error: unknown) {
       onError(getErrorMessage(error));
     } finally {
@@ -196,7 +198,11 @@ export function useProjectAssetsActions({
         name: nextName,
         project_id: projectId,
       });
-      setGroups((currentGroups) => replaceGroup(currentGroups, data.group));
+      const { group } = data;
+      if (!group) {
+        throw new Error('group is empty');
+      }
+      setGroups((currentGroups) => replaceGroup(currentGroups, group));
     } catch (error: unknown) {
       if (editingGroupIdRef.current === targetGroupId) {
         setEditingGroupName(currentGroup.name);
@@ -239,7 +245,10 @@ export function useProjectAssetsActions({
           project_id: projectId,
         });
         const pendingImages = data.images.map((item) => item.image);
-        setGroups((currentGroups) => appendImagesToGroup(currentGroups, groupId, pendingImages));
+        if (pendingImages.some((image) => !image)) {
+          throw new Error('image is empty');
+        }
+        setGroups((currentGroups) => appendImagesToGroup(currentGroups, groupId, pendingImages as ProjectImage[]));
         backgroundUploads = data.images.map(async (result, index): Promise<void> => {
           await uploadOneImage(projectId, result, preparedImages[index]);
         });
@@ -286,13 +295,13 @@ export function useProjectAssetsActions({
       await advanceProject({
         from_progress: project.progress,
         project_id: projectId,
-        to_progress: PROJECT_PROGRESS_ASSETS_FINISHED,
+        to_progress: ProjectProgress_Value.AssetsFinished,
       });
       onProjectChange({
         ...project,
-        progress: PROJECT_PROGRESS_ASSETS_FINISHED,
+        progress: ProjectProgress_Value.AssetsFinished,
       });
-      onProgressChange(PROJECT_PROGRESS_ASSETS_FINISHED);
+      onProgressChange(ProjectProgress_Value.AssetsFinished);
     } catch (error: unknown) {
       onError(getErrorMessage(error));
     } finally {
@@ -335,7 +344,10 @@ async function uploadOneImage(
   result: UploadProjectImageResult,
   preparedImage: PreparedImageUpload,
 ): Promise<void> {
-  let reportStatus: ProjectImageStatus = PROJECT_IMAGE_STATUS_UPLOADED;
+  if (!result.image) {
+    throw new Error('image is empty');
+  }
+  let reportStatus: ProjectImageStatus_Value = ProjectImageStatus_Value.Uploaded;
   try {
     await putPresignedObject(
       result.original_upload_url,
@@ -348,7 +360,7 @@ async function uploadOneImage(
       PROJECT_ASSET_THUMBNAIL_OUTPUT_CONTENT_TYPE,
     );
   } catch {
-    reportStatus = PROJECT_IMAGE_STATUS_FAILED;
+    reportStatus = ProjectImageStatus_Value.Failed;
   }
 
   await reportProjectImage({

@@ -34,7 +34,10 @@ export function useProjectAssetsViewer({
         originalUrl: '',
       });
       try {
-        const data = await getProjectImageOriginal(projectId, imageUuid);
+        const data = await getProjectImageOriginal({
+          image_uuid: imageUuid,
+          project_id: projectId,
+        });
         setViewer({
           imageUuid,
           loading: false,

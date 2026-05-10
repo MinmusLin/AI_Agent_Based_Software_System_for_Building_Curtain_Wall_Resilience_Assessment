@@ -53,11 +53,18 @@ export function useProjectDetectionSocket({ enabled, projectId, setTasks }: UseP
 
     async function connect(): Promise<void> {
       try {
-        const ticket = await createDetectionSocketTicket(projectId);
+        const ticket = await createDetectionSocketTicket({
+          project_id: projectId,
+        });
         if (closed) {
           return;
         }
-        socket = new WebSocket(setupDetectionWebSocket(projectId, ticket.ticket));
+        socket = new WebSocket(
+          setupDetectionWebSocket({
+            project_id: projectId,
+            ticket: ticket.ticket,
+          }),
+        );
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           handleSocketMessage(event.data);
         };

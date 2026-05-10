@@ -3,8 +3,8 @@ import type { ChangeEvent, RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 import { deleteAvatar, getAvatar, uploadAvatar } from '@/api/avatar';
-import type { AvatarType } from '@/types/common';
-import { AVATAR_TYPE_CUSTOM, AVATAR_TYPE_NONE } from '@/types/common';
+import type { AvatarType } from '@/constants/common';
+import { AVATAR_TYPE_CUSTOM, AVATAR_TYPE_NONE } from '@/constants/common';
 import { AVATAR_OUTPUT_CONTENT_TYPE, isAllowedAvatarFile, resizeAvatarToPng } from '@/utils/images';
 
 interface UseUserAvatarResult {
@@ -16,6 +16,13 @@ interface UseUserAvatarResult {
   handleAvatarLoadError: () => boolean;
   handleAvatarFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
   openAvatarFileSelector: () => void;
+}
+
+function avatarTypeFromValue(value: string): AvatarType {
+  if (value === AVATAR_TYPE_CUSTOM) {
+    return AVATAR_TYPE_CUSTOM;
+  }
+  return AVATAR_TYPE_NONE;
 }
 
 export function useUserAvatar(email?: string): UseUserAvatarResult {
@@ -30,7 +37,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
       try {
         const result = await getAvatar();
         if (active) {
-          setAvatarType(result.avatar_type);
+          setAvatarType(avatarTypeFromValue(result.avatar_type));
           setAvatarURL(result.avatar_url);
         }
       } catch {
@@ -88,7 +95,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
         throw new Error('avatar upload failed');
       }
       const avatar = await getAvatar();
-      setAvatarType(avatar.avatar_type);
+      setAvatarType(avatarTypeFromValue(avatar.avatar_type));
       setAvatarURL(avatar.avatar_url);
       message.success('头像已更新');
     } catch {
@@ -101,7 +108,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
   const refreshAvatarAfterLoadError = async (): Promise<void> => {
     try {
       const result = await getAvatar();
-      setAvatarType(result.avatar_type);
+      setAvatarType(avatarTypeFromValue(result.avatar_type));
       setAvatarURL(result.avatar_url);
     } catch {
       setAvatarType(AVATAR_TYPE_NONE);
@@ -124,7 +131,7 @@ export function useUserAvatar(email?: string): UseUserAvatarResult {
     } finally {
       try {
         const result = await getAvatar();
-        setAvatarType(result.avatar_type);
+        setAvatarType(avatarTypeFromValue(result.avatar_type));
         setAvatarURL(result.avatar_url);
       } catch {
         setAvatarType(AVATAR_TYPE_NONE);

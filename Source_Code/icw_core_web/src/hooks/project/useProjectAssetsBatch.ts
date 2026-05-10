@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { getErrorMessage } from '@/api/http';
 import { deleteProjectImage, moveProjectImage } from '@/api/project/assets';
-import type { ProjectGroup } from '@/types/project/assets';
+import type { ProjectGroup } from '@/gen/core/api/common';
 import {
   EMPTY_ITEMS_COUNT,
   moveImagesToGroup,
