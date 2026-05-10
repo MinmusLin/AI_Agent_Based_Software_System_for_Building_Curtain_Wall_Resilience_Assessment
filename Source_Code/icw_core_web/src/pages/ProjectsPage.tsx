@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { getErrorMessage } from '@/api/http';
 import { createProject, deleteProject, listProjects } from '@/api/project/core';
-import { normalizeProjectProgress, stageKeyFromProgress } from '@/constants/project';
-import type { Project, ProjectListItem } from '@/types/project/core';
+import { normalizeProjectProgressValue, stageKeyFromProgress } from '@/constants/common';
+import type { Project, ProjectListItem } from '@/gen/core/api/common';
 import { formatDateTime } from '@/utils/datetime';
 
 const PROJECT_CARD_CLASS = 'h-full border-slate-200 shadow-none [&_.ant-card-body]:px-4';
@@ -30,7 +30,7 @@ function projectToListItem(project: Project): ProjectListItem {
     id: project.id,
     name: project.name,
     thumbnail_url: project.thumbnail_url,
-    progress: normalizeProjectProgress(project.progress),
+    progress: normalizeProjectProgressValue(project.progress),
   };
 }
 
@@ -260,6 +260,9 @@ export default function ProjectsPage(): ReactElement {
     setCreating(true);
     try {
       const data = await createProject();
+      if (!data.project) {
+        throw new Error('project is empty');
+      }
       const newProject = projectToListItem(data.project);
       setActiveProjects((projects) => [...projects, newProject]);
       void navigate(projectRoute(newProject));
