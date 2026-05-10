@@ -2,9 +2,12 @@ import { CloseCircleFilled, EyeOutlined, FileImageOutlined, FundProjectionScreen
 import { Button, Tooltip } from 'antd';
 import type { ReactElement } from 'react';
 
-import { PROJECT_DETECTION_MAIN_STATUS_FAILED, PROJECT_IMAGE_STATUS_UPLOADED } from '@/types/common';
-import type { ProjectImage } from '@/types/project/assets';
-import type { ProjectDetectionStatus } from '@/types/project/detection';
+import {
+  type ProjectDetectionStatus,
+  ProjectDetectionTaskStatus_Value,
+  type ProjectImage,
+  ProjectImageStatus_Value,
+} from '@/gen/core/common';
 import { detectionTaskProgressPercent, isDetectionTaskRunning, isDetectionTaskSucceeded } from '@/utils/detectionStage';
 
 const MIN_RUNNING_PROGRESS_PERCENT = 8;
@@ -48,9 +51,9 @@ export function ProjectDetectionImageCard({
   onOpenProgressViewer,
   task,
 }: ProjectDetectionImageCardProps): ReactElement {
-  const imageReady = image.status === PROJECT_IMAGE_STATUS_UPLOADED && image.thumbnail_url !== '';
+  const imageReady = image.status === ProjectImageStatus_Value.Uploaded && image.thumbnail_url !== '';
   const running = isDetectionTaskRunning(task);
-  const failed = task?.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED;
+  const failed = task?.main_status === ProjectDetectionTaskStatus_Value.Failed;
   const shouldOpenProgress = task !== undefined && !isDetectionTaskSucceeded(task);
   const actionVisible = imageReady && !running && !failed && task !== undefined;
 

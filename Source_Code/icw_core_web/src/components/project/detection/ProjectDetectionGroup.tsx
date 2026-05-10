@@ -3,8 +3,8 @@ import { Button } from 'antd';
 import type { ReactElement } from 'react';
 
 import { ProjectDetectionImageCard } from '@/components/project/detection/ProjectDetectionImageCard';
-import { PROJECT_DETECTION_MAIN_STATUS_FAILED } from '@/types/common';
-import type { ProjectGroup } from '@/types/project/assets';
+import type { ProjectGroup } from '@/gen/core/api/common';
+import { ProjectDetectionTaskStatus_Value } from '@/gen/core/common';
 import { FIRST_INDEX, NEXT_INDEX_OFFSET } from '@/utils/assetsStage';
 import { isDetectionTaskRunning, type ProjectDetectionStatusMap } from '@/utils/detectionStage';
 
@@ -28,7 +28,7 @@ export function ProjectDetectionGroup({
   const failedImageCount = group.images.reduce((count, image) => {
     return (
       count +
-      (taskMap[image.uuid]?.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED ? NEXT_INDEX_OFFSET : FIRST_INDEX)
+      (taskMap[image.uuid]?.main_status === ProjectDetectionTaskStatus_Value.Failed ? NEXT_INDEX_OFFSET : FIRST_INDEX)
     );
   }, FIRST_INDEX);
   const runningImageCount = group.images.reduce((count, image) => {

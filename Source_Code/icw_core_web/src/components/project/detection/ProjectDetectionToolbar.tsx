@@ -94,7 +94,7 @@ export function ProjectDetectionToolbar({
           />
         </div>
         <p className="mt-1 text-sm text-slate-500">
-          由 Agent 完成幕墙材质分类，按需调用基于计算机视觉算法和深度学习模型的原子检测能力，并汇总生成图像级 LLM 总结
+          由 Agent 完成幕墙材质分类，按需调用基于 CV 算法和 DL 模型的原子检测能力，并汇总生成图像级 LLM 总结
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-3">

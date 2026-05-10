@@ -1,18 +1,10 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { Button, Modal, Spin, Tabs } from 'antd';
+import { Button, Input, Modal, Spin, Tabs } from 'antd';
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
 
-import type { ProjectDetectionSubStatus } from '@/types/common';
-import {
-  PROJECT_DETECTION_SUB_STATUS_FAILED,
-  PROJECT_DETECTION_SUB_STATUS_PENDING,
-  PROJECT_DETECTION_SUB_STATUS_SUCCEEDED,
-} from '@/types/common';
-import type { ProjectImage } from '@/types/project/assets';
+import type { GetImageDetectionResultResponse } from '@/gen/core/api/project_detection';
 import type {
-  GetImageDetectionResultResponse,
-  ProjectDetectionArtifacts,
   ProjectDetectionCorrosionResult,
   ProjectDetectionCrackResult,
   ProjectDetectionFlatnessResult,
@@ -20,13 +12,17 @@ import type {
   ProjectDetectionStainResult,
   ProjectDetectionStatus,
   ProjectDetectionSummaryResult,
-} from '@/types/project/detection';
+  ProjectImage,
+} from '@/gen/core/common';
+import { ProjectDetectionReviewVerdict_Value, ProjectDetectionSubTaskStatus_Value } from '@/gen/core/common';
 import type { ViewerImage } from '@/utils/assetsStage';
 import { FIRST_INDEX, formatProjectImageMetadata, KILOBYTE_SIZE_BYTES, NEXT_INDEX_OFFSET } from '@/utils/assetsStage';
 import { formatDateTime } from '@/utils/datetime';
 
 const DEFAULT_ACTIVE_TAB = 'original';
 const SUMMARY_TAB = 'summary';
+const BUTTON_TYPE_DEFAULT = 'default';
+const BUTTON_TYPE_PRIMARY = 'primary';
 const DETECTION_DATA_PAGE_INDEX = 0;
 const EMPTY_ITEMS_COUNT = 0;
 const DEFAULT_DECIMAL_PLACES = 6;
@@ -96,7 +92,6 @@ const REPORT_EXCLUDED_FIELDS = new Set([
   'has_stain',
   'regions',
   'result',
-  'result_json',
   'runtime_seconds',
   'started_at',
   'status',
@@ -108,9 +103,20 @@ interface ProjectDetectionResultViewerProps {
   onClose: () => void;
   onOpenImage: (imageUuid: string) => void;
   open: boolean;
+  review?: ProjectDetectionReviewProps;
   result: GetImageDetectionResultResponse | null;
   uploadedImages: ViewerImage[];
   viewerIndex: number;
+}
+
+interface ProjectDetectionReviewProps {
+  comment: string;
+  enabled: boolean;
+  onCommentChange: (comment: string) => void;
+  onSave: () => void;
+  onVerdictChange: (verdict: ProjectDetectionReviewVerdict_Value) => void;
+  saving: boolean;
+  verdict: ProjectDetectionReviewVerdict_Value;
 }
 
 interface OriginalInfoTabProps {
@@ -159,6 +165,8 @@ type DetectionResult =
   | ProjectDetectionFlatnessResult
   | ProjectDetectionSpallingResult
   | ProjectDetectionStainResult;
+
+type ProjectDetectionArtifacts = Record<string, string>;
 
 function imageDimensionText(image?: ProjectImage): string {
   if (!image) {
@@ -278,13 +286,13 @@ function showDetectionRegions(taskKey: string, result?: DetectionResult): boolea
     return false;
   }
   if (taskKey === 'corrosion' && 'has_corrosion' in result) {
-    return Boolean(result.has_corrosion);
+    return result.has_corrosion;
   }
   if (taskKey === 'crack' && 'has_crack' in result) {
-    return Boolean(result.has_crack);
+    return result.has_crack;
   }
   if (taskKey === 'stain' && 'has_stain' in result) {
-    return Boolean(result.has_stain);
+    return result.has_stain;
   }
   if (taskKey === 'flatness') {
     return isFlatnessUneven(result);
@@ -312,7 +320,7 @@ function resultReport(result?: DetectionResult): Record<string, unknown> {
     return {};
   }
   return Object.fromEntries(
-    Object.entries(result as Record<string, unknown>).filter(([key]) => !REPORT_EXCLUDED_FIELDS.has(key)),
+    Object.entries(result as unknown as Record<string, unknown>).filter(([key]) => !REPORT_EXCLUDED_FIELDS.has(key)),
   );
 }
 
@@ -332,7 +340,7 @@ function resultArtifacts(result?: DetectionResult): ProjectDetectionArtifacts {
   if (!result || !('artifacts' in result)) {
     return {};
   }
-  return result.artifacts ?? {};
+  return result.artifacts;
 }
 
 function artifactUrl(artifacts: ProjectDetectionArtifacts, name: string): string | undefined {
@@ -343,7 +351,7 @@ function detectionResultTabs(result: GetImageDetectionResultResponse | null): De
   if (!result) {
     return [];
   }
-  return [
+  const tabs: DetectionTabItem[] = [
     {
       key: 'corrosion',
       label: REASONING_TASK_LABELS.corrosion,
@@ -369,17 +377,18 @@ function detectionResultTabs(result: GetImageDetectionResultResponse | null): De
       label: REASONING_TASK_LABELS.spalling,
       result: result.spalling_result,
     },
-  ].filter((item): item is DetectionTabItem => Boolean(item.result));
+  ];
+  return tabs.filter((item) => Boolean(item.result));
 }
 
-function statusText(status?: ProjectDetectionSubStatus): string {
-  if (status === PROJECT_DETECTION_SUB_STATUS_PENDING) {
+function statusText(status?: ProjectDetectionSubTaskStatus_Value): string {
+  if (status === ProjectDetectionSubTaskStatus_Value.Pending) {
     return '检测中';
   }
-  if (status === PROJECT_DETECTION_SUB_STATUS_SUCCEEDED) {
+  if (status === ProjectDetectionSubTaskStatus_Value.Succeeded) {
     return '成功';
   }
-  if (status === PROJECT_DETECTION_SUB_STATUS_FAILED) {
+  if (status === ProjectDetectionSubTaskStatus_Value.Failed) {
     return '失败';
   }
   return '-';
@@ -408,19 +417,9 @@ function detectionConclusion(taskKey: string, result?: DetectionResult): string 
   return statusText(result.status);
 }
 
-function parseSummaryJSON(reportJson?: string): string {
-  if (!reportJson || reportJson.trim() === '') {
-    return '-';
-  }
-  try {
-    const parsed = JSON.parse(reportJson) as unknown;
-    if (typeof parsed === 'object' && parsed !== null && 'summary' in parsed && typeof parsed.summary === 'string') {
-      return parsed.summary;
-    }
-    return JSON.stringify(parsed, null, JSON_FORMAT_INDENT);
-  } catch {
-    return reportJson;
-  }
+function summaryText(result?: string): string {
+  const text = result?.trim() ?? '';
+  return text || '-';
 }
 
 function OriginalInfoTab({ image, mainTaskUuid, status }: OriginalInfoTabProps): ReactElement {
@@ -778,9 +777,48 @@ function SummaryResultTab({ result }: { result: ProjectDetectionSummaryResult | 
       <div className="flex min-h-0 flex-1 flex-col rounded bg-slate-50 p-3">
         <div className="mb-2 font-medium text-slate-900">Agent 总结</div>
         <pre className="min-h-0 flex-1 overflow-auto overscroll-contain whitespace-pre-wrap break-all text-xs leading-5 text-slate-700">
-          {parseSummaryJSON(result?.result_json)}
+          {summaryText(result?.result)}
         </pre>
       </div>
+    </div>
+  );
+}
+
+function ReviewPanel({ review }: { review: ProjectDetectionReviewProps }): ReactElement {
+  const reviewOptions: Array<{ label: string; value: ProjectDetectionReviewVerdict_Value }> = [
+    { label: '准确', value: ProjectDetectionReviewVerdict_Value.Accurate },
+    { label: '不准确', value: ProjectDetectionReviewVerdict_Value.Inaccurate },
+  ];
+
+  return (
+    <div className="mt-4 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+      <div className="flex shrink-0 items-center gap-2">
+        <span className="text-sm font-medium text-slate-900">你认为 Agent 结果</span>
+        {reviewOptions.map((option) => (
+          <Button
+            disabled={review.saving}
+            key={option.value}
+            onClick={() => {
+              review.onVerdictChange(
+                review.verdict === option.value ? ProjectDetectionReviewVerdict_Value.Unknown : option.value,
+              );
+            }}
+            type={review.verdict === option.value ? BUTTON_TYPE_PRIMARY : BUTTON_TYPE_DEFAULT}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </div>
+      <Input
+        className="min-w-0 flex-1"
+        disabled={review.saving}
+        onBlur={review.onSave}
+        onChange={(event) => {
+          review.onCommentChange(event.target.value);
+        }}
+        placeholder="如需补充说明，可在此输入"
+        value={review.comment}
+      />
     </div>
   );
 }
@@ -790,6 +828,7 @@ export function ProjectDetectionResultViewer({
   onClose,
   onOpenImage,
   open,
+  review,
   result,
   uploadedImages,
   viewerIndex,
@@ -847,54 +886,57 @@ export function ProjectDetectionResultViewer({
 
   return (
     <Modal centered footer={null} onCancel={onClose} open={open} title={title} width={1040}>
-      <div className="grid h-[520px] grid-cols-[minmax(0,1fr)_320px] gap-5">
-        <div className="relative flex min-h-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
-          <DetectionPreview
-            activeTab={currentActiveTab}
-            groupIndex={groupIndex}
-            image={image}
-            loading={loading}
-            originalUrl={result?.original_url}
-            result={activeDetectionResult}
-            taskKey={currentActiveTab}
-          />
-        </div>
-        <div className="flex min-h-0 flex-col">
-          <Tabs
-            activeKey={currentActiveTab}
-            className="min-h-0 flex-1 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-tabpane]:h-full"
-            items={tabs}
-            onChange={(key) => {
-              setActiveTab(key);
-              setGroupIndex(FIRST_INDEX);
-            }}
-            size="small"
-          />
-          <div className="flex justify-between pt-4">
-            <Button
-              disabled={viewerIndex <= FIRST_INDEX}
-              icon={<LeftOutlined />}
-              onClick={() => {
-                if (viewerIndex > FIRST_INDEX) {
-                  onOpenImage(uploadedImages[viewerIndex - NEXT_INDEX_OFFSET].image.uuid);
-                }
+      <div>
+        <div className="grid h-[520px] grid-cols-[minmax(0,1fr)_320px] gap-5">
+          <div className="relative flex min-h-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
+            <DetectionPreview
+              activeTab={currentActiveTab}
+              groupIndex={groupIndex}
+              image={image}
+              loading={loading}
+              originalUrl={result?.original_url}
+              result={activeDetectionResult}
+              taskKey={currentActiveTab}
+            />
+          </div>
+          <div className="flex min-h-0 flex-col">
+            <Tabs
+              activeKey={currentActiveTab}
+              className="min-h-0 flex-1 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-tabpane]:h-full"
+              items={tabs}
+              onChange={(key) => {
+                setActiveTab(key);
+                setGroupIndex(FIRST_INDEX);
               }}
-            >
-              上一张
-            </Button>
-            <Button
-              disabled={viewerIndex < FIRST_INDEX || viewerIndex >= uploadedImages.length - NEXT_INDEX_OFFSET}
-              onClick={() => {
-                if (viewerIndex >= FIRST_INDEX && viewerIndex < uploadedImages.length - NEXT_INDEX_OFFSET) {
-                  onOpenImage(uploadedImages[viewerIndex + NEXT_INDEX_OFFSET].image.uuid);
-                }
-              }}
-            >
-              下一张
-              <RightOutlined />
-            </Button>
+              size="small"
+            />
+            <div className="flex justify-between gap-3 pt-4">
+              <Button
+                disabled={viewerIndex <= FIRST_INDEX}
+                icon={<LeftOutlined />}
+                onClick={() => {
+                  if (viewerIndex > FIRST_INDEX) {
+                    onOpenImage(uploadedImages[viewerIndex - NEXT_INDEX_OFFSET].image.uuid);
+                  }
+                }}
+              >
+                上一张
+              </Button>
+              <Button
+                disabled={viewerIndex < FIRST_INDEX || viewerIndex >= uploadedImages.length - NEXT_INDEX_OFFSET}
+                onClick={() => {
+                  if (viewerIndex >= FIRST_INDEX && viewerIndex < uploadedImages.length - NEXT_INDEX_OFFSET) {
+                    onOpenImage(uploadedImages[viewerIndex + NEXT_INDEX_OFFSET].image.uuid);
+                  }
+                }}
+              >
+                下一张
+                <RightOutlined />
+              </Button>
+            </div>
           </div>
         </div>
+        {review?.enabled ? <ReviewPanel review={review} /> : null}
       </div>
     </Modal>
   );

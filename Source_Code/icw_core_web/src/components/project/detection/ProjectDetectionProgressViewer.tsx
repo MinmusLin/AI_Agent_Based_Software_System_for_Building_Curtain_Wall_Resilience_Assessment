@@ -15,14 +15,10 @@ import {
   DETECTION_PROGRESS_NODE_STATUS_SKIPPED,
   DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED,
   type DetectionProgressNodeStatus,
-  PROJECT_DETECTION_MAIN_STATUS_FAILED,
-  PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED,
   PROJECT_DETECTION_NODE_REASONING_PREFIX,
-  PROJECT_DETECTION_SUB_STATUS_FAILED,
-  PROJECT_DETECTION_SUB_STATUS_PENDING,
-  PROJECT_DETECTION_SUB_STATUS_SUCCEEDED,
-} from '@/types/common';
-import type { ProjectDetectionNodeStatus, ProjectDetectionStatus } from '@/types/project/detection';
+} from '@/constants/common';
+import type { ProjectDetectionNodeStatus, ProjectDetectionStatus } from '@/gen/core/common';
+import { ProjectDetectionSubTaskStatus_Value, ProjectDetectionTaskStatus_Value } from '@/gen/core/common';
 import { detectionTaskProgressPercent } from '@/utils/detectionStage';
 
 interface ProjectDetectionProgressViewerProps {
@@ -100,12 +96,14 @@ function nodeStatus(node: ProjectDetectionNodeStatus | undefined): DetectionProg
     return DETECTION_PROGRESS_NODE_STATUS_SKIPPED;
   }
   switch (node.sub_status) {
-    case PROJECT_DETECTION_SUB_STATUS_FAILED:
+    case ProjectDetectionSubTaskStatus_Value.Failed:
       return DETECTION_PROGRESS_NODE_STATUS_FAILED;
-    case PROJECT_DETECTION_SUB_STATUS_PENDING:
+    case ProjectDetectionSubTaskStatus_Value.Pending:
       return DETECTION_PROGRESS_NODE_STATUS_RUNNING;
-    case PROJECT_DETECTION_SUB_STATUS_SUCCEEDED:
+    case ProjectDetectionSubTaskStatus_Value.Succeeded:
       return DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED;
+    case ProjectDetectionSubTaskStatus_Value.Unknown:
+    case ProjectDetectionSubTaskStatus_Value.UNRECOGNIZED:
     default:
       return DETECTION_PROGRESS_NODE_STATUS_PENDING;
   }
@@ -142,11 +140,11 @@ function reasoningAggregateStatus(
     return DETECTION_PROGRESS_NODE_STATUS_SKIPPED;
   }
 
-  const nodes = task.detection_status ?? [];
+  const nodes = task.detection_status;
   if (nodes.length === EMPTY_NODE_COUNT) {
     if (
       currentClassificationStatus === DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED ||
-      task.main_status === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED
+      task.main_status === ProjectDetectionTaskStatus_Value.Succeeded
     ) {
       return DETECTION_PROGRESS_NODE_STATUS_SKIPPED;
     }
@@ -167,10 +165,10 @@ function reasoningAggregateStatus(
 }
 
 function endStatus(task: ProjectDetectionStatus): DetectionProgressNodeStatus {
-  if (task.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED) {
+  if (task.main_status === ProjectDetectionTaskStatus_Value.Failed) {
     return DETECTION_PROGRESS_NODE_STATUS_FAILED;
   }
-  if (task.main_status === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED) {
+  if (task.main_status === ProjectDetectionTaskStatus_Value.Succeeded) {
     return DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED;
   }
   return DETECTION_PROGRESS_NODE_STATUS_PENDING;
@@ -191,7 +189,7 @@ function summaryStatus(
   if (task.summary_status) {
     return nodeStatus(task.summary_status);
   }
-  if (task.main_status === PROJECT_DETECTION_MAIN_STATUS_SUCCEEDED) {
+  if (task.main_status === ProjectDetectionTaskStatus_Value.Succeeded) {
     return DETECTION_PROGRESS_NODE_STATUS_SKIPPED;
   }
   return DETECTION_PROGRESS_NODE_STATUS_PENDING;
@@ -251,25 +249,21 @@ export function ProjectDetectionProgressViewer({
           <div className="mb-8">
             <Progress
               percent={progressPercent}
-              status={task.main_status === PROJECT_DETECTION_MAIN_STATUS_FAILED ? 'exception' : 'active'}
+              status={task.main_status === ProjectDetectionTaskStatus_Value.Failed ? 'exception' : 'active'}
             />
           </div>
           <div className="flex items-center gap-3">
             <FlowNode label="开始" status={DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED} />
             <Connector />
             <FlowNode
-              label="幕墙材质分类"
+              label="材质分类"
               status={currentClassificationStatus}
               taskUuid={task.classification_status?.sub_task_uuid ?? task.main_task_uuid}
             />
             <Connector />
-            <FlowNode label="原子能力检测" status={currentReasoningStatus} />
+            <FlowNode label="原子检测" status={currentReasoningStatus} />
             <Connector />
-            <FlowNode
-              label="检测结果总结"
-              status={currentSummaryStatus}
-              taskUuid={task.summary_status?.sub_task_uuid}
-            />
+            <FlowNode label="结果总结" status={currentSummaryStatus} taskUuid={task.summary_status?.sub_task_uuid} />
             <Connector />
             <FlowNode label="结束" status={endStatus(task)} />
           </div>
