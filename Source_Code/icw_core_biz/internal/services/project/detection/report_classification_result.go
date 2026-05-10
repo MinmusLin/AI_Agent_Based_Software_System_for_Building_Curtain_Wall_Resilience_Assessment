@@ -51,7 +51,7 @@ func (s *Service) reportClassificationResult(ctx context.Context, req *bizpb.Rep
 		task.UserId,
 		task.ProjectId,
 		task.ImageUuid,
-		events.DetectionNodeCodeClassification,
+		enum.DetectionNodeCodeString(commonpb.DetectionNodeCode_Classification),
 		task.Uuid,
 		task.Status,
 		"",

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 
 	"icw_core_biz/internal/services/user/consts"
 	"icw_core_biz/internal/services/user/utils"
@@ -20,7 +21,7 @@ func (s *Service) GetAvatar(ctx context.Context, req *bizpb.GetAvatarRequest) (*
 }
 
 func (s *Service) getAvatar(req *bizpb.GetAvatarRequest, resp *bizpb.GetAvatarResponse) error {
-	resp.AvatarType = consts.AvatarTypeNone
+	resp.AvatarType = commonpb.AvatarType_None
 
 	// 对标准化邮箱地址做 SHA-256 哈希
 	emailHash, err := utils.NormalizeEmailHash(req.Email)
@@ -35,7 +36,7 @@ func (s *Service) getAvatar(req *bizpb.GetAvatarRequest, resp *bizpb.GetAvatarRe
 	}
 	if avatarURL != "" {
 		resp.AvatarUrl = avatarURL
-		resp.AvatarType = consts.AvatarTypeCustom
+		resp.AvatarType = commonpb.AvatarType_Custom
 		return nil
 	}
 
@@ -46,7 +47,7 @@ func (s *Service) getAvatar(req *bizpb.GetAvatarRequest, resp *bizpb.GetAvatarRe
 	}
 	if avatarURL != "" {
 		resp.AvatarUrl = avatarURL
-		resp.AvatarType = consts.AvatarTypeDefault
+		resp.AvatarType = commonpb.AvatarType_Default
 		return nil
 	}
 
@@ -60,11 +61,11 @@ func (s *Service) getAvatar(req *bizpb.GetAvatarRequest, resp *bizpb.GetAvatarRe
 	}
 	if avatarURL == "" {
 		resp.AvatarUrl = ""
-		resp.AvatarType = consts.AvatarTypeNone
+		resp.AvatarType = commonpb.AvatarType_None
 		return nil
 	}
 
 	resp.AvatarUrl = avatarURL
-	resp.AvatarType = consts.AvatarTypeDefault
+	resp.AvatarType = commonpb.AvatarType_Default
 	return nil
 }

@@ -8,7 +8,9 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 
 	"icw_common/consts"
+	"icw_common/enum"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 
 	"icw_core_api/internal/dto"
 	"icw_core_api/internal/socket"
@@ -37,8 +39,8 @@ func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.
 	if err := json.Unmarshal(message.Body, &event); err != nil {
 		return err
 	}
-	if event.EventType != consts.EventTypeProjectImageStatusChanged {
-		return fmt.Errorf("unexpected event type: %s", event.EventType)
+	if event.EventType != commonpb.ProjectEventType_ImageStatusChanged {
+		return fmt.Errorf("unexpected event type: %s", enum.ProjectEventTypeString(event.EventType))
 	}
 
 	socketMessage := dto.NewProjectImageStatusChangedMessage(&event)
@@ -47,7 +49,7 @@ func dispatchProjectImageStatusChangedEvent(hub *socket.Hub, message *primitive.
 		return err
 	}
 
-	hub.BroadcastProject(event.ProjectId, event.ProjectCode, consts.SocketScopeProjectAssets, messageBytes)
+	hub.BroadcastProject(event.ProjectId, event.ProjectCode, enum.SocketScopeString(commonpb.SocketScope_ProjectAssets), messageBytes)
 	return nil
 }
 
@@ -57,8 +59,8 @@ func dispatchProjectDetectionTaskStatusChangedEvent(hub *socket.Hub, message *pr
 	if err := json.Unmarshal(message.Body, &event); err != nil {
 		return err
 	}
-	if event.EventType != consts.EventTypeProjectDetectionTaskStatusChanged {
-		return fmt.Errorf("unexpected event type: %s", event.EventType)
+	if event.EventType != commonpb.ProjectEventType_DetectionTaskStatusChanged {
+		return fmt.Errorf("unexpected event type: %s", enum.ProjectEventTypeString(event.EventType))
 	}
 
 	socketMessage := dto.NewProjectDetectionTaskStatusChangedMessage(&event)
@@ -67,7 +69,7 @@ func dispatchProjectDetectionTaskStatusChangedEvent(hub *socket.Hub, message *pr
 		return err
 	}
 
-	hub.BroadcastProject(event.ProjectId, event.ProjectCode, consts.SocketScopeProjectDetection, messageBytes)
+	hub.BroadcastProject(event.ProjectId, event.ProjectCode, enum.SocketScopeString(commonpb.SocketScope_ProjectDetection), messageBytes)
 	return nil
 }
 
@@ -77,8 +79,8 @@ func dispatchProjectReportStatusChangedEvent(hub *socket.Hub, message *primitive
 	if err := json.Unmarshal(message.Body, &event); err != nil {
 		return err
 	}
-	if event.EventType != consts.EventTypeProjectReportStatusChanged {
-		return fmt.Errorf("unexpected event type: %s", event.EventType)
+	if event.EventType != commonpb.ProjectEventType_ReportStatusChanged {
+		return fmt.Errorf("unexpected event type: %s", enum.ProjectEventTypeString(event.EventType))
 	}
 
 	socketMessage := dto.NewProjectReportStatusChangedMessage(&event)
@@ -87,6 +89,6 @@ func dispatchProjectReportStatusChangedEvent(hub *socket.Hub, message *primitive
 		return err
 	}
 
-	hub.BroadcastProject(event.ProjectId, event.ProjectCode, consts.SocketScopeProjectReport, messageBytes)
+	hub.BroadcastProject(event.ProjectId, event.ProjectCode, enum.SocketScopeString(commonpb.SocketScope_ProjectReport), messageBytes)
 	return nil
 }

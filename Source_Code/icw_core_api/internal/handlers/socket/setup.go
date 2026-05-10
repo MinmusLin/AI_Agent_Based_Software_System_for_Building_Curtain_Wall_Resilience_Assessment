@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
+	"icw_common/enum"
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
 	"icw_common/rpc/error"
@@ -28,7 +29,7 @@ var upgrader = websocket.Upgrader{
 func (h *Handler) SetupWebSocket(c *gin.Context) {
 	req := &apipb.SetupWebSocketRequest{
 		ProjectId: c.Query("project_id"),
-		Scope:     strings.TrimSpace(c.Query("scope")),
+		Scope:     enum.ParseSocketScope(c.Query("scope")),
 		Ticket:    strings.TrimSpace(c.Query("ticket")),
 	}
 	projectId, err := utils.Decode(req.ProjectId)
@@ -53,7 +54,7 @@ func (h *Handler) SetupWebSocket(c *gin.Context) {
 		return
 	}
 
-	client := h.hub.Register(projectId, req.Scope, conn)
+	client := h.hub.Register(projectId, enum.SocketScopeString(req.Scope), conn)
 	go client.WritePump()
 	client.ReadPump()
 }

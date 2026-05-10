@@ -111,7 +111,7 @@ func (w *DetectionWorker) processClassification(ctx context.Context, item *detec
 	if err != nil || task == nil {
 		return
 	}
-	w.publishNode(ctx, task, events.DetectionNodeCodeClassification, "", events.DetectionNodeStatusPending)
+	w.publishNode(ctx, task, enum.DetectionNodeCodeString(commonpb.DetectionNodeCode_Classification), "", events.DetectionNodeStatusPending)
 	originalURL, err := minio.PresignProjectImageOriginalURL(ctx, w.minio, w.redis, task.ProjectId, task.ImageUuid, w.cfg.ProjectImageGetTTL)
 	if err != nil || originalURL == "" {
 		w.failDetectionTask(ctx, task)
@@ -137,7 +137,7 @@ func (w *DetectionWorker) failDetectionTask(ctx context.Context, task *model.Pro
 	if err != nil || updatedTask == nil {
 		return
 	}
-	w.publishNode(ctx, updatedTask, events.DetectionNodeCodeClassification, "", events.DetectionNodeStatusFailed)
+	w.publishNode(ctx, updatedTask, enum.DetectionNodeCodeString(commonpb.DetectionNodeCode_Classification), "", events.DetectionNodeStatusFailed)
 }
 
 // StartReasoningTasks 批量启动项目图像检测推理子任务
@@ -222,7 +222,7 @@ func (w *DetectionWorker) StartDetectionSummaryTask(ctx context.Context, task *m
 	}
 	task = startedTask
 	summaryTask = startedSummaryTask
-	w.publishNode(ctx, task, events.DetectionNodeCodeSummary, summaryTask.Uuid, events.DetectionNodeStatusPending)
+	w.publishNode(ctx, task, enum.DetectionNodeCodeString(commonpb.DetectionNodeCode_Summary), summaryTask.Uuid, events.DetectionNodeStatusPending)
 	sourceJSON, err := w.detectionSummaryReportJSON(ctx, task)
 	if err != nil {
 		w.failDetectionSummaryTask(ctx, summaryTask.Uuid)
@@ -276,7 +276,7 @@ func (w *DetectionWorker) detectionSummaryReportJSON(ctx context.Context, task *
 func (w *DetectionWorker) failDetectionSummaryTask(ctx context.Context, taskUuid string) {
 	updatedTask, updatedSummaryTask, updateErr := w.mysql.UpdateProjectDetectionSummaryResult(ctx, taskUuid, bizpb.ProjectDetectionSubTaskStatus_Failed, "")
 	if updateErr == nil && updatedTask != nil && updatedSummaryTask != nil {
-		w.publishNode(ctx, updatedTask, events.DetectionNodeCodeSummary, updatedSummaryTask.Uuid, events.DetectionNodeStatusFailed)
+		w.publishNode(ctx, updatedTask, enum.DetectionNodeCodeString(commonpb.DetectionNodeCode_Summary), updatedSummaryTask.Uuid, events.DetectionNodeStatusFailed)
 	}
 }
 

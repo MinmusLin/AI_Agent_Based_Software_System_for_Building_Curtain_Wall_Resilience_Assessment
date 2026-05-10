@@ -1,12 +1,11 @@
 package socket
 
 import (
-	"strings"
-
 	"github.com/gin-gonic/gin"
 
 	"icw_common/gen/core/api"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc/error"
 	"icw_common/utils"
 
@@ -38,8 +37,7 @@ func (h *Handler) CreateSocketTicket(c *gin.Context) {
 		return
 	}
 
-	scope := strings.TrimSpace(req.Scope)
-	if scope == "" {
+	if req.Scope == commonpb.SocketScope_Unknown {
 		response.Error(c, rpc_error.BadRequestDefault("socket scope is required"))
 		return
 	}
@@ -48,7 +46,7 @@ func (h *Handler) CreateSocketTicket(c *gin.Context) {
 		UserId:      user.Id,
 		ProjectId:   projectId,
 		ProjectCode: req.ProjectId,
-		Scope:       scope,
+		Scope:       req.Scope,
 	}
 	rpcResp := &bizpb.CreateSocketTicketResponse{}
 	if err := socket.CreateSocketTicket(c.Request.Context(), h.CoreBizClient(), rpcReq, rpcResp); err != nil {

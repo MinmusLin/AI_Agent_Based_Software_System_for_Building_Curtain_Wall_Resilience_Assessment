@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc/error"
 
 	"icw_core_biz/internal/services/socket/utils"
@@ -23,13 +24,12 @@ func (s *Service) ValidateSocketTicket(ctx context.Context, req *bizpb.ValidateS
 func (s *Service) validateSocketTicket(req *bizpb.ValidateSocketTicketRequest, _ *bizpb.ValidateSocketTicketResponse) error {
 	ticket := strings.TrimSpace(req.Ticket)
 	projectCode := strings.TrimSpace(req.ProjectCode)
-	scope := strings.TrimSpace(req.Scope)
-	if ticket == "" || projectCode == "" || scope == "" {
+	if ticket == "" || projectCode == "" || req.Scope == commonpb.SocketScope_Unknown {
 		return rpc_error.BadRequestDefault("socket ticket resource is required")
 	}
 
 	// 校验是否是有效的 WebSocket 连接范围
-	if !utils.ValidateSocketScope(scope) {
+	if !utils.ValidateSocketScope(req.Scope) {
 		return rpc_error.BadRequestDefault("socket scope is invalid")
 	}
 
@@ -47,7 +47,7 @@ func (s *Service) validateSocketTicket(req *bizpb.ValidateSocketTicketRequest, _
 	if err := json.Unmarshal([]byte(rawContext), &ticketContext); err != nil {
 		return err
 	}
-	if ticketContext.ProjectCode != projectCode || ticketContext.SocketScope != scope {
+	if ticketContext.ProjectCode != projectCode || ticketContext.SocketScope != req.Scope {
 		return rpc_error.BadRequestDefault("socket ticket is mismatched")
 	}
 

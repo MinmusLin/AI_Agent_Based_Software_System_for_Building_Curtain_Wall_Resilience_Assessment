@@ -2,6 +2,7 @@ package detection
 
 import (
 	"context"
+	"icw_common/enum"
 
 	"icw_common/gen/core/biz"
 	"icw_common/gen/core/common"
@@ -43,7 +44,7 @@ func (s *Service) reportDetectionSummaryResult(ctx context.Context, req *bizpb.R
 		task.UserId,
 		task.ProjectId,
 		task.ImageUuid,
-		events.DetectionNodeCodeSummary,
+		enum.DetectionNodeCodeString(commonpb.DetectionNodeCode_Summary),
 		task.Uuid,
 		task.Status,
 		summaryTask.Uuid,

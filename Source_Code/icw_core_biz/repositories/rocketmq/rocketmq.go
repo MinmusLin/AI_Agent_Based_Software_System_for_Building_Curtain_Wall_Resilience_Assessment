@@ -13,6 +13,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/rlog"
 
 	"icw_common/consts"
+	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/utils"
 
@@ -100,7 +101,7 @@ func (r *Producer) PublishProjectImageStatusChangedEvent(ctx context.Context, ev
 
 	message := primitive.NewMessage(r.topic, body)
 	message.WithTag(consts.EventTagProjectImageStatusChanged)
-	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", event.EventType, event.ProjectId, event.Image.Uuid)})
+	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", enum.ProjectEventTypeString(event.EventType), event.ProjectId, event.Image.Uuid)})
 
 	_, err = r.producerSendSync(ctx, message)
 	return err
@@ -119,7 +120,7 @@ func (r *Producer) PublishProjectDetectionTaskStatusChangedEvent(ctx context.Con
 
 	message := primitive.NewMessage(r.topic, body)
 	message.WithTag(consts.EventTagProjectDetectionTaskStatusChanged)
-	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", event.EventType, event.ProjectId, event.MainTaskUuid)})
+	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", enum.ProjectEventTypeString(event.EventType), event.ProjectId, event.MainTaskUuid)})
 
 	_, err = r.producerSendSync(ctx, message)
 	return err
@@ -138,7 +139,7 @@ func (r *Producer) PublishProjectReportStatusChangedEvent(ctx context.Context, e
 
 	message := primitive.NewMessage(r.topic, body)
 	message.WithTag(consts.EventTagProjectReportStatusChanged)
-	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", event.EventType, event.ProjectId, event.ReportUuid)})
+	message.WithKeys([]string{fmt.Sprintf("%s:%d:%s", enum.ProjectEventTypeString(event.EventType), event.ProjectId, event.ReportUuid)})
 
 	_, err = r.producerSendSync(ctx, message)
 	return err

@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 
-	"icw_common/consts"
+	"icw_common/gen/core/common"
 )
 
 const (
@@ -19,7 +19,7 @@ type SocketTicketContext struct {
 	UserId      uint64
 	ProjectId   uint64
 	ProjectCode string
-	SocketScope string
+	SocketScope commonpb.SocketScope_Value
 	RequestId   string
 	CreateAt    string
 }
@@ -40,6 +40,6 @@ func TicketHash(ticket string) string {
 }
 
 // ValidateSocketScope 校验是否是有效的 WebSocket 连接范围
-func ValidateSocketScope(scope string) bool {
-	return scope == consts.SocketScopeProjectAssets || scope == consts.SocketScopeProjectDetection || scope == consts.SocketScopeProjectReport
+func ValidateSocketScope(scope commonpb.SocketScope_Value) bool {
+	return scope == commonpb.SocketScope_ProjectAssets || scope == commonpb.SocketScope_ProjectDetection || scope == commonpb.SocketScope_ProjectReport
 }

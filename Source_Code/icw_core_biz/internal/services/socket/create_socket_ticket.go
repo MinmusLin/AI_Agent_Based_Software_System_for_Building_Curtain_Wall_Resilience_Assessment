@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/rpc"
 	"icw_common/rpc/error"
 
@@ -27,13 +28,12 @@ func (s *Service) createSocketTicket(ctx context.Context, req *bizpb.CreateSocke
 		return rpc_error.BadRequestDefault("socket ticket resource is required")
 	}
 	projectCode := strings.TrimSpace(req.ProjectCode)
-	scope := strings.TrimSpace(req.Scope)
-	if projectCode == "" || scope == "" {
+	if projectCode == "" || req.Scope == commonpb.SocketScope_Unknown {
 		return rpc_error.BadRequestDefault("socket ticket resource is required")
 	}
 
 	// 校验是否是有效的 WebSocket 连接范围
-	if !utils.ValidateSocketScope(scope) {
+	if !utils.ValidateSocketScope(req.Scope) {
 		return rpc_error.BadRequestDefault("socket scope is invalid")
 	}
 
@@ -49,7 +49,7 @@ func (s *Service) createSocketTicket(ctx context.Context, req *bizpb.CreateSocke
 		UserId:      req.UserId,
 		ProjectId:   req.ProjectId,
 		ProjectCode: projectCode,
-		SocketScope: scope,
+		SocketScope: req.Scope,
 		RequestId:   rpc.RequestIdFromIncomingContext(ctx),
 		CreateAt:    time.Now().Format("2006-01-02 15:04:05"),
 	}

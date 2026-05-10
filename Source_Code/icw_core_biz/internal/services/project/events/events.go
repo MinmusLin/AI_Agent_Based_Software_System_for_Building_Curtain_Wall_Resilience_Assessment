@@ -6,23 +6,15 @@ import (
 
 	"github.com/google/uuid"
 
-	"icw_common/consts"
+	"icw_common/enum"
 	"icw_common/gen/core/biz"
+	"icw_common/gen/core/common"
 	"icw_common/utils"
 
 	"icw_core_biz/repositories/rocketmq"
 )
 
 const (
-	// DetectionNodeCodeClassification 检测任务节点代码：分类阶段
-	DetectionNodeCodeClassification = "classification"
-	// DetectionNodeCodeReasoning 检测任务节点代码：推理阶段
-	DetectionNodeCodeReasoning = "reasoning"
-	// DetectionNodeCodeSummary 检测任务节点代码：总结阶段
-	DetectionNodeCodeSummary = "summary"
-)
-
-var (
 	// DetectionNodeStatusPending 检测任务节点状态：等待中/执行中
 	DetectionNodeStatusPending = bizpb.ProjectDetectionSubTaskStatus_Pending
 	// DetectionNodeStatusSucceeded 检测任务节点状态：成功
@@ -33,10 +25,11 @@ var (
 
 // ReasoningNodeCode 生成推理阶段检测任务节点代码
 func ReasoningNodeCode(taskCode string) string {
+	reasoningCode := enum.DetectionNodeCodeString(commonpb.DetectionNodeCode_Reasoning)
 	if taskCode == "" {
-		return DetectionNodeCodeReasoning
+		return reasoningCode
 	}
-	return DetectionNodeCodeReasoning + ":" + taskCode
+	return reasoningCode + ":" + taskCode
 }
 
 // PublishProjectImageStatusChangedEvent 发布项目图像状态变化事件
@@ -46,7 +39,7 @@ func PublishProjectImageStatusChangedEvent(ctx context.Context, rocketMQ *rocket
 	}
 	event := &bizpb.ProjectImageStatusChangedEvent{
 		EventId:     uuid.NewString(),
-		EventType:   consts.EventTypeProjectImageStatusChanged,
+		EventType:   commonpb.ProjectEventType_ImageStatusChanged,
 		ProjectId:   projectId,
 		ProjectCode: utils.Encode(projectId),
 		UserId:      userId,
@@ -60,7 +53,7 @@ func PublishProjectImageStatusChangedEvent(ctx context.Context, rocketMQ *rocket
 func PublishProjectDetectionNodeStatusChangedEvent(ctx context.Context, rocketMQ *rocketmq.Producer, userId, projectId uint64, imageUuid, nodeCode, mainTaskUuid string, mainStatus bizpb.ProjectDetectionTaskStatus_Value, subTaskUuid string, subStatus bizpb.ProjectDetectionSubTaskStatus_Value) {
 	event := &bizpb.ProjectDetectionTaskStatusChangedEvent{
 		EventId:      uuid.NewString(),
-		EventType:    consts.EventTypeProjectDetectionTaskStatusChanged,
+		EventType:    commonpb.ProjectEventType_DetectionTaskStatusChanged,
 		ProjectId:    projectId,
 		ProjectCode:  utils.Encode(projectId),
 		UserId:       userId,
@@ -79,7 +72,7 @@ func PublishProjectDetectionNodeStatusChangedEvent(ctx context.Context, rocketMQ
 func PublishProjectReportStatusChangedEvent(ctx context.Context, rocketMQ *rocketmq.Producer, userId, projectId uint64, reportUuid string, status bizpb.ProjectReportStatus_Value) {
 	event := &bizpb.ProjectReportStatusChangedEvent{
 		EventId:     uuid.NewString(),
-		EventType:   consts.EventTypeProjectReportStatusChanged,
+		EventType:   commonpb.ProjectEventType_ReportStatusChanged,
 		ProjectId:   projectId,
 		ProjectCode: utils.Encode(projectId),
 		UserId:      userId,
