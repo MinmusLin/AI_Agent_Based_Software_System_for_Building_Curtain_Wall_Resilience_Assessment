@@ -1,4 +1,3 @@
-import type { ProjectDetectionNodeCode } from '@/constants/common';
 import {
   PROJECT_DETECTION_NODE_CLASSIFICATION,
   PROJECT_DETECTION_NODE_REASONING_PREFIX,
@@ -285,7 +284,7 @@ export function parseProjectDetectionTaskStatusChangedMessage(
 
 function hasNodeStatus(
   task: ProjectDetectionStatus,
-  nodeCode: ProjectDetectionNodeCode,
+  nodeCode: string,
   subStatus: ProjectDetectionSubTaskStatus_Value,
 ): boolean {
   if (nodeCode === PROJECT_DETECTION_NODE_CLASSIFICATION) {

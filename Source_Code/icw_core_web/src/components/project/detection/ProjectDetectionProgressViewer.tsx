@@ -15,10 +15,14 @@ import {
   DETECTION_PROGRESS_NODE_STATUS_SKIPPED,
   DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED,
   type DetectionProgressNodeStatus,
-  PROJECT_DETECTION_NODE_REASONING_PREFIX,
+  reasoningDetectionNodeCode,
 } from '@/constants/common';
 import type { ProjectDetectionNodeStatus, ProjectDetectionStatus } from '@/gen/core/common';
-import { ProjectDetectionSubTaskStatus_Value, ProjectDetectionTaskStatus_Value } from '@/gen/core/common';
+import {
+  DetectionTaskCode_Value,
+  ProjectDetectionSubTaskStatus_Value,
+  ProjectDetectionTaskStatus_Value,
+} from '@/gen/core/common';
 import { detectionTaskProgressPercent } from '@/utils/detectionStage';
 
 interface ProjectDetectionProgressViewerProps {
@@ -36,11 +40,11 @@ const EMPTY_NODE_COUNT = 0;
 const EMPTY_TASK_UUID = '';
 
 const REASONING_NODES: ReasoningNodeMeta[] = [
-  { label: '金属锈蚀', nodeCode: `${PROJECT_DETECTION_NODE_REASONING_PREFIX}corrosion` },
-  { label: '石材裂缝', nodeCode: `${PROJECT_DETECTION_NODE_REASONING_PREFIX}crack` },
-  { label: '石材污渍', nodeCode: `${PROJECT_DETECTION_NODE_REASONING_PREFIX}stain` },
-  { label: '玻璃平整度', nodeCode: `${PROJECT_DETECTION_NODE_REASONING_PREFIX}flatness` },
-  { label: '玻璃爆裂', nodeCode: `${PROJECT_DETECTION_NODE_REASONING_PREFIX}spalling` },
+  { label: '金属锈蚀', nodeCode: reasoningDetectionNodeCode(DetectionTaskCode_Value.Corrosion) },
+  { label: '石材裂缝', nodeCode: reasoningDetectionNodeCode(DetectionTaskCode_Value.Crack) },
+  { label: '石材污渍', nodeCode: reasoningDetectionNodeCode(DetectionTaskCode_Value.Stain) },
+  { label: '玻璃平整度', nodeCode: reasoningDetectionNodeCode(DetectionTaskCode_Value.Flatness) },
+  { label: '玻璃爆裂', nodeCode: reasoningDetectionNodeCode(DetectionTaskCode_Value.Spalling) },
 ];
 
 function statusText(status: DetectionProgressNodeStatus): string {

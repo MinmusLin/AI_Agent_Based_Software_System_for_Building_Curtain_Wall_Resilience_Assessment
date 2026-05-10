@@ -62,7 +62,7 @@ function setupProjectWebSocket(payload: SetupWebSocketRequest): string {
     url.protocol = WS_PROTOCOL;
   }
   url.searchParams.set('project_id', payload.project_id);
-  url.searchParams.set('scope', payload.scope);
+  url.searchParams.set('scope', String(payload.scope));
   url.searchParams.set('ticket', payload.ticket);
   return url.toString();
 }
