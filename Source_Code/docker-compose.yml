@@ -192,6 +192,21 @@ services:
     networks:
       - icw-docker-network
 
+  # icw.core.web 服务
+  icw-core-web:
+    image: minmuslin/icw_core_web:latest
+    container_name: icw.core.web
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://47.76.71.221:8000
+    depends_on:
+      icw-core-api:
+        condition: service_started
+    ports:
+      - 80:80
+    networks:
+      - icw-docker-network
+
 networks:
   # icw.docker.network 服务
   icw-docker-network:
