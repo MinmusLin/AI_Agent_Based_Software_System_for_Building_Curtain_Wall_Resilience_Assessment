@@ -40,23 +40,30 @@ func (r *Repository) GetProjectDetectionReview(ctx context.Context, userId, proj
 
 // UpdateProjectDetectionReview 按用户 ID、项目 ID 和主任务 UUID 更新图像检测人工复核信息
 func (r *Repository) UpdateProjectDetectionReview(ctx context.Context, userId, projectId uint64, taskUuid string, verdict bizpb.ProjectDetectionReviewVerdict_Value, comment string) (*bizpb.ProjectDetectionReview, error) {
-	verdictText := enum.ProjectDetectionReviewVerdictString(verdict)
-	if verdictText == "" {
-		return nil, model.ErrProjectDetectionReviewVerdictInvalid
-	}
-
 	var verdictValue interface{}
 	if verdict == bizpb.ProjectDetectionReviewVerdict_Unknown {
 		verdictValue = nil
 	} else {
+		verdictText := enum.ProjectDetectionReviewVerdictString(verdict)
+		if verdictText == "" {
+			return nil, model.ErrProjectDetectionReviewVerdictInvalid
+		}
 		verdictValue = verdictText
+	}
+
+	var commentValue interface{}
+	commentText := strings.TrimSpace(comment)
+	if commentText == "" {
+		commentValue = nil
+	} else {
+		commentValue = commentText
 	}
 
 	result, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_detection_tasks
 		SET review_verdict = ?, review_comment = ?
 		WHERE user_id = ? AND project_id = ? AND uuid = ?
-	`, verdictValue, strings.TrimSpace(comment), userId, projectId, taskUuid)
+	`, verdictValue, commentValue, userId, projectId, taskUuid)
 	if err := utils.CheckRowsAffected(result, err); err != nil {
 		return nil, err
 	}
