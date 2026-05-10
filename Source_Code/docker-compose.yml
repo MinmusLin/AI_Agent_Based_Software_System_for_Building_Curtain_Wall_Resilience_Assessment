@@ -71,6 +71,7 @@ services:
     networks:
       - icw-docker-network
 
+  # icw.activity.reasoning 服务
   icw-activity-reasoning:
     image: minmuslin/icw_activity_reasoning:latest
     container_name: icw.activity.reasoning
@@ -92,6 +93,7 @@ services:
     volumes:
       - /root/models:/app/models:ro
 
+  # icw.activity.summary 服务
   icw-activity-summary:
     image: minmuslin/icw_activity_summary:latest
     container_name: icw.activity.summary
@@ -114,6 +116,7 @@ services:
     networks:
       - icw-docker-network
 
+  # icw.activity.biz 服务
   icw-core-biz:
     image: minmuslin/icw_core_biz:latest
     container_name: icw.core.biz
@@ -167,6 +170,7 @@ services:
     networks:
       - icw-docker-network
 
+  # icw.activity.api 服务
   icw-core-api:
     image: minmuslin/icw_core_api:latest
     container_name: icw.core.api
