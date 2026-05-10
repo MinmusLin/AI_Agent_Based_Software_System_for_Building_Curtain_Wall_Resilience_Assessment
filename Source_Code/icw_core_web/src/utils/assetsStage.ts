@@ -1,5 +1,5 @@
 import { ProjectImageStatus_Value } from '@/gen/core/common';
-import type { ProjectImageStatus } from '@/types/common';
+import type { ProjectImageStatus_Value } from '@/types/common';
 import { PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED } from '@/types/common';
 import type { ProjectGroup, ProjectImage, UploadProjectImageItem } from '@/types/project/assets';
 import type { ProjectImageStatusChangedMessage } from '@/types/socket';
@@ -83,7 +83,7 @@ export function isProjectImageUnavailable(image: ProjectImage): boolean {
   );
 }
 
-export function canMoveProjectImage(status: ProjectImageStatus): boolean {
+export function canMoveProjectImage(status: ProjectImageStatus_Value): boolean {
   return status === ProjectImageStatus_Value.Uploaded || status === ProjectImageStatus_Value.Failed;
 }
 
@@ -372,7 +372,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function isProjectImageStatus(value: unknown): value is ProjectImageStatus {
+function isProjectImageStatus_Value(value: unknown): value is ProjectImageStatus_Value {
   return (
     value === ProjectImageStatus_Value.Pending ||
     value === ProjectImageStatus_Value.Uploaded ||
@@ -392,7 +392,7 @@ function isProjectImage(value: unknown): value is ProjectImage {
     typeof value.width === 'number' &&
     typeof value.height === 'number' &&
     typeof value.metadata === 'string' &&
-    isProjectImageStatus(value.status) &&
+    isProjectImageStatus_Value(value.status) &&
     typeof value.thumbnail_url === 'string' &&
     typeof value.uploaded_at === 'string' &&
     typeof value.created_at === 'string'

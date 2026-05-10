@@ -1,5 +1,5 @@
 import { ProjectDetectionSubTaskStatus_Value, ProjectDetectionTaskStatus_Value } from '@/gen/core/common';
-import type { ProjectDetectionMainStatus, ProjectDetectionNodeCode, ProjectDetectionSubStatus } from '@/types/common';
+import type { ProjectDetectionTaskStatus_Value, ProjectDetectionNodeCode, ProjectDetectionSubTaskStatus_Value } from '@/types/common';
 import {
   PROJECT_DETECTION_NODE_CLASSIFICATION,
   PROJECT_DETECTION_NODE_REASONING_PREFIX,
@@ -50,12 +50,12 @@ interface DetectionActionState {
 
 interface ProjectDetectionTaskStatusChangedRecord extends Record<string, unknown> {
   image_uuid: string;
-  main_status: ProjectDetectionMainStatus;
+  main_status: ProjectDetectionTaskStatus_Value;
   main_task_uuid: string;
   node_code: string;
   occurred_at: string;
   project_id: string;
-  sub_status: ProjectDetectionSubStatus;
+  sub_status: ProjectDetectionSubTaskStatus_Value;
   sub_task_uuid: string;
 }
 
@@ -89,7 +89,7 @@ export function mergeDetectionTaskMessage(
       : currentTask,
   );
 
-  nextTask.main_status = mergeProjectDetectionMainStatus(nextTask.main_status, message.main_status);
+  nextTask.main_status = mergeProjectDetectionTaskStatus_Value(nextTask.main_status, message.main_status);
   nextTask.main_task_uuid = message.main_task_uuid;
 
   if (message.node_code !== EMPTY_STRING) {
@@ -281,7 +281,7 @@ export function parseProjectDetectionTaskStatusChangedMessage(
 function hasNodeStatus(
   task: ProjectDetectionStatus,
   nodeCode: ProjectDetectionNodeCode,
-  subStatus: ProjectDetectionSubStatus,
+  subStatus: ProjectDetectionSubTaskStatus_Value,
 ): boolean {
   if (nodeCode === PROJECT_DETECTION_NODE_CLASSIFICATION) {
     return task.classification_status?.sub_status === subStatus;
@@ -292,7 +292,7 @@ function hasNodeStatus(
   return taskReasoningNodes(task).some((node) => node.node_code === nodeCode && node.sub_status === subStatus);
 }
 
-function hasSummaryStatus(task: ProjectDetectionStatus, subStatus: ProjectDetectionSubStatus): boolean {
+function hasSummaryStatus(task: ProjectDetectionStatus, subStatus: ProjectDetectionSubTaskStatus_Value): boolean {
   return task.summary_status?.sub_status === subStatus;
 }
 
@@ -396,10 +396,10 @@ function mergeProjectDetectionNode(
   return currentNode;
 }
 
-function mergeProjectDetectionMainStatus(
-  currentStatus: ProjectDetectionMainStatus,
-  nextStatus: ProjectDetectionMainStatus,
-): ProjectDetectionMainStatus {
+function mergeProjectDetectionTaskStatus_Value(
+  currentStatus: ProjectDetectionTaskStatus_Value,
+  nextStatus: ProjectDetectionTaskStatus_Value,
+): ProjectDetectionTaskStatus_Value {
   if (nextStatus === ProjectDetectionTaskStatus_Value.Succeeded) {
     return nextStatus;
   }
@@ -414,7 +414,7 @@ function mergeProjectDetectionMainStatus(
   return currentStatus;
 }
 
-function projectDetectionMainStatusRank(status: ProjectDetectionMainStatus): number {
+function projectDetectionMainStatusRank(status: ProjectDetectionTaskStatus_Value): number {
   switch (status) {
     case ProjectDetectionTaskStatus_Value.Pending:
       return STATUS_RANK_PENDING;
@@ -434,7 +434,7 @@ function projectDetectionMainStatusRank(status: ProjectDetectionMainStatus): num
   }
 }
 
-function projectDetectionSubStatusRank(status: ProjectDetectionSubStatus): number {
+function projectDetectionSubStatusRank(status: ProjectDetectionSubTaskStatus_Value): number {
   switch (status) {
     case ProjectDetectionSubTaskStatus_Value.Pending:
       return STATUS_RANK_PENDING;
@@ -460,14 +460,14 @@ function isProjectDetectionTaskStatusChangedRecord(
     typeof value.image_uuid === 'string' &&
     typeof value.node_code === 'string' &&
     typeof value.main_task_uuid === 'string' &&
-    isProjectDetectionMainStatus(value.main_status) &&
+    isProjectDetectionTaskStatus_Value(value.main_status) &&
     typeof value.sub_task_uuid === 'string' &&
-    isProjectDetectionSubStatus(value.sub_status) &&
+    isProjectDetectionSubTaskStatus_Value(value.sub_status) &&
     typeof value.occurred_at === 'string'
   );
 }
 
-function isProjectDetectionMainStatus(value: unknown): value is ProjectDetectionMainStatus {
+function isProjectDetectionTaskStatus_Value(value: unknown): value is ProjectDetectionTaskStatus_Value {
   return (
     value === ProjectDetectionTaskStatus_Value.Pending ||
     value === ProjectDetectionTaskStatus_Value.Classifying ||
@@ -478,7 +478,7 @@ function isProjectDetectionMainStatus(value: unknown): value is ProjectDetection
   );
 }
 
-function isProjectDetectionSubStatus(value: unknown): value is ProjectDetectionSubStatus {
+function isProjectDetectionSubTaskStatus_Value(value: unknown): value is ProjectDetectionSubTaskStatus_Value {
   return (
     value === ProjectDetectionSubTaskStatus_Value.Pending ||
     value === ProjectDetectionSubTaskStatus_Value.Succeeded ||
