@@ -6,11 +6,12 @@ import type { ProjectGroup } from '@/gen/core/api/common';
 import { parseProjectImageStatusChangedMessage, replaceImage, WEBSOCKET_RECONNECT_DELAY_MS } from '@/utils/assetsStage';
 
 interface UseProjectAssetsSocketParams {
+  onConnected?: () => void;
   projectId: string;
   setGroups: Dispatch<SetStateAction<ProjectGroup[]>>;
 }
 
-export function useProjectAssetsSocket({ projectId, setGroups }: UseProjectAssetsSocketParams): void {
+export function useProjectAssetsSocket({ onConnected, projectId, setGroups }: UseProjectAssetsSocketParams): void {
   const handleSocketMessage = useCallback(
     (data: unknown): void => {
       const socketMessage = parseProjectImageStatusChangedMessage(data);
@@ -64,6 +65,9 @@ export function useProjectAssetsSocket({ projectId, setGroups }: UseProjectAsset
             ticket: ticket.ticket,
           }),
         );
+        socket.onopen = (): void => {
+          onConnected?.();
+        };
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           handleSocketMessage(event.data);
         };
@@ -87,5 +91,5 @@ export function useProjectAssetsSocket({ projectId, setGroups }: UseProjectAsset
       clearReconnectTimer();
       socket?.close();
     };
-  }, [handleSocketMessage, projectId]);
+  }, [handleSocketMessage, onConnected, projectId]);
 }

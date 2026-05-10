@@ -1147,16 +1147,10 @@ def crop_glass_region(image: np.ndarray, border_ratio: float = 0.1) -> np.ndarra
     return image[top:bottom, left:right]
 
 
-# 将可视化图像缩放到指定图像尺寸
-def resize_visual_image(image: np.ndarray, target_image: np.ndarray) -> np.ndarray:
-    target_height, target_width = target_image.shape[:2]
-    return cv2.resize(image, (target_width, target_height), interpolation=cv2.INTER_LINEAR)
-
-
 # 保存频谱分析可视化图像
-def save_frequency_image(path: Path, magnitude_spectrum: np.ndarray, target_image: np.ndarray) -> None:
+def save_frequency_image(path: Path, magnitude_spectrum: np.ndarray) -> None:
     normalized = cv2.normalize(magnitude_spectrum, None, 0, 255, cv2.NORM_MINMAX)
-    cv2.imwrite(str(path), resize_visual_image(normalized.astype(np.uint8), target_image))
+    cv2.imwrite(str(path), normalized.astype(np.uint8))
 
 
 # 检测单个玻璃区域的平整度指标
@@ -1205,10 +1199,10 @@ def detect_glass_flatness(segment_image: np.ndarray, region_id: int, output_dir:
         lines_path = output_dir / f'lines_{region_id}.png'
         gradient_path = output_dir / f'gradient_{region_id}.png'
         frequency_path = output_dir / f'frequency_{region_id}.png'
-        cv2.imwrite(str(region_path), cv2.cvtColor(segment_image, cv2.COLOR_RGB2BGR))
-        cv2.imwrite(str(lines_path), cv2.cvtColor(resize_visual_image(line_image, segment_image), cv2.COLOR_RGB2BGR))
-        cv2.imwrite(str(gradient_path), resize_visual_image(np.uint8(np.clip(grad_magnitude, 0, 255)), segment_image))
-        save_frequency_image(frequency_path, magnitude_spectrum, segment_image)
+        cv2.imwrite(str(region_path), cv2.cvtColor(cropped_image, cv2.COLOR_RGB2BGR))
+        cv2.imwrite(str(lines_path), cv2.cvtColor(line_image, cv2.COLOR_RGB2BGR))
+        cv2.imwrite(str(gradient_path), np.uint8(np.clip(grad_magnitude, 0, 255)))
+        save_frequency_image(frequency_path, magnitude_spectrum)
     return {
         'is_flat': bool(is_flat),
         'edge_uneven_detected': not edge_is_flat,

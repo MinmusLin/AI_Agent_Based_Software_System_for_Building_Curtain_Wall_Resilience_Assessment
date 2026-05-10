@@ -123,6 +123,9 @@ export function ProjectAssetsStage({
   });
 
   useProjectAssetsSocket({
+    onConnected: () => {
+      void loadAssets({ silent: true });
+    },
     projectId,
     setGroups,
   });

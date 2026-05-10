@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
         if (!result.user) {
           throw new Error('user is empty');
         }
-        setAccessToken(result.access_token);
+        setAccessToken(result.access_token, result.expires_in);
         setToken(result.access_token);
         setUser(result.user);
         setStatus(AUTH_STATUS_AUTHENTICATED);

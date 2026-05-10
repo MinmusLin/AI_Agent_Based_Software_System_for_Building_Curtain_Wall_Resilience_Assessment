@@ -8,11 +8,17 @@ import { mergeDetectionTaskMessage, parseProjectDetectionTaskStatusChangedMessag
 
 interface UseProjectDetectionSocketParams {
   enabled: boolean;
+  onConnected?: () => void;
   projectId: string;
   setTasks: Dispatch<SetStateAction<ProjectDetectionStatusMap>>;
 }
 
-export function useProjectDetectionSocket({ enabled, projectId, setTasks }: UseProjectDetectionSocketParams): void {
+export function useProjectDetectionSocket({
+  enabled,
+  onConnected,
+  projectId,
+  setTasks,
+}: UseProjectDetectionSocketParams): void {
   const handleSocketMessage = useCallback(
     (data: unknown): void => {
       const socketMessage = parseProjectDetectionTaskStatusChangedMessage(data);
@@ -65,6 +71,9 @@ export function useProjectDetectionSocket({ enabled, projectId, setTasks }: UseP
             ticket: ticket.ticket,
           }),
         );
+        socket.onopen = (): void => {
+          onConnected?.();
+        };
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           handleSocketMessage(event.data);
         };
@@ -88,5 +97,5 @@ export function useProjectDetectionSocket({ enabled, projectId, setTasks }: UseP
       clearReconnectTimer();
       socket?.close();
     };
-  }, [enabled, handleSocketMessage, projectId]);
+  }, [enabled, handleSocketMessage, onConnected, projectId]);
 }

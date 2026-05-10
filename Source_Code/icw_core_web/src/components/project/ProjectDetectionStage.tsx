@@ -40,6 +40,10 @@ interface ProjectDetectionStageProps {
   selectedProgress: ProjectProgress_Value;
 }
 
+interface RefreshOptions {
+  silent?: boolean;
+}
+
 export function ProjectDetectionStage({
   loading = false,
   onProgressChange,
@@ -74,37 +78,55 @@ export function ProjectDetectionStage({
     [messageApi],
   );
 
-  const loadAssets = useCallback(async (): Promise<void> => {
-    if (projectId === '') {
-      return;
-    }
+  const loadAssets = useCallback(
+    async (options: RefreshOptions = {}): Promise<void> => {
+      if (projectId === '') {
+        return;
+      }
 
-    setAssetsLoading(true);
-    try {
-      const data = await getProjectAssets(projectId);
-      setGroups(normalizeGroups(data.groups));
-    } catch (error: unknown) {
-      showError(getErrorMessage(error));
-    } finally {
-      setAssetsLoading(false);
-    }
-  }, [projectId, showError]);
+      if (!options.silent) {
+        setAssetsLoading(true);
+      }
+      try {
+        const data = await getProjectAssets(projectId);
+        setGroups(normalizeGroups(data.groups));
+      } catch (error: unknown) {
+        if (!options.silent) {
+          showError(getErrorMessage(error));
+        }
+      } finally {
+        if (!options.silent) {
+          setAssetsLoading(false);
+        }
+      }
+    },
+    [projectId, showError],
+  );
 
-  const loadDetectionTasks = useCallback(async (): Promise<void> => {
-    if (projectId === '') {
-      return;
-    }
+  const loadDetectionTasks = useCallback(
+    async (options: RefreshOptions = {}): Promise<void> => {
+      if (projectId === '') {
+        return;
+      }
 
-    setDetectionLoading(true);
-    try {
-      const data = await getProjectDetectionTasks(projectId);
-      setTaskMap(detectionTasksMap(data.tasks));
-    } catch (error: unknown) {
-      showError(getErrorMessage(error));
-    } finally {
-      setDetectionLoading(false);
-    }
-  }, [projectId, showError]);
+      if (!options.silent) {
+        setDetectionLoading(true);
+      }
+      try {
+        const data = await getProjectDetectionTasks(projectId);
+        setTaskMap(detectionTasksMap(data.tasks));
+      } catch (error: unknown) {
+        if (!options.silent) {
+          showError(getErrorMessage(error));
+        }
+      } finally {
+        if (!options.silent) {
+          setDetectionLoading(false);
+        }
+      }
+    },
+    [projectId, showError],
+  );
 
   const refreshPage = useCallback(async (): Promise<void> => {
     await Promise.all([loadAssets(), loadDetectionTasks()]);
@@ -234,7 +256,14 @@ export function ProjectDetectionStage({
   }, []);
 
   const pageLoading = loading || assetsLoading || detectionLoading;
-  useProjectDetectionSocket({ enabled: !loading, projectId, setTasks: setTaskMap });
+  useProjectDetectionSocket({
+    enabled: !loading,
+    onConnected: () => {
+      void loadDetectionTasks({ silent: true });
+    },
+    projectId,
+    setTasks: setTaskMap,
+  });
 
   useEffect(() => {
     if (progressTask && isDetectionTaskSucceeded(progressTask)) {

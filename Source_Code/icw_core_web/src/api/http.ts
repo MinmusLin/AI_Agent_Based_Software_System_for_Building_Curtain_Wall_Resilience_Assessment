@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import type { ApiEnvelope } from '@/constants/common';
 import { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_UNAUTHORIZED } from '@/constants/common';
+import type { RefreshResponse } from '@/gen/core/api/auth';
 import { getRequiredEnv } from '@/utils/env';
 
 export const API_BASE_URL = getRequiredEnv('VITE_API_BASE_URL');
@@ -10,11 +11,15 @@ const REFRESH_MAX_ATTEMPTS = 3;
 const FIRST_REFRESH_ATTEMPT = 1;
 const REFRESH_ATTEMPT_STEP = 1;
 const REFRESH_RETRY_DELAY_MS = 300;
+const ACCESS_TOKEN_REFRESH_BUFFER_MS = 60_000;
+const ACCESS_TOKEN_EMPTY_EXPIRES_AT = 0;
+const MILLISECONDS_PER_SECOND = 1000;
 const DEFAULT_ERROR_MESSAGE = '服务暂时不可用，请稍后重试';
 
 // Access Token 保存在前端内存中，不保存在 localStorage 或 sessionStorage 中
 // 页面刷新后 Access Token 会丢失，因此应用初始化时通过 HttpOnly Cookie 中的 Refresh Token 获取新的 Access Token
 let accessToken = '';
+let accessTokenExpiresAt = ACCESS_TOKEN_EMPTY_EXPIRES_AT;
 
 // 多个接口同时因为 Access Token 过期返回 401 时，只允许发起一次 /auth/refresh 请求
 // 其他失败请求复用同一个 Promise，避免并发刷新导致 Refresh Token 轮换冲突
@@ -46,8 +51,15 @@ export function getErrorMessage(error: unknown): string {
 }
 
 // AuthContext 在登录、登出、刷新 Token 时调用该函数，维护 http.ts 内部的 Access Token
-export function setAccessToken(token: string): void {
+export function setAccessToken(token: string, expiresInSeconds?: number): void {
   accessToken = token;
+  if (!token) {
+    accessTokenExpiresAt = ACCESS_TOKEN_EMPTY_EXPIRES_AT;
+    return;
+  }
+  if (expiresInSeconds !== undefined && expiresInSeconds > ACCESS_TOKEN_EMPTY_EXPIRES_AT) {
+    accessTokenExpiresAt = Date.now() + expiresInSeconds * MILLISECONDS_PER_SECOND;
+  }
 }
 
 // AuthContext 通过 hooks 接收 http.ts 的鉴权事件
@@ -59,9 +71,16 @@ export function setAuthHooks(hooks: { onTokenChange: (token: string) => void; on
   onUnauthorized = nextOnUnauthorized;
 }
 
-// 请求拦截器：对所有普通业务请求自动添加 Authorization Header
+// 请求拦截器：对所有普通业务请求自动添加 Authorization Header，并在 Access Token 即将过期时主动刷新
 // Refresh Token 由浏览器 Cookie 自动携带，不在这里处理
-http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+http.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  if (shouldRefreshBeforeRequest(config)) {
+    const token = await refreshAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    }
+  }
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -115,9 +134,9 @@ export async function refreshAccessToken(): Promise<string | null> {
 async function requestRefreshAccessToken(): Promise<string | null> {
   for (let attempt = FIRST_REFRESH_ATTEMPT; attempt <= REFRESH_MAX_ATTEMPTS; attempt += REFRESH_ATTEMPT_STEP) {
     try {
-      const res = await http.post<ApiEnvelope<{ access_token: string }>>('/auth/refresh');
+      const res = await http.post<ApiEnvelope<RefreshResponse>>('/auth/refresh');
       const token = res.data.data.access_token;
-      accessToken = token;
+      setAccessToken(token, res.data.data.expires_in);
       onTokenChange?.(token);
       return token;
     } catch (error: unknown) {
@@ -130,6 +149,17 @@ async function requestRefreshAccessToken(): Promise<string | null> {
     }
   }
   return null;
+}
+
+// 判断普通业务请求发出前是否需要提前刷新 Access Token
+function shouldRefreshBeforeRequest(config: InternalAxiosRequestConfig): boolean {
+  if (!accessToken || accessTokenExpiresAt === ACCESS_TOKEN_EMPTY_EXPIRES_AT) {
+    return false;
+  }
+  if (config.url?.includes('/auth/refresh')) {
+    return false;
+  }
+  return Date.now() >= accessTokenExpiresAt - ACCESS_TOKEN_REFRESH_BUFFER_MS;
 }
 
 // 刷新只重试网络错误和 5xx，4xx 通常代表凭证问题或请求参数问题，重试没有意义

@@ -309,6 +309,15 @@ function detectionDataEntries(
   report: Record<string, unknown>,
   result?: DetectionResult,
 ): [string, unknown][] {
+  if (taskKey === 'corrosion' && result && 'has_corrosion' in result && !result.has_corrosion) {
+    return [];
+  }
+  if (taskKey === 'crack' && result && 'has_crack' in result && !result.has_crack) {
+    return [];
+  }
+  if (taskKey === 'stain' && result && 'has_stain' in result && !result.has_stain) {
+    return [];
+  }
   if (taskKey === 'flatness' && !isFlatnessUneven(result)) {
     return [];
   }
@@ -679,7 +688,7 @@ function taskArtifactPreview(
     return <SingleArtifactPreview name="annotated.png" url={artifactUrl(artifacts, 'annotated.png')} />;
   }
   if (taskKey === 'crack') {
-    if (pageIndex === DETECTION_DATA_PAGE_INDEX || !showDetectionRegions(taskKey, result)) {
+    if (!showDetectionRegions(taskKey, result)) {
       return null;
     }
     return (

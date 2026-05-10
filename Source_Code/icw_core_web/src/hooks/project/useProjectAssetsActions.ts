@@ -63,7 +63,7 @@ interface UseProjectAssetsActionsResult {
   handleDeleteGroup: (groupId: string) => Promise<void>;
   handleDeleteImage: (imageUuid: string) => Promise<void>;
   handleUploadFiles: (groupId: string, files: File[]) => Promise<void>;
-  loadAssets: () => Promise<void>;
+  loadAssets: (options?: RefreshOptions) => Promise<void>;
   readOnly: boolean;
   saveEditingGroup: () => Promise<void>;
   savingGroupId: string;
@@ -71,6 +71,10 @@ interface UseProjectAssetsActionsResult {
   setGroups: Dispatch<SetStateAction<ProjectGroup[]>>;
   startEditGroup: (group: ProjectGroup) => void;
   uploadingImages: boolean;
+}
+
+interface RefreshOptions {
+  silent?: boolean;
 }
 
 export function useProjectAssetsActions({
@@ -105,21 +109,30 @@ export function useProjectAssetsActions({
     project.progress === ProjectProgress_Value.ProfileFinished &&
     selectedProgress === ProjectProgress_Value.ProfileFinished;
 
-  const loadAssets = useCallback(async (): Promise<void> => {
-    if (projectId === '') {
-      return;
-    }
+  const loadAssets = useCallback(
+    async (options: RefreshOptions = {}): Promise<void> => {
+      if (projectId === '') {
+        return;
+      }
 
-    setAssetsLoading(true);
-    try {
-      const data = await getProjectAssets(projectId);
-      setGroups(normalizeGroups(data.groups));
-    } catch (error: unknown) {
-      onError(getErrorMessage(error));
-    } finally {
-      setAssetsLoading(false);
-    }
-  }, [onError, projectId]);
+      if (!options.silent) {
+        setAssetsLoading(true);
+      }
+      try {
+        const data = await getProjectAssets(projectId);
+        setGroups(normalizeGroups(data.groups));
+      } catch (error: unknown) {
+        if (!options.silent) {
+          onError(getErrorMessage(error));
+        }
+      } finally {
+        if (!options.silent) {
+          setAssetsLoading(false);
+        }
+      }
+    },
+    [onError, projectId],
+  );
 
   const handleCreateGroup = useCallback(async (): Promise<void> => {
     setCreatingGroup(true);

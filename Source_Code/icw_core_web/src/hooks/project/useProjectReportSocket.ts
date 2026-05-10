@@ -68,6 +68,9 @@ export function useProjectReportSocket({ enabled, onReportChanged, projectId }: 
             ticket: ticket.ticket,
           }),
         );
+        socket.onopen = (): void => {
+          onReportChanged();
+        };
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           const message = parseProjectReportStatusChangedMessage(event.data);
           if (message?.project_id !== projectId) {

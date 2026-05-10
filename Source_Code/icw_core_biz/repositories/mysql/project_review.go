@@ -59,12 +59,11 @@ func (r *Repository) UpdateProjectDetectionReview(ctx context.Context, userId, p
 		commentValue = commentText
 	}
 
-	result, err := r.mysql.ExecContext(ctx, `
+	if _, err := r.mysql.ExecContext(ctx, `
 		UPDATE project_detection_tasks
 		SET review_verdict = ?, review_comment = ?
 		WHERE user_id = ? AND project_id = ? AND uuid = ?
-	`, verdictValue, commentValue, userId, projectId, taskUuid)
-	if err := utils.CheckRowsAffected(result, err); err != nil {
+	`, verdictValue, commentValue, userId, projectId, taskUuid); err != nil {
 		return nil, err
 	}
 
