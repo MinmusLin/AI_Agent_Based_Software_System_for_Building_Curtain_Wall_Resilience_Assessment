@@ -2,8 +2,8 @@ package detection
 
 import (
 	"context"
-	"icw_common/enum"
 
+	"icw_common/enum"
 	"icw_common/gen/core/biz"
 	"icw_common/gen/core/common"
 	"icw_common/rpc/error"
