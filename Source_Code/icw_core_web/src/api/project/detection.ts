@@ -1,12 +1,12 @@
 import { http } from '@/api/http';
-import type { ApiEnvelope } from '@/types/common';
+import type { ApiEnvelope } from '@/constants/common';
 import type {
   GetImageDetectionResultRequest,
   GetImageDetectionResultResponse,
   GetProjectDetectionTasksResponse,
   RetryProjectDetectionResponse,
   StartProjectDetectionResponse,
-} from '@/types/project/detection';
+} from '@/gen/core/api/project_detection';
 
 // 获取图像检测结果
 // @router /project/detection/result [GET]

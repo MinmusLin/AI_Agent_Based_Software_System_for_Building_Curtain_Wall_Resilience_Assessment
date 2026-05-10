@@ -1,10 +1,11 @@
 import { http } from '@/api/http';
-import type { ApiEnvelope } from '@/types/common';
+import type { ApiEnvelope } from '@/constants/common';
 import type {
   CreateProjectGroupResponse,
   DeleteProjectGroupRequest,
   DeleteProjectImageRequest,
   GetProjectAssetsResponse,
+  GetProjectImageOriginalRequest,
   GetProjectImageOriginalResponse,
   MoveProjectGroupRequest,
   MoveProjectGroupResponse,
@@ -15,7 +16,7 @@ import type {
   UpdateProjectGroupResponse,
   UploadProjectImageRequest,
   UploadProjectImageResponse,
-} from '@/types/project/assets';
+} from '@/gen/core/api/project_assets';
 
 // 获取项目图像列表
 // @router /project/assets/list [GET]
@@ -68,13 +69,12 @@ export async function deleteProjectImage(payload: DeleteProjectImageRequest): Pr
 // 获取原图
 // @router /project/assets/image/original [GET]
 export async function getProjectImageOriginal(
-  projectId: string,
-  imageUuid: string,
+  payload: GetProjectImageOriginalRequest,
 ): Promise<GetProjectImageOriginalResponse> {
   const { data } = await http.get<ApiEnvelope<GetProjectImageOriginalResponse>>('/project/assets/image/original', {
     params: {
-      image_uuid: imageUuid,
-      project_id: projectId,
+      image_uuid: payload.image_uuid,
+      project_id: payload.project_id,
     },
   });
   return data.data;

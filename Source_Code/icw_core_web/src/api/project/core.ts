@@ -1,15 +1,15 @@
 import { http } from '@/api/http';
-import type { ApiEnvelope } from '@/types/common';
+import type { ApiEnvelope } from '@/constants/common';
 import type {
-  AdvanceProjectProgressRequest,
+  AdvanceProjectRequest,
   CreateProjectResponse,
   DeleteProjectResponse,
   ListProjectsResponse,
-} from '@/types/project/core';
+} from '@/gen/core/api/project_core';
 
 // 项目进度流转
 // @router /project/core/advance [POST]
-export async function advanceProject(payload: AdvanceProjectProgressRequest): Promise<void> {
+export async function advanceProject(payload: AdvanceProjectRequest): Promise<void> {
   await http.post<ApiEnvelope<Record<string, never>>>('/project/core/advance', payload);
 }
 

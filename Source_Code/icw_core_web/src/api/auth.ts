@@ -1,11 +1,14 @@
+import type { ApiEnvelope } from '@/constants/common';
 import type {
   LoginRequest,
   LoginResponse,
+  MeResponse,
   RegisterRequest,
   ResetPasswordRequest,
   SendEmailCodeRequest,
-} from '@/types/auth';
-import type { ApiEnvelope, User } from '@/types/common';
+  SendEmailCodeResponse,
+} from '@/gen/core/api/auth';
+import type { User } from '@/gen/core/common';
 
 import { http } from './http';
 
@@ -25,7 +28,10 @@ export async function logout(): Promise<void> {
 // 获取用户信息
 // @router /auth/me [GET]
 export async function getMe(): Promise<User> {
-  const { data } = await http.get<ApiEnvelope<{ user: User }>>('/auth/me');
+  const { data } = await http.get<ApiEnvelope<MeResponse>>('/auth/me');
+  if (!data.data.user) {
+    throw new Error('user is empty');
+  }
   return data.data.user;
 }
 
@@ -47,13 +53,7 @@ export async function resetPassword(payload: ResetPasswordRequest): Promise<void
 
 // 发送邮箱验证码
 // @router /auth/send-email-code [POST]
-export async function sendEmailCode(
-  email: SendEmailCodeRequest['email'],
-  scene: SendEmailCodeRequest['scene'],
-): Promise<{ expires_in: number }> {
-  const { data } = await http.post<ApiEnvelope<{ expires_in: number }>>('/auth/send-email-code', {
-    email,
-    scene,
-  });
+export async function sendEmailCode(payload: SendEmailCodeRequest): Promise<SendEmailCodeResponse> {
+  const { data } = await http.post<ApiEnvelope<SendEmailCodeResponse>>('/auth/send-email-code', payload);
   return data.data;
 }

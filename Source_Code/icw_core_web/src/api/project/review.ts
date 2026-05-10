@@ -1,11 +1,11 @@
 import { http } from '@/api/http';
-import type { ApiEnvelope } from '@/types/common';
+import type { ApiEnvelope } from '@/constants/common';
 import type {
   GetProjectDetectionReviewRequest,
   GetProjectDetectionReviewResponse,
   UpdateProjectDetectionReviewRequest,
   UpdateProjectDetectionReviewResponse,
-} from '@/types/project/review';
+} from '@/gen/core/api/project_review';
 
 // 获取图像检测人工复核信息
 // @router /project/review/detail [GET]

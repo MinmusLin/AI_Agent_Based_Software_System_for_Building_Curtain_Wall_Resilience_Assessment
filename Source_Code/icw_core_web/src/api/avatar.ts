@@ -1,5 +1,5 @@
-import type { GetAvatarResponse, UploadAvatarResponse } from '@/types/avatar';
-import type { ApiEnvelope } from '@/types/common';
+import type { ApiEnvelope } from '@/constants/common';
+import type { GetAvatarResponse, UploadAvatarResponse } from '@/gen/core/api/user';
 
 import { http } from './http';
 

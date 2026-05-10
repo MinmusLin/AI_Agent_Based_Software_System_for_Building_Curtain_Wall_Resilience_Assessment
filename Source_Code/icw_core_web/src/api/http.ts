@@ -1,8 +1,8 @@
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 
-import type { ApiEnvelope } from '@/types/common';
-import { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_UNAUTHORIZED } from '@/types/common';
+import type { ApiEnvelope } from '@/constants/common';
+import { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_UNAUTHORIZED } from '@/constants/common';
 import { getRequiredEnv } from '@/utils/env';
 
 export const API_BASE_URL = getRequiredEnv('VITE_API_BASE_URL');

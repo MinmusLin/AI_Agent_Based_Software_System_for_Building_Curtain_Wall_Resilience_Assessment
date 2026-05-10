@@ -1,12 +1,12 @@
 import { http } from '@/api/http';
-import type { ApiEnvelope } from '@/types/common';
+import type { ApiEnvelope } from '@/constants/common';
 import type {
   GetProjectProfileResponse,
   GetProjectThumbnailResponse,
   UpdateProjectProfileRequest,
   UpdateProjectProfileResponse,
   UploadProjectThumbnailResponse,
-} from '@/types/project/profile';
+} from '@/gen/core/api/project_profile';
 
 // 获取项目基础信息
 // @router /project/profile/detail [GET]
