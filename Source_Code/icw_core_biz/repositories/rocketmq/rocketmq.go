@@ -62,7 +62,7 @@ func (r *Producer) producerSendSync(ctx context.Context, message *primitive.Mess
 	start := time.Now()
 	defer func() {
 		if utils.IsEmptyError(err) {
-			MQInfo("[PRODUCE|%s] %s %13v %s [%s] status=%d queue_offset=%s offset_msg_id=%s transaction_id=%s",
+			MQInfo("[PRODUCE|%s] %s %13v %s [%s] status=%d queue_offset=%d offset_msg_id=%s transaction_id=%s",
 				r.topic,
 				consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 				result.MsgID,
@@ -73,7 +73,7 @@ func (r *Producer) producerSendSync(ctx context.Context, message *primitive.Mess
 			)
 			return
 		}
-		MQError("[PRODUCE|%s] %s %13v %s [%s] status=%d queue_offset=%s offset_msg_id=%s transaction_id=%s err=%s",
+		MQError("[PRODUCE|%s] %s %13v %s [%s] status=%d queue_offset=%d offset_msg_id=%s transaction_id=%s err=%s",
 			r.topic,
 			consts.LogColorBoldBlackOnWhite, time.Since(start), consts.LogColorReset,
 			result.MsgID,
