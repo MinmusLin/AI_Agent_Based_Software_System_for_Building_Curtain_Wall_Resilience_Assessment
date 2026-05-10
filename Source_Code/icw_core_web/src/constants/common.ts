@@ -1,23 +1,4 @@
-import {
-  AvatarType_Value,
-  DetectionNodeCode_Value,
-  DetectionTaskCode_Value,
-  ProjectEventType_Value,
-  ProjectProgress_Value,
-  SocketScope_Value,
-} from '@/gen/core/common';
-
-export const AVATAR_TYPE_CUSTOM = AvatarType_Value.Custom;
-export const AVATAR_TYPE_DEFAULT = AvatarType_Value.Default;
-export const AVATAR_TYPE_NONE = AvatarType_Value.None;
-
-export const PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED = ProjectEventType_Value.ImageStatusChanged;
-export const PROJECT_EVENT_TYPE_DETECTION_TASK_STATUS_CHANGED = ProjectEventType_Value.DetectionTaskStatusChanged;
-export const PROJECT_EVENT_TYPE_REPORT_STATUS_CHANGED = ProjectEventType_Value.ReportStatusChanged;
-
-export const SOCKET_SCOPE_PROJECT_ASSETS = SocketScope_Value.ProjectAssets;
-export const SOCKET_SCOPE_PROJECT_DETECTION = SocketScope_Value.ProjectDetection;
-export const SOCKET_SCOPE_PROJECT_REPORT = SocketScope_Value.ProjectReport;
+import { DetectionNodeCode_Value, DetectionTaskCode_Value, ProjectProgress_Value } from '@/gen/core/common';
 
 export const PROJECT_DETECTION_NODE_CLASSIFICATION = detectionNodeCodeValueToProtocol(
   DetectionNodeCode_Value.Classification,

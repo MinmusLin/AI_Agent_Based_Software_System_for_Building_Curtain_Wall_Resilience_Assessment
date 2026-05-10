@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
 import { createReportSocketTicket, setupReportWebSocket } from '@/api/socket';
-import { PROJECT_EVENT_TYPE_REPORT_STATUS_CHANGED } from '@/constants/common';
 import type { ProjectReportStatusChangedMessage } from '@/gen/core/api/messages';
+import { ProjectEventType_Value } from '@/gen/core/common';
 import { WEBSOCKET_RECONNECT_DELAY_MS } from '@/utils/assetsStage';
 
 interface UseProjectReportSocketParams {
@@ -17,7 +17,7 @@ function parseProjectReportStatusChangedMessage(data: unknown): ProjectReportSta
   }
   try {
     const parsed = JSON.parse(data) as ProjectReportStatusChangedMessage;
-    if (parsed.type !== PROJECT_EVENT_TYPE_REPORT_STATUS_CHANGED) {
+    if (parsed.type !== ProjectEventType_Value.ReportStatusChanged) {
       return null;
     }
     return parsed;

@@ -1,15 +1,11 @@
 import { API_BASE_URL, http } from '@/api/http';
-import {
-  type ApiEnvelope,
-  SOCKET_SCOPE_PROJECT_ASSETS,
-  SOCKET_SCOPE_PROJECT_DETECTION,
-  SOCKET_SCOPE_PROJECT_REPORT,
-} from '@/constants/common';
+import type { ApiEnvelope } from '@/constants/common';
 import type {
   CreateSocketTicketRequest,
   CreateSocketTicketResponse,
   SetupWebSocketRequest,
 } from '@/gen/core/api/socket';
+import { SocketScope_Value } from '@/gen/core/common';
 
 const SOCKET_SETUP_PATH = '/socket/setup';
 const HTTP_PROTOCOL = 'http:';
@@ -29,7 +25,7 @@ export function createAssetsSocketTicket(
 ): Promise<CreateSocketTicketResponse> {
   return createSocketTicket({
     project_id: payload.project_id,
-    scope: SOCKET_SCOPE_PROJECT_ASSETS,
+    scope: SocketScope_Value.ProjectAssets,
   });
 }
 
@@ -38,7 +34,7 @@ export function createDetectionSocketTicket(
 ): Promise<CreateSocketTicketResponse> {
   return createSocketTicket({
     project_id: payload.project_id,
-    scope: SOCKET_SCOPE_PROJECT_DETECTION,
+    scope: SocketScope_Value.ProjectDetection,
   });
 }
 
@@ -47,7 +43,7 @@ export function createReportSocketTicket(
 ): Promise<CreateSocketTicketResponse> {
   return createSocketTicket({
     project_id: payload.project_id,
-    scope: SOCKET_SCOPE_PROJECT_REPORT,
+    scope: SocketScope_Value.ProjectReport,
   });
 }
 
@@ -70,7 +66,7 @@ function setupProjectWebSocket(payload: SetupWebSocketRequest): string {
 export function setupAssetsWebSocket(payload: Pick<SetupWebSocketRequest, 'project_id' | 'ticket'>): string {
   return setupProjectWebSocket({
     project_id: payload.project_id,
-    scope: SOCKET_SCOPE_PROJECT_ASSETS,
+    scope: SocketScope_Value.ProjectAssets,
     ticket: payload.ticket,
   });
 }
@@ -78,7 +74,7 @@ export function setupAssetsWebSocket(payload: Pick<SetupWebSocketRequest, 'proje
 export function setupDetectionWebSocket(payload: Pick<SetupWebSocketRequest, 'project_id' | 'ticket'>): string {
   return setupProjectWebSocket({
     project_id: payload.project_id,
-    scope: SOCKET_SCOPE_PROJECT_DETECTION,
+    scope: SocketScope_Value.ProjectDetection,
     ticket: payload.ticket,
   });
 }
@@ -86,7 +82,7 @@ export function setupDetectionWebSocket(payload: Pick<SetupWebSocketRequest, 'pr
 export function setupReportWebSocket(payload: Pick<SetupWebSocketRequest, 'project_id' | 'ticket'>): string {
   return setupProjectWebSocket({
     project_id: payload.project_id,
-    scope: SOCKET_SCOPE_PROJECT_REPORT,
+    scope: SocketScope_Value.ProjectReport,
     ticket: payload.ticket,
   });
 }

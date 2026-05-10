@@ -2,7 +2,6 @@ import {
   PROJECT_DETECTION_NODE_CLASSIFICATION,
   PROJECT_DETECTION_NODE_REASONING_PREFIX,
   PROJECT_DETECTION_NODE_SUMMARY,
-  PROJECT_EVENT_TYPE_DETECTION_TASK_STATUS_CHANGED,
 } from '@/constants/common';
 import type { ProjectDetectionTaskStatusChangedMessage } from '@/gen/core/api/messages';
 import {
@@ -10,6 +9,7 @@ import {
   type ProjectDetectionStatus,
   ProjectDetectionSubTaskStatus_Value,
   ProjectDetectionTaskStatus_Value,
+  ProjectEventType_Value,
 } from '@/gen/core/common';
 
 export const DETECTION_PROGRESS_TOTAL_STEPS = 7;
@@ -262,7 +262,7 @@ export function parseProjectDetectionTaskStatusChangedMessage(
     return null;
   }
 
-  if (!isRecord(value) || value.type !== PROJECT_EVENT_TYPE_DETECTION_TASK_STATUS_CHANGED) {
+  if (!isRecord(value) || value.type !== ProjectEventType_Value.DetectionTaskStatusChanged) {
     return null;
   }
   if (!isProjectDetectionTaskStatusChangedRecord(value)) {
@@ -278,7 +278,7 @@ export function parseProjectDetectionTaskStatusChangedMessage(
     project_id: value.project_id,
     sub_status: value.sub_status,
     sub_task_uuid: value.sub_task_uuid,
-    type: PROJECT_EVENT_TYPE_DETECTION_TASK_STATUS_CHANGED,
+    type: ProjectEventType_Value.DetectionTaskStatusChanged,
   };
 }
 

@@ -1,7 +1,6 @@
-import { PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED } from '@/constants/common';
 import type { ProjectGroup, UploadProjectImageItem } from '@/gen/core/api/common';
 import type { ProjectImageStatusChangedMessage } from '@/gen/core/api/messages';
-import { type ProjectImage, ProjectImageStatus_Value } from '@/gen/core/common';
+import { ProjectEventType_Value, type ProjectImage, ProjectImageStatus_Value } from '@/gen/core/common';
 import { buildProjectAssetImageBlobs, PROJECT_ASSET_IMAGE_OUTPUT_CONTENT_TYPE } from '@/utils/images';
 
 export const EMPTY_GROUP_ID = '';
@@ -311,7 +310,7 @@ export function parseProjectImageStatusChangedMessage(data: unknown): ProjectIma
 
   if (
     !isRecord(value) ||
-    value.type !== PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED ||
+    value.type !== ProjectEventType_Value.ImageStatusChanged ||
     typeof value.project_id !== 'string'
   ) {
     return null;
@@ -323,7 +322,7 @@ export function parseProjectImageStatusChangedMessage(data: unknown): ProjectIma
   return {
     image,
     project_id: value.project_id,
-    type: PROJECT_EVENT_TYPE_IMAGE_STATUS_CHANGED,
+    type: ProjectEventType_Value.ImageStatusChanged,
   };
 }
 
