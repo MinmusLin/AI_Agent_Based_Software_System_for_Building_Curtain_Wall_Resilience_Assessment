@@ -91,7 +91,7 @@ func (w *DetectionWorker) projectReportSourceJSON(ctx context.Context, userId, p
 	return string(data), nil
 }
 
-// projectReportSourceImage 构建项目评估报告单张图像原始数据
+// projectReportSourceImage 构建项目评估报告图像原始数据
 func (w *DetectionWorker) projectReportSourceImage(ctx context.Context, userId, projectId uint64, image *model.ProjectImageRecord) (*projectReportSourceImage, error) {
 	item := &projectReportSourceImage{
 		FileName: image.FileName,
@@ -118,12 +118,12 @@ func (w *DetectionWorker) projectReportSourceImage(ctx context.Context, userId, 
 	if err != nil {
 		return nil, err
 	}
-	item.Review = projectReportSourceReviewFromDTO(review)
+	item.Review = w.projectReportSourceReview(review)
 
 	return item, nil
 }
 
-// projectReportSourceDetection 构建项目评估报告单张图像检测原始数据
+// projectReportSourceDetection 构建项目评估报告图像检测原始数据
 func (w *DetectionWorker) projectReportSourceDetection(ctx context.Context, task *model.ProjectDetectionTaskRecord) (*projectReportSourceDetection, error) {
 	detection := &projectReportSourceDetection{}
 
@@ -168,7 +168,7 @@ func (w *DetectionWorker) projectReportSourceDetection(ctx context.Context, task
 	return detection, nil
 }
 
-// projectReportSourceCorrosion 构建金属锈蚀检测结果原始数据
+// projectReportSourceCorrosion 构建项目评估报告图像金属锈蚀检测原始数据
 func (w *DetectionWorker) projectReportSourceCorrosion(ctx context.Context, taskId uint64) (*projectReportSourceCorrosion, error) {
 	result, err := w.mysql.GetProjectDetectionCorrosionResult(ctx, taskId)
 	if err != nil || result == nil {
@@ -196,7 +196,7 @@ func (w *DetectionWorker) projectReportSourceCorrosion(ctx context.Context, task
 	}, nil
 }
 
-// projectReportSourceCrack 构建石材裂缝检测结果原始数据
+// projectReportSourceCrack 构建项目评估报告图像石材裂缝检测原始数据
 func (w *DetectionWorker) projectReportSourceCrack(ctx context.Context, taskId uint64) (*projectReportSourceCrack, error) {
 	result, err := w.mysql.GetProjectDetectionCrackResult(ctx, taskId)
 	if err != nil || result == nil {
@@ -221,7 +221,7 @@ func (w *DetectionWorker) projectReportSourceCrack(ctx context.Context, taskId u
 	}, nil
 }
 
-// projectReportSourceStain 构建石材污渍检测结果原始数据
+// projectReportSourceStain 构建项目评估报告图像石材污渍检测原始数据
 func (w *DetectionWorker) projectReportSourceStain(ctx context.Context, taskId uint64) (*projectReportSourceStain, error) {
 	result, err := w.mysql.GetProjectDetectionStainResult(ctx, taskId)
 	if err != nil || result == nil {
@@ -249,7 +249,7 @@ func (w *DetectionWorker) projectReportSourceStain(ctx context.Context, taskId u
 	}, nil
 }
 
-// projectReportSourceFlatness 构建玻璃平整度检测结果原始数据
+// projectReportSourceFlatness 构建项目评估报告图像玻璃平整度检测原始数据
 func (w *DetectionWorker) projectReportSourceFlatness(ctx context.Context, taskId uint64) (*projectReportSourceFlatness, error) {
 	result, err := w.mysql.GetProjectDetectionFlatnessResult(ctx, taskId)
 	if err != nil || result == nil {
@@ -282,7 +282,7 @@ func (w *DetectionWorker) projectReportSourceFlatness(ctx context.Context, taskI
 	}, nil
 }
 
-// projectReportSourceSpalling 构建玻璃爆裂检测结果原始数据
+// projectReportSourceSpalling 构建项目评估报告图像玻璃爆裂检测原始数据
 func (w *DetectionWorker) projectReportSourceSpalling(ctx context.Context, taskId uint64) (*projectReportSourceSpalling, error) {
 	result, err := w.mysql.GetProjectDetectionSpallingResult(ctx, taskId)
 	if err != nil || result == nil {
@@ -294,7 +294,7 @@ func (w *DetectionWorker) projectReportSourceSpalling(ctx context.Context, taskI
 	}, nil
 }
 
-// projectReportSourceDetectionSummary 构建图像检测总结原始数据
+// projectReportSourceDetectionSummary 构建项目评估报告图像总结原始数据
 func (w *DetectionWorker) projectReportSourceDetectionSummary(ctx context.Context, taskId uint64) (*projectReportSourceDetectionSummary, error) {
 	result, err := w.mysql.GetProjectDetectionSummaryTypedResult(ctx, taskId)
 	if err != nil || result == nil {
@@ -305,8 +305,8 @@ func (w *DetectionWorker) projectReportSourceDetectionSummary(ctx context.Contex
 	}, nil
 }
 
-// projectReportSourceReviewFromDTO 构建项目评估报告人工复核原始数据
-func projectReportSourceReviewFromDTO(review *bizpb.ProjectDetectionReview) *projectReportSourceReview {
+// projectReportSourceReview 构建项目评估报告图像人工复核原始数据
+func (w *DetectionWorker) projectReportSourceReview(review *bizpb.ProjectDetectionReview) *projectReportSourceReview {
 	if review == nil {
 		return nil
 	}
