@@ -228,7 +228,7 @@ function FlowNode({
   return (
     <Tooltip
       styles={{
-        body: {
+        container: {
           maxWidth: TASK_UUID_TOOLTIP_MAX_WIDTH,
           whiteSpace: 'nowrap',
           width: 'max-content',
