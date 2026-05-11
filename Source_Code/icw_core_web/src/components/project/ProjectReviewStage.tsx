@@ -214,6 +214,7 @@ export function ProjectReviewStage({
 
   const pageLoading = loading || assetsLoading || detectionLoading;
   const actionsHidden = loading || initialPageLoading;
+  const readOnly = project.progress > ProjectProgress_Value.DetectionFinished;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">
@@ -250,18 +251,26 @@ export function ProjectReviewStage({
             >
               全部展开
             </Button>
-            <Button disabled={pageLoading || advancing} icon={<ReloadOutlined />} onClick={() => void refreshPage()}>
-              刷新
-            </Button>
-            <Button
-              disabled={pageLoading}
-              icon={<StepForwardOutlined />}
-              loading={advancing}
-              onClick={() => void handleComplete()}
-              type="primary"
-            >
-              完成并进入下一步
-            </Button>
+            {readOnly ? null : (
+              <>
+                <Button
+                  disabled={pageLoading || advancing}
+                  icon={<ReloadOutlined />}
+                  onClick={() => void refreshPage()}
+                >
+                  刷新
+                </Button>
+                <Button
+                  disabled={pageLoading}
+                  icon={<StepForwardOutlined />}
+                  loading={advancing}
+                  onClick={() => void handleComplete()}
+                  type="primary"
+                >
+                  完成并进入下一步
+                </Button>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -316,6 +325,7 @@ export function ProjectReviewStage({
             setReviewVerdict(verdict);
             void saveReview(verdict, reviewComment);
           },
+          readOnly,
           saving: reviewSaving,
           verdict: reviewVerdict,
         }}

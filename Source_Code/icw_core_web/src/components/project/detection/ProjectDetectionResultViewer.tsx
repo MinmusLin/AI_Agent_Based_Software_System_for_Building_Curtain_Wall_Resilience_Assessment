@@ -1,7 +1,7 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Modal, Spin, Tabs } from 'antd';
 import type { ReactElement } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { ModalTitle } from '@/components/ModalTitle';
 import type { GetImageDetectionResultResponse } from '@/gen/core/api/project_detection';
@@ -13,7 +13,6 @@ import {
   DEFAULT_ACTIVE_TAB,
   DetectionPreview,
   DetectionResultTab,
-  EMPTY_ITEMS_COUNT,
   OriginalInfoTab,
   type ProjectDetectionReviewProps,
   ReviewPanel,
@@ -31,6 +30,10 @@ interface ProjectDetectionResultViewerProps {
   result: GetImageDetectionResultResponse | null;
   uploadedImages: ViewerImage[];
   viewerIndex: number;
+}
+
+function defaultActiveTab(result: GetImageDetectionResultResponse | null): string {
+  return result?.summary_result ? SUMMARY_TAB : DEFAULT_ACTIVE_TAB;
 }
 
 export function ProjectDetectionResultViewer({
@@ -51,6 +54,15 @@ export function ProjectDetectionResultViewer({
   const activeDetectionResult = loading ? undefined : reasoningTabs.find((item) => item.key === activeTab)?.result;
   const tabs = useMemo(
     () => [
+      ...(result?.summary_result
+        ? [
+            {
+              children: <SummaryResultTab result={result.summary_result} />,
+              key: SUMMARY_TAB,
+              label: 'Agent 总结',
+            },
+          ]
+        : []),
       {
         children: (
           <OriginalInfoTab image={image} mainTaskUuid={result?.status?.main_task_uuid} status={result?.status} />
@@ -70,19 +82,20 @@ export function ProjectDetectionResultViewer({
         key: item.key,
         label: item.label,
       })),
-      ...(reasoningTabs.length > EMPTY_ITEMS_COUNT && result?.summary_result
-        ? [
-            {
-              children: <SummaryResultTab result={result.summary_result} />,
-              key: SUMMARY_TAB,
-              label: 'Agent 总结',
-            },
-          ]
-        : []),
     ],
     [groupIndex, image, reasoningTabs, result],
   );
-  const currentActiveTab = !loading && tabs.some((tab) => tab.key === activeTab) ? activeTab : DEFAULT_ACTIVE_TAB;
+  const firstTabKey = tabs[FIRST_INDEX]?.key ?? DEFAULT_ACTIVE_TAB;
+  const currentActiveTab = !loading && tabs.some((tab) => tab.key === activeTab) ? activeTab : firstTabKey;
+
+  useEffect(() => {
+    if (!open || loading || !result) {
+      return;
+    }
+    setActiveTab(defaultActiveTab(result));
+    setGroupIndex(FIRST_INDEX);
+  }, [loading, open, result]);
+
   if (loading) {
     return (
       <Modal centered footer={null} onCancel={onClose} open={open} title={<ModalTitle text={title} />} width={1040}>

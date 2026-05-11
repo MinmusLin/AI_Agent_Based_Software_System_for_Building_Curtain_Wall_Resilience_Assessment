@@ -89,12 +89,55 @@ const REPORT_EXCLUDED_FIELDS = new Set([
   'task_uuid',
 ]);
 
+const DETECTION_REPORT_FIELD_ORDERS: Record<string, string[]> = {
+  corrosion: ['corrosion_count', 'average_confidence', 'max_confidence', 'corrosion_pixels', 'corrosion_ratio'],
+  crack: ['crack_count', 'crack_pixels', 'crack_ratio'],
+  flatness: ['uneven_count'],
+  spalling: ['confidence'],
+  stain: ['stain_count', 'average_stain_ratio', 'max_stain_ratio'],
+};
+
+const DETECTION_REGION_FIELD_ORDERS: Record<string, string[]> = {
+  corrosion: ['confidence', 'mask_pixels', 'mask_ratio', 'bbox_x1', 'bbox_y1', 'bbox_x2', 'bbox_y2'],
+  crack: ['mask_pixels', 'mask_ratio', 'bbox_x1', 'bbox_y1', 'bbox_x2', 'bbox_y2'],
+  flatness: [
+    'edge_uneven_detected',
+    'gradient_uneven_detected',
+    'line_uneven_detected',
+    'frequency_uneven_detected',
+    'edge_count',
+    'line_count',
+    'angle_std',
+    'gradient_mean',
+    'gradient_std',
+    'laplacian_variance',
+    'frequency_max',
+    'frequency_min',
+    'bbox_x1',
+    'bbox_y1',
+    'bbox_x2',
+    'bbox_y2',
+  ],
+  stain: [
+    'confidence',
+    'stain_pixels',
+    'stain_ratio',
+    'region_height',
+    'region_width',
+    'bbox_x1',
+    'bbox_y1',
+    'bbox_x2',
+    'bbox_y2',
+  ],
+};
+
 export interface ProjectDetectionReviewProps {
   comment: string;
   enabled: boolean;
   onCommentChange: (comment: string) => void;
   onSave: () => void;
   onVerdictChange: (verdict: ProjectDetectionReviewVerdict_Value) => void;
+  readOnly: boolean;
   saving: boolean;
   verdict: ProjectDetectionReviewVerdict_Value;
 }
@@ -264,8 +307,30 @@ function detailEntries(source: Record<string, unknown>, excludedFields: Set<stri
   return entries;
 }
 
-function reportEntries(report: Record<string, unknown>): [string, unknown][] {
-  return detailEntries(report, REPORT_EXCLUDED_FIELDS);
+function sortedEntries(entries: [string, unknown][], fieldOrder: string[] | undefined): [string, unknown][] {
+  if (!fieldOrder) {
+    return entries;
+  }
+  const fieldRank = new Map(fieldOrder.map((field, index) => [field, index]));
+  return [...entries].sort(([leftKey], [rightKey]) => {
+    const leftRank = fieldRank.get(leftKey) ?? Number.MAX_SAFE_INTEGER;
+    const rightRank = fieldRank.get(rightKey) ?? Number.MAX_SAFE_INTEGER;
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+    return leftKey.localeCompare(rightKey);
+  });
+}
+
+function reportEntries(taskKey: string, report: Record<string, unknown>): [string, unknown][] {
+  return sortedEntries(detailEntries(report, REPORT_EXCLUDED_FIELDS), DETECTION_REPORT_FIELD_ORDERS[taskKey]);
+}
+
+function regionEntries(taskKey: string, region: Record<string, unknown>): [string, unknown][] {
+  return sortedEntries(
+    detailEntries(region, new Set([...REPORT_EXCLUDED_FIELDS, 'id'])),
+    DETECTION_REGION_FIELD_ORDERS[taskKey],
+  );
 }
 
 function isFlatnessUneven(result?: DetectionResult): boolean {
@@ -312,7 +377,7 @@ function detectionDataEntries(
   if (taskKey === 'flatness' && !isFlatnessUneven(result)) {
     return [];
   }
-  return reportEntries(report);
+  return reportEntries(taskKey, report);
 }
 
 function resultReport(result?: DetectionResult): Record<string, unknown> {
@@ -490,9 +555,7 @@ export function DetectionResultTab({
   const currentRegion =
     currentPageIndex > DETECTION_DATA_PAGE_INDEX ? (regions.at(currentPageIndex - NEXT_INDEX_OFFSET) ?? null) : null;
   const detailRows =
-    currentRegion === null
-      ? detectionDataEntries(taskKey, report, result)
-      : detailEntries(currentRegion, new Set([...REPORT_EXCLUDED_FIELDS, 'id']));
+    currentRegion === null ? detectionDataEntries(taskKey, report, result) : regionEntries(taskKey, currentRegion);
   const showNavigation = regions.length > EMPTY_ITEMS_COUNT;
   const showReportDetails = showNavigation || detailRows.length > EMPTY_ITEMS_COUNT;
 
@@ -719,6 +782,7 @@ export function ReviewPanel({ review }: { review: ProjectDetectionReviewProps })
   ];
   const accurateSelected = review.verdict === ProjectDetectionReviewVerdict_Value.Accurate;
   const inaccurateSelected = review.verdict === ProjectDetectionReviewVerdict_Value.Inaccurate;
+  const inputPlaceholder = review.readOnly ? '无补充评论与修正' : '在此补充评论与修正，为最终评估引入专家判断';
 
   return (
     <div className="mt-4 flex items-center gap-3">
@@ -729,20 +793,31 @@ export function ReviewPanel({ review }: { review: ProjectDetectionReviewProps })
       <Space.Compact>
         {reviewOptions.map((option) => {
           const selected = review.verdict === option.value;
+          const accurateReadOnlyClassName = 'disabled:!border-blue-200 disabled:!bg-blue-50 disabled:!text-[#1677FF]';
+          const inaccurateReadOnlyClassName = 'disabled:!border-red-200 disabled:!bg-red-50 disabled:!text-red-500';
+          const readOnlySelectedClassName =
+            option.value === ProjectDetectionReviewVerdict_Value.Accurate
+              ? accurateReadOnlyClassName
+              : inaccurateReadOnlyClassName;
           return (
             <Button
               className={
-                option.value === ProjectDetectionReviewVerdict_Value.Inaccurate
-                  ? INACCURATE_BUTTON_HOVER_CLASS_NAME
-                  : undefined
+                review.readOnly && selected
+                  ? readOnlySelectedClassName
+                  : option.value === ProjectDetectionReviewVerdict_Value.Inaccurate
+                    ? INACCURATE_BUTTON_HOVER_CLASS_NAME
+                    : undefined
               }
               danger={option.value === ProjectDetectionReviewVerdict_Value.Inaccurate && inaccurateSelected}
-              disabled={review.saving}
+              disabled={review.saving || review.readOnly}
               icon={
                 option.value === ProjectDetectionReviewVerdict_Value.Accurate ? <LikeOutlined /> : <DislikeOutlined />
               }
               key={option.value}
               onClick={() => {
+                if (review.readOnly) {
+                  return;
+                }
                 review.onVerdictChange(selected ? ProjectDetectionReviewVerdict_Value.Unknown : option.value);
               }}
               type={
@@ -757,14 +832,19 @@ export function ReviewPanel({ review }: { review: ProjectDetectionReviewProps })
         })}
       </Space.Compact>
       <Input
-        className="min-w-0 flex-1"
+        className="min-w-0 flex-1 read-only:!bg-white"
         disabled={review.saving}
         maxLength={MAX_REVIEW_COMMENT_LENGTH}
-        onBlur={review.onSave}
+        onBlur={() => {
+          if (!review.readOnly) {
+            review.onSave();
+          }
+        }}
         onChange={(event) => {
           review.onCommentChange(event.target.value);
         }}
-        placeholder="在此补充评论与修正，为最终评估引入专家判断"
+        placeholder={inputPlaceholder}
+        readOnly={review.readOnly}
         value={review.comment}
       />
     </div>
