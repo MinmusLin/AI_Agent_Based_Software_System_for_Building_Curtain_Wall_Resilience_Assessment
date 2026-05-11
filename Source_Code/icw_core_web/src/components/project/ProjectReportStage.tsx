@@ -25,19 +25,21 @@ interface RefreshOptions {
 }
 
 interface ReportActionsProps {
-  loading: boolean;
+  pageLoading: boolean;
   onRefresh: () => void;
   onRetry: () => void;
   reportFailed: boolean;
   reportGenerating: boolean;
+  refreshing: boolean;
   retrying: boolean;
 }
 
 interface ReportBodyProps {
   content: string;
   errorText: string;
+  reportGenerating: boolean;
   reportFailed: boolean;
-  reportLoading: boolean;
+  reportDataLoading: boolean;
   reportSucceeded: boolean;
 }
 
@@ -58,19 +60,20 @@ function reportContent(report?: ProjectReport): string {
 }
 
 function ReportActions({
-  loading,
   onRefresh,
   onRetry,
+  pageLoading,
   reportFailed,
   reportGenerating,
+  refreshing,
   retrying,
 }: ReportActionsProps): ReactElement | null {
-  if (loading) {
+  if (pageLoading) {
     return null;
   }
   if (reportGenerating) {
     return (
-      <Button icon={<ReloadOutlined />} onClick={onRefresh}>
+      <Button disabled={refreshing} icon={<ReloadOutlined />} loading={refreshing} onClick={onRefresh}>
         刷新
       </Button>
     );
@@ -88,11 +91,20 @@ function ReportActions({
 function ReportBody({
   content,
   errorText,
+  reportGenerating,
   reportFailed,
-  reportLoading,
+  reportDataLoading,
   reportSucceeded,
 }: ReportBodyProps): ReactElement | null {
-  if (reportLoading) {
+  if (reportDataLoading) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-slate-500">
+        <Spin />
+        <span>报告加载中</span>
+      </div>
+    );
+  }
+  if (reportGenerating) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-slate-500">
         <Spin />
@@ -127,12 +139,16 @@ export function ProjectReportStage({
   const [messageApi, contextHolder] = message.useMessage();
   const [report, setReport] = useState<ProjectReport | undefined>();
   const [reportLoading, setReportLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [errorText, setErrorText] = useState('');
 
   const loadReport = useCallback(
     async (options: RefreshOptions = {}): Promise<void> => {
       if (projectId === '') {
+        if (!options.silent) {
+          setReportLoading(false);
+        }
         return;
       }
       if (!options.silent) {
@@ -154,6 +170,21 @@ export function ProjectReportStage({
     },
     [projectId],
   );
+
+  const handleRefresh = useCallback(async (): Promise<void> => {
+    if (projectId === '' || refreshing) {
+      return;
+    }
+    setRefreshing(true);
+    try {
+      const data = await getProjectReport(projectId);
+      setReport(data.report);
+    } catch (error: unknown) {
+      void messageApi.error(getErrorMessage(error));
+    } finally {
+      setRefreshing(false);
+    }
+  }, [messageApi, projectId, refreshing]);
 
   useEffect(() => {
     if (loading) {
@@ -189,7 +220,6 @@ export function ProjectReportStage({
   const reportGenerating = !pageDataLoading && (!report || report.status === ProjectReportStatus_Value.Pending);
   const reportFailed = !pageDataLoading && report?.status === ProjectReportStatus_Value.Failed;
   const reportSucceeded = !pageDataLoading && report?.status === ProjectReportStatus_Value.Succeeded;
-  const pageLoading = pageDataLoading || reportGenerating;
 
   useEffect(() => {
     if (!reportSucceeded || project.progress >= ProjectProgress_Value.ReportFinished) {
@@ -220,9 +250,10 @@ export function ProjectReportStage({
           </p>
         </div>
         <ReportActions
-          loading={pageDataLoading}
-          onRefresh={() => void loadReport()}
+          onRefresh={() => void handleRefresh()}
           onRetry={() => void handleRetry()}
+          pageLoading={pageDataLoading}
+          refreshing={refreshing}
           reportFailed={reportFailed}
           reportGenerating={reportGenerating}
           retrying={retrying}
@@ -232,8 +263,9 @@ export function ProjectReportStage({
         <ReportBody
           content={content}
           errorText={errorText}
+          reportDataLoading={pageDataLoading}
           reportFailed={reportFailed}
-          reportLoading={pageLoading}
+          reportGenerating={reportGenerating}
           reportSucceeded={reportSucceeded}
         />
       </div>
