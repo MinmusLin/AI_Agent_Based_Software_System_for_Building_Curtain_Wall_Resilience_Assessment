@@ -15,7 +15,7 @@ func ClassificationInfo(requestId, taskUuid, imageUuid string, taskCodes []strin
 		taskUuid,
 		imageUuid,
 		utils.JSONF(taskCodes),
-		utils.JSONF(output),
+		output,
 	)
 }
 
@@ -27,7 +27,7 @@ func ClassificationError(requestId, taskUuid, imageUuid string, taskCodes []stri
 		taskUuid,
 		imageUuid,
 		utils.JSONF(taskCodes),
-		utils.JSONF(output),
+		output,
 		utils.FormatErrorLog(err),
 	)
 }
