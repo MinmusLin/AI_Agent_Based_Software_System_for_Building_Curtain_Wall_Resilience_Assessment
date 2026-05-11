@@ -562,7 +562,7 @@ export function DetectionResultTab({
   return (
     <div className="flex h-full min-h-0 flex-col gap-4 text-sm text-slate-600">
       <div>
-        <div className="mb-1 font-medium text-slate-900">子任务 ID</div>
+        <div className="mb-1 font-medium text-slate-900">任务 ID</div>
         <div className="break-all">{result?.task_uuid ?? '-'}</div>
       </div>
       <div className="grid grid-cols-2 gap-4">

@@ -4,6 +4,7 @@ import type {
   AdvanceProjectRequest,
   CreateProjectResponse,
   DeleteProjectResponse,
+  GetProjectDashboardResponse,
   ListProjectsResponse,
 } from '@/gen/core/api/project_core';
 
@@ -26,6 +27,13 @@ export async function deleteProject(projectId: string): Promise<DeleteProjectRes
   const { data } = await http.post<ApiEnvelope<DeleteProjectResponse>>('/project/core/delete', {
     project_id: projectId,
   });
+  return data.data;
+}
+
+// 获取项目工作台统计
+// @router /project/core/dashboard [GET]
+export async function getProjectDashboard(): Promise<GetProjectDashboardResponse> {
+  const { data } = await http.get<ApiEnvelope<GetProjectDashboardResponse>>('/project/core/dashboard');
   return data.data;
 }
 

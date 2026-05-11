@@ -144,7 +144,15 @@ function ProjectStageContent({
   }
 
   if (selectedProgress === ProjectProgress_Value.ReviewFinished) {
-    return <ProjectReportStage loading={loading} project={project} projectId={projectId} />;
+    return (
+      <ProjectReportStage
+        loading={loading}
+        onProgressChange={onProgressChange}
+        onProjectChange={onProjectChange}
+        project={project}
+        projectId={projectId}
+      />
+    );
   }
 
   return (
