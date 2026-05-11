@@ -72,6 +72,10 @@ func main() {
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to connect to MinIO: %v", err)
 	}
+	dataMinIOAdmin, err := minio.NewAdminClient(cfg)
+	if err != nil {
+		utils.LogFatal(consts.LogScopeInit, "Failed to connect to MinIO admin: %v", err)
+	}
 	bucketExists, err := dataMinIO.BucketExists(ctx, cfg.MinIOBucket)
 	if err != nil {
 		utils.LogFatal(consts.LogScopeInit, "Failed to connect to MinIO: %v", err)
@@ -121,7 +125,7 @@ func main() {
 	// 初始化数据服务
 	mysqlRepo := mysql.NewRepository(dataMySQL)
 	redisRepo := redis.NewRepository(dataRedis)
-	minioRepo := minio.NewRepository(dataMinIO, cfg.MinIOBucket)
+	minioRepo := minio.NewRepository(dataMinIO, dataMinIOAdmin, cfg.MinIOBucket)
 
 	// 启动定时任务
 	cronjobs.Start(ctx, cronjobCommon.NewDeps(

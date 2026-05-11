@@ -3,10 +3,12 @@ package minio
 import (
 	"bytes"
 	"context"
+	"errors"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/minio/madmin-go/v3"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
@@ -15,16 +17,26 @@ import (
 
 // Repository MinIO 对象存储服务
 type Repository struct {
-	client *minio.Client
-	bucket string
+	client      *minio.Client
+	adminClient *madmin.AdminClient
+	bucket      string
 }
 
 // NewRepository 创建 MinIO 对象存储服务
-func NewRepository(client *minio.Client, bucket string) *Repository {
+func NewRepository(client *minio.Client, adminClient *madmin.AdminClient, bucket string) *Repository {
 	return &Repository{
-		client: client,
-		bucket: bucket,
+		client:      client,
+		adminClient: adminClient,
+		bucket:      bucket,
 	}
+}
+
+// BucketStats MinIO Bucket 统计数据
+type BucketStats struct {
+	ObjectCount    uint64
+	UsedBytes      uint64
+	QuotaBytes     uint64
+	RemainingBytes uint64
 }
 
 // NewClient 创建 MinIO SDK Client
@@ -38,6 +50,45 @@ func NewClient(cfg configs.Config) (*minio.Client, error) {
 		return nil, err
 	}
 	return client, nil
+}
+
+// NewAdminClient 创建 MinIO Admin SDK Client
+func NewAdminClient(cfg configs.Config) (*madmin.AdminClient, error) {
+	endpoint, useSSL := normalizeEndpoint(cfg.MinIOEndpoint)
+	return madmin.NewWithOptions(endpoint, &madmin.Options{
+		Creds:  credentials.NewStaticV4(cfg.MinIOAccessKey, cfg.MinIOAccessSecret, ""),
+		Secure: useSSL,
+	})
+}
+
+// BucketStats 查询当前 Bucket 的对象数量和容量统计
+func (r *Repository) BucketStats(ctx context.Context) (BucketStats, error) {
+	if r == nil || r.adminClient == nil {
+		return BucketStats{}, errors.New("minio admin client is nil")
+	}
+	usage, err := r.adminClient.DataUsageInfo(ctx)
+	if err != nil {
+		return BucketStats{}, err
+	}
+	stats := BucketStats{
+		RemainingBytes: usage.TotalFreeCapacity,
+	}
+	if bucketUsage, ok := usage.BucketsUsage[r.bucket]; ok {
+		stats.ObjectCount = bucketUsage.ObjectsCount
+		stats.UsedBytes = bucketUsage.Size
+	}
+	if quota, err := r.adminClient.GetBucketQuota(ctx, r.bucket); err == nil {
+		stats.QuotaBytes = quota.Size
+		if stats.QuotaBytes == 0 {
+			stats.QuotaBytes = quota.Quota
+		}
+		if stats.QuotaBytes > stats.UsedBytes {
+			stats.RemainingBytes = stats.QuotaBytes - stats.UsedBytes
+		} else if stats.QuotaBytes > 0 {
+			stats.RemainingBytes = 0
+		}
+	}
+	return stats, nil
 }
 
 // StatObject 判断对象是否存在

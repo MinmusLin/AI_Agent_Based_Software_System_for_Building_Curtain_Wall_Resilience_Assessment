@@ -20,6 +20,23 @@ type ProjectAssetsReadyStats struct {
 	EmptyGroupCount    uint64
 }
 
+// ProjectDashboardStatsRecord 项目工作台统计记录
+type ProjectDashboardStatsRecord struct {
+	ActiveProjectCount          uint64
+	CompletedProjectCount       uint64
+	TotalProjectCount           uint64
+	UploadedImageCount          uint64
+	ProjectGroupCount           uint64
+	DetectionTaskCount          uint64
+	CorrosionDetectionTaskCount uint64
+	CrackDetectionTaskCount     uint64
+	StainDetectionTaskCount     uint64
+	FlatnessDetectionTaskCount  uint64
+	SpallingDetectionTaskCount  uint64
+	DetectionSummaryTaskCount   uint64
+	ReportTaskCount             uint64
+}
+
 // ProjectRecord 项目记录
 type ProjectRecord struct {
 	Id                  uint64
