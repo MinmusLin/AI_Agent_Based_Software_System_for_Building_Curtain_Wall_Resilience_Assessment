@@ -159,3 +159,55 @@ func (r *Repository) ListProjects(ctx context.Context, userId uint64) ([]*model.
 
 	return activeProjects, completedProjects, nil
 }
+
+// GetProjectDashboardStats 按用户 ID 查询首页工作台统计
+func (r *Repository) GetProjectDashboardStats(ctx context.Context, userId uint64) (*model.ProjectDashboardStatsRecord, error) {
+	record := &model.ProjectDashboardStatsRecord{}
+	err := r.mysql.QueryRowContext(ctx, `
+		SELECT
+			(SELECT COUNT(*) FROM projects WHERE user_id = ? AND status = ?),
+			(SELECT COUNT(*) FROM projects WHERE user_id = ? AND status = ?),
+			(SELECT COUNT(*) FROM projects WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_group_images WHERE user_id = ? AND status = ?),
+			(SELECT COUNT(*) FROM project_groups WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_detection_tasks WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_detection_corrosion_tasks WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_detection_crack_tasks WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_detection_stain_tasks WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_detection_flatness_tasks WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_detection_spalling_tasks WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_detection_summary_tasks WHERE user_id = ?),
+			(SELECT COUNT(*) FROM project_reports WHERE user_id = ?)
+	`, userId, enum.ProjectStatusString(bizpb.ProjectStatus_Active),
+		userId, enum.ProjectStatusString(bizpb.ProjectStatus_Completed),
+		userId,
+		userId, enum.ProjectImageStatusString(bizpb.ProjectImageStatus_Uploaded),
+		userId,
+		userId,
+		userId,
+		userId,
+		userId,
+		userId,
+		userId,
+		userId,
+		userId,
+	).Scan(
+		&record.ActiveProjectCount,
+		&record.CompletedProjectCount,
+		&record.TotalProjectCount,
+		&record.UploadedImageCount,
+		&record.ProjectGroupCount,
+		&record.DetectionTaskCount,
+		&record.CorrosionDetectionTaskCount,
+		&record.CrackDetectionTaskCount,
+		&record.StainDetectionTaskCount,
+		&record.FlatnessDetectionTaskCount,
+		&record.SpallingDetectionTaskCount,
+		&record.DetectionSummaryTaskCount,
+		&record.ReportTaskCount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return record, nil
+}
