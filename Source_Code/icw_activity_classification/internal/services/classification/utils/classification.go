@@ -10,18 +10,19 @@ import (
 	"icw_common/enum"
 	"icw_common/gen/activity/classification"
 	"icw_common/gen/core/common"
+	"icw_common/utils"
 
 	"icw_activity_classification/internal/agent"
 )
 
 // ExecuteClassification 执行图像分类任务并返回检测任务代码列表和模型原始输出
-func ExecuteClassification(ctx context.Context, req *classificationpb.StartRequest, agentClient *agent.Client, imageSize int) ([]string, string, error) {
+func ExecuteClassification(ctx context.Context, req *classificationpb.StartRequest, client *agent.Client, imageSize int) ([]string, string, error) {
 	imageBytes, contentType, err := DownloadAndResizeImage(ctx, req.PresignGetUrl, imageSize)
 	if err != nil {
 		return nil, "", err
 	}
 
-	output, err := agentClient.Chat(ctx, agent.Message{
+	output, err := client.Chat(ctx, agent.Message{
 		Text:        "图像已上传，请根据指令进行符合要求的输出。",
 		Image:       imageBytes,
 		ContentType: contentType,
@@ -30,9 +31,13 @@ func ExecuteClassification(ctx context.Context, req *classificationpb.StartReque
 		return nil, output, err
 	}
 
-	taskCodes, err := parseTaskCodes(output)
+	normalizedOutput, err := utils.CompactAgentJSONObjectString(output)
+	if err != nil {
+		return nil, output, err
+	}
+	taskCodes, err := parseTaskCodes(normalizedOutput)
 
-	return taskCodes, output, err
+	return taskCodes, normalizedOutput, err
 }
 
 // parseTaskCodes 从模型 JSON 输出中解析检测任务代码列表
