@@ -3,4 +3,5 @@
 .idea/
 bin/
 coverage/
+sql/
 .DS_Store
