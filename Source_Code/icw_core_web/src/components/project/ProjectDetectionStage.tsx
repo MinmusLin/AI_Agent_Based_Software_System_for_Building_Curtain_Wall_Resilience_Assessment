@@ -44,6 +44,18 @@ interface RefreshOptions {
   silent?: boolean;
 }
 
+function detectionStageReadOnly(
+  loading: boolean,
+  progress: ProjectProgress_Value,
+  selectedProgress: ProjectProgress_Value,
+): boolean {
+  return (
+    loading ||
+    progress > ProjectProgress_Value.AssetsFinished ||
+    selectedProgress !== ProjectProgress_Value.AssetsFinished
+  );
+}
+
 export function ProjectDetectionStage({
   loading = false,
   onProgressChange,
@@ -66,10 +78,7 @@ export function ProjectDetectionStage({
   const [viewerResult, setViewerResult] = useState<GetImageDetectionResultResponse | null>(null);
   const [progressImageUuid, setProgressImageUuid] = useState<string | null>(null);
 
-  const readOnly =
-    loading ||
-    project.progress > ProjectProgress_Value.AssetsFinished ||
-    selectedProgress !== ProjectProgress_Value.AssetsFinished;
+  const readOnly = detectionStageReadOnly(loading, project.progress, selectedProgress);
 
   const showError = useCallback(
     (text: string): void => {

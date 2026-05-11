@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { createDetectionSocketTicket, setupDetectionWebSocket } from '@/api/socket';
 import { WEBSOCKET_RECONNECT_DELAY_MS } from '@/utils/assetsStage';
@@ -19,6 +19,12 @@ export function useProjectDetectionSocket({
   projectId,
   setTasks,
 }: UseProjectDetectionSocketParams): void {
+  const onConnectedRef = useRef(onConnected);
+
+  useEffect(() => {
+    onConnectedRef.current = onConnected;
+  }, [onConnected]);
+
   const handleSocketMessage = useCallback(
     (data: unknown): void => {
       const socketMessage = parseProjectDetectionTaskStatusChangedMessage(data);
@@ -72,7 +78,7 @@ export function useProjectDetectionSocket({
           }),
         );
         socket.onopen = (): void => {
-          onConnected?.();
+          onConnectedRef.current?.();
         };
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           handleSocketMessage(event.data);
@@ -97,5 +103,5 @@ export function useProjectDetectionSocket({
       clearReconnectTimer();
       socket?.close();
     };
-  }, [enabled, handleSocketMessage, onConnected, projectId]);
+  }, [enabled, handleSocketMessage, projectId]);
 }

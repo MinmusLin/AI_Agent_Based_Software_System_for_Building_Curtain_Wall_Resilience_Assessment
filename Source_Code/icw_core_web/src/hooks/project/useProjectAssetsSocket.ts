@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { createAssetsSocketTicket, setupAssetsWebSocket } from '@/api/socket';
 import type { ProjectGroup } from '@/gen/core/api/common';
@@ -12,6 +12,12 @@ interface UseProjectAssetsSocketParams {
 }
 
 export function useProjectAssetsSocket({ onConnected, projectId, setGroups }: UseProjectAssetsSocketParams): void {
+  const onConnectedRef = useRef(onConnected);
+
+  useEffect(() => {
+    onConnectedRef.current = onConnected;
+  }, [onConnected]);
+
   const handleSocketMessage = useCallback(
     (data: unknown): void => {
       const socketMessage = parseProjectImageStatusChangedMessage(data);
@@ -66,7 +72,7 @@ export function useProjectAssetsSocket({ onConnected, projectId, setGroups }: Us
           }),
         );
         socket.onopen = (): void => {
-          onConnected?.();
+          onConnectedRef.current?.();
         };
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           handleSocketMessage(event.data);
@@ -91,5 +97,5 @@ export function useProjectAssetsSocket({ onConnected, projectId, setGroups }: Us
       clearReconnectTimer();
       socket?.close();
     };
-  }, [handleSocketMessage, onConnected, projectId]);
+  }, [handleSocketMessage, projectId]);
 }

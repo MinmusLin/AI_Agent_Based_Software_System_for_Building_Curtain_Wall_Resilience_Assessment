@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { createReportSocketTicket, setupReportWebSocket } from '@/api/socket';
 import type { ProjectReportStatusChangedMessage } from '@/gen/core/api/messages';
@@ -27,6 +27,12 @@ function parseProjectReportStatusChangedMessage(data: unknown): ProjectReportSta
 }
 
 export function useProjectReportSocket({ enabled, onReportChanged, projectId }: UseProjectReportSocketParams): void {
+  const onReportChangedRef = useRef(onReportChanged);
+
+  useEffect(() => {
+    onReportChangedRef.current = onReportChanged;
+  }, [onReportChanged]);
+
   useEffect(() => {
     if (!enabled || projectId === '') {
       return undefined;
@@ -69,14 +75,14 @@ export function useProjectReportSocket({ enabled, onReportChanged, projectId }: 
           }),
         );
         socket.onopen = (): void => {
-          onReportChanged();
+          onReportChangedRef.current();
         };
         socket.onmessage = (event: MessageEvent<unknown>): void => {
           const message = parseProjectReportStatusChangedMessage(event.data);
           if (message?.project_id !== projectId) {
             return;
           }
-          onReportChanged();
+          onReportChangedRef.current();
         };
         socket.onclose = (): void => {
           if (!closed) {
@@ -98,5 +104,5 @@ export function useProjectReportSocket({ enabled, onReportChanged, projectId }: 
       clearReconnectTimer();
       socket?.close();
     };
-  }, [enabled, onReportChanged, projectId]);
+  }, [enabled, projectId]);
 }
