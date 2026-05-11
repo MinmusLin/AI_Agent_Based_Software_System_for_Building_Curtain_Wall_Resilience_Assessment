@@ -140,8 +140,10 @@ CREATE TABLE `project_detection_tasks` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_project_detection_tasks_uuid` (`uuid`),
   UNIQUE KEY `uk_project_detection_tasks_image_id` (`image_id`),
-  KEY `fk_project_detection_tasks_user_id` (`user_id`),
   KEY `fk_project_detection_tasks_project_id` (`project_id`),
+  KEY `idx_project_detection_tasks_user_id_project_id_image_uuid` (`user_id`,`project_id`,`image_uuid`),
+  KEY `idx_project_detection_tasks_user_id_project_id_created_at` (`user_id`,`project_id`,`created_at`,`id`),
+  KEY `idx_project_detection_tasks_user_id_project_id_status_created_at` (`user_id`,`project_id`,`status`,`created_at`,`id`),
   CONSTRAINT `fk_project_detection_tasks_image_id` FOREIGN KEY (`image_id`) REFERENCES `project_group_images` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_detection_tasks_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_project_detection_tasks_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
