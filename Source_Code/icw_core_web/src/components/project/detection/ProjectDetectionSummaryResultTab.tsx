@@ -1,4 +1,3 @@
-import { Tag } from 'antd';
 import type { ReactElement } from 'react';
 
 import type { ProjectDetectionSummaryResult } from '@/gen/core/common';
@@ -61,6 +60,20 @@ function summarySections(result?: string): AgentSummarySection[] {
   }
 }
 
+function summaryTagClassName(color: string): string {
+  const baseClassName =
+    'inline-flex h-6 w-20 shrink-0 items-center justify-center rounded border px-2 text-xs font-medium leading-none';
+  switch (color) {
+    case 'red':
+      return `${baseClassName} border-red-200 bg-red-50 text-red-600`;
+    case 'green':
+      return `${baseClassName} border-green-200 bg-green-50 text-green-600`;
+    case 'blue':
+    default:
+      return `${baseClassName} border-blue-200 bg-blue-50 text-[#1677FF]`;
+  }
+}
+
 // SummaryResultTab 展示图像检测 Agent 总结结果
 export function SummaryResultTab({ result }: { result: ProjectDetectionSummaryResult | undefined }): ReactElement {
   const sections = summarySections(result?.result);
@@ -86,10 +99,8 @@ export function SummaryResultTab({ result }: { result: ProjectDetectionSummaryRe
         <div className="min-h-0 flex-1 space-y-3 overflow-auto overscroll-contain text-sm leading-6 text-slate-700">
           {sections.length > EMPTY_SECTION_COUNT ? (
             sections.map((section) => (
-              <div className="flex gap-2" key={section.label}>
-                <Tag className="mt-0.5 inline-flex shrink-0 items-center text-xs leading-5" color={section.color}>
-                  {section.label}
-                </Tag>
+              <div className="flex items-start gap-2" key={section.label}>
+                <span className={summaryTagClassName(section.color)}>{section.label}</span>
                 <span className="break-all">{section.text}</span>
               </div>
             ))
