@@ -201,6 +201,25 @@ function SkeletonBar({ className, style }: { className: string; style?: CSSPrope
   return <span className={`block animate-pulse rounded-lg bg-slate-200 ${className}`} style={style} />;
 }
 
+function SkeletonRing(): ReactElement {
+  return (
+    <span
+      className="relative block animate-pulse rounded-full bg-slate-200"
+      style={{ height: PIE_CHART_SIZE, width: PIE_CHART_SIZE }}
+    >
+      <span className="absolute inset-[14%] rounded-full bg-white" />
+    </span>
+  );
+}
+
+function ChartTitleSkeleton({ className }: { className: string }): ReactElement {
+  return (
+    <div className="relative flex h-10 w-full shrink-0 items-center justify-center">
+      <SkeletonBar className={className} />
+    </div>
+  );
+}
+
 function ChartTitle({ icon, title }: ChartTitleProps): ReactElement {
   return (
     <div className="relative flex h-10 w-full shrink-0 items-center justify-center text-base font-semibold text-slate-900">
@@ -209,6 +228,56 @@ function ChartTitle({ icon, title }: ChartTitleProps): ReactElement {
         <span>{title}</span>
       </span>
     </div>
+  );
+}
+
+function DetectionBarChartSkeleton(): ReactElement {
+  return (
+    <Card
+      className="h-full min-h-[28rem] overflow-hidden border-slate-200 shadow-none lg:min-h-0"
+      styles={{ body: CHART_CARD_BODY_STYLE }}
+    >
+      <ChartTitleSkeleton className="h-5 w-36" />
+      <div className="flex min-h-0 w-full flex-1 flex-col justify-evenly py-2">
+        {Array.from({ length: CHART_SKELETON_COUNT }, (_, index) => (
+          <div className="space-y-2" key={index}>
+            <div className="flex items-center justify-between gap-3">
+              <SkeletonBar className="h-4 w-48" />
+              <SkeletonBar className="h-4 w-10" />
+            </div>
+            <SkeletonBar className="h-3 w-full rounded-full" />
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function MinioStorageChartSkeleton(): ReactElement {
+  return (
+    <Card
+      className="h-full min-h-[28rem] overflow-hidden border-slate-200 shadow-none lg:min-h-0"
+      styles={{ body: CHART_CARD_BODY_STYLE }}
+    >
+      <ChartTitleSkeleton className="h-5 w-40" />
+      <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+        <SkeletonRing />
+      </div>
+      <div className="w-full shrink-0">
+        <div className="space-y-3">
+          {Array.from({ length: 2 }, (_, index) => (
+            <div className="flex items-center justify-between gap-3" key={index}>
+              <span className="flex min-w-0 items-center gap-2">
+                <SkeletonBar className="size-3 rounded-full" />
+                <SkeletonBar className="h-4 w-40" />
+              </span>
+              <SkeletonBar className="h-4 w-16" />
+            </div>
+          ))}
+          <SkeletonBar className="h-3 w-full" />
+        </div>
+      </div>
+    </Card>
   );
 }
 
@@ -229,33 +298,8 @@ function DashboardSkeleton(): ReactElement {
         ))}
       </div>
       <div className="grid min-h-[28rem] flex-1 grid-cols-1 gap-4 lg:min-h-0 lg:grid-cols-2">
-        <Card
-          className="h-full min-h-[28rem] border-slate-200 shadow-none lg:min-h-0"
-          styles={{ body: CHART_CARD_BODY_STYLE }}
-        >
-          <div className="flex h-10 shrink-0 justify-center">
-            <SkeletonBar className="h-5 w-32" />
-          </div>
-          <div className="flex min-h-0 flex-1 flex-col justify-evenly">
-            {Array.from({ length: CHART_SKELETON_COUNT }, (_, index) => (
-              <SkeletonBar className="h-6 w-full" key={index} />
-            ))}
-          </div>
-        </Card>
-        <Card
-          className="h-full min-h-[28rem] border-slate-200 shadow-none lg:min-h-0"
-          styles={{ body: CHART_CARD_BODY_STYLE }}
-        >
-          <div className="flex h-10 shrink-0 justify-center">
-            <SkeletonBar className="h-5 w-36" />
-          </div>
-          <div className="flex min-h-0 flex-1 items-center justify-center">
-            <SkeletonBar className="rounded-full" style={{ height: PIE_CHART_SIZE, width: PIE_CHART_SIZE }} />
-          </div>
-          <div className="shrink-0">
-            <SkeletonBar className="h-6 w-64" />
-          </div>
-        </Card>
+        <DetectionBarChartSkeleton />
+        <MinioStorageChartSkeleton />
       </div>
     </div>
   );
