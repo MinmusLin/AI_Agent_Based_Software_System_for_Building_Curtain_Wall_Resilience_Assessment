@@ -397,33 +397,46 @@ export function ProjectProfileStage({
     [],
   );
 
-  const handleSave = useCallback(async (): Promise<void> => {
-    setSaving(true);
-    try {
-      const data = await updateProjectProfile(formToPayload(projectId, form));
-      if (!data.project) {
-        throw new Error('project is empty');
+  const saveProjectProfile = useCallback(
+    async (showSuccess: boolean): Promise<Project> => {
+      setSaving(true);
+      try {
+        const data = await updateProjectProfile(formToPayload(projectId, form));
+        if (!data.project) {
+          throw new Error('project is empty');
+        }
+        onProjectChange(data.project);
+        setForm(projectToForm(data.project));
+        if (showSuccess) {
+          void messageApi.success('保存成功');
+        }
+        return data.project;
+      } finally {
+        setSaving(false);
       }
-      onProjectChange(data.project);
-      setForm(projectToForm(data.project));
-      void messageApi.success('保存成功');
+    },
+    [form, messageApi, onProjectChange, projectId],
+  );
+
+  const handleSave = useCallback(async (): Promise<void> => {
+    try {
+      await saveProjectProfile(true);
     } catch (error: unknown) {
       void messageApi.error(getErrorMessage(error));
-    } finally {
-      setSaving(false);
     }
-  }, [form, messageApi, onProjectChange, projectId]);
+  }, [messageApi, saveProjectProfile]);
 
   const handleComplete = useCallback(async (): Promise<void> => {
     setAdvancing(true);
     try {
+      const savedProject = await saveProjectProfile(false);
       await advanceProject({
         project_id: projectId,
-        from_progress: project.progress,
+        from_progress: savedProject.progress,
         to_progress: ProjectProgress_Value.ProfileFinished,
       });
       onProjectChange({
-        ...project,
+        ...savedProject,
         progress: ProjectProgress_Value.ProfileFinished,
       });
       onProgressChange(ProjectProgress_Value.ProfileFinished);
@@ -432,7 +445,7 @@ export function ProjectProfileStage({
     } finally {
       setAdvancing(false);
     }
-  }, [messageApi, onProgressChange, onProjectChange, project, projectId]);
+  }, [messageApi, onProgressChange, onProjectChange, projectId, saveProjectProfile]);
 
   useEffect(() => {
     setForm(projectToForm(project));
