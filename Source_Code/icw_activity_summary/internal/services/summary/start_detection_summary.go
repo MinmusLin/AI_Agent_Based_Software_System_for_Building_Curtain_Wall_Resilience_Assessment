@@ -81,5 +81,9 @@ func (s *Service) asyncExecuteDetectionSummary(requestId string, req *summarypb.
 
 // executeDetectionSummary 执行图像检测总结任务
 func executeDetectionSummary(ctx context.Context, client *agent.Client, req *summarypb.StartDetectionSummaryRequest) (string, error) {
-	return client.Chat(ctx, req.SourceJson)
+	output, err := client.Chat(ctx, req.SourceJson)
+	if err != nil {
+		return "", err
+	}
+	return summaryUtils.NormalizeSummaryJSON(output)
 }

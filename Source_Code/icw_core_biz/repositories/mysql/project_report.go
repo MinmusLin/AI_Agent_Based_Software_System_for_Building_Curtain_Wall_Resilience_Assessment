@@ -7,9 +7,10 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
+	"icw_common/utils"
 
 	"icw_core_biz/repositories/mysql/model"
-	"icw_core_biz/repositories/mysql/utils"
+	mysqlUtils "icw_core_biz/repositories/mysql/utils"
 )
 
 // CreateProjectReport 按用户 ID 和项目 ID 创建或复用项目评估报告记录
@@ -43,6 +44,14 @@ func (r *Repository) UpdateProjectReportResult(ctx context.Context, projectId ui
 	if statusText == "" {
 		return nil, model.ErrProjectReportStatusInvalid
 	}
+	compactedJSON := ""
+	if status == bizpb.ProjectReportStatus_Succeeded {
+		var err error
+		compactedJSON, err = utils.CompactJSONObjectString(resultJSON)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	tx, err := r.mysql.BeginTx(ctx, nil)
 	if err != nil {
@@ -58,8 +67,8 @@ func (r *Repository) UpdateProjectReportResult(ctx context.Context, projectId ui
 		SET status = ?,
 			result_json = CASE WHEN ? = ? THEN ? ELSE result_json END
 		WHERE project_id = ?
-	`, statusText, statusText, enum.ProjectReportStatusString(bizpb.ProjectReportStatus_Succeeded), utils.JsonStringOrEmptyObject(resultJSON), projectId)
-	if err := utils.CheckRowsAffected(result, err); err != nil {
+	`, statusText, statusText, enum.ProjectReportStatusString(bizpb.ProjectReportStatus_Succeeded), compactedJSON, projectId)
+	if err := mysqlUtils.CheckRowsAffected(result, err); err != nil {
 		return nil, err
 	}
 
@@ -69,7 +78,7 @@ func (r *Repository) UpdateProjectReportResult(ctx context.Context, projectId ui
 			SET progress = ?, status = ?
 			WHERE id = ?
 		`, enum.ProjectProgressUint8(bizpb.ProjectProgress_ReportFinished), enum.ProjectStatusString(bizpb.ProjectStatus_Completed), projectId)
-		if err := utils.CheckRowsAffected(result, err); err != nil {
+		if err := mysqlUtils.CheckRowsAffected(result, err); err != nil {
 			return nil, err
 		}
 	}

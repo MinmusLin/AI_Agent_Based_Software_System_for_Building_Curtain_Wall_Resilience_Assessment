@@ -8,9 +8,10 @@ import (
 
 	"icw_common/enum"
 	"icw_common/gen/core/biz"
+	"icw_common/utils"
 
 	"icw_core_biz/repositories/mysql/model"
-	"icw_core_biz/repositories/mysql/utils"
+	mysqlUtils "icw_core_biz/repositories/mysql/utils"
 )
 
 // FindProjectDetectionSummaryTaskByUuidTx 按总结任务 UUID 查询图像检测总结任务
@@ -75,7 +76,7 @@ func CreateProjectDetectionSummaryTaskTx(ctx context.Context, tx *sql.Tx, task *
 		SET summary_should_execute = 1, summary_task_id = ?, status = ?
 		WHERE id = ?
 	`, subTaskId, enum.ProjectDetectionTaskStatusString(bizpb.ProjectDetectionTaskStatus_Summarizing), task.Id)
-	if err := utils.CheckRowsAffected(result, err); err != nil {
+	if err := mysqlUtils.CheckRowsAffected(result, err); err != nil {
 		return nil, err
 	}
 
@@ -98,17 +99,22 @@ func UpdateProjectDetectionSummaryTaskStatusTx(ctx context.Context, tx *sql.Tx, 
 }
 
 // UpdateProjectDetectionSummaryTaskResultTx 更新图像检测总结任务报告与状态
-func UpdateProjectDetectionSummaryTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, summaryResult string) error {
+func UpdateProjectDetectionSummaryTaskResultTx(ctx context.Context, tx *sql.Tx, taskUuid string, status bizpb.ProjectDetectionSubTaskStatus_Value, compactedJSON string) error {
 	if status != bizpb.ProjectDetectionSubTaskStatus_Succeeded {
 		return UpdateProjectDetectionSummaryTaskStatusTx(ctx, tx, taskUuid, status, false, true)
+	}
+
+	compactedJSON, err := utils.CompactJSONObjectString(compactedJSON)
+	if err != nil {
+		return err
 	}
 
 	result, err := tx.ExecContext(ctx, `
 		UPDATE project_detection_summary_tasks
 		SET result = ?
 		WHERE uuid = ?
-	`, summaryResult, taskUuid)
-	if err := utils.CheckRowsAffected(result, err); err != nil {
+	`, compactedJSON, taskUuid)
+	if err := mysqlUtils.CheckRowsAffected(result, err); err != nil {
 		return err
 	}
 

@@ -88,7 +88,11 @@ func executeProjectSummary(ctx context.Context, client *agent.Client, req *summa
 	if err != nil {
 		return "", err
 	}
-	return client.Chat(ctx, sourceJSON)
+	output, err := client.Chat(ctx, sourceJSON)
+	if err != nil {
+		return "", err
+	}
+	return summaryUtils.NormalizeSummaryJSON(output)
 }
 
 // downloadSummarySource 下载项目总结原始数据 JSON
