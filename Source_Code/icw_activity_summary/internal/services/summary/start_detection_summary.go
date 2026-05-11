@@ -85,5 +85,5 @@ func executeDetectionSummary(ctx context.Context, client *agent.Client, req *sum
 	if err != nil {
 		return "", err
 	}
-	return summaryUtils.NormalizeSummaryJSON(output)
+	return utils.CompactAgentJSONObjectString(output)
 }
