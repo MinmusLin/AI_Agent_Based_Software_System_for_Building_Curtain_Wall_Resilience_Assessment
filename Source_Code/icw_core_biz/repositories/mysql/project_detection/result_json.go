@@ -1,9 +1,11 @@
 package project_detection
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strings"
 
 	"icw_common/gen/core/biz"
 	"icw_common/gen/core/common"
@@ -22,7 +24,7 @@ func updateProjectDetectionCorrosionTaskResultTx(ctx context.Context, tx *sql.Tx
 	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
 		return err
 	}
-	regionsJSON, err := utils.JsonOrEmptyArray(report.Regions)
+	regionsJSON, err := rawReportRegionsJSON(resultJSON)
 	if err != nil {
 		return err
 	}
@@ -57,7 +59,7 @@ func updateProjectDetectionCrackTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
 		return err
 	}
-	regionsJSON, err := utils.JsonOrEmptyArray(report.Regions)
+	regionsJSON, err := rawReportRegionsJSON(resultJSON)
 	if err != nil {
 		return err
 	}
@@ -90,7 +92,7 @@ func updateProjectDetectionStainTaskResultTx(ctx context.Context, tx *sql.Tx, ta
 	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
 		return err
 	}
-	regionsJSON, err := utils.JsonOrEmptyArray(report.Regions)
+	regionsJSON, err := rawReportRegionsJSON(resultJSON)
 	if err != nil {
 		return err
 	}
@@ -123,7 +125,7 @@ func updateProjectDetectionFlatnessTaskResultTx(ctx context.Context, tx *sql.Tx,
 	if err := json.Unmarshal([]byte(resultJSON), report); err != nil {
 		return err
 	}
-	regionsJSON, err := utils.JsonOrEmptyArray(report.Regions)
+	regionsJSON, err := rawReportRegionsJSON(resultJSON)
 	if err != nil {
 		return err
 	}
@@ -168,4 +170,23 @@ func updateProjectDetectionSpallingTaskResultTx(ctx context.Context, tx *sql.Tx,
 	}
 
 	return updateProjectDetectionSubTaskStatusByTableTx(ctx, tx, "project_detection_spalling_tasks", taskUuid, status, false, true, model.ErrProjectDetectionSubTaskStatusInvalid)
+}
+
+// rawReportRegionsJSON 从原始检测报告中提取区域数据 JSON
+func rawReportRegionsJSON(resultJSON string) (string, error) {
+	var report struct {
+		Regions json.RawMessage `json:"regions"`
+	}
+	if err := json.Unmarshal([]byte(resultJSON), &report); err != nil {
+		return "", err
+	}
+	regions := strings.TrimSpace(string(report.Regions))
+	if regions == "" || regions == "null" {
+		return "[]", nil
+	}
+	buffer := &bytes.Buffer{}
+	if err := json.Compact(buffer, report.Regions); err != nil {
+		return "", err
+	}
+	return buffer.String(), nil
 }

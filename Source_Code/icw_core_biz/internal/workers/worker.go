@@ -319,32 +319,6 @@ func (w *DetectionWorker) StartProjectReportTask(ctx context.Context, userId, pr
 	}
 }
 
-// projectReportSourceJSON 构建项目评估报告原始数据 JSON
-func (w *DetectionWorker) projectReportSourceJSON(ctx context.Context, userId, projectId uint64) (string, error) {
-	project, err := w.mysql.FindProjectByIdAndUserId(ctx, userId, projectId)
-	if err != nil {
-		return "", err
-	}
-	images, err := w.mysql.ListProjectImages(ctx, userId, projectId)
-	if err != nil {
-		return "", err
-	}
-	tasks, err := w.mysql.GetProjectDetectionTasksStatus(ctx, userId, projectId)
-	if err != nil {
-		return "", err
-	}
-	payload := map[string]interface{}{
-		"project":         project,
-		"images":          images,
-		"detection_tasks": tasks,
-	}
-	data, err := json.Marshal(payload)
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
-}
-
 // failProjectReport 将项目评估报告生成任务标记为失败
 func (w *DetectionWorker) failProjectReport(ctx context.Context, projectId uint64) {
 	report, err := w.mysql.UpdateProjectReportResult(ctx, projectId, bizpb.ProjectReportStatus_Failed, "")

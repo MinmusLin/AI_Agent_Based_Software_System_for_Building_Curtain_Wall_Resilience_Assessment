@@ -53,18 +53,6 @@ func LockProjectForUpdate(ctx context.Context, tx *sql.Tx, userId, projectId uin
 	return true, nil
 }
 
-// JsonOrEmptyArray 将空 JSON 数组字段兜底为 "[]"
-func JsonOrEmptyArray(value interface{}) (string, error) {
-	data, err := json.Marshal(value)
-	if err != nil {
-		return "[]", err
-	}
-	if string(data) == "null" {
-		return "[]", nil
-	}
-	return string(data), nil
-}
-
 // JsonStringOrEmptyObject 将空 JSON 对象字符串兜底为 "{}"
 func JsonStringOrEmptyObject(value string) string {
 	value = strings.TrimSpace(value)
