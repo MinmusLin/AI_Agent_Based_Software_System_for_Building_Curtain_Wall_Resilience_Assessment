@@ -1,5 +1,5 @@
-REPOSITORIES := icw_common icw_core_api icw_core_biz icw_activity_classification icw_activity_reasoning icw_activity_summary
-IMAGE_REPOSITORIES := icw_core_api icw_core_biz icw_activity_classification icw_activity_reasoning icw_activity_summary
+REPOSITORIES := icw_core_api icw_core_biz icw_activity_classification icw_activity_reasoning icw_activity_summary icw_common
+IMAGE_REPOSITORIES := icw_core_api icw_core_biz icw_activity_classification icw_activity_reasoning icw_activity_summary icw_core_web
 
 .DEFAULT_GOAL := help
 
