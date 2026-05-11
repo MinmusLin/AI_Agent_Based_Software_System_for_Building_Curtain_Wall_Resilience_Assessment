@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ProjectReportService_GetProjectReport_FullMethodName           = "/icw.core.biz.ProjectReportService/GetProjectReport"
+	ProjectReportService_RetryProjectReport_FullMethodName         = "/icw.core.biz.ProjectReportService/RetryProjectReport"
 	ProjectReportService_ReportProjectSummaryResult_FullMethodName = "/icw.core.biz.ProjectReportService/ReportProjectSummaryResult"
 )
 
@@ -31,6 +32,8 @@ const (
 type ProjectReportServiceClient interface {
 	// 获取项目评估报告
 	GetProjectReport(ctx context.Context, in *GetProjectReportRequest, opts ...grpc.CallOption) (*GetProjectReportResponse, error)
+	// 重试项目评估报告生成
+	RetryProjectReport(ctx context.Context, in *RetryProjectReportRequest, opts ...grpc.CallOption) (*RetryProjectReportResponse, error)
 	// 上报项目总结结果
 	ReportProjectSummaryResult(ctx context.Context, in *ReportProjectSummaryResultRequest, opts ...grpc.CallOption) (*ReportProjectSummaryResultResponse, error)
 }
@@ -47,6 +50,16 @@ func (c *projectReportServiceClient) GetProjectReport(ctx context.Context, in *G
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetProjectReportResponse)
 	err := c.cc.Invoke(ctx, ProjectReportService_GetProjectReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectReportServiceClient) RetryProjectReport(ctx context.Context, in *RetryProjectReportRequest, opts ...grpc.CallOption) (*RetryProjectReportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RetryProjectReportResponse)
+	err := c.cc.Invoke(ctx, ProjectReportService_RetryProjectReport_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +84,8 @@ func (c *projectReportServiceClient) ReportProjectSummaryResult(ctx context.Cont
 type ProjectReportServiceServer interface {
 	// 获取项目评估报告
 	GetProjectReport(context.Context, *GetProjectReportRequest) (*GetProjectReportResponse, error)
+	// 重试项目评估报告生成
+	RetryProjectReport(context.Context, *RetryProjectReportRequest) (*RetryProjectReportResponse, error)
 	// 上报项目总结结果
 	ReportProjectSummaryResult(context.Context, *ReportProjectSummaryResultRequest) (*ReportProjectSummaryResultResponse, error)
 	mustEmbedUnimplementedProjectReportServiceServer()
@@ -85,6 +100,9 @@ type UnimplementedProjectReportServiceServer struct{}
 
 func (UnimplementedProjectReportServiceServer) GetProjectReport(context.Context, *GetProjectReportRequest) (*GetProjectReportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProjectReport not implemented")
+}
+func (UnimplementedProjectReportServiceServer) RetryProjectReport(context.Context, *RetryProjectReportRequest) (*RetryProjectReportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RetryProjectReport not implemented")
 }
 func (UnimplementedProjectReportServiceServer) ReportProjectSummaryResult(context.Context, *ReportProjectSummaryResultRequest) (*ReportProjectSummaryResultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReportProjectSummaryResult not implemented")
@@ -128,6 +146,24 @@ func _ProjectReportService_GetProjectReport_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectReportService_RetryProjectReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RetryProjectReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectReportServiceServer).RetryProjectReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectReportService_RetryProjectReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectReportServiceServer).RetryProjectReport(ctx, req.(*RetryProjectReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ProjectReportService_ReportProjectSummaryResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ReportProjectSummaryResultRequest)
 	if err := dec(in); err != nil {
@@ -156,6 +192,10 @@ var ProjectReportService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProjectReport",
 			Handler:    _ProjectReportService_GetProjectReport_Handler,
+		},
+		{
+			MethodName: "RetryProjectReport",
+			Handler:    _ProjectReportService_RetryProjectReport_Handler,
 		},
 		{
 			MethodName: "ReportProjectSummaryResult",

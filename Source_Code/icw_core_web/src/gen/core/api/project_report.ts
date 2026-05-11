@@ -21,6 +21,15 @@ export interface GetProjectReportResponse {
   report: ProjectReport | undefined;
 }
 
+/** RetryProjectReport 请求结构体 */
+export interface RetryProjectReportRequest {
+  project_id: string;
+}
+
+/** RetryProjectReport 响应结构体 */
+export interface RetryProjectReportResponse {
+}
+
 function createBaseGetProjectReportRequest(): GetProjectReportRequest {
   return { project_id: "" };
 }
@@ -141,6 +150,113 @@ export const GetProjectReportResponse: MessageFns<GetProjectReportResponse> = {
     message.report = (object.report !== undefined && object.report !== null)
       ? ProjectReport.fromPartial(object.report)
       : undefined;
+    return message;
+  },
+};
+
+function createBaseRetryProjectReportRequest(): RetryProjectReportRequest {
+  return { project_id: "" };
+}
+
+export const RetryProjectReportRequest: MessageFns<RetryProjectReportRequest> = {
+  encode(message: RetryProjectReportRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.project_id !== "") {
+      writer.uint32(10).string(message.project_id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RetryProjectReportRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRetryProjectReportRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.project_id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RetryProjectReportRequest {
+    return {
+      project_id: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+    };
+  },
+
+  toJSON(message: RetryProjectReportRequest): unknown {
+    const obj: any = {};
+    if (message.project_id !== "") {
+      obj.projectId = message.project_id;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<RetryProjectReportRequest>): RetryProjectReportRequest {
+    return RetryProjectReportRequest.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<RetryProjectReportRequest>): RetryProjectReportRequest {
+    const message = createBaseRetryProjectReportRequest();
+    message.project_id = object.project_id ?? "";
+    return message;
+  },
+};
+
+function createBaseRetryProjectReportResponse(): RetryProjectReportResponse {
+  return {};
+}
+
+export const RetryProjectReportResponse: MessageFns<RetryProjectReportResponse> = {
+  encode(_: RetryProjectReportResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RetryProjectReportResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRetryProjectReportResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): RetryProjectReportResponse {
+    return {};
+  },
+
+  toJSON(_: RetryProjectReportResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create(base?: DeepPartial<RetryProjectReportResponse>): RetryProjectReportResponse {
+    return RetryProjectReportResponse.fromPartial(base ?? {});
+  },
+  fromPartial(_: DeepPartial<RetryProjectReportResponse>): RetryProjectReportResponse {
+    const message = createBaseRetryProjectReportResponse();
     return message;
   },
 };

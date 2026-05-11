@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectCoreService_AdvanceProject_FullMethodName     = "/icw.core.biz.ProjectCoreService/AdvanceProject"
-	ProjectCoreService_CheckProjectAccess_FullMethodName = "/icw.core.biz.ProjectCoreService/CheckProjectAccess"
-	ProjectCoreService_CreateProject_FullMethodName      = "/icw.core.biz.ProjectCoreService/CreateProject"
-	ProjectCoreService_DeleteProject_FullMethodName      = "/icw.core.biz.ProjectCoreService/DeleteProject"
-	ProjectCoreService_ListProjects_FullMethodName       = "/icw.core.biz.ProjectCoreService/ListProjects"
+	ProjectCoreService_AdvanceProject_FullMethodName      = "/icw.core.biz.ProjectCoreService/AdvanceProject"
+	ProjectCoreService_CheckProjectAccess_FullMethodName  = "/icw.core.biz.ProjectCoreService/CheckProjectAccess"
+	ProjectCoreService_CreateProject_FullMethodName       = "/icw.core.biz.ProjectCoreService/CreateProject"
+	ProjectCoreService_DeleteProject_FullMethodName       = "/icw.core.biz.ProjectCoreService/DeleteProject"
+	ProjectCoreService_GetProjectDashboard_FullMethodName = "/icw.core.biz.ProjectCoreService/GetProjectDashboard"
+	ProjectCoreService_ListProjects_FullMethodName        = "/icw.core.biz.ProjectCoreService/ListProjects"
 )
 
 // ProjectCoreServiceClient is the client API for ProjectCoreService service.
@@ -40,6 +41,8 @@ type ProjectCoreServiceClient interface {
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*CreateProjectResponse, error)
 	// 删除项目
 	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*DeleteProjectResponse, error)
+	// 获取项目工作台统计
+	GetProjectDashboard(ctx context.Context, in *GetProjectDashboardRequest, opts ...grpc.CallOption) (*GetProjectDashboardResponse, error)
 	// 获取项目列表
 	ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error)
 }
@@ -92,6 +95,16 @@ func (c *projectCoreServiceClient) DeleteProject(ctx context.Context, in *Delete
 	return out, nil
 }
 
+func (c *projectCoreServiceClient) GetProjectDashboard(ctx context.Context, in *GetProjectDashboardRequest, opts ...grpc.CallOption) (*GetProjectDashboardResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProjectDashboardResponse)
+	err := c.cc.Invoke(ctx, ProjectCoreService_GetProjectDashboard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *projectCoreServiceClient) ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListProjectsResponse)
@@ -116,6 +129,8 @@ type ProjectCoreServiceServer interface {
 	CreateProject(context.Context, *CreateProjectRequest) (*CreateProjectResponse, error)
 	// 删除项目
 	DeleteProject(context.Context, *DeleteProjectRequest) (*DeleteProjectResponse, error)
+	// 获取项目工作台统计
+	GetProjectDashboard(context.Context, *GetProjectDashboardRequest) (*GetProjectDashboardResponse, error)
 	// 获取项目列表
 	ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error)
 	mustEmbedUnimplementedProjectCoreServiceServer()
@@ -139,6 +154,9 @@ func (UnimplementedProjectCoreServiceServer) CreateProject(context.Context, *Cre
 }
 func (UnimplementedProjectCoreServiceServer) DeleteProject(context.Context, *DeleteProjectRequest) (*DeleteProjectResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteProject not implemented")
+}
+func (UnimplementedProjectCoreServiceServer) GetProjectDashboard(context.Context, *GetProjectDashboardRequest) (*GetProjectDashboardResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProjectDashboard not implemented")
 }
 func (UnimplementedProjectCoreServiceServer) ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListProjects not implemented")
@@ -236,6 +254,24 @@ func _ProjectCoreService_DeleteProject_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectCoreService_GetProjectDashboard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProjectDashboardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectCoreServiceServer).GetProjectDashboard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectCoreService_GetProjectDashboard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectCoreServiceServer).GetProjectDashboard(ctx, req.(*GetProjectDashboardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ProjectCoreService_ListProjects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListProjectsRequest)
 	if err := dec(in); err != nil {
@@ -276,6 +312,10 @@ var ProjectCoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteProject",
 			Handler:    _ProjectCoreService_DeleteProject_Handler,
+		},
+		{
+			MethodName: "GetProjectDashboard",
+			Handler:    _ProjectCoreService_GetProjectDashboard_Handler,
 		},
 		{
 			MethodName: "ListProjects",

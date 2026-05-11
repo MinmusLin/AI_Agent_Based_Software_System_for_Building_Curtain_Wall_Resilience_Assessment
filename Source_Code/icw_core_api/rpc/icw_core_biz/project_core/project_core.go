@@ -30,6 +30,11 @@ func DeleteProject(ctx context.Context, client *icw_core_biz.Client, req *bizpb.
 	return rpc.CallGRPC[bizpb.DeleteProjectRequest, bizpb.DeleteProjectResponse](ctx, client, req, resp, client.ProjectCore().DeleteProject, rpc.WithRequestIdResolver(utils.GetXRequestId))
 }
 
+// GetProjectDashboard 获取项目工作台统计
+func GetProjectDashboard(ctx context.Context, client *icw_core_biz.Client, req *bizpb.GetProjectDashboardRequest, resp *bizpb.GetProjectDashboardResponse) error {
+	return rpc.CallGRPC[bizpb.GetProjectDashboardRequest, bizpb.GetProjectDashboardResponse](ctx, client, req, resp, client.ProjectCore().GetProjectDashboard, rpc.WithRequestIdResolver(utils.GetXRequestId))
+}
+
 // ListProjects 获取项目列表
 func ListProjects(ctx context.Context, client *icw_core_biz.Client, req *bizpb.ListProjectsRequest, resp *bizpb.ListProjectsResponse) error {
 	return rpc.CallGRPC[bizpb.ListProjectsRequest, bizpb.ListProjectsResponse](ctx, client, req, resp, client.ProjectCore().ListProjects, rpc.WithRequestIdResolver(utils.GetXRequestId))

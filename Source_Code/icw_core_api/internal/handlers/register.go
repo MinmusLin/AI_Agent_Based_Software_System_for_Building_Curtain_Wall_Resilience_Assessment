@@ -71,6 +71,8 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		projectDetectionEditable := middlewares.ProjectDetectionEditable(coreBizClient)
 		// 校验人工复核确认阶段编辑权限
 		projectReviewEditable := middlewares.ProjectReviewEditable(coreBizClient)
+		// 校验评估报告生成阶段编辑权限
+		projectReportEditable := middlewares.ProjectReportEditable(coreBizClient)
 		// 项目核心 Handler
 		projectCoreHandler := core.NewHandler(handlerDeps)
 		projectCoreRouter := projectRouter.Group("/core")
@@ -79,6 +81,7 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 			projectCoreRoutes.POST("/advance", "项目进度流转", projectAccessible, projectCoreHandler.AdvanceProject)
 			projectCoreRoutes.POST("/create", "创建项目", projectCoreHandler.CreateProject)
 			projectCoreRoutes.POST("/delete", "删除项目", projectAccessible, projectCoreHandler.DeleteProject)
+			projectCoreRoutes.GET("/dashboard", "获取项目工作台统计", projectCoreHandler.GetProjectDashboard)
 			projectCoreRoutes.GET("/list", "获取项目列表", projectCoreHandler.ListProjects)
 		}
 
@@ -149,6 +152,7 @@ func registry(router *gin.Engine, handlerDeps *common.Deps, coreBizClient *icw_c
 		projectReportRoutes := common.NewRouteGroup(projectReportRouter, routeDescriptions)
 		{
 			projectReportRoutes.GET("/detail", "获取项目评估报告", projectAccessible, projectReportHandler.GetProjectReport)
+			projectReportRoutes.POST("/retry", "重试项目评估报告生成", projectReportEditable, projectReportHandler.RetryProjectReport)
 		}
 	}
 

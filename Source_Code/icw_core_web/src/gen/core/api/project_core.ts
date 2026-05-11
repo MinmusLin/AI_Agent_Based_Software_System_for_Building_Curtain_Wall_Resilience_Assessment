@@ -42,6 +42,32 @@ export interface DeleteProjectResponse {
   completed_projects: ProjectListItem[];
 }
 
+/** GetProjectDashboard 请求结构体 */
+export interface GetProjectDashboardRequest {
+}
+
+/** GetProjectDashboard 响应结构体 */
+export interface GetProjectDashboardResponse {
+  active_project_count: number;
+  completed_project_count: number;
+  total_project_count: number;
+  uploaded_image_count: number;
+  project_group_count: number;
+  minio_object_count: number;
+  detection_task_count: number;
+  corrosion_detection_task_count: number;
+  crack_detection_task_count: number;
+  stain_detection_task_count: number;
+  flatness_detection_task_count: number;
+  spalling_detection_task_count: number;
+  detection_summary_task_count: number;
+  report_task_count: number;
+  minio_bucket_used_bytes: number;
+  minio_bucket_quota_bytes: number;
+  minio_bucket_remaining_bytes: number;
+  minio_storage_available: boolean;
+}
+
 /** ListProjects 请求结构体 */
 export interface ListProjectsRequest {
 }
@@ -450,6 +476,472 @@ export const DeleteProjectResponse: MessageFns<DeleteProjectResponse> = {
   },
 };
 
+function createBaseGetProjectDashboardRequest(): GetProjectDashboardRequest {
+  return {};
+}
+
+export const GetProjectDashboardRequest: MessageFns<GetProjectDashboardRequest> = {
+  encode(_: GetProjectDashboardRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetProjectDashboardRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetProjectDashboardRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): GetProjectDashboardRequest {
+    return {};
+  },
+
+  toJSON(_: GetProjectDashboardRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create(base?: DeepPartial<GetProjectDashboardRequest>): GetProjectDashboardRequest {
+    return GetProjectDashboardRequest.fromPartial(base ?? {});
+  },
+  fromPartial(_: DeepPartial<GetProjectDashboardRequest>): GetProjectDashboardRequest {
+    const message = createBaseGetProjectDashboardRequest();
+    return message;
+  },
+};
+
+function createBaseGetProjectDashboardResponse(): GetProjectDashboardResponse {
+  return {
+    active_project_count: 0,
+    completed_project_count: 0,
+    total_project_count: 0,
+    uploaded_image_count: 0,
+    project_group_count: 0,
+    minio_object_count: 0,
+    detection_task_count: 0,
+    corrosion_detection_task_count: 0,
+    crack_detection_task_count: 0,
+    stain_detection_task_count: 0,
+    flatness_detection_task_count: 0,
+    spalling_detection_task_count: 0,
+    detection_summary_task_count: 0,
+    report_task_count: 0,
+    minio_bucket_used_bytes: 0,
+    minio_bucket_quota_bytes: 0,
+    minio_bucket_remaining_bytes: 0,
+    minio_storage_available: false,
+  };
+}
+
+export const GetProjectDashboardResponse: MessageFns<GetProjectDashboardResponse> = {
+  encode(message: GetProjectDashboardResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.active_project_count !== 0) {
+      writer.uint32(8).uint64(message.active_project_count);
+    }
+    if (message.completed_project_count !== 0) {
+      writer.uint32(16).uint64(message.completed_project_count);
+    }
+    if (message.total_project_count !== 0) {
+      writer.uint32(24).uint64(message.total_project_count);
+    }
+    if (message.uploaded_image_count !== 0) {
+      writer.uint32(32).uint64(message.uploaded_image_count);
+    }
+    if (message.project_group_count !== 0) {
+      writer.uint32(40).uint64(message.project_group_count);
+    }
+    if (message.minio_object_count !== 0) {
+      writer.uint32(48).uint64(message.minio_object_count);
+    }
+    if (message.detection_task_count !== 0) {
+      writer.uint32(56).uint64(message.detection_task_count);
+    }
+    if (message.corrosion_detection_task_count !== 0) {
+      writer.uint32(64).uint64(message.corrosion_detection_task_count);
+    }
+    if (message.crack_detection_task_count !== 0) {
+      writer.uint32(72).uint64(message.crack_detection_task_count);
+    }
+    if (message.stain_detection_task_count !== 0) {
+      writer.uint32(80).uint64(message.stain_detection_task_count);
+    }
+    if (message.flatness_detection_task_count !== 0) {
+      writer.uint32(88).uint64(message.flatness_detection_task_count);
+    }
+    if (message.spalling_detection_task_count !== 0) {
+      writer.uint32(96).uint64(message.spalling_detection_task_count);
+    }
+    if (message.detection_summary_task_count !== 0) {
+      writer.uint32(104).uint64(message.detection_summary_task_count);
+    }
+    if (message.report_task_count !== 0) {
+      writer.uint32(112).uint64(message.report_task_count);
+    }
+    if (message.minio_bucket_used_bytes !== 0) {
+      writer.uint32(120).uint64(message.minio_bucket_used_bytes);
+    }
+    if (message.minio_bucket_quota_bytes !== 0) {
+      writer.uint32(128).uint64(message.minio_bucket_quota_bytes);
+    }
+    if (message.minio_bucket_remaining_bytes !== 0) {
+      writer.uint32(136).uint64(message.minio_bucket_remaining_bytes);
+    }
+    if (message.minio_storage_available !== false) {
+      writer.uint32(144).bool(message.minio_storage_available);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetProjectDashboardResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetProjectDashboardResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.active_project_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.completed_project_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.total_project_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.uploaded_image_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.project_group_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.minio_object_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.detection_task_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.corrosion_detection_task_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.crack_detection_task_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.stain_detection_task_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 11: {
+          if (tag !== 88) {
+            break;
+          }
+
+          message.flatness_detection_task_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 12: {
+          if (tag !== 96) {
+            break;
+          }
+
+          message.spalling_detection_task_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 13: {
+          if (tag !== 104) {
+            break;
+          }
+
+          message.detection_summary_task_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 14: {
+          if (tag !== 112) {
+            break;
+          }
+
+          message.report_task_count = longToNumber(reader.uint64());
+          continue;
+        }
+        case 15: {
+          if (tag !== 120) {
+            break;
+          }
+
+          message.minio_bucket_used_bytes = longToNumber(reader.uint64());
+          continue;
+        }
+        case 16: {
+          if (tag !== 128) {
+            break;
+          }
+
+          message.minio_bucket_quota_bytes = longToNumber(reader.uint64());
+          continue;
+        }
+        case 17: {
+          if (tag !== 136) {
+            break;
+          }
+
+          message.minio_bucket_remaining_bytes = longToNumber(reader.uint64());
+          continue;
+        }
+        case 18: {
+          if (tag !== 144) {
+            break;
+          }
+
+          message.minio_storage_available = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetProjectDashboardResponse {
+    return {
+      active_project_count: isSet(object.activeProjectCount)
+        ? globalThis.Number(object.activeProjectCount)
+        : isSet(object.active_project_count)
+        ? globalThis.Number(object.active_project_count)
+        : 0,
+      completed_project_count: isSet(object.completedProjectCount)
+        ? globalThis.Number(object.completedProjectCount)
+        : isSet(object.completed_project_count)
+        ? globalThis.Number(object.completed_project_count)
+        : 0,
+      total_project_count: isSet(object.totalProjectCount)
+        ? globalThis.Number(object.totalProjectCount)
+        : isSet(object.total_project_count)
+        ? globalThis.Number(object.total_project_count)
+        : 0,
+      uploaded_image_count: isSet(object.uploadedImageCount)
+        ? globalThis.Number(object.uploadedImageCount)
+        : isSet(object.uploaded_image_count)
+        ? globalThis.Number(object.uploaded_image_count)
+        : 0,
+      project_group_count: isSet(object.projectGroupCount)
+        ? globalThis.Number(object.projectGroupCount)
+        : isSet(object.project_group_count)
+        ? globalThis.Number(object.project_group_count)
+        : 0,
+      minio_object_count: isSet(object.minioObjectCount)
+        ? globalThis.Number(object.minioObjectCount)
+        : isSet(object.minio_object_count)
+        ? globalThis.Number(object.minio_object_count)
+        : 0,
+      detection_task_count: isSet(object.detectionTaskCount)
+        ? globalThis.Number(object.detectionTaskCount)
+        : isSet(object.detection_task_count)
+        ? globalThis.Number(object.detection_task_count)
+        : 0,
+      corrosion_detection_task_count: isSet(object.corrosionDetectionTaskCount)
+        ? globalThis.Number(object.corrosionDetectionTaskCount)
+        : isSet(object.corrosion_detection_task_count)
+        ? globalThis.Number(object.corrosion_detection_task_count)
+        : 0,
+      crack_detection_task_count: isSet(object.crackDetectionTaskCount)
+        ? globalThis.Number(object.crackDetectionTaskCount)
+        : isSet(object.crack_detection_task_count)
+        ? globalThis.Number(object.crack_detection_task_count)
+        : 0,
+      stain_detection_task_count: isSet(object.stainDetectionTaskCount)
+        ? globalThis.Number(object.stainDetectionTaskCount)
+        : isSet(object.stain_detection_task_count)
+        ? globalThis.Number(object.stain_detection_task_count)
+        : 0,
+      flatness_detection_task_count: isSet(object.flatnessDetectionTaskCount)
+        ? globalThis.Number(object.flatnessDetectionTaskCount)
+        : isSet(object.flatness_detection_task_count)
+        ? globalThis.Number(object.flatness_detection_task_count)
+        : 0,
+      spalling_detection_task_count: isSet(object.spallingDetectionTaskCount)
+        ? globalThis.Number(object.spallingDetectionTaskCount)
+        : isSet(object.spalling_detection_task_count)
+        ? globalThis.Number(object.spalling_detection_task_count)
+        : 0,
+      detection_summary_task_count: isSet(object.detectionSummaryTaskCount)
+        ? globalThis.Number(object.detectionSummaryTaskCount)
+        : isSet(object.detection_summary_task_count)
+        ? globalThis.Number(object.detection_summary_task_count)
+        : 0,
+      report_task_count: isSet(object.reportTaskCount)
+        ? globalThis.Number(object.reportTaskCount)
+        : isSet(object.report_task_count)
+        ? globalThis.Number(object.report_task_count)
+        : 0,
+      minio_bucket_used_bytes: isSet(object.minioBucketUsedBytes)
+        ? globalThis.Number(object.minioBucketUsedBytes)
+        : isSet(object.minio_bucket_used_bytes)
+        ? globalThis.Number(object.minio_bucket_used_bytes)
+        : 0,
+      minio_bucket_quota_bytes: isSet(object.minioBucketQuotaBytes)
+        ? globalThis.Number(object.minioBucketQuotaBytes)
+        : isSet(object.minio_bucket_quota_bytes)
+        ? globalThis.Number(object.minio_bucket_quota_bytes)
+        : 0,
+      minio_bucket_remaining_bytes: isSet(object.minioBucketRemainingBytes)
+        ? globalThis.Number(object.minioBucketRemainingBytes)
+        : isSet(object.minio_bucket_remaining_bytes)
+        ? globalThis.Number(object.minio_bucket_remaining_bytes)
+        : 0,
+      minio_storage_available: isSet(object.minioStorageAvailable)
+        ? globalThis.Boolean(object.minioStorageAvailable)
+        : isSet(object.minio_storage_available)
+        ? globalThis.Boolean(object.minio_storage_available)
+        : false,
+    };
+  },
+
+  toJSON(message: GetProjectDashboardResponse): unknown {
+    const obj: any = {};
+    if (message.active_project_count !== 0) {
+      obj.activeProjectCount = Math.round(message.active_project_count);
+    }
+    if (message.completed_project_count !== 0) {
+      obj.completedProjectCount = Math.round(message.completed_project_count);
+    }
+    if (message.total_project_count !== 0) {
+      obj.totalProjectCount = Math.round(message.total_project_count);
+    }
+    if (message.uploaded_image_count !== 0) {
+      obj.uploadedImageCount = Math.round(message.uploaded_image_count);
+    }
+    if (message.project_group_count !== 0) {
+      obj.projectGroupCount = Math.round(message.project_group_count);
+    }
+    if (message.minio_object_count !== 0) {
+      obj.minioObjectCount = Math.round(message.minio_object_count);
+    }
+    if (message.detection_task_count !== 0) {
+      obj.detectionTaskCount = Math.round(message.detection_task_count);
+    }
+    if (message.corrosion_detection_task_count !== 0) {
+      obj.corrosionDetectionTaskCount = Math.round(message.corrosion_detection_task_count);
+    }
+    if (message.crack_detection_task_count !== 0) {
+      obj.crackDetectionTaskCount = Math.round(message.crack_detection_task_count);
+    }
+    if (message.stain_detection_task_count !== 0) {
+      obj.stainDetectionTaskCount = Math.round(message.stain_detection_task_count);
+    }
+    if (message.flatness_detection_task_count !== 0) {
+      obj.flatnessDetectionTaskCount = Math.round(message.flatness_detection_task_count);
+    }
+    if (message.spalling_detection_task_count !== 0) {
+      obj.spallingDetectionTaskCount = Math.round(message.spalling_detection_task_count);
+    }
+    if (message.detection_summary_task_count !== 0) {
+      obj.detectionSummaryTaskCount = Math.round(message.detection_summary_task_count);
+    }
+    if (message.report_task_count !== 0) {
+      obj.reportTaskCount = Math.round(message.report_task_count);
+    }
+    if (message.minio_bucket_used_bytes !== 0) {
+      obj.minioBucketUsedBytes = Math.round(message.minio_bucket_used_bytes);
+    }
+    if (message.minio_bucket_quota_bytes !== 0) {
+      obj.minioBucketQuotaBytes = Math.round(message.minio_bucket_quota_bytes);
+    }
+    if (message.minio_bucket_remaining_bytes !== 0) {
+      obj.minioBucketRemainingBytes = Math.round(message.minio_bucket_remaining_bytes);
+    }
+    if (message.minio_storage_available !== false) {
+      obj.minioStorageAvailable = message.minio_storage_available;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<GetProjectDashboardResponse>): GetProjectDashboardResponse {
+    return GetProjectDashboardResponse.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<GetProjectDashboardResponse>): GetProjectDashboardResponse {
+    const message = createBaseGetProjectDashboardResponse();
+    message.active_project_count = object.active_project_count ?? 0;
+    message.completed_project_count = object.completed_project_count ?? 0;
+    message.total_project_count = object.total_project_count ?? 0;
+    message.uploaded_image_count = object.uploaded_image_count ?? 0;
+    message.project_group_count = object.project_group_count ?? 0;
+    message.minio_object_count = object.minio_object_count ?? 0;
+    message.detection_task_count = object.detection_task_count ?? 0;
+    message.corrosion_detection_task_count = object.corrosion_detection_task_count ?? 0;
+    message.crack_detection_task_count = object.crack_detection_task_count ?? 0;
+    message.stain_detection_task_count = object.stain_detection_task_count ?? 0;
+    message.flatness_detection_task_count = object.flatness_detection_task_count ?? 0;
+    message.spalling_detection_task_count = object.spalling_detection_task_count ?? 0;
+    message.detection_summary_task_count = object.detection_summary_task_count ?? 0;
+    message.report_task_count = object.report_task_count ?? 0;
+    message.minio_bucket_used_bytes = object.minio_bucket_used_bytes ?? 0;
+    message.minio_bucket_quota_bytes = object.minio_bucket_quota_bytes ?? 0;
+    message.minio_bucket_remaining_bytes = object.minio_bucket_remaining_bytes ?? 0;
+    message.minio_storage_available = object.minio_storage_available ?? false;
+    return message;
+  },
+};
+
 function createBaseListProjectsRequest(): ListProjectsRequest {
   return {};
 }
@@ -584,6 +1076,17 @@ export type DeepPartial<T> = T extends Builtin ? T
   : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

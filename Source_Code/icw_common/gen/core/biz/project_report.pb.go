@@ -120,6 +120,96 @@ func (x *GetProjectReportResponse) GetReport() *common.ProjectReport {
 	return nil
 }
 
+// RetryProjectReport 请求结构体
+type RetryProjectReportRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                 `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetryProjectReportRequest) Reset() {
+	*x = RetryProjectReportRequest{}
+	mi := &file_core_biz_project_report_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetryProjectReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetryProjectReportRequest) ProtoMessage() {}
+
+func (x *RetryProjectReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_report_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetryProjectReportRequest.ProtoReflect.Descriptor instead.
+func (*RetryProjectReportRequest) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_report_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RetryProjectReportRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *RetryProjectReportRequest) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
+// RetryProjectReport 响应结构体
+type RetryProjectReportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetryProjectReportResponse) Reset() {
+	*x = RetryProjectReportResponse{}
+	mi := &file_core_biz_project_report_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetryProjectReportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetryProjectReportResponse) ProtoMessage() {}
+
+func (x *RetryProjectReportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_report_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetryProjectReportResponse.ProtoReflect.Descriptor instead.
+func (*RetryProjectReportResponse) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_report_proto_rawDescGZIP(), []int{3}
+}
+
 // ReportProjectSummaryResult 请求结构体
 type ReportProjectSummaryResultRequest struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
@@ -133,7 +223,7 @@ type ReportProjectSummaryResultRequest struct {
 
 func (x *ReportProjectSummaryResultRequest) Reset() {
 	*x = ReportProjectSummaryResultRequest{}
-	mi := &file_core_biz_project_report_proto_msgTypes[2]
+	mi := &file_core_biz_project_report_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -145,7 +235,7 @@ func (x *ReportProjectSummaryResultRequest) String() string {
 func (*ReportProjectSummaryResultRequest) ProtoMessage() {}
 
 func (x *ReportProjectSummaryResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_report_proto_msgTypes[2]
+	mi := &file_core_biz_project_report_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -158,7 +248,7 @@ func (x *ReportProjectSummaryResultRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ReportProjectSummaryResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportProjectSummaryResultRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_report_proto_rawDescGZIP(), []int{2}
+	return file_core_biz_project_report_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ReportProjectSummaryResultRequest) GetProjectId() uint64 {
@@ -198,7 +288,7 @@ type ReportProjectSummaryResultResponse struct {
 
 func (x *ReportProjectSummaryResultResponse) Reset() {
 	*x = ReportProjectSummaryResultResponse{}
-	mi := &file_core_biz_project_report_proto_msgTypes[3]
+	mi := &file_core_biz_project_report_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -210,7 +300,7 @@ func (x *ReportProjectSummaryResultResponse) String() string {
 func (*ReportProjectSummaryResultResponse) ProtoMessage() {}
 
 func (x *ReportProjectSummaryResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_report_proto_msgTypes[3]
+	mi := &file_core_biz_project_report_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -223,7 +313,7 @@ func (x *ReportProjectSummaryResultResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ReportProjectSummaryResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportProjectSummaryResultResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_report_proto_rawDescGZIP(), []int{3}
+	return file_core_biz_project_report_proto_rawDescGZIP(), []int{5}
 }
 
 var File_core_biz_project_report_proto protoreflect.FileDescriptor
@@ -236,7 +326,12 @@ const file_core_biz_project_report_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\"R\n" +
 	"\x18GetProjectReportResponse\x126\n" +
-	"\x06report\x18\x01 \x01(\v2\x1e.icw.core.common.ProjectReportR\x06report\"\xc3\x01\n" +
+	"\x06report\x18\x01 \x01(\v2\x1e.icw.core.common.ProjectReportR\x06report\"S\n" +
+	"\x19RetryProjectReportRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\"\x1c\n" +
+	"\x1aRetryProjectReportResponse\"\xc3\x01\n" +
 	"!ReportProjectSummaryResultRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\x04R\tprojectId\x129\n" +
@@ -244,9 +339,10 @@ const file_core_biz_project_report_proto_rawDesc = "" +
 	"\vresult_json\x18\x03 \x01(\tR\n" +
 	"resultJson\x12#\n" +
 	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"$\n" +
-	"\"ReportProjectSummaryResultResponse2\xfa\x01\n" +
+	"\"ReportProjectSummaryResultResponse2\xe3\x02\n" +
 	"\x14ProjectReportService\x12a\n" +
-	"\x10GetProjectReport\x12%.icw.core.biz.GetProjectReportRequest\x1a&.icw.core.biz.GetProjectReportResponse\x12\x7f\n" +
+	"\x10GetProjectReport\x12%.icw.core.biz.GetProjectReportRequest\x1a&.icw.core.biz.GetProjectReportResponse\x12g\n" +
+	"\x12RetryProjectReport\x12'.icw.core.biz.RetryProjectReportRequest\x1a(.icw.core.biz.RetryProjectReportResponse\x12\x7f\n" +
 	"\x1aReportProjectSummaryResult\x12/.icw.core.biz.ReportProjectSummaryResultRequest\x1a0.icw.core.biz.ReportProjectSummaryResultResponseB\x1fZ\x1dicw_common/gen/core/biz;bizpbb\x06proto3"
 
 var (
@@ -261,24 +357,28 @@ func file_core_biz_project_report_proto_rawDescGZIP() []byte {
 	return file_core_biz_project_report_proto_rawDescData
 }
 
-var file_core_biz_project_report_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_core_biz_project_report_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_core_biz_project_report_proto_goTypes = []any{
 	(*GetProjectReportRequest)(nil),            // 0: icw.core.biz.GetProjectReportRequest
 	(*GetProjectReportResponse)(nil),           // 1: icw.core.biz.GetProjectReportResponse
-	(*ReportProjectSummaryResultRequest)(nil),  // 2: icw.core.biz.ReportProjectSummaryResultRequest
-	(*ReportProjectSummaryResultResponse)(nil), // 3: icw.core.biz.ReportProjectSummaryResultResponse
-	(*common.ProjectReport)(nil),               // 4: icw.core.common.ProjectReport
-	(common.TaskStatus_Value)(0),               // 5: icw.core.common.TaskStatus.Value
+	(*RetryProjectReportRequest)(nil),          // 2: icw.core.biz.RetryProjectReportRequest
+	(*RetryProjectReportResponse)(nil),         // 3: icw.core.biz.RetryProjectReportResponse
+	(*ReportProjectSummaryResultRequest)(nil),  // 4: icw.core.biz.ReportProjectSummaryResultRequest
+	(*ReportProjectSummaryResultResponse)(nil), // 5: icw.core.biz.ReportProjectSummaryResultResponse
+	(*common.ProjectReport)(nil),               // 6: icw.core.common.ProjectReport
+	(common.TaskStatus_Value)(0),               // 7: icw.core.common.TaskStatus.Value
 }
 var file_core_biz_project_report_proto_depIdxs = []int32{
-	4, // 0: icw.core.biz.GetProjectReportResponse.report:type_name -> icw.core.common.ProjectReport
-	5, // 1: icw.core.biz.ReportProjectSummaryResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
+	6, // 0: icw.core.biz.GetProjectReportResponse.report:type_name -> icw.core.common.ProjectReport
+	7, // 1: icw.core.biz.ReportProjectSummaryResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
 	0, // 2: icw.core.biz.ProjectReportService.GetProjectReport:input_type -> icw.core.biz.GetProjectReportRequest
-	2, // 3: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:input_type -> icw.core.biz.ReportProjectSummaryResultRequest
-	1, // 4: icw.core.biz.ProjectReportService.GetProjectReport:output_type -> icw.core.biz.GetProjectReportResponse
-	3, // 5: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:output_type -> icw.core.biz.ReportProjectSummaryResultResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
+	2, // 3: icw.core.biz.ProjectReportService.RetryProjectReport:input_type -> icw.core.biz.RetryProjectReportRequest
+	4, // 4: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:input_type -> icw.core.biz.ReportProjectSummaryResultRequest
+	1, // 5: icw.core.biz.ProjectReportService.GetProjectReport:output_type -> icw.core.biz.GetProjectReportResponse
+	3, // 6: icw.core.biz.ProjectReportService.RetryProjectReport:output_type -> icw.core.biz.RetryProjectReportResponse
+	5, // 7: icw.core.biz.ProjectReportService.ReportProjectSummaryResult:output_type -> icw.core.biz.ReportProjectSummaryResultResponse
+	5, // [5:8] is the sub-list for method output_type
+	2, // [2:5] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
 	2, // [2:2] is the sub-list for extension extendee
 	0, // [0:2] is the sub-list for field type_name
@@ -295,7 +395,7 @@ func file_core_biz_project_report_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_project_report_proto_rawDesc), len(file_core_biz_project_report_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

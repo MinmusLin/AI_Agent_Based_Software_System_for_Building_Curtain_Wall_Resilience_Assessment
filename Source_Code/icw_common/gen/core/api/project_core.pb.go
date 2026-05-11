@@ -300,6 +300,224 @@ func (x *DeleteProjectResponse) GetCompletedProjects() []*ProjectListItem {
 	return nil
 }
 
+// GetProjectDashboard 请求结构体
+type GetProjectDashboardRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectDashboardRequest) Reset() {
+	*x = GetProjectDashboardRequest{}
+	mi := &file_core_api_project_core_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectDashboardRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectDashboardRequest) ProtoMessage() {}
+
+func (x *GetProjectDashboardRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_project_core_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectDashboardRequest.ProtoReflect.Descriptor instead.
+func (*GetProjectDashboardRequest) Descriptor() ([]byte, []int) {
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{6}
+}
+
+// GetProjectDashboard 响应结构体
+type GetProjectDashboardResponse struct {
+	state                       protoimpl.MessageState `protogen:"open.v1"`
+	ActiveProjectCount          uint64                 `protobuf:"varint,1,opt,name=active_project_count,json=activeProjectCount,proto3" json:"active_project_count,omitempty"`
+	CompletedProjectCount       uint64                 `protobuf:"varint,2,opt,name=completed_project_count,json=completedProjectCount,proto3" json:"completed_project_count,omitempty"`
+	TotalProjectCount           uint64                 `protobuf:"varint,3,opt,name=total_project_count,json=totalProjectCount,proto3" json:"total_project_count,omitempty"`
+	UploadedImageCount          uint64                 `protobuf:"varint,4,opt,name=uploaded_image_count,json=uploadedImageCount,proto3" json:"uploaded_image_count,omitempty"`
+	ProjectGroupCount           uint64                 `protobuf:"varint,5,opt,name=project_group_count,json=projectGroupCount,proto3" json:"project_group_count,omitempty"`
+	MinioObjectCount            uint64                 `protobuf:"varint,6,opt,name=minio_object_count,json=minioObjectCount,proto3" json:"minio_object_count,omitempty"`
+	DetectionTaskCount          uint64                 `protobuf:"varint,7,opt,name=detection_task_count,json=detectionTaskCount,proto3" json:"detection_task_count,omitempty"`
+	CorrosionDetectionTaskCount uint64                 `protobuf:"varint,8,opt,name=corrosion_detection_task_count,json=corrosionDetectionTaskCount,proto3" json:"corrosion_detection_task_count,omitempty"`
+	CrackDetectionTaskCount     uint64                 `protobuf:"varint,9,opt,name=crack_detection_task_count,json=crackDetectionTaskCount,proto3" json:"crack_detection_task_count,omitempty"`
+	StainDetectionTaskCount     uint64                 `protobuf:"varint,10,opt,name=stain_detection_task_count,json=stainDetectionTaskCount,proto3" json:"stain_detection_task_count,omitempty"`
+	FlatnessDetectionTaskCount  uint64                 `protobuf:"varint,11,opt,name=flatness_detection_task_count,json=flatnessDetectionTaskCount,proto3" json:"flatness_detection_task_count,omitempty"`
+	SpallingDetectionTaskCount  uint64                 `protobuf:"varint,12,opt,name=spalling_detection_task_count,json=spallingDetectionTaskCount,proto3" json:"spalling_detection_task_count,omitempty"`
+	DetectionSummaryTaskCount   uint64                 `protobuf:"varint,13,opt,name=detection_summary_task_count,json=detectionSummaryTaskCount,proto3" json:"detection_summary_task_count,omitempty"`
+	ReportTaskCount             uint64                 `protobuf:"varint,14,opt,name=report_task_count,json=reportTaskCount,proto3" json:"report_task_count,omitempty"`
+	MinioBucketUsedBytes        uint64                 `protobuf:"varint,15,opt,name=minio_bucket_used_bytes,json=minioBucketUsedBytes,proto3" json:"minio_bucket_used_bytes,omitempty"`
+	MinioBucketQuotaBytes       uint64                 `protobuf:"varint,16,opt,name=minio_bucket_quota_bytes,json=minioBucketQuotaBytes,proto3" json:"minio_bucket_quota_bytes,omitempty"`
+	MinioBucketRemainingBytes   uint64                 `protobuf:"varint,17,opt,name=minio_bucket_remaining_bytes,json=minioBucketRemainingBytes,proto3" json:"minio_bucket_remaining_bytes,omitempty"`
+	MinioStorageAvailable       bool                   `protobuf:"varint,18,opt,name=minio_storage_available,json=minioStorageAvailable,proto3" json:"minio_storage_available,omitempty"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
+}
+
+func (x *GetProjectDashboardResponse) Reset() {
+	*x = GetProjectDashboardResponse{}
+	mi := &file_core_api_project_core_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectDashboardResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectDashboardResponse) ProtoMessage() {}
+
+func (x *GetProjectDashboardResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_core_api_project_core_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectDashboardResponse.ProtoReflect.Descriptor instead.
+func (*GetProjectDashboardResponse) Descriptor() ([]byte, []int) {
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetProjectDashboardResponse) GetActiveProjectCount() uint64 {
+	if x != nil {
+		return x.ActiveProjectCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetCompletedProjectCount() uint64 {
+	if x != nil {
+		return x.CompletedProjectCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetTotalProjectCount() uint64 {
+	if x != nil {
+		return x.TotalProjectCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetUploadedImageCount() uint64 {
+	if x != nil {
+		return x.UploadedImageCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetProjectGroupCount() uint64 {
+	if x != nil {
+		return x.ProjectGroupCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetMinioObjectCount() uint64 {
+	if x != nil {
+		return x.MinioObjectCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetDetectionTaskCount() uint64 {
+	if x != nil {
+		return x.DetectionTaskCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetCorrosionDetectionTaskCount() uint64 {
+	if x != nil {
+		return x.CorrosionDetectionTaskCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetCrackDetectionTaskCount() uint64 {
+	if x != nil {
+		return x.CrackDetectionTaskCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetStainDetectionTaskCount() uint64 {
+	if x != nil {
+		return x.StainDetectionTaskCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetFlatnessDetectionTaskCount() uint64 {
+	if x != nil {
+		return x.FlatnessDetectionTaskCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetSpallingDetectionTaskCount() uint64 {
+	if x != nil {
+		return x.SpallingDetectionTaskCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetDetectionSummaryTaskCount() uint64 {
+	if x != nil {
+		return x.DetectionSummaryTaskCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetReportTaskCount() uint64 {
+	if x != nil {
+		return x.ReportTaskCount
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetMinioBucketUsedBytes() uint64 {
+	if x != nil {
+		return x.MinioBucketUsedBytes
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetMinioBucketQuotaBytes() uint64 {
+	if x != nil {
+		return x.MinioBucketQuotaBytes
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetMinioBucketRemainingBytes() uint64 {
+	if x != nil {
+		return x.MinioBucketRemainingBytes
+	}
+	return 0
+}
+
+func (x *GetProjectDashboardResponse) GetMinioStorageAvailable() bool {
+	if x != nil {
+		return x.MinioStorageAvailable
+	}
+	return false
+}
+
 // ListProjects 请求结构体
 type ListProjectsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -309,7 +527,7 @@ type ListProjectsRequest struct {
 
 func (x *ListProjectsRequest) Reset() {
 	*x = ListProjectsRequest{}
-	mi := &file_core_api_project_core_proto_msgTypes[6]
+	mi := &file_core_api_project_core_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -321,7 +539,7 @@ func (x *ListProjectsRequest) String() string {
 func (*ListProjectsRequest) ProtoMessage() {}
 
 func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_core_proto_msgTypes[6]
+	mi := &file_core_api_project_core_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -334,7 +552,7 @@ func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsRequest.ProtoReflect.Descriptor instead.
 func (*ListProjectsRequest) Descriptor() ([]byte, []int) {
-	return file_core_api_project_core_proto_rawDescGZIP(), []int{6}
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{8}
 }
 
 // ListProjects 响应结构体
@@ -348,7 +566,7 @@ type ListProjectsResponse struct {
 
 func (x *ListProjectsResponse) Reset() {
 	*x = ListProjectsResponse{}
-	mi := &file_core_api_project_core_proto_msgTypes[7]
+	mi := &file_core_api_project_core_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -360,7 +578,7 @@ func (x *ListProjectsResponse) String() string {
 func (*ListProjectsResponse) ProtoMessage() {}
 
 func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_api_project_core_proto_msgTypes[7]
+	mi := &file_core_api_project_core_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -373,7 +591,7 @@ func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsResponse.ProtoReflect.Descriptor instead.
 func (*ListProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_core_api_project_core_proto_rawDescGZIP(), []int{7}
+	return file_core_api_project_core_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListProjectsResponse) GetActiveProjects() []*ProjectListItem {
@@ -410,7 +628,28 @@ const file_core_api_project_core_proto_rawDesc = "" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\"\xad\x01\n" +
 	"\x15DeleteProjectResponse\x12F\n" +
 	"\x0factive_projects\x18\x01 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x0eactiveProjects\x12L\n" +
-	"\x12completed_projects\x18\x02 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x11completedProjects\"\x15\n" +
+	"\x12completed_projects\x18\x02 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x11completedProjects\"\x1c\n" +
+	"\x1aGetProjectDashboardRequest\"\x94\b\n" +
+	"\x1bGetProjectDashboardResponse\x120\n" +
+	"\x14active_project_count\x18\x01 \x01(\x04R\x12activeProjectCount\x126\n" +
+	"\x17completed_project_count\x18\x02 \x01(\x04R\x15completedProjectCount\x12.\n" +
+	"\x13total_project_count\x18\x03 \x01(\x04R\x11totalProjectCount\x120\n" +
+	"\x14uploaded_image_count\x18\x04 \x01(\x04R\x12uploadedImageCount\x12.\n" +
+	"\x13project_group_count\x18\x05 \x01(\x04R\x11projectGroupCount\x12,\n" +
+	"\x12minio_object_count\x18\x06 \x01(\x04R\x10minioObjectCount\x120\n" +
+	"\x14detection_task_count\x18\a \x01(\x04R\x12detectionTaskCount\x12C\n" +
+	"\x1ecorrosion_detection_task_count\x18\b \x01(\x04R\x1bcorrosionDetectionTaskCount\x12;\n" +
+	"\x1acrack_detection_task_count\x18\t \x01(\x04R\x17crackDetectionTaskCount\x12;\n" +
+	"\x1astain_detection_task_count\x18\n" +
+	" \x01(\x04R\x17stainDetectionTaskCount\x12A\n" +
+	"\x1dflatness_detection_task_count\x18\v \x01(\x04R\x1aflatnessDetectionTaskCount\x12A\n" +
+	"\x1dspalling_detection_task_count\x18\f \x01(\x04R\x1aspallingDetectionTaskCount\x12?\n" +
+	"\x1cdetection_summary_task_count\x18\r \x01(\x04R\x19detectionSummaryTaskCount\x12*\n" +
+	"\x11report_task_count\x18\x0e \x01(\x04R\x0freportTaskCount\x125\n" +
+	"\x17minio_bucket_used_bytes\x18\x0f \x01(\x04R\x14minioBucketUsedBytes\x127\n" +
+	"\x18minio_bucket_quota_bytes\x18\x10 \x01(\x04R\x15minioBucketQuotaBytes\x12?\n" +
+	"\x1cminio_bucket_remaining_bytes\x18\x11 \x01(\x04R\x19minioBucketRemainingBytes\x126\n" +
+	"\x17minio_storage_available\x18\x12 \x01(\bR\x15minioStorageAvailable\"\x15\n" +
 	"\x13ListProjectsRequest\"\xac\x01\n" +
 	"\x14ListProjectsResponse\x12F\n" +
 	"\x0factive_projects\x18\x01 \x03(\v2\x1d.icw.core.api.ProjectListItemR\x0eactiveProjects\x12L\n" +
@@ -428,28 +667,30 @@ func file_core_api_project_core_proto_rawDescGZIP() []byte {
 	return file_core_api_project_core_proto_rawDescData
 }
 
-var file_core_api_project_core_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_core_api_project_core_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_core_api_project_core_proto_goTypes = []any{
-	(*AdvanceProjectRequest)(nil),     // 0: icw.core.api.AdvanceProjectRequest
-	(*AdvanceProjectResponse)(nil),    // 1: icw.core.api.AdvanceProjectResponse
-	(*CreateProjectRequest)(nil),      // 2: icw.core.api.CreateProjectRequest
-	(*CreateProjectResponse)(nil),     // 3: icw.core.api.CreateProjectResponse
-	(*DeleteProjectRequest)(nil),      // 4: icw.core.api.DeleteProjectRequest
-	(*DeleteProjectResponse)(nil),     // 5: icw.core.api.DeleteProjectResponse
-	(*ListProjectsRequest)(nil),       // 6: icw.core.api.ListProjectsRequest
-	(*ListProjectsResponse)(nil),      // 7: icw.core.api.ListProjectsResponse
-	(common.ProjectProgress_Value)(0), // 8: icw.core.common.ProjectProgress.Value
-	(*Project)(nil),                   // 9: icw.core.api.Project
-	(*ProjectListItem)(nil),           // 10: icw.core.api.ProjectListItem
+	(*AdvanceProjectRequest)(nil),       // 0: icw.core.api.AdvanceProjectRequest
+	(*AdvanceProjectResponse)(nil),      // 1: icw.core.api.AdvanceProjectResponse
+	(*CreateProjectRequest)(nil),        // 2: icw.core.api.CreateProjectRequest
+	(*CreateProjectResponse)(nil),       // 3: icw.core.api.CreateProjectResponse
+	(*DeleteProjectRequest)(nil),        // 4: icw.core.api.DeleteProjectRequest
+	(*DeleteProjectResponse)(nil),       // 5: icw.core.api.DeleteProjectResponse
+	(*GetProjectDashboardRequest)(nil),  // 6: icw.core.api.GetProjectDashboardRequest
+	(*GetProjectDashboardResponse)(nil), // 7: icw.core.api.GetProjectDashboardResponse
+	(*ListProjectsRequest)(nil),         // 8: icw.core.api.ListProjectsRequest
+	(*ListProjectsResponse)(nil),        // 9: icw.core.api.ListProjectsResponse
+	(common.ProjectProgress_Value)(0),   // 10: icw.core.common.ProjectProgress.Value
+	(*Project)(nil),                     // 11: icw.core.api.Project
+	(*ProjectListItem)(nil),             // 12: icw.core.api.ProjectListItem
 }
 var file_core_api_project_core_proto_depIdxs = []int32{
-	8,  // 0: icw.core.api.AdvanceProjectRequest.from_progress:type_name -> icw.core.common.ProjectProgress.Value
-	8,  // 1: icw.core.api.AdvanceProjectRequest.to_progress:type_name -> icw.core.common.ProjectProgress.Value
-	9,  // 2: icw.core.api.CreateProjectResponse.project:type_name -> icw.core.api.Project
-	10, // 3: icw.core.api.DeleteProjectResponse.active_projects:type_name -> icw.core.api.ProjectListItem
-	10, // 4: icw.core.api.DeleteProjectResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
-	10, // 5: icw.core.api.ListProjectsResponse.active_projects:type_name -> icw.core.api.ProjectListItem
-	10, // 6: icw.core.api.ListProjectsResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
+	10, // 0: icw.core.api.AdvanceProjectRequest.from_progress:type_name -> icw.core.common.ProjectProgress.Value
+	10, // 1: icw.core.api.AdvanceProjectRequest.to_progress:type_name -> icw.core.common.ProjectProgress.Value
+	11, // 2: icw.core.api.CreateProjectResponse.project:type_name -> icw.core.api.Project
+	12, // 3: icw.core.api.DeleteProjectResponse.active_projects:type_name -> icw.core.api.ProjectListItem
+	12, // 4: icw.core.api.DeleteProjectResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
+	12, // 5: icw.core.api.ListProjectsResponse.active_projects:type_name -> icw.core.api.ProjectListItem
+	12, // 6: icw.core.api.ListProjectsResponse.completed_projects:type_name -> icw.core.api.ProjectListItem
 	7,  // [7:7] is the sub-list for method output_type
 	7,  // [7:7] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
@@ -469,7 +710,7 @@ func file_core_api_project_core_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_api_project_core_proto_rawDesc), len(file_core_api_project_core_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

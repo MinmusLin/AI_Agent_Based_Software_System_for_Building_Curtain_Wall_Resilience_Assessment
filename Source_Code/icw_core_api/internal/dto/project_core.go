@@ -28,6 +28,32 @@ func NewDeleteProjectResponse(resp *bizpb.DeleteProjectResponse) *apipb.DeletePr
 	}
 }
 
+func NewGetProjectDashboardResponse(resp *bizpb.GetProjectDashboardResponse) *apipb.GetProjectDashboardResponse {
+	if resp == nil {
+		return nil
+	}
+	return &apipb.GetProjectDashboardResponse{
+		ActiveProjectCount:          resp.ActiveProjectCount,
+		CompletedProjectCount:       resp.CompletedProjectCount,
+		TotalProjectCount:           resp.TotalProjectCount,
+		UploadedImageCount:          resp.UploadedImageCount,
+		ProjectGroupCount:           resp.ProjectGroupCount,
+		MinioObjectCount:            resp.MinioObjectCount,
+		DetectionTaskCount:          resp.DetectionTaskCount,
+		CorrosionDetectionTaskCount: resp.CorrosionDetectionTaskCount,
+		CrackDetectionTaskCount:     resp.CrackDetectionTaskCount,
+		StainDetectionTaskCount:     resp.StainDetectionTaskCount,
+		FlatnessDetectionTaskCount:  resp.FlatnessDetectionTaskCount,
+		SpallingDetectionTaskCount:  resp.SpallingDetectionTaskCount,
+		DetectionSummaryTaskCount:   resp.DetectionSummaryTaskCount,
+		ReportTaskCount:             resp.ReportTaskCount,
+		MinioBucketUsedBytes:        resp.MinioBucketUsedBytes,
+		MinioBucketQuotaBytes:       resp.MinioBucketQuotaBytes,
+		MinioBucketRemainingBytes:   resp.MinioBucketRemainingBytes,
+		MinioStorageAvailable:       resp.MinioStorageAvailable,
+	}
+}
+
 func NewListProjectsResponse(resp *bizpb.ListProjectsResponse) *apipb.ListProjectsResponse {
 	if resp == nil {
 		return nil

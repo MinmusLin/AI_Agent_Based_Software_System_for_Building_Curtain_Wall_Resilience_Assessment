@@ -15,3 +15,11 @@ message GetProjectReportRequest {
 message GetProjectReportResponse {
   .icw.core.common.ProjectReport report = 1;
 }
+
+// RetryProjectReport 请求结构体
+message RetryProjectReportRequest {
+  string project_id = 1;
+}
+
+// RetryProjectReport 响应结构体
+message RetryProjectReportResponse {}

@@ -13,3 +13,7 @@ func NewGetProjectReportResponse(resp *bizpb.GetProjectReportResponse) *apipb.Ge
 		Report: resp.Report,
 	}
 }
+
+func NewRetryProjectReportResponse(_ *bizpb.RetryProjectReportResponse) *apipb.RetryProjectReportResponse {
+	return &apipb.RetryProjectReportResponse{}
+}

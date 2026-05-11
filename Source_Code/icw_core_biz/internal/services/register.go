@@ -57,6 +57,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []rpc.ServiceMeta {
 				{Name: "CheckProjectAccess", Description: "校验项目访问权限"},
 				{Name: "CreateProject", Description: "创建项目"},
 				{Name: "DeleteProject", Description: "删除项目"},
+				{Name: "GetProjectDashboard", Description: "获取项目工作台统计"},
 				{Name: "ListProjects", Description: "获取项目列表"},
 			},
 		},
@@ -133,6 +134,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []rpc.ServiceMeta {
 			},
 			Methods: []rpc.MethodMeta{
 				{Name: "GetProjectReport", Description: "获取项目评估报告"},
+				{Name: "RetryProjectReport", Description: "重试项目评估报告生成"},
 				{Name: "ReportProjectSummaryResult", Description: "上报项目总结结果"},
 			},
 		},

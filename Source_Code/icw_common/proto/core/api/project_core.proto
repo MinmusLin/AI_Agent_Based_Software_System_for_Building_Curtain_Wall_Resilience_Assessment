@@ -36,6 +36,31 @@ message DeleteProjectResponse {
   repeated ProjectListItem completed_projects = 2;
 }
 
+// GetProjectDashboard 请求结构体
+message GetProjectDashboardRequest {}
+
+// GetProjectDashboard 响应结构体
+message GetProjectDashboardResponse {
+  uint64 active_project_count = 1;
+  uint64 completed_project_count = 2;
+  uint64 total_project_count = 3;
+  uint64 uploaded_image_count = 4;
+  uint64 project_group_count = 5;
+  uint64 minio_object_count = 6;
+  uint64 detection_task_count = 7;
+  uint64 corrosion_detection_task_count = 8;
+  uint64 crack_detection_task_count = 9;
+  uint64 stain_detection_task_count = 10;
+  uint64 flatness_detection_task_count = 11;
+  uint64 spalling_detection_task_count = 12;
+  uint64 detection_summary_task_count = 13;
+  uint64 report_task_count = 14;
+  uint64 minio_bucket_used_bytes = 15;
+  uint64 minio_bucket_quota_bytes = 16;
+  uint64 minio_bucket_remaining_bytes = 17;
+  bool minio_storage_available = 18;
+}
+
 // ListProjects 请求结构体
 message ListProjectsRequest {}
 

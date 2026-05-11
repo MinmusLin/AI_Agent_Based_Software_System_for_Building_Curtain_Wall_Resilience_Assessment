@@ -17,6 +17,15 @@ message GetProjectReportResponse {
   .icw.core.common.ProjectReport report = 1;
 }
 
+// RetryProjectReport 请求结构体
+message RetryProjectReportRequest {
+  uint64 user_id = 1;
+  uint64 project_id = 2;
+}
+
+// RetryProjectReport 响应结构体
+message RetryProjectReportResponse {}
+
 // ReportProjectSummaryResult 请求结构体
 message ReportProjectSummaryResultRequest {
   uint64 project_id = 1;
@@ -32,6 +41,8 @@ message ReportProjectSummaryResultResponse {}
 service ProjectReportService {
   // 获取项目评估报告
   rpc GetProjectReport(GetProjectReportRequest) returns (GetProjectReportResponse);
+  // 重试项目评估报告生成
+  rpc RetryProjectReport(RetryProjectReportRequest) returns (RetryProjectReportResponse);
   // 上报项目总结结果
   rpc ReportProjectSummaryResult(ReportProjectSummaryResultRequest) returns (ReportProjectSummaryResultResponse);
 }
