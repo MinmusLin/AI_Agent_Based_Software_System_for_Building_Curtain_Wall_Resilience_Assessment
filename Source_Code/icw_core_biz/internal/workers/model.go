@@ -27,12 +27,12 @@ type projectReportSourceImage struct {
 }
 
 type projectReportSourceDetection struct {
-	Corrosion        *projectReportSourceCorrosion        `json:"corrosion,omitempty"`
-	Crack            *projectReportSourceCrack            `json:"crack,omitempty"`
-	Stain            *projectReportSourceStain            `json:"stain,omitempty"`
-	Flatness         *projectReportSourceFlatness         `json:"flatness,omitempty"`
-	Spalling         *projectReportSourceSpalling         `json:"spalling,omitempty"`
-	DetectionSummary *projectReportSourceDetectionSummary `json:"detection_summary,omitempty"`
+	Corrosion *projectReportSourceCorrosion `json:"corrosion,omitempty"`
+	Crack     *projectReportSourceCrack     `json:"crack,omitempty"`
+	Stain     *projectReportSourceStain     `json:"stain,omitempty"`
+	Flatness  *projectReportSourceFlatness  `json:"flatness,omitempty"`
+	Spalling  *projectReportSourceSpalling  `json:"spalling,omitempty"`
+	Summary   *projectReportSourceSummary   `json:"summary,omitempty"`
 }
 
 type projectReportSourceReview struct {
@@ -111,6 +111,6 @@ type projectReportSourceSpalling struct {
 	Confidence  float64 `json:"confidence,omitempty"`
 }
 
-type projectReportSourceDetectionSummary struct {
+type projectReportSourceSummary struct {
 	Result string `json:"result,omitempty"`
 }

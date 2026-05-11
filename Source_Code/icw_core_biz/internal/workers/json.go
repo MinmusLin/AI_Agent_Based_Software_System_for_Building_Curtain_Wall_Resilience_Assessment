@@ -159,7 +159,7 @@ func (w *DetectionWorker) projectReportSourceDetection(ctx context.Context, task
 		}
 	}
 	if task.SummaryShouldExecute && task.SummaryTaskId.Valid {
-		detection.DetectionSummary, err = w.projectReportSourceDetectionSummary(ctx, uint64(task.SummaryTaskId.Int64))
+		detection.Summary, err = w.projectReportSourceSummary(ctx, uint64(task.SummaryTaskId.Int64))
 		if err != nil {
 			return nil, err
 		}
@@ -294,13 +294,13 @@ func (w *DetectionWorker) projectReportSourceSpalling(ctx context.Context, taskI
 	}, nil
 }
 
-// projectReportSourceDetectionSummary 构建项目评估报告图像总结原始数据
-func (w *DetectionWorker) projectReportSourceDetectionSummary(ctx context.Context, taskId uint64) (*projectReportSourceDetectionSummary, error) {
+// projectReportSourceSummary 构建项目评估报告图像总结原始数据
+func (w *DetectionWorker) projectReportSourceSummary(ctx context.Context, taskId uint64) (*projectReportSourceSummary, error) {
 	result, err := w.mysql.GetProjectDetectionSummaryTypedResult(ctx, taskId)
 	if err != nil || result == nil {
 		return nil, err
 	}
-	return &projectReportSourceDetectionSummary{
+	return &projectReportSourceSummary{
 		Result: result.Result,
 	}, nil
 }
