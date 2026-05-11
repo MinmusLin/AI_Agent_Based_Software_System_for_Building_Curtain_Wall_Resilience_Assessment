@@ -20,6 +20,8 @@ const BAR_MIN_PERCENT = 4;
 const BYTE_UNIT_BASE = 1024;
 const BYTE_UNIT_START_INDEX = 0;
 const BYTE_UNIT_LAST_INDEX_OFFSET = 1;
+const CHART_CARD_PADDING_X = 40;
+const CHART_CARD_PADDING_Y = 20;
 const DISPLAY_FRACTION_DIGITS = 2;
 const MINIO_REMAINING_COLOR = '#22C55E';
 const MINIO_USED_COLOR = '#2563EB';
@@ -33,6 +35,14 @@ const UNIT_INDEX_INCREMENT = 1;
 const ZERO_VALUE = 0;
 const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB'];
 const NUMBER_FORMATTER = new Intl.NumberFormat('zh-CN');
+const CHART_CARD_BODY_STYLE: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  minHeight: ZERO_VALUE,
+  padding: `${String(CHART_CARD_PADDING_Y)}px ${String(CHART_CARD_PADDING_X)}px`,
+  width: '100%',
+};
 
 interface TopMetric {
   icon: ReactNode;
@@ -219,7 +229,10 @@ function DashboardSkeleton(): ReactElement {
         ))}
       </div>
       <div className="grid min-h-[28rem] flex-1 grid-cols-1 gap-4 lg:min-h-0 lg:grid-cols-2">
-        <Card className="h-full min-h-[28rem] border-slate-200 shadow-none lg:min-h-0 [&_.ant-card-body]:flex [&_.ant-card-body]:h-full [&_.ant-card-body]:min-h-0 [&_.ant-card-body]:flex-col [&_.ant-card-body]:px-8 [&_.ant-card-body]:py-5">
+        <Card
+          className="h-full min-h-[28rem] border-slate-200 shadow-none lg:min-h-0"
+          styles={{ body: CHART_CARD_BODY_STYLE }}
+        >
           <div className="flex h-10 shrink-0 justify-center">
             <SkeletonBar className="h-5 w-32" />
           </div>
@@ -229,7 +242,10 @@ function DashboardSkeleton(): ReactElement {
             ))}
           </div>
         </Card>
-        <Card className="h-full min-h-[28rem] border-slate-200 shadow-none lg:min-h-0 [&_.ant-card-body]:flex [&_.ant-card-body]:h-full [&_.ant-card-body]:min-h-0 [&_.ant-card-body]:flex-col [&_.ant-card-body]:px-8 [&_.ant-card-body]:py-5">
+        <Card
+          className="h-full min-h-[28rem] border-slate-200 shadow-none lg:min-h-0"
+          styles={{ body: CHART_CARD_BODY_STYLE }}
+        >
           <div className="flex h-10 shrink-0 justify-center">
             <SkeletonBar className="h-5 w-36" />
           </div>
@@ -264,7 +280,10 @@ function TopMetricCard({ metric }: { metric: TopMetric }): ReactElement {
 function DetectionBarChart({ metrics }: { metrics: BarMetric[] }): ReactElement {
   const maxValue = Math.max(...metrics.map((metric) => metric.value));
   return (
-    <Card className="h-full min-h-[28rem] overflow-hidden border-slate-200 shadow-none lg:min-h-0 [&_.ant-card-body]:flex [&_.ant-card-body]:h-full [&_.ant-card-body]:min-h-0 [&_.ant-card-body]:w-full [&_.ant-card-body]:flex-col [&_.ant-card-body]:px-8 [&_.ant-card-body]:py-5">
+    <Card
+      className="h-full min-h-[28rem] overflow-hidden border-slate-200 shadow-none lg:min-h-0"
+      styles={{ body: CHART_CARD_BODY_STYLE }}
+    >
       <ChartTitle icon={<BarChartOutlined className="text-blue-600" />} title="检测任务执行概览" />
       <div className="flex min-h-0 w-full flex-1 flex-col justify-evenly py-2">
         {metrics.map((metric) => {
@@ -306,7 +325,10 @@ function MinioStorageChart({ data }: { data: GetProjectDashboardResponse }): Rea
       : 'Bucket 未配置固定配额，剩余空间按对象存储当前可用容量展示';
 
   return (
-    <Card className="h-full min-h-[28rem] overflow-hidden border-slate-200 shadow-none lg:min-h-0 [&_.ant-card-body]:flex [&_.ant-card-body]:h-full [&_.ant-card-body]:min-h-0 [&_.ant-card-body]:w-full [&_.ant-card-body]:flex-col [&_.ant-card-body]:px-8 [&_.ant-card-body]:py-5">
+    <Card
+      className="h-full min-h-[28rem] overflow-hidden border-slate-200 shadow-none lg:min-h-0"
+      styles={{ body: CHART_CARD_BODY_STYLE }}
+    >
       <ChartTitle icon={<DatabaseOutlined className="text-blue-600" />} title="对象存储容量概览" />
       {data.minio_storage_available && total > ZERO_VALUE ? (
         <>
