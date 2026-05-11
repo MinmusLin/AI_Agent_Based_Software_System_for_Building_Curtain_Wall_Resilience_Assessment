@@ -223,7 +223,7 @@ func (w *DetectionWorker) StartDetectionSummaryTask(ctx context.Context, task *m
 	task = startedTask
 	summaryTask = startedSummaryTask
 	w.publishNode(ctx, task, enum.DetectionNodeCodeString(commonpb.DetectionNodeCode_Summary), summaryTask.Uuid, events.DetectionNodeStatusPending)
-	sourceJSON, err := w.detectionSummaryReportJSON(ctx, task)
+	sourceJSON, err := w.projectDetectionSourceJSON(ctx, task)
 	if err != nil {
 		w.failDetectionSummaryTask(ctx, summaryTask.Uuid)
 		return
@@ -239,8 +239,8 @@ func (w *DetectionWorker) StartDetectionSummaryTask(ctx context.Context, task *m
 	}
 }
 
-// detectionSummaryReportJSON 构建图像检测总结任务原始数据 JSON
-func (w *DetectionWorker) detectionSummaryReportJSON(ctx context.Context, task *model.ProjectDetectionTaskRecord) (string, error) {
+// projectDetectionSourceJSON 构建图像检测总结任务原始数据 JSON
+func (w *DetectionWorker) projectDetectionSourceJSON(ctx context.Context, task *model.ProjectDetectionTaskRecord) (string, error) {
 	reports := map[string]string{}
 	checks := []struct {
 		taskCode      string
