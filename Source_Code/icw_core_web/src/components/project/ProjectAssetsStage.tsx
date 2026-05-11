@@ -55,6 +55,7 @@ export function ProjectAssetsStage({
     handleDeleteGroup,
     handleDeleteImage,
     handleUploadFiles,
+    initialAssetsLoading,
     loadAssets,
     readOnly,
     saveEditingGroup,
@@ -140,6 +141,7 @@ export function ProjectAssetsStage({
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">
       {contextHolder}
       <ProjectAssessToolbar
+        actionsHidden={loading || initialAssetsLoading}
         advancing={advancing}
         assetsLoading={assetsLoading}
         batchDeleting={batchDeleting}

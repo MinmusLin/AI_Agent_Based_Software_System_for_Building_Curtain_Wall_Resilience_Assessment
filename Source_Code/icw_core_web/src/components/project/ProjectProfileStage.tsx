@@ -383,9 +383,9 @@ export function ProjectProfileStage({
   const hasBuiltYear = form.builtYear > EMPTY_BUILT_YEAR;
   const builtYearText = hasBuiltYear ? `${String(form.builtYear)} 年` : '';
   const canComplete =
-    loading ||
-    (project.progress === ProjectProgress_Value.InitializationFinished &&
-      selectedProgress === ProjectProgress_Value.InitializationFinished);
+    !loading &&
+    project.progress === ProjectProgress_Value.InitializationFinished &&
+    selectedProgress === ProjectProgress_Value.InitializationFinished;
 
   const updateFormField = useCallback(
     <Key extends keyof ProfileFormState>(key: Key, value: ProfileFormState[Key]): void => {
@@ -585,16 +585,11 @@ export function ProjectProfileStage({
       </div>
       {canComplete ? (
         <div className="mt-5 flex justify-end gap-3">
-          <Button
-            disabled={loading || advancing}
-            icon={<SaveOutlined />}
-            loading={saving}
-            onClick={() => void handleSave()}
-          >
+          <Button disabled={advancing} icon={<SaveOutlined />} loading={saving} onClick={() => void handleSave()}>
             保存
           </Button>
           <Button
-            disabled={loading || saving}
+            disabled={saving}
             icon={<StepForwardOutlined />}
             loading={advancing}
             onClick={() => void handleComplete()}

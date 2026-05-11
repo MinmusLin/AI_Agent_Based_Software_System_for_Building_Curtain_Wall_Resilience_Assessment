@@ -19,6 +19,14 @@ interface ProjectDetectionImageCardProps {
   task: ProjectDetectionStatus | undefined;
 }
 
+interface DetectionCardActionsProps {
+  imageUuid: string;
+  onOpenImageViewer: (imageUuid: string) => void;
+  onOpenProgressViewer: (imageUuid: string) => void;
+  shouldOpenProgress: boolean;
+  succeeded: boolean;
+}
+
 function ImageUnavailableIcon(): ReactElement {
   return (
     <span className="relative inline-flex size-8 items-center justify-center text-slate-400">
@@ -45,6 +53,62 @@ function DetectionProgressBar({ task }: { task: ProjectDetectionStatus }): React
   );
 }
 
+function DetectionCardActions({
+  imageUuid,
+  onOpenImageViewer,
+  onOpenProgressViewer,
+  shouldOpenProgress,
+  succeeded,
+}: DetectionCardActionsProps): ReactElement {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center gap-2 bg-slate-950/0 opacity-0 transition duration-200 group-hover/image:bg-slate-950/35 group-hover/image:opacity-100">
+      {succeeded ? (
+        <Tooltip title="查看进度">
+          <Button
+            aria-label="查看进度"
+            icon={<FundProjectionScreenOutlined />}
+            onClick={() => {
+              onOpenProgressViewer(imageUuid);
+            }}
+            shape="circle"
+            size="small"
+          />
+        </Tooltip>
+      ) : null}
+      {!succeeded ? (
+        <Tooltip title={shouldOpenProgress ? '查看进度' : '查看结果'}>
+          <Button
+            aria-label={shouldOpenProgress ? '查看进度' : '查看结果'}
+            icon={shouldOpenProgress ? <FundProjectionScreenOutlined /> : <EyeOutlined />}
+            onClick={() => {
+              if (shouldOpenProgress) {
+                onOpenProgressViewer(imageUuid);
+                return;
+              }
+              onOpenImageViewer(imageUuid);
+            }}
+            shape="circle"
+            size="small"
+          />
+        </Tooltip>
+      ) : null}
+      {succeeded ? (
+        <Tooltip title="查看结果">
+          <Button
+            aria-label="查看结果"
+            icon={<EyeOutlined />}
+            onClick={() => {
+              onOpenImageViewer(imageUuid);
+            }}
+            shape="circle"
+            size="small"
+          />
+        </Tooltip>
+      ) : null}
+    </div>
+  );
+}
+
 export function ProjectDetectionImageCard({
   image,
   onOpenImageViewer,
@@ -54,6 +118,7 @@ export function ProjectDetectionImageCard({
   const imageReady = image.status === ProjectImageStatus_Value.Uploaded && image.thumbnail_url !== '';
   const running = isDetectionTaskRunning(task);
   const failed = task?.main_status === ProjectDetectionTaskStatus_Value.Failed;
+  const succeeded = isDetectionTaskSucceeded(task);
   const shouldOpenProgress = task !== undefined && !isDetectionTaskSucceeded(task);
   const actionVisible = imageReady && !running && !failed && task !== undefined;
 
@@ -104,30 +169,19 @@ export function ProjectDetectionImageCard({
                 }}
                 shape="circle"
                 size="small"
-                type="primary"
               />
             </Tooltip>
           </div>
         </>
       ) : null}
       {actionVisible ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/0 opacity-0 transition duration-200 group-hover/image:bg-slate-950/35 group-hover/image:opacity-100">
-          <Tooltip title={shouldOpenProgress ? '查看进度' : '查看结果'}>
-            <Button
-              aria-label={shouldOpenProgress ? '查看进度' : '查看结果'}
-              icon={shouldOpenProgress ? <FundProjectionScreenOutlined /> : <EyeOutlined />}
-              onClick={() => {
-                if (shouldOpenProgress) {
-                  onOpenProgressViewer(image.uuid);
-                  return;
-                }
-                onOpenImageViewer(image.uuid);
-              }}
-              shape="circle"
-              size="small"
-            />
-          </Tooltip>
-        </div>
+        <DetectionCardActions
+          imageUuid={image.uuid}
+          onOpenImageViewer={onOpenImageViewer}
+          onOpenProgressViewer={onOpenProgressViewer}
+          shouldOpenProgress={shouldOpenProgress}
+          succeeded={succeeded}
+        />
       ) : null}
     </div>
   );

@@ -12,6 +12,7 @@ import type { ReactElement } from 'react';
 import { EMPTY_ITEMS_COUNT } from '@/utils/assetsStage';
 
 interface ProjectDetectionToolbarProps {
+  actionsHidden: boolean;
   advancing: boolean;
   canComplete: boolean;
   canRetry: boolean;
@@ -25,6 +26,7 @@ interface ProjectDetectionToolbarProps {
   onRefresh: () => void;
   onRetry: () => void;
   onStart: () => void;
+  readOnly: boolean;
   retrying: boolean;
   runningTaskCount: number;
   showComplete: boolean;
@@ -43,11 +45,11 @@ interface ProjectDetectionStatusTagsProps {
 }
 
 interface ProjectDetectionPrimaryActionProps {
+  actionBusy: boolean;
   advancing: boolean;
   canComplete: boolean;
   canRetry: boolean;
   canStart: boolean;
-  loading: boolean;
   onComplete: () => void;
   onRetry: () => void;
   onStart: () => void;
@@ -59,6 +61,7 @@ interface ProjectDetectionPrimaryActionProps {
 }
 
 export function ProjectDetectionToolbar({
+  actionsHidden,
   advancing,
   canComplete,
   canRetry,
@@ -72,6 +75,7 @@ export function ProjectDetectionToolbar({
   onRefresh,
   onRetry,
   onStart,
+  readOnly,
   retrying,
   runningTaskCount,
   showComplete,
@@ -80,6 +84,8 @@ export function ProjectDetectionToolbar({
   starting,
   totalImageCount,
 }: ProjectDetectionToolbarProps): ReactElement {
+  const actionBusy = loading || starting || retrying || advancing;
+
   return (
     <div className="mb-4 flex items-center justify-between gap-4">
       <div>
@@ -94,45 +100,51 @@ export function ProjectDetectionToolbar({
           />
         </div>
         <p className="mt-1 text-sm text-slate-500">
-          由 Agent 完成幕墙材质分类，按需调用基于 CV 算法和 DL 模型的原子检测能力，并汇总生成图像级 LLM 总结
+          由 Agent 自主按需调度基于计算机视觉算法和深度学习模型的原子检测能力，汇总生成图像级 LLM 总结
         </p>
       </div>
-      <div className="flex shrink-0 items-center gap-3">
-        <Button disabled={loading} icon={<MenuFoldOutlined />} onClick={onCollapseAllGroups}>
-          全部收起
-        </Button>
-        <Button disabled={loading} icon={<MenuUnfoldOutlined />} onClick={onExpandAllGroups}>
-          全部展开
-        </Button>
-        <Button disabled={loading || starting || retrying} icon={<ReloadOutlined />} onClick={onRefresh}>
-          刷新
-        </Button>
-        <ProjectDetectionPrimaryAction
-          advancing={advancing}
-          canComplete={canComplete}
-          canRetry={canRetry}
-          canStart={canStart}
-          loading={loading}
-          onComplete={onComplete}
-          onRetry={onRetry}
-          onStart={onStart}
-          retrying={retrying}
-          showComplete={showComplete}
-          showRetry={showRetry}
-          showStart={showStart}
-          starting={starting}
-        />
-      </div>
+      {actionsHidden ? null : (
+        <div className="flex shrink-0 items-center gap-3">
+          <Button icon={<MenuFoldOutlined />} onClick={onCollapseAllGroups}>
+            全部收起
+          </Button>
+          <Button icon={<MenuUnfoldOutlined />} onClick={onExpandAllGroups}>
+            全部展开
+          </Button>
+          {readOnly ? null : (
+            <>
+              <Button disabled={actionBusy} icon={<ReloadOutlined />} onClick={onRefresh}>
+                刷新
+              </Button>
+              <ProjectDetectionPrimaryAction
+                actionBusy={actionBusy}
+                advancing={advancing}
+                canComplete={canComplete}
+                canRetry={canRetry}
+                canStart={canStart}
+                onComplete={onComplete}
+                onRetry={onRetry}
+                onStart={onStart}
+                retrying={retrying}
+                showComplete={showComplete}
+                showRetry={showRetry}
+                showStart={showStart}
+                starting={starting}
+              />
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
 function ProjectDetectionPrimaryAction({
+  actionBusy,
   advancing,
   canComplete,
   canRetry,
   canStart,
-  loading,
   onComplete,
   onRetry,
   onStart,
@@ -144,13 +156,7 @@ function ProjectDetectionPrimaryAction({
 }: ProjectDetectionPrimaryActionProps): ReactElement | null {
   if (showRetry) {
     return (
-      <Button
-        danger
-        disabled={!canRetry || loading || starting}
-        icon={<RetweetOutlined />}
-        loading={retrying}
-        onClick={onRetry}
-      >
+      <Button danger disabled={!canRetry || actionBusy} icon={<RetweetOutlined />} loading={retrying} onClick={onRetry}>
         失败重试
       </Button>
     );
@@ -159,7 +165,7 @@ function ProjectDetectionPrimaryAction({
   if (showStart) {
     return (
       <Button
-        disabled={!canStart || loading || retrying}
+        disabled={!canStart || actionBusy}
         icon={<PlayCircleOutlined />}
         loading={starting}
         onClick={onStart}
@@ -173,7 +179,7 @@ function ProjectDetectionPrimaryAction({
   if (showComplete) {
     return (
       <Button
-        disabled={!canComplete || loading || starting || retrying}
+        disabled={!canComplete || actionBusy}
         icon={<StepForwardOutlined />}
         loading={advancing}
         onClick={onComplete}

@@ -17,6 +17,7 @@ import {
   OriginalInfoTab,
   type ProjectDetectionReviewProps,
   ReviewPanel,
+  ReviewPanelPlaceholder,
   SUMMARY_TAB,
 } from './ProjectDetectionResultViewerParts';
 import { SummaryResultTab } from './ProjectDetectionSummaryResultTab';
@@ -85,9 +86,12 @@ export function ProjectDetectionResultViewer({
   if (loading) {
     return (
       <Modal centered footer={null} onCancel={onClose} open={open} title={<ModalTitle text={title} />} width={1040}>
-        <div className="flex h-[520px] flex-col items-center justify-center gap-3 text-sm text-slate-500">
-          <Spin />
-          <div>正在加载检测结果</div>
+        <div>
+          <div className="flex h-[520px] flex-col items-center justify-center gap-3 text-sm text-slate-500">
+            <Spin />
+            <div>正在加载检测结果</div>
+          </div>
+          {review?.enabled ? <ReviewPanelPlaceholder /> : null}
         </div>
       </Modal>
     );

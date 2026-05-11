@@ -1,5 +1,5 @@
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { Button, Input, Spin } from 'antd';
+import { DislikeOutlined, LeftOutlined, LikeOutlined, RightOutlined, RobotOutlined } from '@ant-design/icons';
+import { Button, Input, Space, Spin } from 'antd';
 import type { ReactElement } from 'react';
 
 import type {
@@ -23,9 +23,11 @@ const BUTTON_TYPE_DEFAULT = 'default';
 const BUTTON_TYPE_PRIMARY = 'primary';
 const DETECTION_DATA_PAGE_INDEX = 0;
 const DEFAULT_DECIMAL_PLACES = 6;
+const INACCURATE_BUTTON_HOVER_CLASS_NAME = 'hover:!border-red-500 hover:!text-red-500';
 const KILOBYTE_DECIMAL_PLACES = 0;
 const JSON_FORMAT_INDENT = 2;
 const MAX_PERCENT_DECIMAL_PLACES = 4;
+const MAX_REVIEW_COMMENT_LENGTH = 500;
 const PERCENT_RATIO_BASE = 100;
 const RUNTIME_DECIMAL_PLACES = 2;
 const RATIO_FIELD_PATTERN = /(^|_)ratio$/u;
@@ -715,36 +717,60 @@ export function ReviewPanel({ review }: { review: ProjectDetectionReviewProps })
     { label: '准确', value: ProjectDetectionReviewVerdict_Value.Accurate },
     { label: '不准确', value: ProjectDetectionReviewVerdict_Value.Inaccurate },
   ];
+  const accurateSelected = review.verdict === ProjectDetectionReviewVerdict_Value.Accurate;
+  const inaccurateSelected = review.verdict === ProjectDetectionReviewVerdict_Value.Inaccurate;
 
   return (
-    <div className="mt-4 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <div className="mt-4 flex items-center gap-3">
       <div className="flex shrink-0 items-center gap-2">
-        <span className="text-sm font-medium text-slate-900">你认为 Agent 结果</span>
-        {reviewOptions.map((option) => (
-          <Button
-            disabled={review.saving}
-            key={option.value}
-            onClick={() => {
-              review.onVerdictChange(
-                review.verdict === option.value ? ProjectDetectionReviewVerdict_Value.Unknown : option.value,
-              );
-            }}
-            type={review.verdict === option.value ? BUTTON_TYPE_PRIMARY : BUTTON_TYPE_DEFAULT}
-          >
-            {option.label}
-          </Button>
-        ))}
+        <RobotOutlined className="text-[#1677FF]" />
+        <span className="text-sm font-medium text-slate-900">你认为 Agent 智能检测结果</span>
       </div>
+      <Space.Compact>
+        {reviewOptions.map((option) => {
+          const selected = review.verdict === option.value;
+          return (
+            <Button
+              className={
+                option.value === ProjectDetectionReviewVerdict_Value.Inaccurate
+                  ? INACCURATE_BUTTON_HOVER_CLASS_NAME
+                  : undefined
+              }
+              danger={option.value === ProjectDetectionReviewVerdict_Value.Inaccurate && inaccurateSelected}
+              disabled={review.saving}
+              icon={
+                option.value === ProjectDetectionReviewVerdict_Value.Accurate ? <LikeOutlined /> : <DislikeOutlined />
+              }
+              key={option.value}
+              onClick={() => {
+                review.onVerdictChange(selected ? ProjectDetectionReviewVerdict_Value.Unknown : option.value);
+              }}
+              type={
+                selected || (option.value === ProjectDetectionReviewVerdict_Value.Accurate && accurateSelected)
+                  ? BUTTON_TYPE_PRIMARY
+                  : BUTTON_TYPE_DEFAULT
+              }
+            >
+              {option.label}
+            </Button>
+          );
+        })}
+      </Space.Compact>
       <Input
         className="min-w-0 flex-1"
         disabled={review.saving}
+        maxLength={MAX_REVIEW_COMMENT_LENGTH}
         onBlur={review.onSave}
         onChange={(event) => {
           review.onCommentChange(event.target.value);
         }}
-        placeholder="如需补充说明，可在此输入"
+        placeholder="在此补充评论与修正，为最终评估引入专家判断"
         value={review.comment}
       />
     </div>
   );
+}
+
+export function ReviewPanelPlaceholder(): ReactElement {
+  return <div aria-hidden="true" className="mt-4 min-h-8" />;
 }

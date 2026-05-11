@@ -38,6 +38,7 @@ interface ReasoningNodeMeta {
 
 const EMPTY_NODE_COUNT = 0;
 const EMPTY_TASK_UUID = '';
+const TASK_UUID_TOOLTIP_MAX_WIDTH = 'none';
 
 const REASONING_NODES: ReasoningNodeMeta[] = [
   { label: '金属锈蚀', nodeCode: reasoningDetectionNodeCode(DetectionTaskCode_Value.Corrosion) },
@@ -200,7 +201,7 @@ function summaryStatus(
 }
 
 function taskUuidTooltip(taskUuid: string | undefined): string {
-  return taskUuid && taskUuid !== EMPTY_TASK_UUID ? `任务 ID：${taskUuid}` : '暂无任务 ID';
+  return taskUuid && taskUuid !== EMPTY_TASK_UUID ? `任务 ID：${taskUuid}` : '任务 ID：暂无';
 }
 
 function FlowNode({
@@ -224,7 +225,24 @@ function FlowNode({
   if (taskUuid === undefined) {
     return node;
   }
-  return <Tooltip title={taskUuidTooltip(taskUuid)}>{node}</Tooltip>;
+  return (
+    <Tooltip
+      styles={{
+        body: {
+          maxWidth: TASK_UUID_TOOLTIP_MAX_WIDTH,
+          whiteSpace: 'nowrap',
+          width: 'max-content',
+        },
+        root: {
+          maxWidth: TASK_UUID_TOOLTIP_MAX_WIDTH,
+          width: 'max-content',
+        },
+      }}
+      title={taskUuidTooltip(taskUuid)}
+    >
+      {node}
+    </Tooltip>
+  );
 }
 
 function Connector(): ReactElement {
@@ -250,7 +268,7 @@ export function ProjectDetectionProgressViewer({
     <Modal centered footer={null} onCancel={onClose} open={open} title="检测进度" width={980}>
       {task ? (
         <div className="space-y-5">
-          <div className="mb-8">
+          <div className="mb-6">
             <Progress
               percent={progressPercent}
               status={task.main_status === ProjectDetectionTaskStatus_Value.Failed ? 'exception' : 'active'}
@@ -259,11 +277,7 @@ export function ProjectDetectionProgressViewer({
           <div className="flex items-center gap-3">
             <FlowNode label="开始" status={DETECTION_PROGRESS_NODE_STATUS_SUCCEEDED} />
             <Connector />
-            <FlowNode
-              label="材质分类"
-              status={currentClassificationStatus}
-              taskUuid={task.classification_status?.sub_task_uuid ?? task.main_task_uuid}
-            />
+            <FlowNode label="材质分类" status={currentClassificationStatus} taskUuid={task.main_task_uuid} />
             <Connector />
             <FlowNode label="原子检测" status={currentReasoningStatus} />
             <Connector />

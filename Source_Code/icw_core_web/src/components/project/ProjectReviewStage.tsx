@@ -9,6 +9,7 @@ import { advanceProject } from '@/api/project/core';
 import { getImageDetectionResult, getProjectDetectionTasks } from '@/api/project/detection';
 import { getProjectDetectionReview, updateProjectDetectionReview } from '@/api/project/review';
 import { ProjectDetectionGroup } from '@/components/project/detection/ProjectDetectionGroup';
+import { ProjectDetectionProgressViewer } from '@/components/project/detection/ProjectDetectionProgressViewer';
 import { ProjectDetectionResultViewer } from '@/components/project/detection/ProjectDetectionResultViewer';
 import type { Project, ProjectGroup } from '@/gen/core/api/common';
 import type { GetImageDetectionResultResponse } from '@/gen/core/api/project_detection';
@@ -27,6 +28,10 @@ interface ProjectReviewStageProps {
   projectId: string;
 }
 
+interface RefreshOptions {
+  initial?: boolean;
+}
+
 export function ProjectReviewStage({
   loading = false,
   onProgressChange,
@@ -39,11 +44,13 @@ export function ProjectReviewStage({
   const [taskMap, setTaskMap] = useState<ProjectDetectionStatusMap>({});
   const [assetsLoading, setAssetsLoading] = useState(true);
   const [detectionLoading, setDetectionLoading] = useState(true);
+  const [initialPageLoading, setInitialPageLoading] = useState(true);
   const [advancing, setAdvancing] = useState(false);
   const [collapsedGroupIds, setCollapsedGroupIds] = useState<Set<string>>(() => new Set());
   const [viewerImageUuid, setViewerImageUuid] = useState<string | null>(null);
   const [viewerLoading, setViewerLoading] = useState(false);
   const [viewerResult, setViewerResult] = useState<GetImageDetectionResultResponse | null>(null);
+  const [progressImageUuid, setProgressImageUuid] = useState<string | null>(null);
   const [reviewComment, setReviewComment] = useState('');
   const [reviewVerdict, setReviewVerdict] = useState<ProjectDetectionReviewVerdict_Value>(
     ProjectDetectionReviewVerdict_Value.Unknown,
@@ -87,15 +94,24 @@ export function ProjectReviewStage({
     }
   }, [projectId, showError]);
 
-  const refreshPage = useCallback(async (): Promise<void> => {
-    await Promise.all([loadAssets(), loadDetectionTasks()]);
-  }, [loadAssets, loadDetectionTasks]);
+  const refreshPage = useCallback(
+    async (options: RefreshOptions = {}): Promise<void> => {
+      try {
+        await Promise.all([loadAssets(), loadDetectionTasks()]);
+      } finally {
+        if (options.initial) {
+          setInitialPageLoading(false);
+        }
+      }
+    },
+    [loadAssets, loadDetectionTasks],
+  );
 
   useEffect(() => {
     if (loading) {
       return;
     }
-    void refreshPage();
+    void refreshPage({ initial: true });
   }, [loading, refreshPage]);
 
   const uploadedImages = useMemo(() => flattenUploadedImages(groups), [groups]);
@@ -105,6 +121,7 @@ export function ProjectReviewStage({
     }
     return uploadedImages.findIndex((item) => item.image.uuid === viewerImageUuid);
   }, [uploadedImages, viewerImageUuid]);
+  const progressTask = progressImageUuid ? taskMap[progressImageUuid] : undefined;
 
   const openReviewViewer = useCallback(
     async (imageUuid: string): Promise<void> => {
@@ -196,6 +213,7 @@ export function ProjectReviewStage({
   }, []);
 
   const pageLoading = loading || assetsLoading || detectionLoading;
+  const actionsHidden = loading || initialPageLoading;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">
@@ -210,40 +228,42 @@ export function ProjectReviewStage({
               </span>
             ) : null}
           </div>
-          <p className="mt-1 text-sm text-slate-500">复核智能检测结果，按需补充评论并标记结果是否准确。</p>
+          <p className="mt-1 text-sm text-slate-500">
+            复核 Agent 智能检测结果，引入专家判断，按需补充评论并标记检测结果是否准确
+          </p>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
-          <Button
-            disabled={pageLoading}
-            icon={<MenuFoldOutlined />}
-            onClick={() => {
-              setCollapsedGroupIds(new Set(groups.map((group) => group.id)));
-            }}
-          >
-            全部收起
-          </Button>
-          <Button
-            disabled={pageLoading}
-            icon={<MenuUnfoldOutlined />}
-            onClick={() => {
-              setCollapsedGroupIds(new Set());
-            }}
-          >
-            全部展开
-          </Button>
-          <Button disabled={pageLoading} icon={<ReloadOutlined />} onClick={() => void refreshPage()}>
-            刷新
-          </Button>
-          <Button
-            disabled={pageLoading}
-            icon={<StepForwardOutlined />}
-            loading={advancing}
-            onClick={() => void handleComplete()}
-            type="primary"
-          >
-            完成并进入下一步
-          </Button>
-        </div>
+        {actionsHidden ? null : (
+          <div className="flex shrink-0 items-center gap-3">
+            <Button
+              icon={<MenuFoldOutlined />}
+              onClick={() => {
+                setCollapsedGroupIds(new Set(groups.map((group) => group.id)));
+              }}
+            >
+              全部收起
+            </Button>
+            <Button
+              icon={<MenuUnfoldOutlined />}
+              onClick={() => {
+                setCollapsedGroupIds(new Set());
+              }}
+            >
+              全部展开
+            </Button>
+            <Button disabled={pageLoading || advancing} icon={<ReloadOutlined />} onClick={() => void refreshPage()}>
+              刷新
+            </Button>
+            <Button
+              disabled={pageLoading}
+              icon={<StepForwardOutlined />}
+              loading={advancing}
+              onClick={() => void handleComplete()}
+              type="primary"
+            >
+              完成并进入下一步
+            </Button>
+          </div>
+        )}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto pr-1">
         {pageLoading ? (
@@ -266,9 +286,7 @@ export function ProjectReviewStage({
                 onOpenImageViewer={(imageUuid) => {
                   void openReviewViewer(imageUuid);
                 }}
-                onOpenProgressViewer={(imageUuid) => {
-                  void openReviewViewer(imageUuid);
-                }}
+                onOpenProgressViewer={setProgressImageUuid}
                 onToggleCollapsed={handleToggleCollapsed}
                 taskMap={taskMap}
               />
@@ -303,6 +321,13 @@ export function ProjectReviewStage({
         }}
         uploadedImages={uploadedImages}
         viewerIndex={viewerIndex}
+      />
+      <ProjectDetectionProgressViewer
+        onClose={() => {
+          setProgressImageUuid(null);
+        }}
+        open={progressImageUuid !== null && progressTask !== undefined}
+        task={progressTask}
       />
     </div>
   );

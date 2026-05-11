@@ -85,7 +85,7 @@ export const PROJECT_STAGES: ProjectStageMeta[] = [
   },
   {
     title: 'Agent 智能检测',
-    description: 'AI Agent 批量调用建筑材料分类与多维度缺陷检测能力，持续生成图像级指标、掩码和结构化检测结果',
+    description: 'AI Agent 自主批量调用建筑材料分类与多维度缺陷检测能力，持续生成图像级指标、掩码和结构化检测结果',
   },
   {
     title: '人工复核确认',

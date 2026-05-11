@@ -18,6 +18,7 @@ import { EMPTY_ITEMS_COUNT } from '@/utils/assetsStage';
 interface ProjectAssessToolbarProps {
   advancing: boolean;
   assetsLoading: boolean;
+  actionsHidden: boolean;
   batchDeleting: boolean;
   batchMode: boolean;
   batchMoveDisabled: boolean;
@@ -67,6 +68,7 @@ interface ProjectAssessBatchActionsProps {
 export function ProjectAssessToolbar({
   advancing,
   assetsLoading,
+  actionsHidden,
   batchDeleting,
   batchMode,
   batchMoveDisabled,
@@ -106,59 +108,61 @@ export function ProjectAssessToolbar({
         </div>
         <p className="mt-1 text-sm text-slate-500">按建筑立面或区域组织幕墙图像，上传完成后执行 Agent 智能检测</p>
       </div>
-      <div className="flex shrink-0 items-center gap-3">
-        <ProjectAssessBatchActions
-          actionBusy={actionBusy}
-          batchDeleting={batchDeleting}
-          batchMode={batchMode}
-          batchMoveDisabled={batchMoveDisabled}
-          batchMoveMenuItems={batchMoveMenuItems}
-          batchMoving={batchMoving}
-          hasSelectedImages={hasSelectedImages}
-          onBatchDeleteImages={onBatchDeleteImages}
-          onBatchMoveImages={onBatchMoveImages}
-          onCollapseAllGroups={onCollapseAllGroups}
-          onExpandAllGroups={onExpandAllGroups}
-          readOnly={readOnly}
-        />
-        {!readOnly && batchMode ? (
-          <Button disabled={actionBusy} icon={<CloseOutlined />} onClick={onBatchModeToggle}>
-            退出批量
-          </Button>
-        ) : null}
-        {!readOnly && !batchMode ? (
-          <Button disabled={actionBusy} icon={<CopyOutlined />} onClick={onBatchModeToggle}>
-            批量操作
-          </Button>
-        ) : null}
-        {!readOnly ? (
-          <Button disabled={actionBusy} icon={<ReloadOutlined />} onClick={onRefresh}>
-            刷新
-          </Button>
-        ) : null}
-        {!readOnly ? (
-          <Button
-            disabled={actionBusy}
-            icon={<PlusOutlined />}
-            loading={creatingGroup}
-            onClick={onCreateGroup}
-            type="primary"
-          >
-            新建图像组
-          </Button>
-        ) : null}
-        {canComplete ? (
-          <Button
-            disabled={actionBusy}
-            icon={<StepForwardOutlined />}
-            loading={advancing}
-            onClick={onComplete}
-            type="primary"
-          >
-            完成并进入下一步
-          </Button>
-        ) : null}
-      </div>
+      {actionsHidden ? null : (
+        <div className="flex shrink-0 items-center gap-3">
+          <ProjectAssessBatchActions
+            actionBusy={actionBusy}
+            batchDeleting={batchDeleting}
+            batchMode={batchMode}
+            batchMoveDisabled={batchMoveDisabled}
+            batchMoveMenuItems={batchMoveMenuItems}
+            batchMoving={batchMoving}
+            hasSelectedImages={hasSelectedImages}
+            onBatchDeleteImages={onBatchDeleteImages}
+            onBatchMoveImages={onBatchMoveImages}
+            onCollapseAllGroups={onCollapseAllGroups}
+            onExpandAllGroups={onExpandAllGroups}
+            readOnly={readOnly}
+          />
+          {!readOnly && batchMode ? (
+            <Button disabled={actionBusy} icon={<CloseOutlined />} onClick={onBatchModeToggle}>
+              退出批量
+            </Button>
+          ) : null}
+          {!readOnly && !batchMode ? (
+            <Button disabled={actionBusy} icon={<CopyOutlined />} onClick={onBatchModeToggle}>
+              批量操作
+            </Button>
+          ) : null}
+          {!readOnly ? (
+            <Button disabled={actionBusy} icon={<ReloadOutlined />} onClick={onRefresh}>
+              刷新
+            </Button>
+          ) : null}
+          {!readOnly ? (
+            <Button
+              disabled={actionBusy}
+              icon={<PlusOutlined />}
+              loading={creatingGroup}
+              onClick={onCreateGroup}
+              type="primary"
+            >
+              新建图像组
+            </Button>
+          ) : null}
+          {canComplete ? (
+            <Button
+              disabled={actionBusy}
+              icon={<StepForwardOutlined />}
+              loading={advancing}
+              onClick={onComplete}
+              type="primary"
+            >
+              完成并进入下一步
+            </Button>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

@@ -41,7 +41,18 @@ interface ProjectDetectionStageProps {
 }
 
 interface RefreshOptions {
+  initial?: boolean;
   silent?: boolean;
+}
+
+interface ProjectDetectionContentProps {
+  collapsedGroupIds: Set<string>;
+  groups: ProjectGroup[];
+  onOpenDetectionImage: (imageUuid: string) => void;
+  onOpenProgressViewer: (imageUuid: string) => void;
+  onToggleCollapsed: (groupId: string) => void;
+  pageLoading: boolean;
+  taskMap: ProjectDetectionStatusMap;
 }
 
 function detectionStageReadOnly(
@@ -53,6 +64,46 @@ function detectionStageReadOnly(
     loading ||
     progress > ProjectProgress_Value.AssetsFinished ||
     selectedProgress !== ProjectProgress_Value.AssetsFinished
+  );
+}
+
+function ProjectDetectionContent({
+  collapsedGroupIds,
+  groups,
+  onOpenDetectionImage,
+  onOpenProgressViewer,
+  onToggleCollapsed,
+  pageLoading,
+  taskMap,
+}: ProjectDetectionContentProps): ReactElement {
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+      {pageLoading ? (
+        <div className="flex h-full items-center justify-center">
+          <Spin description="正在加载智能检测数据" />
+        </div>
+      ) : null}
+      {!pageLoading && groups.length === EMPTY_ITEMS_COUNT ? (
+        <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-200">
+          <Empty description="暂无图像资产，请完成图像资产构建" />
+        </div>
+      ) : null}
+      {!pageLoading && groups.length > EMPTY_ITEMS_COUNT ? (
+        <div className="space-y-4">
+          {groups.map((group) => (
+            <ProjectDetectionGroup
+              collapsed={collapsedGroupIds.has(group.id)}
+              group={group}
+              key={group.id}
+              onOpenImageViewer={onOpenDetectionImage}
+              onOpenProgressViewer={onOpenProgressViewer}
+              onToggleCollapsed={onToggleCollapsed}
+              taskMap={taskMap}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -69,6 +120,7 @@ export function ProjectDetectionStage({
   const [taskMap, setTaskMap] = useState<ProjectDetectionStatusMap>({});
   const [assetsLoading, setAssetsLoading] = useState(true);
   const [detectionLoading, setDetectionLoading] = useState(true);
+  const [initialPageLoading, setInitialPageLoading] = useState(true);
   const [startingDetection, setStartingDetection] = useState(false);
   const [retryingDetection, setRetryingDetection] = useState(false);
   const [advancing, setAdvancing] = useState(false);
@@ -137,15 +189,24 @@ export function ProjectDetectionStage({
     [projectId, showError],
   );
 
-  const refreshPage = useCallback(async (): Promise<void> => {
-    await Promise.all([loadAssets(), loadDetectionTasks()]);
-  }, [loadAssets, loadDetectionTasks]);
+  const refreshPage = useCallback(
+    async (options: RefreshOptions = {}): Promise<void> => {
+      try {
+        await Promise.all([loadAssets(options), loadDetectionTasks(options)]);
+      } finally {
+        if (options.initial) {
+          setInitialPageLoading(false);
+        }
+      }
+    },
+    [loadAssets, loadDetectionTasks],
+  );
 
   useEffect(() => {
     if (loading) {
       return;
     }
-    void refreshPage();
+    void refreshPage({ initial: true });
   }, [loading, refreshPage]);
 
   const uploadedImages = useMemo(() => flattenUploadedImages(groups), [groups]);
@@ -274,12 +335,6 @@ export function ProjectDetectionStage({
     setTasks: setTaskMap,
   });
 
-  useEffect(() => {
-    if (progressTask && isDetectionTaskSucceeded(progressTask)) {
-      setProgressImageUuid(null);
-    }
-  }, [progressTask]);
-
   const taskStatusStats = useMemo(() => detectionTaskStatusStats(taskMap), [taskMap]);
   const detectionStarted = hasDetectionTasks(taskMap);
   const detectionFailed = hasFailedDetectionTask(taskMap);
@@ -297,6 +352,7 @@ export function ProjectDetectionStage({
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">
       {contextHolder}
       <ProjectDetectionToolbar
+        actionsHidden={loading || initialPageLoading}
         advancing={advancing}
         canComplete={actionState.canComplete}
         canRetry={actionState.canRetry}
@@ -318,6 +374,7 @@ export function ProjectDetectionStage({
         onStart={() => {
           void handleStartDetection();
         }}
+        readOnly={readOnly}
         retrying={retryingDetection}
         runningTaskCount={taskStatusStats.running}
         showComplete={actionState.showComplete}
@@ -326,33 +383,15 @@ export function ProjectDetectionStage({
         starting={startingDetection}
         totalImageCount={uploadedImages.length}
       />
-      <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-        {pageLoading ? (
-          <div className="flex h-full items-center justify-center">
-            <Spin description="正在加载智能检测数据" />
-          </div>
-        ) : null}
-        {!pageLoading && groups.length === EMPTY_ITEMS_COUNT ? (
-          <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-200">
-            <Empty description="暂无图像资产，请完成图像资产构建" />
-          </div>
-        ) : null}
-        {!pageLoading && groups.length > EMPTY_ITEMS_COUNT ? (
-          <div className="space-y-4">
-            {groups.map((group) => (
-              <ProjectDetectionGroup
-                collapsed={collapsedGroupIds.has(group.id)}
-                group={group}
-                key={group.id}
-                onOpenImageViewer={openDetectionImage}
-                onOpenProgressViewer={setProgressImageUuid}
-                onToggleCollapsed={handleToggleCollapsed}
-                taskMap={taskMap}
-              />
-            ))}
-          </div>
-        ) : null}
-      </div>
+      <ProjectDetectionContent
+        collapsedGroupIds={collapsedGroupIds}
+        groups={groups}
+        onOpenDetectionImage={openDetectionImage}
+        onOpenProgressViewer={setProgressImageUuid}
+        onToggleCollapsed={handleToggleCollapsed}
+        pageLoading={pageLoading}
+        taskMap={taskMap}
+      />
       <ProjectDetectionResultViewer
         loading={viewerLoading}
         onClose={() => {
@@ -371,7 +410,7 @@ export function ProjectDetectionStage({
         onClose={() => {
           setProgressImageUuid(null);
         }}
-        open={progressImageUuid !== null && progressTask !== undefined && !isDetectionTaskSucceeded(progressTask)}
+        open={progressImageUuid !== null && progressTask !== undefined}
         task={progressTask}
       />
     </div>

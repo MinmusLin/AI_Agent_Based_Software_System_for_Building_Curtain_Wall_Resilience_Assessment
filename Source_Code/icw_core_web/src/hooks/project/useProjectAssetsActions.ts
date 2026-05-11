@@ -63,6 +63,7 @@ interface UseProjectAssetsActionsResult {
   handleDeleteGroup: (groupId: string) => Promise<void>;
   handleDeleteImage: (imageUuid: string) => Promise<void>;
   handleUploadFiles: (groupId: string, files: File[]) => Promise<void>;
+  initialAssetsLoading: boolean;
   loadAssets: (options?: RefreshOptions) => Promise<void>;
   readOnly: boolean;
   saveEditingGroup: () => Promise<void>;
@@ -74,6 +75,7 @@ interface UseProjectAssetsActionsResult {
 }
 
 interface RefreshOptions {
+  initial?: boolean;
   silent?: boolean;
 }
 
@@ -88,6 +90,7 @@ export function useProjectAssetsActions({
 }: UseProjectAssetsActionsParams): UseProjectAssetsActionsResult {
   const [groups, setGroups] = useState<ProjectGroup[]>([]);
   const [assetsLoading, setAssetsLoading] = useState(true);
+  const [initialAssetsLoading, setInitialAssetsLoading] = useState(true);
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [advancing, setAdvancing] = useState(false);
   const [editingGroupId, setEditingGroupId] = useState('');
@@ -128,6 +131,9 @@ export function useProjectAssetsActions({
       } finally {
         if (!options.silent) {
           setAssetsLoading(false);
+        }
+        if (options.initial) {
+          setInitialAssetsLoading(false);
         }
       }
     },
@@ -323,7 +329,7 @@ export function useProjectAssetsActions({
   }, [onError, onProgressChange, onProjectChange, project, projectId]);
 
   useEffect(() => {
-    void loadAssets();
+    void loadAssets({ initial: true });
   }, [loadAssets]);
 
   return {
@@ -341,6 +347,7 @@ export function useProjectAssetsActions({
     handleDeleteGroup,
     handleDeleteImage,
     handleUploadFiles,
+    initialAssetsLoading,
     loadAssets,
     readOnly,
     saveEditingGroup,

@@ -87,7 +87,7 @@ export function SummaryResultTab({ result }: { result: ProjectDetectionSummaryRe
           {sections.length > EMPTY_SECTION_COUNT ? (
             sections.map((section) => (
               <div className="flex gap-2" key={section.label}>
-                <Tag className="mt-0.5 shrink-0 text-xs" color={section.color}>
+                <Tag className="mt-0.5 inline-flex shrink-0 items-center text-xs leading-5" color={section.color}>
                   {section.label}
                 </Tag>
                 <span className="break-all">{section.text}</span>
