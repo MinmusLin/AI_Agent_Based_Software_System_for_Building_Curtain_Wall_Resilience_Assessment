@@ -3,6 +3,7 @@ import { Button, Modal, Spin, Tabs } from 'antd';
 import type { ReactElement } from 'react';
 import { useMemo, useState } from 'react';
 
+import { ModalTitle } from '@/components/ModalTitle';
 import type { GetImageDetectionResultResponse } from '@/gen/core/api/project_detection';
 import type { ViewerImage } from '@/utils/assetsStage';
 import { FIRST_INDEX, NEXT_INDEX_OFFSET } from '@/utils/assetsStage';
@@ -83,7 +84,7 @@ export function ProjectDetectionResultViewer({
   const currentActiveTab = !loading && tabs.some((tab) => tab.key === activeTab) ? activeTab : DEFAULT_ACTIVE_TAB;
   if (loading) {
     return (
-      <Modal centered footer={null} onCancel={onClose} open={open} title={title} width={1040}>
+      <Modal centered footer={null} onCancel={onClose} open={open} title={<ModalTitle text={title} />} width={1040}>
         <div className="flex h-[520px] flex-col items-center justify-center gap-3 text-sm text-slate-500">
           <Spin />
           <div>正在加载检测结果</div>
@@ -93,7 +94,7 @@ export function ProjectDetectionResultViewer({
   }
 
   return (
-    <Modal centered footer={null} onCancel={onClose} open={open} title={title} width={1040}>
+    <Modal centered footer={null} onCancel={onClose} open={open} title={<ModalTitle text={title} />} width={1040}>
       <div>
         <div className="grid h-[520px] grid-cols-[minmax(0,1fr)_320px] gap-5">
           <div className="relative flex min-h-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">

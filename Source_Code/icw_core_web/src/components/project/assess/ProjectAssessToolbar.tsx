@@ -50,7 +50,7 @@ interface ProjectAssessStatusTagsProps {
 }
 
 interface ProjectAssessBatchActionsProps {
-  assetsLoading: boolean;
+  actionBusy: boolean;
   batchDeleting: boolean;
   batchMode: boolean;
   batchMoveDisabled: boolean;
@@ -89,6 +89,8 @@ export function ProjectAssessToolbar({
   readOnly,
   totalImageCount,
 }: ProjectAssessToolbarProps): ReactElement {
+  const actionBusy = assetsLoading || batchDeleting || batchMoving || creatingGroup || advancing;
+
   return (
     <div className="mb-4 flex items-center justify-between gap-4">
       <div>
@@ -106,7 +108,7 @@ export function ProjectAssessToolbar({
       </div>
       <div className="flex shrink-0 items-center gap-3">
         <ProjectAssessBatchActions
-          assetsLoading={assetsLoading}
+          actionBusy={actionBusy}
           batchDeleting={batchDeleting}
           batchMode={batchMode}
           batchMoveDisabled={batchMoveDisabled}
@@ -120,23 +122,23 @@ export function ProjectAssessToolbar({
           readOnly={readOnly}
         />
         {!readOnly && batchMode ? (
-          <Button disabled={assetsLoading} icon={<CloseOutlined />} onClick={onBatchModeToggle}>
+          <Button disabled={actionBusy} icon={<CloseOutlined />} onClick={onBatchModeToggle}>
             退出批量
           </Button>
         ) : null}
         {!readOnly && !batchMode ? (
-          <Button disabled={assetsLoading} icon={<CopyOutlined />} onClick={onBatchModeToggle}>
+          <Button disabled={actionBusy} icon={<CopyOutlined />} onClick={onBatchModeToggle}>
             批量操作
           </Button>
         ) : null}
         {!readOnly ? (
-          <Button disabled={assetsLoading} icon={<ReloadOutlined />} onClick={onRefresh}>
+          <Button disabled={actionBusy} icon={<ReloadOutlined />} onClick={onRefresh}>
             刷新
           </Button>
         ) : null}
         {!readOnly ? (
           <Button
-            disabled={assetsLoading}
+            disabled={actionBusy}
             icon={<PlusOutlined />}
             loading={creatingGroup}
             onClick={onCreateGroup}
@@ -147,7 +149,7 @@ export function ProjectAssessToolbar({
         ) : null}
         {canComplete ? (
           <Button
-            disabled={assetsLoading}
+            disabled={actionBusy}
             icon={<StepForwardOutlined />}
             loading={advancing}
             onClick={onComplete}
@@ -190,7 +192,7 @@ function ProjectAssessStatusTags({
 }
 
 function ProjectAssessBatchActions({
-  assetsLoading,
+  actionBusy,
   batchDeleting,
   batchMode,
   batchMoveDisabled,
@@ -206,10 +208,10 @@ function ProjectAssessBatchActions({
   if (readOnly || !batchMode || !hasSelectedImages) {
     return (
       <>
-        <Button disabled={assetsLoading} icon={<MenuFoldOutlined />} onClick={onCollapseAllGroups}>
+        <Button icon={<MenuFoldOutlined />} onClick={onCollapseAllGroups}>
           全部收起
         </Button>
-        <Button disabled={assetsLoading} icon={<MenuUnfoldOutlined />} onClick={onExpandAllGroups}>
+        <Button icon={<MenuUnfoldOutlined />} onClick={onExpandAllGroups}>
           全部展开
         </Button>
       </>
@@ -219,7 +221,7 @@ function ProjectAssessBatchActions({
     <>
       <Button
         danger
-        disabled={assetsLoading}
+        disabled={actionBusy}
         icon={<DeleteOutlined />}
         loading={batchDeleting}
         onClick={onBatchDeleteImages}
@@ -227,7 +229,7 @@ function ProjectAssessBatchActions({
         批量删除
       </Button>
       <Dropdown
-        disabled={assetsLoading || batchMoveDisabled}
+        disabled={actionBusy || batchMoveDisabled}
         menu={{
           items: batchMoveMenuItems,
           onClick: ({ key }) => {
@@ -238,7 +240,7 @@ function ProjectAssessBatchActions({
           <div className="max-h-64 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-sm">{menus}</div>
         )}
       >
-        <Button disabled={assetsLoading || batchMoveDisabled} icon={<SwapOutlined />} loading={batchMoving}>
+        <Button disabled={actionBusy || batchMoveDisabled} icon={<SwapOutlined />} loading={batchMoving}>
           批量移动
         </Button>
       </Dropdown>

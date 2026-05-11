@@ -1,6 +1,7 @@
 import {
   DeleteOutlined,
   LoadingOutlined,
+  PictureOutlined,
   ReloadOutlined,
   SaveOutlined,
   StepForwardOutlined,
@@ -37,6 +38,43 @@ const MAX_BUILDING_LOCATION_LENGTH = 128;
 const MAX_PROJECT_TEXT_LENGTH = 5000;
 const YEAR_STEP = 1;
 const EMPTY_BUILT_YEAR = 0;
+const LOADING_PLACEHOLDER = '加载中';
+const UNKNOWN_TEXT = '未知';
+const PROFILE_PLACEHOLDERS = {
+  assessmentGoal: '请输入评估目标或重点关注方向',
+  buildingDescription: '请输入建筑描述',
+  buildingLocation: '请输入建筑地址',
+  buildingName: '请输入建筑名称',
+  builtYear: '请选择年份',
+  createdAt: '',
+  knownIssues: '请输入已知问题或人工先验描述',
+  name: '请输入项目名称',
+  updatedAt: '',
+} as const;
+const LOADING_PROFILE_PLACEHOLDERS = {
+  assessmentGoal: LOADING_PLACEHOLDER,
+  buildingDescription: LOADING_PLACEHOLDER,
+  buildingLocation: LOADING_PLACEHOLDER,
+  buildingName: LOADING_PLACEHOLDER,
+  builtYear: LOADING_PLACEHOLDER,
+  createdAt: LOADING_PLACEHOLDER,
+  knownIssues: LOADING_PLACEHOLDER,
+  name: LOADING_PLACEHOLDER,
+  updatedAt: LOADING_PLACEHOLDER,
+} as const;
+const READONLY_EMPTY_PROFILE_PLACEHOLDERS = {
+  assessmentGoal: '评估目标或重点关注方向为空',
+  buildingDescription: '建筑描述为空',
+  buildingLocation: '建筑地址为空',
+  buildingName: '建筑名称为空',
+  builtYear: UNKNOWN_TEXT,
+  createdAt: '项目创建时间为空',
+  knownIssues: '已知问题或人工先验描述为空',
+  name: '项目名称为空',
+  updatedAt: '上次保存时间为空',
+} as const;
+
+type ProfilePlaceholders = Record<keyof typeof PROFILE_PLACEHOLDERS, string>;
 
 interface ProfileFormState {
   name: string;
@@ -83,6 +121,16 @@ function buildYearOptions(): { label: string; value: number }[] {
     });
   }
   return options;
+}
+
+function getProfilePlaceholders(loading: boolean, readOnly: boolean): ProfilePlaceholders {
+  if (loading) {
+    return LOADING_PROFILE_PLACEHOLDERS;
+  }
+  if (readOnly) {
+    return READONLY_EMPTY_PROFILE_PLACEHOLDERS;
+  }
+  return PROFILE_PLACEHOLDERS;
 }
 
 interface TextAreaFieldProps {
@@ -232,12 +280,14 @@ function ProjectThumbnailControl({
       />
       <div
         className={`group relative aspect-square overflow-hidden rounded-lg border border-dashed bg-white transition duration-200 ${
-          !hasThumbnail && !actionDisabled
-            ? 'border-slate-300 hover:border-[#1677FF] hover:bg-blue-50'
-            : 'border-slate-300'
+          !hasThumbnail && !actionDisabled ? 'border-slate-300 hover:border-[#1677FF]' : 'border-slate-300'
         }`}
       >
-        {hasThumbnail ? (
+        {disabled ? (
+          <div className="flex size-full items-center justify-center text-slate-400">
+            <LoadingOutlined className="text-2xl" />
+          </div>
+        ) : hasThumbnail ? (
           <div className="size-full overflow-hidden rounded-lg">
             <img
               alt="项目缩略图"
@@ -278,6 +328,10 @@ function ProjectThumbnailControl({
                 <LoadingOutlined className="text-2xl" />
               </div>
             ) : null}
+          </div>
+        ) : readOnly ? (
+          <div className="flex size-full items-center justify-center text-slate-300">
+            <PictureOutlined className="text-2xl" />
           </div>
         ) : (
           <button
@@ -321,11 +375,13 @@ export function ProjectProfileStage({
   const yearOptions = useMemo(() => buildYearOptions(), []);
   const createdAtText = useMemo(() => formatDateTime(project.created_at), [project.created_at]);
   const updatedAtText = useMemo(() => formatDateTime(project.updated_at), [project.updated_at]);
-  const builtYearText = form.builtYear > EMPTY_BUILT_YEAR ? `${String(form.builtYear)} 年` : '';
   const readOnly =
     loading ||
     project.progress > ProjectProgress_Value.InitializationFinished ||
     selectedProgress !== ProjectProgress_Value.InitializationFinished;
+  const placeholders = getProfilePlaceholders(loading, readOnly);
+  const hasBuiltYear = form.builtYear > EMPTY_BUILT_YEAR;
+  const builtYearText = hasBuiltYear ? `${String(form.builtYear)} 年` : '';
   const canComplete =
     loading ||
     (project.progress === ProjectProgress_Value.InitializationFinished &&
@@ -406,14 +462,19 @@ export function ProjectProfileStage({
                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
                   updateFormField('name', event.target.value);
                 }}
-                placeholder="请输入项目名称"
+                placeholder={placeholders.name}
                 readOnly={readOnly}
                 value={form.name}
               />
             </label>
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-slate-700">项目创建时间</span>
-              <Input disabled={loading} readOnly value={loading ? '' : createdAtText} />
+              <Input
+                disabled={loading}
+                placeholder={placeholders.createdAt}
+                readOnly
+                value={loading ? '' : createdAtText}
+              />
             </label>
           </div>
           <div className="mt-4 grid grid-cols-[1fr_184px] gap-4">
@@ -425,14 +486,19 @@ export function ProjectProfileStage({
                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
                   updateFormField('buildingName', event.target.value);
                 }}
-                placeholder="请输入建筑名称"
+                placeholder={placeholders.buildingName}
                 readOnly={readOnly}
                 value={form.buildingName}
               />
             </label>
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-slate-700">上次保存时间</span>
-              <Input disabled={loading} readOnly value={loading ? '' : updatedAtText} />
+              <Input
+                disabled={loading}
+                placeholder={placeholders.updatedAt}
+                readOnly
+                value={loading ? '' : updatedAtText}
+              />
             </label>
           </div>
           <div className="mt-4 grid grid-cols-[1fr_184px] gap-4">
@@ -444,7 +510,7 @@ export function ProjectProfileStage({
                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
                   updateFormField('buildingLocation', event.target.value);
                 }}
-                placeholder="请输入建筑地址"
+                placeholder={placeholders.buildingLocation}
                 readOnly={readOnly}
                 value={form.buildingLocation}
               />
@@ -452,7 +518,12 @@ export function ProjectProfileStage({
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-slate-700">建筑建成年份</span>
               {readOnly ? (
-                <Input disabled={loading} readOnly value={loading ? '' : builtYearText} />
+                <Input
+                  disabled={loading}
+                  placeholder={placeholders.builtYear}
+                  readOnly
+                  value={loading ? '' : builtYearText}
+                />
               ) : (
                 <Select
                   allowClear
@@ -462,7 +533,7 @@ export function ProjectProfileStage({
                     updateFormField('builtYear', value ?? EMPTY_BUILT_YEAR);
                   }}
                   options={yearOptions}
-                  placeholder="请选择年份"
+                  placeholder={placeholders.builtYear}
                   value={form.builtYear > EMPTY_BUILT_YEAR ? form.builtYear : undefined}
                 />
               )}
@@ -485,7 +556,7 @@ export function ProjectProfileStage({
           onChange={(value: string) => {
             updateFormField('buildingDescription', value);
           }}
-          placeholder="请输入建筑描述"
+          placeholder={placeholders.buildingDescription}
           readOnly={readOnly}
           value={form.buildingDescription}
         />
@@ -496,7 +567,7 @@ export function ProjectProfileStage({
           onChange={(value: string) => {
             updateFormField('knownIssues', value);
           }}
-          placeholder="请输入已知问题或人工先验描述"
+          placeholder={placeholders.knownIssues}
           readOnly={readOnly}
           value={form.knownIssues}
         />
@@ -507,18 +578,23 @@ export function ProjectProfileStage({
           onChange={(value: string) => {
             updateFormField('assessmentGoal', value);
           }}
-          placeholder="请输入评估目标或重点关注方向"
+          placeholder={placeholders.assessmentGoal}
           readOnly={readOnly}
           value={form.assessmentGoal}
         />
       </div>
       {canComplete ? (
         <div className="mt-5 flex justify-end gap-3">
-          <Button disabled={loading} icon={<SaveOutlined />} loading={saving} onClick={() => void handleSave()}>
+          <Button
+            disabled={loading || advancing}
+            icon={<SaveOutlined />}
+            loading={saving}
+            onClick={() => void handleSave()}
+          >
             保存
           </Button>
           <Button
-            disabled={loading}
+            disabled={loading || saving}
             icon={<StepForwardOutlined />}
             loading={advancing}
             onClick={() => void handleComplete()}

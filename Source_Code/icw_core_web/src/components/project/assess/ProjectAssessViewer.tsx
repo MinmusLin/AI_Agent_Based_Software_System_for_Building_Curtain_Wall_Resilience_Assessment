@@ -3,6 +3,7 @@ import { Button, Modal, Spin } from 'antd';
 import type { ReactElement } from 'react';
 import { useState } from 'react';
 
+import { ModalTitle } from '@/components/ModalTitle';
 import type { ProjectImage } from '@/gen/core/common';
 import type { ImageViewerState, ViewerImage } from '@/utils/assetsStage';
 import { FIRST_INDEX, formatProjectImageMetadata, KILOBYTE_SIZE_BYTES, NEXT_INDEX_OFFSET } from '@/utils/assetsStage';
@@ -117,6 +118,7 @@ export function ProjectAssessViewer({
   viewerIndex,
 }: ProjectAssessViewerProps): ReactElement {
   const image = viewerImage?.image;
+  const title = viewerImage?.image.file_name ?? '图像详情';
   const [downloading, setDownloading] = useState(false);
 
   const handleDownloadOriginalImage = async (): Promise<void> => {
@@ -138,7 +140,7 @@ export function ProjectAssessViewer({
       footer={null}
       onCancel={onClose}
       open={viewer !== null}
-      title={viewerImage?.image.file_name ?? '图像详情'}
+      title={<ModalTitle text={title} />}
       width={1040}
     >
       {viewer ? (
