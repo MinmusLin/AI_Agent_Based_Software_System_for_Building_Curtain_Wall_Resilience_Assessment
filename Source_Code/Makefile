@@ -6,7 +6,7 @@ IMAGE_REPOSITORIES := icw_core_api icw_core_biz icw_activity_classification icw_
 .PHONY: help all verify image clean
 
 help:
-	@echo "Usage && make <COMMAND>"
+	@echo "Usage: make <COMMAND>"
 	@echo ""
 	@echo "Commands:"
 	@echo "  make all     Run make all in all backend repositories"

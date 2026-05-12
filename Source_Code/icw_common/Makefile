@@ -16,7 +16,7 @@ help:
 	@echo "Commands:"
 	@echo "  make all          Run gen, fmt, tidy, vet, and test"
 	@echo "  make verify       Run fmt-check, tidy-check, vet, and test"
-	@echo "  make all          Generate Go and TypeScript code from proto files"
+	@echo "  make gen-all      Generate Go and TypeScript code from proto files"
 	@echo "  make gen          Generate Go code from proto files"
 	@echo "  make gen-ts       Generate TypeScript code from proto files"
 	@echo "  make fmt          Format Go files"
