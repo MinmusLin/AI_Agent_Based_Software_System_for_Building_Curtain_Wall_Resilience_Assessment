@@ -3,7 +3,6 @@ package workers
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"strconv"
 
 	"icw_common/enum"
@@ -169,13 +168,6 @@ func (w *DetectionWorker) StartReasoningTasks(ctx context.Context, subTasks map[
 
 // startReasoningTask 启动项目图像检测推理子任务
 func (w *DetectionWorker) startReasoningTask(ctx context.Context, task *model.ProjectDetectionTaskRecord, taskCode string, subTask *model.ProjectDetectionSubTaskRecord) error {
-	originalURL, err := minio.PresignProjectImageOriginalURL(ctx, w.minio, w.redis, task.ProjectId, task.ImageUuid, w.cfg.ProjectImageGetTTL)
-	if err != nil {
-		return err
-	}
-	if originalURL == "" {
-		return errors.New("project image original object is not found")
-	}
 	artifactPolicy, err := w.reasoningArtifactPolicy(ctx, task, taskCode)
 	if err != nil {
 		return err
@@ -183,8 +175,9 @@ func (w *DetectionWorker) startReasoningTask(ctx context.Context, task *model.Pr
 	req := &reasoningpb.StartRequest{
 		TaskUuid:       subTask.Uuid,
 		TaskCode:       enum.ParseDetectionTaskCode(taskCode),
+		UserId:         task.UserId,
+		ProjectId:      task.ProjectId,
 		ImageUuid:      task.ImageUuid,
-		PresignGetUrl:  originalURL,
 		ArtifactPolicy: artifactPolicy,
 	}
 	resp := &reasoningpb.StartResponse{}
