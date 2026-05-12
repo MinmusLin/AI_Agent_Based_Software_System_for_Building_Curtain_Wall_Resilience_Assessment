@@ -31,5 +31,11 @@ func registry(deps *common.Deps) []common.CronJobMeta {
 			Cron:        deps.Config.PendingImageTimeoutJobCron,
 			Start:       jobs.NewPendingImageTimeoutJob,
 		},
+		{
+			PSM:         "icw.cron.minio_dirty_object_cleanup",
+			Description: "MinIO 脏对象清理任务",
+			Cron:        deps.Config.MinIODirtyObjectCleanupJobCron,
+			Start:       jobs.NewMinIODirtyObjectCleanupJob,
+		},
 	}
 }
