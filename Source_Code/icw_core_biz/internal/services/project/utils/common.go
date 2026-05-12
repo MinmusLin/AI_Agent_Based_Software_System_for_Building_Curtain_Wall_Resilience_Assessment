@@ -139,3 +139,26 @@ func ArtifactSha256MapJSON(artifacts []*bizpb.ReasoningArtifactUploadResult) (st
 	}
 	return string(bytes), nil
 }
+
+// ValidateReasoningArtifactUploads 校验图像检测推理产物全部上传成功
+func ValidateReasoningArtifactUploads(artifacts []*bizpb.ReasoningArtifactUploadResult, requireArtifacts bool) error {
+	if requireArtifacts && len(artifacts) == 0 {
+		return rpc_error.BadRequestDefault("reasoning artifacts are required")
+	}
+	for _, artifact := range artifacts {
+		if artifact == nil {
+			return rpc_error.BadRequestDefault("reasoning artifact upload result is invalid")
+		}
+		name := strings.TrimSpace(artifact.Name)
+		if name == "" {
+			return rpc_error.BadRequestDefault("reasoning artifact name is required")
+		}
+		if !artifact.Uploaded {
+			return rpc_error.BadRequestDefault(fmt.Sprintf("reasoning artifact upload failed: %s", name))
+		}
+		if strings.TrimSpace(artifact.Sha256) == "" {
+			return rpc_error.BadRequestDefault(fmt.Sprintf("reasoning artifact sha256 is required: %s", name))
+		}
+	}
+	return nil
+}

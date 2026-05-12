@@ -5,6 +5,8 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -20,8 +22,16 @@ import (
 )
 
 // UploadArtifacts 并发上传任务产物
-func UploadArtifacts(ctx context.Context, policy *ArtifactUploadPolicy, taskDir string, timeout time.Duration) []*bizpb.ReasoningArtifactUploadResult {
+func UploadArtifacts(ctx context.Context, policy *ArtifactUploadPolicy, taskDir string, timeout time.Duration) ([]*bizpb.ReasoningArtifactUploadResult, error) {
+	if policy == nil {
+		return nil, errors.New("reasoning artifact upload policy is nil")
+	}
+
 	artifactNames := listArtifactNames(taskDir)
+	if len(artifactNames) == 0 {
+		return make([]*bizpb.ReasoningArtifactUploadResult, 0), nil
+	}
+
 	results := make([]*bizpb.ReasoningArtifactUploadResult, len(artifactNames))
 
 	wg := sync.WaitGroup{}
@@ -34,7 +44,26 @@ func UploadArtifacts(ctx context.Context, policy *ArtifactUploadPolicy, taskDir 
 	}
 	wg.Wait()
 
-	return results
+	failedNames := make([]string, 0)
+	for index, result := range results {
+		name := artifactNames[index]
+		if result != nil && strings.TrimSpace(result.Name) != "" {
+			name = strings.TrimSpace(result.Name)
+		}
+		if result == nil || !result.Uploaded || strings.TrimSpace(result.Sha256) == "" {
+			failedNames = append(failedNames, name)
+		}
+	}
+	if len(failedNames) > 0 {
+		return results, fmt.Errorf(
+			"reasoning artifact upload failed: uploaded=%d total=%d failed=%s",
+			len(results)-len(failedNames),
+			len(results),
+			strings.Join(failedNames, ","),
+		)
+	}
+
+	return results, nil
 }
 
 // uploadArtifact 上传任务产物

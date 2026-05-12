@@ -32,14 +32,23 @@ func (s *Service) reportReasoningResult(ctx context.Context, req *bizpb.ReportRe
 		return rpc_error.BadRequestDefault("reasoning status is invalid")
 	}
 
-	// 将图像检测推理产物上传结果转换为 Sha256 Map JSON
-	artifactSha256Map, err := utils.ArtifactSha256MapJSON(req.Artifacts)
-	if err != nil {
-		return err
-	}
 	taskCode := enum.DetectionTaskCodeString(req.TaskCode)
 	if taskCode == "" {
 		return rpc_error.BadRequestDefault("detection task code is invalid")
+	}
+
+	artifactSha256Map := ""
+	if req.Status == commonpb.TaskStatus_Succeeded {
+		if err := utils.ValidateReasoningArtifactUploads(req.Artifacts); err != nil {
+			return err
+		}
+
+		// 将图像检测推理产物上传结果转换为 Sha256 Map JSON
+		var err error
+		artifactSha256Map, err = utils.ArtifactSha256MapJSON(req.Artifacts)
+		if err != nil {
+			return err
+		}
 	}
 
 	// 按推理任务 UUID 更新项目图像检测推理子任务结果

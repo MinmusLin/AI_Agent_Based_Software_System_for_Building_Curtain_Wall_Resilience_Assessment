@@ -120,17 +120,28 @@ func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRe
 		return 0, detectorCost, err
 	}
 
-	callbackReq.ResultJson = reportJSON
-	callbackReq.Artifacts = reasoningUtils.UploadArtifacts(ctx, artifactPolicy, taskDir, s.Config().ArtifactUploadTimeout)
+	artifacts, err := reasoningUtils.UploadArtifacts(ctx, artifactPolicy, taskDir, s.Config().ArtifactUploadTimeout)
+	if err != nil {
+		return countUploadedArtifacts(artifacts), detectorCost, err
+	}
+	if req.TaskCode != commonpb.DetectionTaskCode_Spalling && len(artifacts) == 0 {
+		return 0, detectorCost, errors.New("no reasoning artifacts found")
+	}
 
+	callbackReq.ResultJson = reportJSON
+	callbackReq.Artifacts = artifacts
+
+	return len(artifacts), detectorCost, nil
+}
+
+func countUploadedArtifacts(artifacts []*bizpb.ReasoningArtifactUploadResult) int {
 	artifactCount := 0
-	for _, artifact := range callbackReq.Artifacts {
+	for _, artifact := range artifacts {
 		if artifact != nil && artifact.Uploaded {
 			artifactCount++
 		}
 	}
-
-	return artifactCount, detectorCost, nil
+	return artifactCount
 }
 
 // getProjectImageOriginalURL 获取项目图像原图下载地址
