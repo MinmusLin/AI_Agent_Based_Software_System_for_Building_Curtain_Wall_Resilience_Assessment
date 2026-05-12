@@ -302,9 +302,9 @@ function ProjectReportContent({
             />
           </div>
         </ReportSection>
-        <ReportSection icon={<FileTextOutlined />} title="项目基础">
+        <ReportSection icon={<FileTextOutlined />} title="项目背景">
           <div className="space-y-4">
-            <ParagraphBlock label="项目背景" text={payload.project_background} />
+            <ParagraphBlock label="建筑背景" text={payload.project_background} />
             <ParagraphBlock label="韧性评估目标" text={payload.resilience_assessment_objective} />
             <ParagraphBlock label="数据集概述" text={payload.dataset_overview} />
           </div>
