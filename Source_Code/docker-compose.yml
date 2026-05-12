@@ -157,6 +157,7 @@ services:
       SOCKET_TICKET_TTL_MINUTES: 1
       PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES: 1
       PENDING_IMAGE_TIMEOUT_JOB_CRON: "0 * * * * *"
+      MINIO_DIRTY_OBJECT_CLEANUP_JOB_CRON: "0 0 * * * *"
       DETECTION_WORKER_MAX_CONCURRENCY: 20
     depends_on:
       icw-rocketmq-init:
