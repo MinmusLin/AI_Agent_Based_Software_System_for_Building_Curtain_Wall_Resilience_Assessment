@@ -1,8 +1,10 @@
 package workers
 
 type projectReportSource struct {
-	Project projectReportSourceProject  `json:"project,omitempty"`
-	Groups  []*projectReportSourceGroup `json:"groups,omitempty"`
+	GroupCount int                         `json:"group_count,omitempty"`
+	ImageCount int                         `json:"image_count,omitempty"`
+	Project    projectReportSourceProject  `json:"project,omitempty"`
+	Groups     []*projectReportSourceGroup `json:"groups,omitempty"`
 }
 
 type projectReportSourceProject struct {

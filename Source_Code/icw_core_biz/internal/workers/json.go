@@ -52,6 +52,7 @@ func (w *DetectionWorker) projectReportSourceJSON(ctx context.Context, userId, p
 		groupById[group.Id] = item
 	}
 
+	imageCount := 0
 	for _, image := range images {
 		if image == nil || image.Status != bizpb.ProjectImageStatus_Uploaded {
 			continue
@@ -70,9 +71,12 @@ func (w *DetectionWorker) projectReportSourceJSON(ctx context.Context, userId, p
 			return "", err
 		}
 		group.Images = append(group.Images, imageItem)
+		imageCount++
 	}
 
 	data, err := json.Marshal(&projectReportSource{
+		GroupCount: len(groupItems),
+		ImageCount: imageCount,
 		Project: projectReportSourceProject{
 			ProjectName:         project.Name,
 			BuildingName:        project.BuildingName,

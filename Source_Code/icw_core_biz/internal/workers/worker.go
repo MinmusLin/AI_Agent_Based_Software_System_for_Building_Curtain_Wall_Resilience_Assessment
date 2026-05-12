@@ -280,7 +280,7 @@ func (w *DetectionWorker) StartProjectReportTask(ctx context.Context, userId, pr
 		w.failProjectReport(ctx, projectId)
 		return
 	}
-	if err := w.minio.PutObject(ctx, sourceKey, "application/json", []byte(reportJSON)); err != nil {
+	if err := w.minio.PutObject(ctx, sourceKey, "text/plain; charset=utf-8", []byte(reportJSON)); err != nil {
 		w.failProjectReport(ctx, projectId)
 		return
 	}

@@ -89,5 +89,5 @@ func GenProjectReportSourceKey(projectId uint64) (string, error) {
 	if projectCode == "" {
 		return "", errors.New("project id is invalid")
 	}
-	return fmt.Sprintf("projects/%s/reports/source.json", projectCode), nil
+	return fmt.Sprintf("projects/%s/reports/source.txt", projectCode), nil
 }
