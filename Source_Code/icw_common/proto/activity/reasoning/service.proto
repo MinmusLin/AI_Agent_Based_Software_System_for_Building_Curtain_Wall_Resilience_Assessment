@@ -11,9 +11,10 @@ import "core/common.proto";
 message StartRequest {
   string task_uuid = 1;
   .icw.core.common.DetectionTaskCode.Value task_code = 2;
-  string image_uuid = 3;
-  string presign_get_url = 4;
-  ReasoningArtifactUploadPolicy artifact_policy = 5;
+  uint64 user_id = 3;
+  uint64 project_id = 4;
+  string image_uuid = 5;
+  ReasoningArtifactUploadPolicy artifact_policy = 6;
 }
 
 // Start 响应结构体

@@ -27,9 +27,10 @@ type StartRequest struct {
 	state          protoimpl.MessageState         `protogen:"open.v1"`
 	TaskUuid       string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
 	TaskCode       common.DetectionTaskCode_Value `protobuf:"varint,2,opt,name=task_code,json=taskCode,proto3,enum=icw.core.common.DetectionTaskCode_Value" json:"task_code,omitempty"`
-	ImageUuid      string                         `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	PresignGetUrl  string                         `protobuf:"bytes,4,opt,name=presign_get_url,json=presignGetUrl,proto3" json:"presign_get_url,omitempty"`
-	ArtifactPolicy *ReasoningArtifactUploadPolicy `protobuf:"bytes,5,opt,name=artifact_policy,json=artifactPolicy,proto3" json:"artifact_policy,omitempty"`
+	UserId         uint64                         `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId      uint64                         `protobuf:"varint,4,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ImageUuid      string                         `protobuf:"bytes,5,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	ArtifactPolicy *ReasoningArtifactUploadPolicy `protobuf:"bytes,6,opt,name=artifact_policy,json=artifactPolicy,proto3" json:"artifact_policy,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -78,16 +79,23 @@ func (x *StartRequest) GetTaskCode() common.DetectionTaskCode_Value {
 	return common.DetectionTaskCode_Value(0)
 }
 
+func (x *StartRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *StartRequest) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
 func (x *StartRequest) GetImageUuid() string {
 	if x != nil {
 		return x.ImageUuid
-	}
-	return ""
-}
-
-func (x *StartRequest) GetPresignGetUrl() string {
-	if x != nil {
-		return x.PresignGetUrl
 	}
 	return ""
 }
@@ -140,14 +148,16 @@ var File_activity_reasoning_service_proto protoreflect.FileDescriptor
 
 const file_activity_reasoning_service_proto_rawDesc = "" +
 	"\n" +
-	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x1factivity/reasoning/common.proto\x1a\x11core/common.proto\"\x99\x02\n" +
+	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x1factivity/reasoning/common.proto\x1a\x11core/common.proto\"\xa9\x02\n" +
 	"\fStartRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12E\n" +
-	"\ttask_code\x18\x02 \x01(\x0e2(.icw.core.common.DetectionTaskCode.ValueR\btaskCode\x12\x1d\n" +
+	"\ttask_code\x18\x02 \x01(\x0e2(.icw.core.common.DetectionTaskCode.ValueR\btaskCode\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\x04R\x06userId\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12&\n" +
-	"\x0fpresign_get_url\x18\x04 \x01(\tR\rpresignGetUrl\x12^\n" +
-	"\x0fartifact_policy\x18\x05 \x01(\v25.icw.activity.reasoning.ReasoningArtifactUploadPolicyR\x0eartifactPolicy\"\x0f\n" +
+	"project_id\x18\x04 \x01(\x04R\tprojectId\x12\x1d\n" +
+	"\n" +
+	"image_uuid\x18\x05 \x01(\tR\timageUuid\x12^\n" +
+	"\x0fartifact_policy\x18\x06 \x01(\v25.icw.activity.reasoning.ReasoningArtifactUploadPolicyR\x0eartifactPolicy\"\x0f\n" +
 	"\rStartResponse2h\n" +
 	"\x10ReasoningService\x12T\n" +
 	"\x05Start\x12$.icw.activity.reasoning.StartRequest\x1a%.icw.activity.reasoning.StartResponseB/Z-icw_common/gen/activity/reasoning;reasoningpbb\x06proto3"
