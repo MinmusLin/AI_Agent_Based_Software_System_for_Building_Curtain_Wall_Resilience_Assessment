@@ -298,6 +298,144 @@ func (x *GetProjectDetectionTasksResponse) GetTasks() []*common.ProjectDetection
 	return nil
 }
 
+// GetReasoningArtifactPolicy 请求结构体
+type GetReasoningArtifactPolicyRequest struct {
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	UserId        uint64                         `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                         `protobuf:"varint,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ImageUuid     string                         `protobuf:"bytes,3,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	TaskUuid      string                         `protobuf:"bytes,4,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	TaskCode      common.DetectionTaskCode_Value `protobuf:"varint,5,opt,name=task_code,json=taskCode,proto3,enum=icw.core.common.DetectionTaskCode_Value" json:"task_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReasoningArtifactPolicyRequest) Reset() {
+	*x = GetReasoningArtifactPolicyRequest{}
+	mi := &file_core_biz_project_detection_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReasoningArtifactPolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReasoningArtifactPolicyRequest) ProtoMessage() {}
+
+func (x *GetReasoningArtifactPolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_detection_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReasoningArtifactPolicyRequest.ProtoReflect.Descriptor instead.
+func (*GetReasoningArtifactPolicyRequest) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetReasoningArtifactPolicyRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *GetReasoningArtifactPolicyRequest) GetProjectId() uint64 {
+	if x != nil {
+		return x.ProjectId
+	}
+	return 0
+}
+
+func (x *GetReasoningArtifactPolicyRequest) GetImageUuid() string {
+	if x != nil {
+		return x.ImageUuid
+	}
+	return ""
+}
+
+func (x *GetReasoningArtifactPolicyRequest) GetTaskUuid() string {
+	if x != nil {
+		return x.TaskUuid
+	}
+	return ""
+}
+
+func (x *GetReasoningArtifactPolicyRequest) GetTaskCode() common.DetectionTaskCode_Value {
+	if x != nil {
+		return x.TaskCode
+	}
+	return common.DetectionTaskCode_Value(0)
+}
+
+// GetReasoningArtifactPolicy 响应结构体
+type GetReasoningArtifactPolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	KeyPrefix     string                 `protobuf:"bytes,2,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"`
+	FormData      map[string]string      `protobuf:"bytes,3,rep,name=form_data,json=formData,proto3" json:"form_data,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReasoningArtifactPolicyResponse) Reset() {
+	*x = GetReasoningArtifactPolicyResponse{}
+	mi := &file_core_biz_project_detection_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReasoningArtifactPolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReasoningArtifactPolicyResponse) ProtoMessage() {}
+
+func (x *GetReasoningArtifactPolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_core_biz_project_detection_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReasoningArtifactPolicyResponse.ProtoReflect.Descriptor instead.
+func (*GetReasoningArtifactPolicyResponse) Descriptor() ([]byte, []int) {
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetReasoningArtifactPolicyResponse) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *GetReasoningArtifactPolicyResponse) GetKeyPrefix() string {
+	if x != nil {
+		return x.KeyPrefix
+	}
+	return ""
+}
+
+func (x *GetReasoningArtifactPolicyResponse) GetFormData() map[string]string {
+	if x != nil {
+		return x.FormData
+	}
+	return nil
+}
+
 // ReportClassificationResult 请求结构体
 type ReportClassificationResultRequest struct {
 	state         protoimpl.MessageState           `protogen:"open.v1"`
@@ -312,7 +450,7 @@ type ReportClassificationResultRequest struct {
 
 func (x *ReportClassificationResultRequest) Reset() {
 	*x = ReportClassificationResultRequest{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[4]
+	mi := &file_core_biz_project_detection_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -324,7 +462,7 @@ func (x *ReportClassificationResultRequest) String() string {
 func (*ReportClassificationResultRequest) ProtoMessage() {}
 
 func (x *ReportClassificationResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[4]
+	mi := &file_core_biz_project_detection_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -337,7 +475,7 @@ func (x *ReportClassificationResultRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ReportClassificationResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportClassificationResultRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{4}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ReportClassificationResultRequest) GetTaskUuid() string {
@@ -384,7 +522,7 @@ type ReportClassificationResultResponse struct {
 
 func (x *ReportClassificationResultResponse) Reset() {
 	*x = ReportClassificationResultResponse{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[5]
+	mi := &file_core_biz_project_detection_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -396,7 +534,7 @@ func (x *ReportClassificationResultResponse) String() string {
 func (*ReportClassificationResultResponse) ProtoMessage() {}
 
 func (x *ReportClassificationResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[5]
+	mi := &file_core_biz_project_detection_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -409,7 +547,7 @@ func (x *ReportClassificationResultResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ReportClassificationResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportClassificationResultResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{5}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{7}
 }
 
 // ReportDetectionSummaryResult 请求结构体
@@ -426,7 +564,7 @@ type ReportDetectionSummaryResultRequest struct {
 
 func (x *ReportDetectionSummaryResultRequest) Reset() {
 	*x = ReportDetectionSummaryResultRequest{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[6]
+	mi := &file_core_biz_project_detection_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -438,7 +576,7 @@ func (x *ReportDetectionSummaryResultRequest) String() string {
 func (*ReportDetectionSummaryResultRequest) ProtoMessage() {}
 
 func (x *ReportDetectionSummaryResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[6]
+	mi := &file_core_biz_project_detection_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -451,7 +589,7 @@ func (x *ReportDetectionSummaryResultRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ReportDetectionSummaryResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportDetectionSummaryResultRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{6}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ReportDetectionSummaryResultRequest) GetTaskUuid() string {
@@ -498,7 +636,7 @@ type ReportDetectionSummaryResultResponse struct {
 
 func (x *ReportDetectionSummaryResultResponse) Reset() {
 	*x = ReportDetectionSummaryResultResponse{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[7]
+	mi := &file_core_biz_project_detection_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -510,7 +648,7 @@ func (x *ReportDetectionSummaryResultResponse) String() string {
 func (*ReportDetectionSummaryResultResponse) ProtoMessage() {}
 
 func (x *ReportDetectionSummaryResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[7]
+	mi := &file_core_biz_project_detection_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -523,7 +661,7 @@ func (x *ReportDetectionSummaryResultResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ReportDetectionSummaryResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportDetectionSummaryResultResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{7}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{9}
 }
 
 // ReportReasoningResult 请求结构体
@@ -542,7 +680,7 @@ type ReportReasoningResultRequest struct {
 
 func (x *ReportReasoningResultRequest) Reset() {
 	*x = ReportReasoningResultRequest{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[8]
+	mi := &file_core_biz_project_detection_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -554,7 +692,7 @@ func (x *ReportReasoningResultRequest) String() string {
 func (*ReportReasoningResultRequest) ProtoMessage() {}
 
 func (x *ReportReasoningResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[8]
+	mi := &file_core_biz_project_detection_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -567,7 +705,7 @@ func (x *ReportReasoningResultRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportReasoningResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportReasoningResultRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{8}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ReportReasoningResultRequest) GetTaskCode() common.DetectionTaskCode_Value {
@@ -628,7 +766,7 @@ type ReportReasoningResultResponse struct {
 
 func (x *ReportReasoningResultResponse) Reset() {
 	*x = ReportReasoningResultResponse{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[9]
+	mi := &file_core_biz_project_detection_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -640,7 +778,7 @@ func (x *ReportReasoningResultResponse) String() string {
 func (*ReportReasoningResultResponse) ProtoMessage() {}
 
 func (x *ReportReasoningResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[9]
+	mi := &file_core_biz_project_detection_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -653,7 +791,7 @@ func (x *ReportReasoningResultResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportReasoningResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportReasoningResultResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{9}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{11}
 }
 
 // RetryProjectDetection 请求结构体
@@ -667,7 +805,7 @@ type RetryProjectDetectionRequest struct {
 
 func (x *RetryProjectDetectionRequest) Reset() {
 	*x = RetryProjectDetectionRequest{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[10]
+	mi := &file_core_biz_project_detection_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -679,7 +817,7 @@ func (x *RetryProjectDetectionRequest) String() string {
 func (*RetryProjectDetectionRequest) ProtoMessage() {}
 
 func (x *RetryProjectDetectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[10]
+	mi := &file_core_biz_project_detection_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -692,7 +830,7 @@ func (x *RetryProjectDetectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryProjectDetectionRequest.ProtoReflect.Descriptor instead.
 func (*RetryProjectDetectionRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{10}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RetryProjectDetectionRequest) GetUserId() uint64 {
@@ -719,7 +857,7 @@ type RetryProjectDetectionResponse struct {
 
 func (x *RetryProjectDetectionResponse) Reset() {
 	*x = RetryProjectDetectionResponse{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[11]
+	mi := &file_core_biz_project_detection_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -731,7 +869,7 @@ func (x *RetryProjectDetectionResponse) String() string {
 func (*RetryProjectDetectionResponse) ProtoMessage() {}
 
 func (x *RetryProjectDetectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[11]
+	mi := &file_core_biz_project_detection_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -744,7 +882,7 @@ func (x *RetryProjectDetectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryProjectDetectionResponse.ProtoReflect.Descriptor instead.
 func (*RetryProjectDetectionResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{11}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RetryProjectDetectionResponse) GetTaskCount() uint32 {
@@ -765,7 +903,7 @@ type StartProjectDetectionRequest struct {
 
 func (x *StartProjectDetectionRequest) Reset() {
 	*x = StartProjectDetectionRequest{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[12]
+	mi := &file_core_biz_project_detection_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -777,7 +915,7 @@ func (x *StartProjectDetectionRequest) String() string {
 func (*StartProjectDetectionRequest) ProtoMessage() {}
 
 func (x *StartProjectDetectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[12]
+	mi := &file_core_biz_project_detection_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -790,7 +928,7 @@ func (x *StartProjectDetectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartProjectDetectionRequest.ProtoReflect.Descriptor instead.
 func (*StartProjectDetectionRequest) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{12}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *StartProjectDetectionRequest) GetUserId() uint64 {
@@ -817,7 +955,7 @@ type StartProjectDetectionResponse struct {
 
 func (x *StartProjectDetectionResponse) Reset() {
 	*x = StartProjectDetectionResponse{}
-	mi := &file_core_biz_project_detection_proto_msgTypes[13]
+	mi := &file_core_biz_project_detection_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -829,7 +967,7 @@ func (x *StartProjectDetectionResponse) String() string {
 func (*StartProjectDetectionResponse) ProtoMessage() {}
 
 func (x *StartProjectDetectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_core_biz_project_detection_proto_msgTypes[13]
+	mi := &file_core_biz_project_detection_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -842,7 +980,7 @@ func (x *StartProjectDetectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartProjectDetectionResponse.ProtoReflect.Descriptor instead.
 func (*StartProjectDetectionResponse) Descriptor() ([]byte, []int) {
-	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{13}
+	return file_core_biz_project_detection_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *StartProjectDetectionResponse) GetTaskCount() uint32 {
@@ -881,7 +1019,23 @@ const file_core_biz_project_detection_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\"a\n" +
 	" GetProjectDetectionTasksResponse\x12=\n" +
-	"\x05tasks\x18\x01 \x03(\v2'.icw.core.common.ProjectDetectionStatusR\x05tasks\"\x88\x02\n" +
+	"\x05tasks\x18\x01 \x03(\v2'.icw.core.common.ProjectDetectionStatusR\x05tasks\"\xde\x01\n" +
+	"!GetReasoningArtifactPolicyRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\x04R\tprojectId\x12\x1d\n" +
+	"\n" +
+	"image_uuid\x18\x03 \x01(\tR\timageUuid\x12\x1b\n" +
+	"\ttask_uuid\x18\x04 \x01(\tR\btaskUuid\x12E\n" +
+	"\ttask_code\x18\x05 \x01(\x0e2(.icw.core.common.DetectionTaskCode.ValueR\btaskCode\"\xef\x01\n" +
+	"\"GetReasoningArtifactPolicyResponse\x12\x10\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\x12\x1d\n" +
+	"\n" +
+	"key_prefix\x18\x02 \x01(\tR\tkeyPrefix\x12[\n" +
+	"\tform_data\x18\x03 \x03(\v2>.icw.core.biz.GetReasoningArtifactPolicyResponse.FormDataEntryR\bformData\x1a;\n" +
+	"\rFormDataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x88\x02\n" +
 	"!ReportClassificationResultRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12\x1d\n" +
 	"\n" +
@@ -923,10 +1077,11 @@ const file_core_biz_project_detection_proto_rawDesc = "" +
 	"project_id\x18\x02 \x01(\x04R\tprojectId\">\n" +
 	"\x1dStartProjectDetectionResponse\x12\x1d\n" +
 	"\n" +
-	"task_count\x18\x01 \x01(\rR\ttaskCount2\xeb\x06\n" +
+	"task_count\x18\x01 \x01(\rR\ttaskCount2\xec\a\n" +
 	"\x17ProjectDetectionService\x12v\n" +
 	"\x17GetImageDetectionResult\x12,.icw.core.biz.GetImageDetectionResultRequest\x1a-.icw.core.biz.GetImageDetectionResultResponse\x12y\n" +
 	"\x18GetProjectDetectionTasks\x12-.icw.core.biz.GetProjectDetectionTasksRequest\x1a..icw.core.biz.GetProjectDetectionTasksResponse\x12\x7f\n" +
+	"\x1aGetReasoningArtifactPolicy\x12/.icw.core.biz.GetReasoningArtifactPolicyRequest\x1a0.icw.core.biz.GetReasoningArtifactPolicyResponse\x12\x7f\n" +
 	"\x1aReportClassificationResult\x12/.icw.core.biz.ReportClassificationResultRequest\x1a0.icw.core.biz.ReportClassificationResultResponse\x12\x85\x01\n" +
 	"\x1cReportDetectionSummaryResult\x121.icw.core.biz.ReportDetectionSummaryResultRequest\x1a2.icw.core.biz.ReportDetectionSummaryResultResponse\x12p\n" +
 	"\x15ReportReasoningResult\x12*.icw.core.biz.ReportReasoningResultRequest\x1a+.icw.core.biz.ReportReasoningResultResponse\x12p\n" +
@@ -945,70 +1100,77 @@ func file_core_biz_project_detection_proto_rawDescGZIP() []byte {
 	return file_core_biz_project_detection_proto_rawDescData
 }
 
-var file_core_biz_project_detection_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_core_biz_project_detection_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_core_biz_project_detection_proto_goTypes = []any{
 	(*GetImageDetectionResultRequest)(nil),         // 0: icw.core.biz.GetImageDetectionResultRequest
 	(*GetImageDetectionResultResponse)(nil),        // 1: icw.core.biz.GetImageDetectionResultResponse
 	(*GetProjectDetectionTasksRequest)(nil),        // 2: icw.core.biz.GetProjectDetectionTasksRequest
 	(*GetProjectDetectionTasksResponse)(nil),       // 3: icw.core.biz.GetProjectDetectionTasksResponse
-	(*ReportClassificationResultRequest)(nil),      // 4: icw.core.biz.ReportClassificationResultRequest
-	(*ReportClassificationResultResponse)(nil),     // 5: icw.core.biz.ReportClassificationResultResponse
-	(*ReportDetectionSummaryResultRequest)(nil),    // 6: icw.core.biz.ReportDetectionSummaryResultRequest
-	(*ReportDetectionSummaryResultResponse)(nil),   // 7: icw.core.biz.ReportDetectionSummaryResultResponse
-	(*ReportReasoningResultRequest)(nil),           // 8: icw.core.biz.ReportReasoningResultRequest
-	(*ReportReasoningResultResponse)(nil),          // 9: icw.core.biz.ReportReasoningResultResponse
-	(*RetryProjectDetectionRequest)(nil),           // 10: icw.core.biz.RetryProjectDetectionRequest
-	(*RetryProjectDetectionResponse)(nil),          // 11: icw.core.biz.RetryProjectDetectionResponse
-	(*StartProjectDetectionRequest)(nil),           // 12: icw.core.biz.StartProjectDetectionRequest
-	(*StartProjectDetectionResponse)(nil),          // 13: icw.core.biz.StartProjectDetectionResponse
-	(*common.ProjectImage)(nil),                    // 14: icw.core.common.ProjectImage
-	(*common.ProjectDetectionStatus)(nil),          // 15: icw.core.common.ProjectDetectionStatus
-	(common.DetectionTaskCode_Value)(0),            // 16: icw.core.common.DetectionTaskCode.Value
-	(*common.ProjectDetectionCorrosionResult)(nil), // 17: icw.core.common.ProjectDetectionCorrosionResult
-	(*common.ProjectDetectionCrackResult)(nil),     // 18: icw.core.common.ProjectDetectionCrackResult
-	(*common.ProjectDetectionStainResult)(nil),     // 19: icw.core.common.ProjectDetectionStainResult
-	(*common.ProjectDetectionFlatnessResult)(nil),  // 20: icw.core.common.ProjectDetectionFlatnessResult
-	(*common.ProjectDetectionSpallingResult)(nil),  // 21: icw.core.common.ProjectDetectionSpallingResult
-	(*common.ProjectDetectionSummaryResult)(nil),   // 22: icw.core.common.ProjectDetectionSummaryResult
-	(common.TaskStatus_Value)(0),                   // 23: icw.core.common.TaskStatus.Value
-	(*ReasoningArtifactUploadResult)(nil),          // 24: icw.core.biz.ReasoningArtifactUploadResult
+	(*GetReasoningArtifactPolicyRequest)(nil),      // 4: icw.core.biz.GetReasoningArtifactPolicyRequest
+	(*GetReasoningArtifactPolicyResponse)(nil),     // 5: icw.core.biz.GetReasoningArtifactPolicyResponse
+	(*ReportClassificationResultRequest)(nil),      // 6: icw.core.biz.ReportClassificationResultRequest
+	(*ReportClassificationResultResponse)(nil),     // 7: icw.core.biz.ReportClassificationResultResponse
+	(*ReportDetectionSummaryResultRequest)(nil),    // 8: icw.core.biz.ReportDetectionSummaryResultRequest
+	(*ReportDetectionSummaryResultResponse)(nil),   // 9: icw.core.biz.ReportDetectionSummaryResultResponse
+	(*ReportReasoningResultRequest)(nil),           // 10: icw.core.biz.ReportReasoningResultRequest
+	(*ReportReasoningResultResponse)(nil),          // 11: icw.core.biz.ReportReasoningResultResponse
+	(*RetryProjectDetectionRequest)(nil),           // 12: icw.core.biz.RetryProjectDetectionRequest
+	(*RetryProjectDetectionResponse)(nil),          // 13: icw.core.biz.RetryProjectDetectionResponse
+	(*StartProjectDetectionRequest)(nil),           // 14: icw.core.biz.StartProjectDetectionRequest
+	(*StartProjectDetectionResponse)(nil),          // 15: icw.core.biz.StartProjectDetectionResponse
+	nil,                                            // 16: icw.core.biz.GetReasoningArtifactPolicyResponse.FormDataEntry
+	(*common.ProjectImage)(nil),                    // 17: icw.core.common.ProjectImage
+	(*common.ProjectDetectionStatus)(nil),          // 18: icw.core.common.ProjectDetectionStatus
+	(common.DetectionTaskCode_Value)(0),            // 19: icw.core.common.DetectionTaskCode.Value
+	(*common.ProjectDetectionCorrosionResult)(nil), // 20: icw.core.common.ProjectDetectionCorrosionResult
+	(*common.ProjectDetectionCrackResult)(nil),     // 21: icw.core.common.ProjectDetectionCrackResult
+	(*common.ProjectDetectionStainResult)(nil),     // 22: icw.core.common.ProjectDetectionStainResult
+	(*common.ProjectDetectionFlatnessResult)(nil),  // 23: icw.core.common.ProjectDetectionFlatnessResult
+	(*common.ProjectDetectionSpallingResult)(nil),  // 24: icw.core.common.ProjectDetectionSpallingResult
+	(*common.ProjectDetectionSummaryResult)(nil),   // 25: icw.core.common.ProjectDetectionSummaryResult
+	(common.TaskStatus_Value)(0),                   // 26: icw.core.common.TaskStatus.Value
+	(*ReasoningArtifactUploadResult)(nil),          // 27: icw.core.biz.ReasoningArtifactUploadResult
 }
 var file_core_biz_project_detection_proto_depIdxs = []int32{
-	14, // 0: icw.core.biz.GetImageDetectionResultResponse.image:type_name -> icw.core.common.ProjectImage
-	15, // 1: icw.core.biz.GetImageDetectionResultResponse.status:type_name -> icw.core.common.ProjectDetectionStatus
-	16, // 2: icw.core.biz.GetImageDetectionResultResponse.task_codes:type_name -> icw.core.common.DetectionTaskCode.Value
-	17, // 3: icw.core.biz.GetImageDetectionResultResponse.corrosion_result:type_name -> icw.core.common.ProjectDetectionCorrosionResult
-	18, // 4: icw.core.biz.GetImageDetectionResultResponse.crack_result:type_name -> icw.core.common.ProjectDetectionCrackResult
-	19, // 5: icw.core.biz.GetImageDetectionResultResponse.stain_result:type_name -> icw.core.common.ProjectDetectionStainResult
-	20, // 6: icw.core.biz.GetImageDetectionResultResponse.flatness_result:type_name -> icw.core.common.ProjectDetectionFlatnessResult
-	21, // 7: icw.core.biz.GetImageDetectionResultResponse.spalling_result:type_name -> icw.core.common.ProjectDetectionSpallingResult
-	22, // 8: icw.core.biz.GetImageDetectionResultResponse.summary_result:type_name -> icw.core.common.ProjectDetectionSummaryResult
-	15, // 9: icw.core.biz.GetProjectDetectionTasksResponse.tasks:type_name -> icw.core.common.ProjectDetectionStatus
-	23, // 10: icw.core.biz.ReportClassificationResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
-	16, // 11: icw.core.biz.ReportClassificationResultRequest.task_codes:type_name -> icw.core.common.DetectionTaskCode.Value
-	23, // 12: icw.core.biz.ReportDetectionSummaryResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
-	16, // 13: icw.core.biz.ReportReasoningResultRequest.task_code:type_name -> icw.core.common.DetectionTaskCode.Value
-	23, // 14: icw.core.biz.ReportReasoningResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
-	24, // 15: icw.core.biz.ReportReasoningResultRequest.artifacts:type_name -> icw.core.biz.ReasoningArtifactUploadResult
-	0,  // 16: icw.core.biz.ProjectDetectionService.GetImageDetectionResult:input_type -> icw.core.biz.GetImageDetectionResultRequest
-	2,  // 17: icw.core.biz.ProjectDetectionService.GetProjectDetectionTasks:input_type -> icw.core.biz.GetProjectDetectionTasksRequest
-	4,  // 18: icw.core.biz.ProjectDetectionService.ReportClassificationResult:input_type -> icw.core.biz.ReportClassificationResultRequest
-	6,  // 19: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:input_type -> icw.core.biz.ReportDetectionSummaryResultRequest
-	8,  // 20: icw.core.biz.ProjectDetectionService.ReportReasoningResult:input_type -> icw.core.biz.ReportReasoningResultRequest
-	10, // 21: icw.core.biz.ProjectDetectionService.RetryProjectDetection:input_type -> icw.core.biz.RetryProjectDetectionRequest
-	12, // 22: icw.core.biz.ProjectDetectionService.StartProjectDetection:input_type -> icw.core.biz.StartProjectDetectionRequest
-	1,  // 23: icw.core.biz.ProjectDetectionService.GetImageDetectionResult:output_type -> icw.core.biz.GetImageDetectionResultResponse
-	3,  // 24: icw.core.biz.ProjectDetectionService.GetProjectDetectionTasks:output_type -> icw.core.biz.GetProjectDetectionTasksResponse
-	5,  // 25: icw.core.biz.ProjectDetectionService.ReportClassificationResult:output_type -> icw.core.biz.ReportClassificationResultResponse
-	7,  // 26: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:output_type -> icw.core.biz.ReportDetectionSummaryResultResponse
-	9,  // 27: icw.core.biz.ProjectDetectionService.ReportReasoningResult:output_type -> icw.core.biz.ReportReasoningResultResponse
-	11, // 28: icw.core.biz.ProjectDetectionService.RetryProjectDetection:output_type -> icw.core.biz.RetryProjectDetectionResponse
-	13, // 29: icw.core.biz.ProjectDetectionService.StartProjectDetection:output_type -> icw.core.biz.StartProjectDetectionResponse
-	23, // [23:30] is the sub-list for method output_type
-	16, // [16:23] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	17, // 0: icw.core.biz.GetImageDetectionResultResponse.image:type_name -> icw.core.common.ProjectImage
+	18, // 1: icw.core.biz.GetImageDetectionResultResponse.status:type_name -> icw.core.common.ProjectDetectionStatus
+	19, // 2: icw.core.biz.GetImageDetectionResultResponse.task_codes:type_name -> icw.core.common.DetectionTaskCode.Value
+	20, // 3: icw.core.biz.GetImageDetectionResultResponse.corrosion_result:type_name -> icw.core.common.ProjectDetectionCorrosionResult
+	21, // 4: icw.core.biz.GetImageDetectionResultResponse.crack_result:type_name -> icw.core.common.ProjectDetectionCrackResult
+	22, // 5: icw.core.biz.GetImageDetectionResultResponse.stain_result:type_name -> icw.core.common.ProjectDetectionStainResult
+	23, // 6: icw.core.biz.GetImageDetectionResultResponse.flatness_result:type_name -> icw.core.common.ProjectDetectionFlatnessResult
+	24, // 7: icw.core.biz.GetImageDetectionResultResponse.spalling_result:type_name -> icw.core.common.ProjectDetectionSpallingResult
+	25, // 8: icw.core.biz.GetImageDetectionResultResponse.summary_result:type_name -> icw.core.common.ProjectDetectionSummaryResult
+	18, // 9: icw.core.biz.GetProjectDetectionTasksResponse.tasks:type_name -> icw.core.common.ProjectDetectionStatus
+	19, // 10: icw.core.biz.GetReasoningArtifactPolicyRequest.task_code:type_name -> icw.core.common.DetectionTaskCode.Value
+	16, // 11: icw.core.biz.GetReasoningArtifactPolicyResponse.form_data:type_name -> icw.core.biz.GetReasoningArtifactPolicyResponse.FormDataEntry
+	26, // 12: icw.core.biz.ReportClassificationResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
+	19, // 13: icw.core.biz.ReportClassificationResultRequest.task_codes:type_name -> icw.core.common.DetectionTaskCode.Value
+	26, // 14: icw.core.biz.ReportDetectionSummaryResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
+	19, // 15: icw.core.biz.ReportReasoningResultRequest.task_code:type_name -> icw.core.common.DetectionTaskCode.Value
+	26, // 16: icw.core.biz.ReportReasoningResultRequest.status:type_name -> icw.core.common.TaskStatus.Value
+	27, // 17: icw.core.biz.ReportReasoningResultRequest.artifacts:type_name -> icw.core.biz.ReasoningArtifactUploadResult
+	0,  // 18: icw.core.biz.ProjectDetectionService.GetImageDetectionResult:input_type -> icw.core.biz.GetImageDetectionResultRequest
+	2,  // 19: icw.core.biz.ProjectDetectionService.GetProjectDetectionTasks:input_type -> icw.core.biz.GetProjectDetectionTasksRequest
+	4,  // 20: icw.core.biz.ProjectDetectionService.GetReasoningArtifactPolicy:input_type -> icw.core.biz.GetReasoningArtifactPolicyRequest
+	6,  // 21: icw.core.biz.ProjectDetectionService.ReportClassificationResult:input_type -> icw.core.biz.ReportClassificationResultRequest
+	8,  // 22: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:input_type -> icw.core.biz.ReportDetectionSummaryResultRequest
+	10, // 23: icw.core.biz.ProjectDetectionService.ReportReasoningResult:input_type -> icw.core.biz.ReportReasoningResultRequest
+	12, // 24: icw.core.biz.ProjectDetectionService.RetryProjectDetection:input_type -> icw.core.biz.RetryProjectDetectionRequest
+	14, // 25: icw.core.biz.ProjectDetectionService.StartProjectDetection:input_type -> icw.core.biz.StartProjectDetectionRequest
+	1,  // 26: icw.core.biz.ProjectDetectionService.GetImageDetectionResult:output_type -> icw.core.biz.GetImageDetectionResultResponse
+	3,  // 27: icw.core.biz.ProjectDetectionService.GetProjectDetectionTasks:output_type -> icw.core.biz.GetProjectDetectionTasksResponse
+	5,  // 28: icw.core.biz.ProjectDetectionService.GetReasoningArtifactPolicy:output_type -> icw.core.biz.GetReasoningArtifactPolicyResponse
+	7,  // 29: icw.core.biz.ProjectDetectionService.ReportClassificationResult:output_type -> icw.core.biz.ReportClassificationResultResponse
+	9,  // 30: icw.core.biz.ProjectDetectionService.ReportDetectionSummaryResult:output_type -> icw.core.biz.ReportDetectionSummaryResultResponse
+	11, // 31: icw.core.biz.ProjectDetectionService.ReportReasoningResult:output_type -> icw.core.biz.ReportReasoningResultResponse
+	13, // 32: icw.core.biz.ProjectDetectionService.RetryProjectDetection:output_type -> icw.core.biz.RetryProjectDetectionResponse
+	15, // 33: icw.core.biz.ProjectDetectionService.StartProjectDetection:output_type -> icw.core.biz.StartProjectDetectionResponse
+	26, // [26:34] is the sub-list for method output_type
+	18, // [18:26] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_core_biz_project_detection_proto_init() }
@@ -1023,7 +1185,7 @@ func file_core_biz_project_detection_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_biz_project_detection_proto_rawDesc), len(file_core_biz_project_detection_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

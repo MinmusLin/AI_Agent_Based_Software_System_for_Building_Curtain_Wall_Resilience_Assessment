@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ProjectDetectionService_GetImageDetectionResult_FullMethodName      = "/icw.core.biz.ProjectDetectionService/GetImageDetectionResult"
 	ProjectDetectionService_GetProjectDetectionTasks_FullMethodName     = "/icw.core.biz.ProjectDetectionService/GetProjectDetectionTasks"
+	ProjectDetectionService_GetReasoningArtifactPolicy_FullMethodName   = "/icw.core.biz.ProjectDetectionService/GetReasoningArtifactPolicy"
 	ProjectDetectionService_ReportClassificationResult_FullMethodName   = "/icw.core.biz.ProjectDetectionService/ReportClassificationResult"
 	ProjectDetectionService_ReportDetectionSummaryResult_FullMethodName = "/icw.core.biz.ProjectDetectionService/ReportDetectionSummaryResult"
 	ProjectDetectionService_ReportReasoningResult_FullMethodName        = "/icw.core.biz.ProjectDetectionService/ReportReasoningResult"
@@ -38,6 +39,8 @@ type ProjectDetectionServiceClient interface {
 	GetImageDetectionResult(ctx context.Context, in *GetImageDetectionResultRequest, opts ...grpc.CallOption) (*GetImageDetectionResultResponse, error)
 	// 获取项目检测任务列表
 	GetProjectDetectionTasks(ctx context.Context, in *GetProjectDetectionTasksRequest, opts ...grpc.CallOption) (*GetProjectDetectionTasksResponse, error)
+	// 获取图像检测推理产物上传授权
+	GetReasoningArtifactPolicy(ctx context.Context, in *GetReasoningArtifactPolicyRequest, opts ...grpc.CallOption) (*GetReasoningArtifactPolicyResponse, error)
 	// 上报图像检测分类结果
 	ReportClassificationResult(ctx context.Context, in *ReportClassificationResultRequest, opts ...grpc.CallOption) (*ReportClassificationResultResponse, error)
 	// 上报图像检测总结结果
@@ -72,6 +75,16 @@ func (c *projectDetectionServiceClient) GetProjectDetectionTasks(ctx context.Con
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetProjectDetectionTasksResponse)
 	err := c.cc.Invoke(ctx, ProjectDetectionService_GetProjectDetectionTasks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectDetectionServiceClient) GetReasoningArtifactPolicy(ctx context.Context, in *GetReasoningArtifactPolicyRequest, opts ...grpc.CallOption) (*GetReasoningArtifactPolicyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetReasoningArtifactPolicyResponse)
+	err := c.cc.Invoke(ctx, ProjectDetectionService_GetReasoningArtifactPolicy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +151,8 @@ type ProjectDetectionServiceServer interface {
 	GetImageDetectionResult(context.Context, *GetImageDetectionResultRequest) (*GetImageDetectionResultResponse, error)
 	// 获取项目检测任务列表
 	GetProjectDetectionTasks(context.Context, *GetProjectDetectionTasksRequest) (*GetProjectDetectionTasksResponse, error)
+	// 获取图像检测推理产物上传授权
+	GetReasoningArtifactPolicy(context.Context, *GetReasoningArtifactPolicyRequest) (*GetReasoningArtifactPolicyResponse, error)
 	// 上报图像检测分类结果
 	ReportClassificationResult(context.Context, *ReportClassificationResultRequest) (*ReportClassificationResultResponse, error)
 	// 上报图像检测总结结果
@@ -163,6 +178,9 @@ func (UnimplementedProjectDetectionServiceServer) GetImageDetectionResult(contex
 }
 func (UnimplementedProjectDetectionServiceServer) GetProjectDetectionTasks(context.Context, *GetProjectDetectionTasksRequest) (*GetProjectDetectionTasksResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProjectDetectionTasks not implemented")
+}
+func (UnimplementedProjectDetectionServiceServer) GetReasoningArtifactPolicy(context.Context, *GetReasoningArtifactPolicyRequest) (*GetReasoningArtifactPolicyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetReasoningArtifactPolicy not implemented")
 }
 func (UnimplementedProjectDetectionServiceServer) ReportClassificationResult(context.Context, *ReportClassificationResultRequest) (*ReportClassificationResultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReportClassificationResult not implemented")
@@ -233,6 +251,24 @@ func _ProjectDetectionService_GetProjectDetectionTasks_Handler(srv interface{}, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ProjectDetectionServiceServer).GetProjectDetectionTasks(ctx, req.(*GetProjectDetectionTasksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectDetectionService_GetReasoningArtifactPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetReasoningArtifactPolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectDetectionServiceServer).GetReasoningArtifactPolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectDetectionService_GetReasoningArtifactPolicy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectDetectionServiceServer).GetReasoningArtifactPolicy(ctx, req.(*GetReasoningArtifactPolicyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -341,6 +377,10 @@ var ProjectDetectionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProjectDetectionTasks",
 			Handler:    _ProjectDetectionService_GetProjectDetectionTasks_Handler,
+		},
+		{
+			MethodName: "GetReasoningArtifactPolicy",
+			Handler:    _ProjectDetectionService_GetReasoningArtifactPolicy_Handler,
 		},
 		{
 			MethodName: "ReportClassificationResult",

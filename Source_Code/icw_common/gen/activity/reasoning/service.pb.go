@@ -24,15 +24,14 @@ const (
 
 // Start 请求结构体
 type StartRequest struct {
-	state          protoimpl.MessageState         `protogen:"open.v1"`
-	TaskUuid       string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
-	TaskCode       common.DetectionTaskCode_Value `protobuf:"varint,2,opt,name=task_code,json=taskCode,proto3,enum=icw.core.common.DetectionTaskCode_Value" json:"task_code,omitempty"`
-	UserId         uint64                         `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ProjectId      uint64                         `protobuf:"varint,4,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	ImageUuid      string                         `protobuf:"bytes,5,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
-	ArtifactPolicy *ReasoningArtifactUploadPolicy `protobuf:"bytes,6,opt,name=artifact_policy,json=artifactPolicy,proto3" json:"artifact_policy,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	TaskUuid      string                         `protobuf:"bytes,1,opt,name=task_uuid,json=taskUuid,proto3" json:"task_uuid,omitempty"`
+	TaskCode      common.DetectionTaskCode_Value `protobuf:"varint,2,opt,name=task_code,json=taskCode,proto3,enum=icw.core.common.DetectionTaskCode_Value" json:"task_code,omitempty"`
+	UserId        uint64                         `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProjectId     uint64                         `protobuf:"varint,4,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ImageUuid     string                         `protobuf:"bytes,5,opt,name=image_uuid,json=imageUuid,proto3" json:"image_uuid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StartRequest) Reset() {
@@ -100,13 +99,6 @@ func (x *StartRequest) GetImageUuid() string {
 	return ""
 }
 
-func (x *StartRequest) GetArtifactPolicy() *ReasoningArtifactUploadPolicy {
-	if x != nil {
-		return x.ArtifactPolicy
-	}
-	return nil
-}
-
 // Start 响应结构体
 type StartResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -148,7 +140,7 @@ var File_activity_reasoning_service_proto protoreflect.FileDescriptor
 
 const file_activity_reasoning_service_proto_rawDesc = "" +
 	"\n" +
-	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x1factivity/reasoning/common.proto\x1a\x11core/common.proto\"\xa9\x02\n" +
+	" activity/reasoning/service.proto\x12\x16icw.activity.reasoning\x1a\x11core/common.proto\"\xc9\x01\n" +
 	"\fStartRequest\x12\x1b\n" +
 	"\ttask_uuid\x18\x01 \x01(\tR\btaskUuid\x12E\n" +
 	"\ttask_code\x18\x02 \x01(\x0e2(.icw.core.common.DetectionTaskCode.ValueR\btaskCode\x12\x17\n" +
@@ -156,8 +148,7 @@ const file_activity_reasoning_service_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x04 \x01(\x04R\tprojectId\x12\x1d\n" +
 	"\n" +
-	"image_uuid\x18\x05 \x01(\tR\timageUuid\x12^\n" +
-	"\x0fartifact_policy\x18\x06 \x01(\v25.icw.activity.reasoning.ReasoningArtifactUploadPolicyR\x0eartifactPolicy\"\x0f\n" +
+	"image_uuid\x18\x05 \x01(\tR\timageUuid\"\x0f\n" +
 	"\rStartResponse2h\n" +
 	"\x10ReasoningService\x12T\n" +
 	"\x05Start\x12$.icw.activity.reasoning.StartRequest\x1a%.icw.activity.reasoning.StartResponseB/Z-icw_common/gen/activity/reasoning;reasoningpbb\x06proto3"
@@ -176,21 +167,19 @@ func file_activity_reasoning_service_proto_rawDescGZIP() []byte {
 
 var file_activity_reasoning_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_activity_reasoning_service_proto_goTypes = []any{
-	(*StartRequest)(nil),                  // 0: icw.activity.reasoning.StartRequest
-	(*StartResponse)(nil),                 // 1: icw.activity.reasoning.StartResponse
-	(common.DetectionTaskCode_Value)(0),   // 2: icw.core.common.DetectionTaskCode.Value
-	(*ReasoningArtifactUploadPolicy)(nil), // 3: icw.activity.reasoning.ReasoningArtifactUploadPolicy
+	(*StartRequest)(nil),                // 0: icw.activity.reasoning.StartRequest
+	(*StartResponse)(nil),               // 1: icw.activity.reasoning.StartResponse
+	(common.DetectionTaskCode_Value)(0), // 2: icw.core.common.DetectionTaskCode.Value
 }
 var file_activity_reasoning_service_proto_depIdxs = []int32{
 	2, // 0: icw.activity.reasoning.StartRequest.task_code:type_name -> icw.core.common.DetectionTaskCode.Value
-	3, // 1: icw.activity.reasoning.StartRequest.artifact_policy:type_name -> icw.activity.reasoning.ReasoningArtifactUploadPolicy
-	0, // 2: icw.activity.reasoning.ReasoningService.Start:input_type -> icw.activity.reasoning.StartRequest
-	1, // 3: icw.activity.reasoning.ReasoningService.Start:output_type -> icw.activity.reasoning.StartResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // 1: icw.activity.reasoning.ReasoningService.Start:input_type -> icw.activity.reasoning.StartRequest
+	1, // 2: icw.activity.reasoning.ReasoningService.Start:output_type -> icw.activity.reasoning.StartResponse
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_activity_reasoning_service_proto_init() }
@@ -198,7 +187,6 @@ func file_activity_reasoning_service_proto_init() {
 	if File_activity_reasoning_service_proto != nil {
 		return
 	}
-	file_activity_reasoning_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -24,7 +24,7 @@ var File_activity_reasoning_proto protoreflect.FileDescriptor
 
 const file_activity_reasoning_proto_rawDesc = "" +
 	"\n" +
-	"\x18activity/reasoning.proto\x12\x16icw.activity.reasoning\x1a\x1factivity/reasoning/common.proto\x1a activity/reasoning/service.protoB/Z-icw_common/gen/activity/reasoning;reasoningpbP\x00P\x01b\x06proto3"
+	"\x18activity/reasoning.proto\x12\x16icw.activity.reasoning\x1a activity/reasoning/service.protoB/Z-icw_common/gen/activity/reasoning;reasoningpbP\x00b\x06proto3"
 
 var file_activity_reasoning_proto_goTypes = []any{}
 var file_activity_reasoning_proto_depIdxs = []int32{
@@ -40,7 +40,6 @@ func file_activity_reasoning_proto_init() {
 	if File_activity_reasoning_proto != nil {
 		return
 	}
-	file_activity_reasoning_common_proto_init()
 	file_activity_reasoning_service_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{

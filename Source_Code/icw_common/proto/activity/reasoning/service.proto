@@ -4,7 +4,6 @@ package icw.activity.reasoning;
 
 option go_package = "icw_common/gen/activity/reasoning;reasoningpb";
 
-import "activity/reasoning/common.proto";
 import "core/common.proto";
 
 // Start 请求结构体
@@ -14,7 +13,6 @@ message StartRequest {
   uint64 user_id = 3;
   uint64 project_id = 4;
   string image_uuid = 5;
-  ReasoningArtifactUploadPolicy artifact_policy = 6;
 }
 
 // Start 响应结构体
