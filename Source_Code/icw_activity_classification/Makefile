@@ -15,7 +15,7 @@ COVER_HTML := $(COVER_DIR)/coverage.html
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all verify image fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-all build-linux-amd64 build-linux-arm64 run clean
+.PHONY: help all verify image fmt fmt-check tidy tidy-check deps list env vet test test-race cover cover-open build build-darwin build-linux build-windows run clean
 
 help:
 	@echo "Usage: make <COMMAND>"
@@ -36,10 +36,10 @@ help:
 	@echo "  make test-race          Run Go tests with race detector"
 	@echo "  make cover              Generate coverage report"
 	@echo "  make cover-open         Generate and open coverage report"
-	@echo "  make build              Build local binary"
-	@echo "  make build-all          Build local and linux binaries"
-	@echo "  make build-linux-amd64  Build linux/amd64 binary"
-	@echo "  make build-linux-arm64  Build linux/arm64 binary"
+	@echo "  make build              Build Darwin, Linux, and Windows binaries"
+	@echo "  make build-darwin       Build Darwin arm64 and x86_64 binaries"
+	@echo "  make build-linux        Build Linux arm64 and x86_64 binaries"
+	@echo "  make build-windows      Build Windows arm64 and x86_64 binaries"
 	@echo "  make run                Run service locally"
 	@echo "  make clean              Remove generated build and coverage artifacts"
 
@@ -97,19 +97,22 @@ cover:
 cover-open: cover
 	open $(COVER_HTML)
 
-build:
-	mkdir -p $(BIN_DIR)
-	$(GO) build -o $(BIN) $(MAIN)
+build: build-darwin build-linux build-windows
 
-build-all: build build-linux-amd64 build-linux-arm64
-
-build-linux-amd64:
+build-darwin:
 	mkdir -p $(BIN_DIR)
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o $(BIN)-linux-amd64 $(MAIN)
+	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 $(GO) build -o $(BIN)_Darwin_arm64 $(MAIN)
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o $(BIN)_Darwin_x86_64 $(MAIN)
 
-build-linux-arm64:
+build-linux:
 	mkdir -p $(BIN_DIR)
-	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 $(GO) build -o $(BIN)-linux-arm64 $(MAIN)
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 $(GO) build -o $(BIN)_Linux_arm64 $(MAIN)
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o $(BIN)_Linux_x86_64 $(MAIN)
+
+build-windows:
+	mkdir -p $(BIN_DIR)
+	GOOS=windows GOARCH=arm64 CGO_ENABLED=0 $(GO) build -o $(BIN)_Windows_arm64.exe $(MAIN)
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o $(BIN)_Windows_x86_64.exe $(MAIN)
 
 run:
 	./$(BIN)
