@@ -5,12 +5,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getErrorMessage } from '@/api/http';
 import { getProjectReport, retryProjectReport } from '@/api/project/report';
+import type { ProjectReportPayload } from '@/components/project/report/ProjectReportViewer';
+import { parseProjectReportPayload, ProjectReportViewer } from '@/components/project/report/ProjectReportViewer';
 import type { Project } from '@/gen/core/api/common';
 import type { ProjectReport } from '@/gen/core/common';
 import { ProjectProgress_Value, ProjectReportStatus_Value } from '@/gen/core/common';
 import { useProjectReportSocket } from '@/hooks/project/useProjectReportSocket';
-
-const JSON_FORMAT_INDENT = 2;
 
 interface ProjectReportStageProps {
   loading?: boolean;
@@ -35,28 +35,18 @@ interface ReportActionsProps {
 }
 
 interface ReportBodyProps {
-  content: string;
   errorText: string;
+  fallbackText: string;
+  payload?: ProjectReportPayload;
   reportGenerating: boolean;
   reportFailed: boolean;
   reportDataLoading: boolean;
   reportSucceeded: boolean;
+  updatedAt?: string;
 }
 
-function reportContent(report?: ProjectReport): string {
-  const resultJson = report?.result_json.trim() ?? '';
-  if (resultJson === '') {
-    return '';
-  }
-  try {
-    const parsed = JSON.parse(resultJson) as unknown;
-    if (typeof parsed === 'object' && parsed !== null && 'summary' in parsed && typeof parsed.summary === 'string') {
-      return parsed.summary;
-    }
-    return JSON.stringify(parsed, null, JSON_FORMAT_INDENT);
-  } catch {
-    return resultJson;
-  }
+function reportText(report?: ProjectReport): string {
+  return report?.result_json.trim() ?? '';
 }
 
 function ReportActions({
@@ -89,12 +79,14 @@ function ReportActions({
 }
 
 function ReportBody({
-  content,
   errorText,
+  fallbackText,
+  payload,
   reportGenerating,
   reportFailed,
   reportDataLoading,
   reportSucceeded,
+  updatedAt,
 }: ReportBodyProps): ReactElement | null {
   if (reportDataLoading) {
     return (
@@ -120,11 +112,7 @@ function ReportBody({
     );
   }
   if (reportSucceeded) {
-    return (
-      <pre className="h-full overflow-auto overscroll-contain whitespace-pre-wrap break-all rounded bg-white p-4 text-sm leading-6 text-slate-700">
-        {content || '报告生成成功'}
-      </pre>
-    );
+    return <ProjectReportViewer fallbackText={fallbackText} payload={payload} updatedAt={updatedAt} />;
   }
   return null;
 }
@@ -215,7 +203,8 @@ export function ProjectReportStage({
     }
   }, [loadReport, messageApi, projectId]);
 
-  const content = useMemo(() => reportContent(report), [report]);
+  const fallbackText = useMemo(() => reportText(report), [report]);
+  const payload = useMemo(() => parseProjectReportPayload(fallbackText), [fallbackText]);
   const pageDataLoading = loading || reportLoading;
   const reportGenerating = !pageDataLoading && (!report || report.status === ProjectReportStatus_Value.Pending);
   const reportFailed = !pageDataLoading && report?.status === ProjectReportStatus_Value.Failed;
@@ -239,9 +228,9 @@ export function ProjectReportStage({
   });
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white">
       {contextHolder}
-      <div className="mb-4 flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 px-5 py-5">
         <div>
           <h2 className="text-base font-semibold text-slate-900">评估报告生成</h2>
           <p className="mt-1 text-sm text-slate-500">
@@ -259,14 +248,16 @@ export function ProjectReportStage({
           retrying={retrying}
         />
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-5">
+      <div className="min-h-0 flex-1 overflow-hidden px-5 pb-5">
         <ReportBody
-          content={content}
           errorText={errorText}
+          fallbackText={fallbackText}
+          payload={payload}
           reportDataLoading={pageDataLoading}
           reportFailed={reportFailed}
           reportGenerating={reportGenerating}
           reportSucceeded={reportSucceeded}
+          updatedAt={report?.updated_at}
         />
       </div>
     </div>

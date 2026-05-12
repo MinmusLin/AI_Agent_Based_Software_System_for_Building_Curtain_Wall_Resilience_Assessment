@@ -18,7 +18,6 @@ export interface DetectionTabItem {
   result: DetectionResult | undefined;
 }
 
-// detectionResultTabs 生成图像检测结果选项卡
 export function detectionResultTabs(result: GetImageDetectionResultResponse | null): DetectionTabItem[] {
   if (!result) {
     return [];
@@ -53,7 +52,6 @@ export function detectionResultTabs(result: GetImageDetectionResultResponse | nu
   return tabs.filter((item) => Boolean(item.result));
 }
 
-// viewerTitle 生成图像检测结果弹窗标题
 export function viewerTitle(
   image: GetImageDetectionResultResponse['image'],
   uploadedImages: ViewerImage[],

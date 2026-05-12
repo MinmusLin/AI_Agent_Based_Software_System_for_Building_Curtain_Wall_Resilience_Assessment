@@ -74,7 +74,6 @@ function summaryTagClassName(color: string): string {
   }
 }
 
-// SummaryResultTab 展示图像检测 Agent 总结结果
 export function SummaryResultTab({ result }: { result: ProjectDetectionSummaryResult | undefined }): ReactElement {
   const sections = summarySections(result?.result);
 
