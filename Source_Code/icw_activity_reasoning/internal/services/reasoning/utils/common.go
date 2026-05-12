@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+// ArtifactUploadPolicy 图像检测产物上传授权
+type ArtifactUploadPolicy struct {
+	URL       string
+	KeyPrefix string
+	FormData  map[string]string
+}
+
 // isSafePathPart 判断字符串是否可作为单层路径片段
 func isSafePathPart(value string) bool {
 	value = strings.TrimSpace(value)

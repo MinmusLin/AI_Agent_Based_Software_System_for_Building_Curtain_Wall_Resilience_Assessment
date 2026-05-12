@@ -16,12 +16,11 @@ import (
 	"sync"
 	"time"
 
-	"icw_common/gen/activity/reasoning"
 	"icw_common/gen/core/biz"
 )
 
 // UploadArtifacts 并发上传任务产物
-func UploadArtifacts(ctx context.Context, policy *reasoningpb.ReasoningArtifactUploadPolicy, taskDir string, timeout time.Duration) []*bizpb.ReasoningArtifactUploadResult {
+func UploadArtifacts(ctx context.Context, policy *ArtifactUploadPolicy, taskDir string, timeout time.Duration) []*bizpb.ReasoningArtifactUploadResult {
 	artifactNames := listArtifactNames(taskDir)
 	results := make([]*bizpb.ReasoningArtifactUploadResult, len(artifactNames))
 
@@ -39,7 +38,7 @@ func UploadArtifacts(ctx context.Context, policy *reasoningpb.ReasoningArtifactU
 }
 
 // uploadArtifact 上传任务产物
-func uploadArtifact(ctx context.Context, policy *reasoningpb.ReasoningArtifactUploadPolicy, name, path string, timeout time.Duration) *bizpb.ReasoningArtifactUploadResult {
+func uploadArtifact(ctx context.Context, policy *ArtifactUploadPolicy, name, path string, timeout time.Duration) *bizpb.ReasoningArtifactUploadResult {
 	result := &bizpb.ReasoningArtifactUploadResult{
 		Name: name,
 	}
@@ -94,7 +93,7 @@ func uploadArtifact(ctx context.Context, policy *reasoningpb.ReasoningArtifactUp
 		return result
 	}
 
-	httpReq, err := http.NewRequestWithContext(uploadCtx, http.MethodPost, policy.Url, bytes.NewReader(requestBody.Bytes()))
+	httpReq, err := http.NewRequestWithContext(uploadCtx, http.MethodPost, policy.URL, bytes.NewReader(requestBody.Bytes()))
 	if err != nil {
 		return result
 	}

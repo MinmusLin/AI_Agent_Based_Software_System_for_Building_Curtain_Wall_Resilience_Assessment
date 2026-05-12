@@ -115,8 +115,13 @@ func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRe
 		return 0, detectorCost, err
 	}
 
+	artifactPolicy, err := s.getReasoningArtifactPolicy(ctx, req)
+	if err != nil {
+		return 0, detectorCost, err
+	}
+
 	callbackReq.ResultJson = reportJSON
-	callbackReq.Artifacts = reasoningUtils.UploadArtifacts(ctx, req.ArtifactPolicy, taskDir, s.Config().ArtifactUploadTimeout)
+	callbackReq.Artifacts = reasoningUtils.UploadArtifacts(ctx, artifactPolicy, taskDir, s.Config().ArtifactUploadTimeout)
 
 	artifactCount := 0
 	for _, artifact := range callbackReq.Artifacts {
@@ -144,4 +149,33 @@ func (s *Service) getProjectImageOriginalURL(ctx context.Context, req *reasoning
 		return "", errors.New("project image original url is empty")
 	}
 	return originalURL, nil
+}
+
+// getReasoningArtifactPolicy 获取图像检测推理产物上传授权
+func (s *Service) getReasoningArtifactPolicy(ctx context.Context, req *reasoningpb.StartRequest) (*reasoningUtils.ArtifactUploadPolicy, error) {
+	resp := &bizpb.GetReasoningArtifactPolicyResponse{}
+	err := icw_core_biz.GetReasoningArtifactPolicy(ctx, s.CoreBizClient(), &bizpb.GetReasoningArtifactPolicyRequest{
+		UserId:    req.UserId,
+		ProjectId: req.ProjectId,
+		ImageUuid: req.ImageUuid,
+		TaskUuid:  req.TaskUuid,
+		TaskCode:  req.TaskCode,
+	}, resp)
+	if err != nil {
+		return nil, err
+	}
+
+	policy := &reasoningUtils.ArtifactUploadPolicy{
+		URL:       strings.TrimSpace(resp.Url),
+		KeyPrefix: strings.TrimSpace(resp.KeyPrefix),
+		FormData:  resp.FormData,
+	}
+	if policy.URL == "" {
+		return nil, errors.New("reasoning artifact policy url is empty")
+	}
+	if policy.KeyPrefix == "" {
+		return nil, errors.New("reasoning artifact policy key prefix is empty")
+	}
+
+	return policy, nil
 }

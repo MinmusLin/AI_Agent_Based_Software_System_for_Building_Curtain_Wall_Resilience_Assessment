@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"net/url"
 	"strings"
 
 	"icw_common/enum"
@@ -40,21 +39,6 @@ func ValidateRequest(req *reasoningpb.StartRequest, registry *common.Registry) e
 	}
 	if req.ProjectId == 0 {
 		return errors.New("project id is required")
-	}
-
-	if req.ArtifactPolicy == nil {
-		return errors.New("artifact policy is required")
-	}
-	req.ArtifactPolicy.Url = strings.TrimSpace(req.ArtifactPolicy.Url)
-	req.ArtifactPolicy.KeyPrefix = strings.TrimSpace(req.ArtifactPolicy.KeyPrefix)
-	if req.ArtifactPolicy.Url == "" {
-		return errors.New("artifact policy url is required")
-	}
-	if req.ArtifactPolicy.KeyPrefix == "" {
-		return errors.New("artifact policy key prefix is required")
-	}
-	if _, err := url.ParseRequestURI(req.ArtifactPolicy.Url); err != nil {
-		return err
 	}
 
 	return nil
