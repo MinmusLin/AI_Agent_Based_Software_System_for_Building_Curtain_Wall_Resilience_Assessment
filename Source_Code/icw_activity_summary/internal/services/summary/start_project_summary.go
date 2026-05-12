@@ -36,7 +36,7 @@ const (
 	ProjectSummarySourceContentType = "text/plain; charset=utf-8"
 )
 
-// projectSummarySourceMeta 项目总结原始数据
+// projectSummarySourceMeta 项目总结源数据基础元信息
 type projectSummarySourceMeta struct {
 	GroupCount int `json:"group_count"`
 	ImageCount int `json:"image_count"`
@@ -114,7 +114,11 @@ func executeProjectSummary(ctx context.Context, client *agent.Client, req *summa
 	if err != nil {
 		return "", err
 	}
-	output, err := client.ChatWithFile(ctx, buildProjectSummaryPrompt(sourceMeta), agent.File{
+	output, err := client.ChatWithFile(ctx, fmt.Sprintf(
+		"附件已上传，请根据指令进行符合要求的输出。输出 JSON 顶层 group_count 必须为 %d，image_count 必须为 %d。",
+		sourceMeta.GroupCount,
+		sourceMeta.ImageCount,
+	), agent.File{
 		Name:        ProjectSummarySourceFileName,
 		Data:        sourceFile,
 		ContentType: ProjectSummarySourceContentType,
@@ -158,33 +162,22 @@ func downloadSummarySourceFile(ctx context.Context, sourceURL string) ([]byte, e
 	return body, nil
 }
 
-// parseProjectSummarySourceMeta
+// parseProjectSummarySourceMeta 从源数据附件中解析项目总结的基础元信息
 func parseProjectSummarySourceMeta(sourceFile []byte) (*projectSummarySourceMeta, error) {
 	meta := &projectSummarySourceMeta{}
 	if err := json.Unmarshal(sourceFile, meta); err != nil {
 		return nil, err
 	}
 	if meta.GroupCount <= 0 {
-		return nil, errors.New("source group_count is required")
+		return nil, errors.New("source group count is required")
 	}
 	if meta.ImageCount <= 0 {
-		return nil, errors.New("source image_count is required")
+		return nil, errors.New("source image count is required")
 	}
 	return meta, nil
 }
 
-// buildProjectSummaryPrompt
-func buildProjectSummaryPrompt(meta *projectSummarySourceMeta) string {
-	return fmt.Sprintf(
-		"请读取上传的 source.txt 附件。该附件是文本文件，但内容为压缩 JSON 对象字符串；必须严格依据附件中的 JSON 内容生成报告。项目名称为“%s”，建筑名称为“%s”。输出 JSON 顶层 group_count 必须为 %d，image_count 必须为 %d。",
-		strings.TrimSpace(meta.Project.ProjectName),
-		strings.TrimSpace(meta.Project.BuildingName),
-		meta.GroupCount,
-		meta.ImageCount,
-	)
-}
-
-// validateProjectSummaryOutput
+// validateProjectSummaryOutput 校验输出报告中的基础元信息是否与源数据一致
 func validateProjectSummaryOutput(output string, meta *projectSummarySourceMeta) error {
 	result := &projectSummarySourceMeta{}
 	if err := json.Unmarshal([]byte(output), result); err != nil {
