@@ -10,6 +10,7 @@ import (
 type Client struct {
 	*rpc.Client
 	bizpb.ProjectDetectionServiceClient
+	bizpb.ProjectAssetsServiceClient
 }
 
 // NewClient 创建 icw.core.biz gRPC Client
@@ -21,5 +22,6 @@ func NewClient(addr string) (*Client, error) {
 	return &Client{
 		Client:                        baseClient,
 		ProjectDetectionServiceClient: bizpb.NewProjectDetectionServiceClient(baseClient.Conn()),
+		ProjectAssetsServiceClient:    bizpb.NewProjectAssetsServiceClient(baseClient.Conn()),
 	}, nil
 }

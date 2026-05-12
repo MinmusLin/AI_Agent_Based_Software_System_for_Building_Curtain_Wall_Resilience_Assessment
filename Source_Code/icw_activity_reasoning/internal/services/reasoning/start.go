@@ -2,8 +2,10 @@ package reasoning
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -42,6 +44,7 @@ func (s *Service) asyncExecuteDetection(requestId string, req *reasoningpb.Start
 
 	ctx, cancel := context.WithTimeout(s.Ctx(), s.Config().ReasoningTaskTimeout)
 	defer cancel()
+	ctx = rpc.WithRequestIdToOutgoingContext(ctx, requestId)
 
 	callbackReq := &bizpb.ReportReasoningResultRequest{
 		TaskCode:  req.TaskCode,
@@ -87,7 +90,11 @@ func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRe
 		_ = os.RemoveAll(taskDir)
 	}()
 
-	if err := reasoningUtils.DownloadOriginalImage(ctx, req, taskDir, s.Config().ArtifactDownloadTimeout); err != nil {
+	originalURL, err := s.getProjectImageOriginalURL(ctx, req)
+	if err != nil {
+		return 0, 0, err
+	}
+	if err := reasoningUtils.DownloadOriginalImage(ctx, originalURL, taskDir, s.Config().ArtifactDownloadTimeout); err != nil {
 		return 0, 0, err
 	}
 
@@ -119,4 +126,22 @@ func (s *Service) executeDetection(ctx context.Context, req *reasoningpb.StartRe
 	}
 
 	return artifactCount, detectorCost, nil
+}
+
+// getProjectImageOriginalURL 获取项目图像原图下载地址
+func (s *Service) getProjectImageOriginalURL(ctx context.Context, req *reasoningpb.StartRequest) (string, error) {
+	resp := &bizpb.GetProjectImageOriginalResponse{}
+	err := icw_core_biz.GetProjectImageOriginal(ctx, s.CoreBizClient(), &bizpb.GetProjectImageOriginalRequest{
+		UserId:    req.UserId,
+		ProjectId: req.ProjectId,
+		ImageUuid: req.ImageUuid,
+	}, resp)
+	if err != nil {
+		return "", err
+	}
+	originalURL := strings.TrimSpace(resp.OriginalUrl)
+	if originalURL == "" {
+		return "", errors.New("project image original url is empty")
+	}
+	return originalURL, nil
 }

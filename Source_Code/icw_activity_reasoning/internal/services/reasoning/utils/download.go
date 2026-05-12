@@ -2,22 +2,27 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
-
-	"icw_common/gen/activity/reasoning"
 )
 
 // DownloadOriginalImage 下载原始图像
-func DownloadOriginalImage(ctx context.Context, req *reasoningpb.StartRequest, taskDir string, timeout time.Duration) error {
+func DownloadOriginalImage(ctx context.Context, originalURL, taskDir string, timeout time.Duration) error {
+	originalURL = strings.TrimSpace(originalURL)
+	if originalURL == "" {
+		return errors.New("original image url is required")
+	}
+
 	downloadCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	httpReq, err := http.NewRequestWithContext(downloadCtx, http.MethodGet, req.PresignGetUrl, nil)
+	httpReq, err := http.NewRequestWithContext(downloadCtx, http.MethodGet, originalURL, nil)
 	if err != nil {
 		return err
 	}

@@ -35,12 +35,11 @@ func ValidateRequest(req *reasoningpb.StartRequest, registry *common.Registry) e
 		return errors.New("image uuid is invalid")
 	}
 
-	req.PresignGetUrl = strings.TrimSpace(req.PresignGetUrl)
-	if req.PresignGetUrl == "" {
-		return errors.New("presign get url is required")
+	if req.UserId == 0 {
+		return errors.New("user id is required")
 	}
-	if _, err := url.ParseRequestURI(req.PresignGetUrl); err != nil {
-		return err
+	if req.ProjectId == 0 {
+		return errors.New("project id is required")
 	}
 
 	if req.ArtifactPolicy == nil {
