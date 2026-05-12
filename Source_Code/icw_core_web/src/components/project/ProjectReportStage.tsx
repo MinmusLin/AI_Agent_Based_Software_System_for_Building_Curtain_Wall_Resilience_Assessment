@@ -1,4 +1,4 @@
-import { ReloadOutlined, RetweetOutlined } from '@ant-design/icons';
+import { DownloadOutlined, ReloadOutlined, RetweetOutlined } from '@ant-design/icons';
 import { Button, Empty, message, Spin } from 'antd';
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -26,10 +26,12 @@ interface RefreshOptions {
 
 interface ReportActionsProps {
   pageLoading: boolean;
+  onDownload: () => void;
   onRefresh: () => void;
   onRetry: () => void;
   reportFailed: boolean;
   reportGenerating: boolean;
+  reportSucceeded: boolean;
   refreshing: boolean;
   retrying: boolean;
 }
@@ -45,16 +47,25 @@ interface ReportBodyProps {
   updatedAt?: string;
 }
 
+const PRINT_TITLE_RESTORE_DELAY_MS = 60_000;
+const REPORT_PDF_FILENAME_PREFIX = '建筑幕墙韧性评估报告';
+
 function reportText(report?: ProjectReport): string {
   return report?.result_json.trim() ?? '';
 }
 
+function reportPdfFilename(projectId: string): string {
+  return `${REPORT_PDF_FILENAME_PREFIX}-${projectId}.pdf`;
+}
+
 function ReportActions({
+  onDownload,
   onRefresh,
   onRetry,
   pageLoading,
   reportFailed,
   reportGenerating,
+  reportSucceeded,
   refreshing,
   retrying,
 }: ReportActionsProps): ReactElement | null {
@@ -72,6 +83,13 @@ function ReportActions({
     return (
       <Button danger icon={<RetweetOutlined />} loading={retrying} onClick={onRetry}>
         失败重试
+      </Button>
+    );
+  }
+  if (reportSucceeded) {
+    return (
+      <Button icon={<DownloadOutlined />} onClick={onDownload} type="primary">
+        下载报告
       </Button>
     );
   }
@@ -203,6 +221,19 @@ export function ProjectReportStage({
     }
   }, [loadReport, messageApi, projectId]);
 
+  const handleDownload = useCallback((): void => {
+    const originalTitle = document.title;
+    const filename = reportPdfFilename(projectId);
+    const restoreTitle = (): void => {
+      document.title = originalTitle;
+      window.removeEventListener('afterprint', restoreTitle);
+    };
+    document.title = filename;
+    window.addEventListener('afterprint', restoreTitle);
+    window.print();
+    window.setTimeout(restoreTitle, PRINT_TITLE_RESTORE_DELAY_MS);
+  }, [projectId]);
+
   const fallbackText = useMemo(() => reportText(report), [report]);
   const payload = useMemo(() => parseProjectReportPayload(fallbackText), [fallbackText]);
   const pageDataLoading = loading || reportLoading;
@@ -239,12 +270,14 @@ export function ProjectReportStage({
           </p>
         </div>
         <ReportActions
+          onDownload={handleDownload}
           onRefresh={() => void handleRefresh()}
           onRetry={() => void handleRetry()}
           pageLoading={pageDataLoading}
           refreshing={refreshing}
           reportFailed={reportFailed}
           reportGenerating={reportGenerating}
+          reportSucceeded={reportSucceeded}
           retrying={retrying}
         />
       </div>

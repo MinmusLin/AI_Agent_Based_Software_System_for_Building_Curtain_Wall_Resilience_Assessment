@@ -278,8 +278,8 @@ function ProjectReportContent({
   updatedAt?: string;
 }): ReactElement {
   return (
-    <div className="h-full overflow-auto overscroll-contain">
-      <div className="space-y-5">
+    <div className="project-report-print-root h-full overflow-auto overscroll-contain">
+      <div className="project-report-print-content space-y-5">
         <ReportSection icon={<BarChartOutlined />} title="报告概览">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <InfoCard icon={<ClusterOutlined />} label="图像组数量" value={payload.group_count ?? '-'} />
