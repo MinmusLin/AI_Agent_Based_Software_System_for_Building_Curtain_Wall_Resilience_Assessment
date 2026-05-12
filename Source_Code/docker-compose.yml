@@ -1,8 +1,8 @@
 x-icw-docker-logging: &icw-docker-logging
   driver: json-file
   options:
-    max-size: "100m"
-    max-file: "10"
+    max-size: "10m"
+    max-file: "100"
 
 x-icw-log-collector-common: &icw-log-collector-common
   image: docker:27-cli
@@ -18,8 +18,8 @@ x-icw-log-collector-common: &icw-log-collector-common
       set -eu
       : "$${TARGET_CONTAINER:?TARGET_CONTAINER is required}"
       : "$${LOG_DIR:?LOG_DIR is required}"
-      LOG_MAX_SIZE_BYTES="$${LOG_MAX_SIZE_BYTES:-104857600}"
-      LOG_MAX_FILES="$${LOG_MAX_FILES:-10}"
+      LOG_MAX_SIZE_BYTES="$${LOG_MAX_SIZE_BYTES:-10485760}"
+      LOG_MAX_FILES="$${LOG_MAX_FILES:-100}"
       LOG_FILE="$${LOG_DIR}/log"
       mkdir -p "$${LOG_DIR}"
       touch "$${LOG_FILE}"
