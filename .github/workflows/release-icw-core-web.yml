@@ -1,0 +1,66 @@
+name: Release icw_core_web
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - Source_Code/icw_core_web/**
+      - .github/workflows/release-icw-core-web.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-icw_core_web
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Release icw_core_web
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Source_Code/icw_core_web/package-lock.json
+
+      - name: Build dist
+        working-directory: Source_Code/icw_core_web
+        run: |
+          npm ci
+          npm run build
+
+      - name: Package release asset
+        working-directory: Source_Code/icw_core_web
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+          tar -C dist -czf release-assets/icw_core_web_dist.tar.gz .
+
+      - name: Replace component release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.sha }}
+        working-directory: Source_Code/icw_core_web
+        run: |
+          set -euo pipefail
+          release_tag="icw_core_web-latest"
+          release_title="icw_core_web latest"
+          release_notes="Latest icw_core_web dist build from main branch commit ${COMMIT_SHA}."
+
+          gh release delete "${release_tag}" --yes 2>/dev/null || true
+          git push origin ":refs/tags/${release_tag}" 2>/dev/null || true
+
+          gh release create "${release_tag}" release-assets/* \
+            --target "${COMMIT_SHA}" \
+            --title "${release_title}" \
+            --notes "${release_notes}" \
+            --latest=false

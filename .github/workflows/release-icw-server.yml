@@ -1,0 +1,78 @@
+name: Release ICW Server
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: Server repository directory and binary name.
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.service }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Release ${{ inputs.service }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: Source_Code/${{ inputs.service }}/go.mod
+          cache-dependency-path: |
+            Source_Code/${{ inputs.service }}/go.sum
+            Source_Code/icw_common/go.sum
+
+      - name: Build binaries
+        working-directory: Source_Code/${{ inputs.service }}
+        run: |
+          make clean
+          make build
+
+      - name: Package release assets
+        env:
+          SERVICE: ${{ inputs.service }}
+        working-directory: Source_Code/${{ inputs.service }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+
+          for platform in Darwin_arm64 Darwin_x86_64 Linux_arm64 Linux_x86_64; do
+            binary="${SERVICE}_${platform}"
+            tar -C bin -czf "release-assets/${binary}.tar.gz" "${binary}"
+          done
+
+          for platform in Windows_arm64 Windows_x86_64; do
+            binary="${SERVICE}_${platform}.exe"
+            (cd bin && python3 -m zipfile -c "../release-assets/${SERVICE}_${platform}.zip" "${binary}")
+          done
+
+      - name: Replace component release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SERVICE: ${{ inputs.service }}
+          COMMIT_SHA: ${{ github.sha }}
+        working-directory: Source_Code/${{ inputs.service }}
+        run: |
+          set -euo pipefail
+          release_tag="${SERVICE}-latest"
+          release_title="${SERVICE} latest"
+          release_notes="Latest ${SERVICE} build from main branch commit ${COMMIT_SHA}."
+
+          gh release delete "${release_tag}" --yes 2>/dev/null || true
+          git push origin ":refs/tags/${release_tag}" 2>/dev/null || true
+
+          gh release create "${release_tag}" release-assets/* \
+            --target "${COMMIT_SHA}" \
+            --title "${release_title}" \
+            --notes "${release_notes}" \
+            --latest=false

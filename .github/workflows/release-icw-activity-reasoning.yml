@@ -1,0 +1,20 @@
+name: Release icw_activity_reasoning
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - Source_Code/icw_activity_reasoning/**
+      - Source_Code/icw_common/**
+      - .github/workflows/release-icw-server.yml
+      - .github/workflows/release-icw-activity-reasoning.yml
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release-icw-server.yml
+    with:
+      service: icw_activity_reasoning
