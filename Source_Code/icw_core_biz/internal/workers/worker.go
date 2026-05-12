@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"github.com/google/uuid"
+
 	"icw_common/enum"
 	"icw_common/gen/activity/classification"
 	"icw_common/gen/activity/reasoning"
@@ -256,6 +258,13 @@ func (w *DetectionWorker) StartProjectReportTask(ctx context.Context, userId, pr
 	if w == nil || projectId == 0 {
 		return
 	}
+
+	requestId := rpc.RequestIdFromGRPCContext(ctx)
+	if requestId == "" {
+		requestId = uuid.NewString()
+	}
+	ctx = rpc.WithRequestIdToOutgoingContext(ctx, requestId)
+
 	report, err := w.mysql.CreateProjectReport(ctx, userId, projectId)
 	if err != nil {
 		return

@@ -5,8 +5,10 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
 
 	"icw_common/enum"
@@ -25,6 +27,10 @@ import (
 const (
 	// ProjectSummaryType 项目总结任务
 	ProjectSummaryType = "project"
+	// ProjectSummarySourceFileName 项目总结原始数据附件名称
+	ProjectSummarySourceFileName = "source.json"
+	// ProjectSummarySourceContentType 项目总结原始数据附件类型
+	ProjectSummarySourceContentType = "application/json"
 )
 
 // StartProjectSummary 启动项目总结任务
@@ -35,6 +41,9 @@ func (s *Service) StartProjectSummary(ctx context.Context, req *summarypb.StartP
 			return err
 		}
 		requestId := rpc.RequestIdFromIncomingContext(ctx)
+		if requestId == "" {
+			requestId = uuid.NewString()
+		}
 		projectReq := proto.Clone(req).(*summarypb.StartProjectSummaryRequest)
 		go s.asyncExecuteProjectSummary(requestId, projectReq)
 		return nil
@@ -84,36 +93,43 @@ func (s *Service) asyncExecuteProjectSummary(requestId string, req *summarypb.St
 
 // executeProjectSummary 执行项目总结任务
 func executeProjectSummary(ctx context.Context, client *agent.Client, req *summarypb.StartProjectSummaryRequest) (string, error) {
-	sourceJSON, err := downloadSummarySource(ctx, req.SourceUrl)
+	sourceFile, err := downloadSummarySourceFile(ctx, req.SourceUrl)
 	if err != nil {
 		return "", err
 	}
-	output, err := client.Chat(ctx, sourceJSON)
+	output, err := client.ChatWithFile(ctx, "附件已上传，请根据指令进行符合要求的输出。", agent.File{
+		Name:        ProjectSummarySourceFileName,
+		Data:        sourceFile,
+		ContentType: ProjectSummarySourceContentType,
+	})
 	if err != nil {
 		return "", err
 	}
 	return utils.CompactAgentJSONObjectString(output)
 }
 
-// downloadSummarySource 下载项目总结原始数据 JSON
-func downloadSummarySource(ctx context.Context, sourceURL string) (string, error) {
+// downloadSummarySourceFile 下载项目总结原始数据 JSON 附件
+func downloadSummarySourceFile(ctx context.Context, sourceURL string) ([]byte, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, sourceURL, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer func() {
 		_ = response.Body.Close()
 	}()
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return "", io.ErrUnexpectedEOF
+		return nil, io.ErrUnexpectedEOF
 	}
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(body), nil
+	if strings.TrimSpace(string(body)) == "" {
+		return nil, io.ErrUnexpectedEOF
+	}
+	return body, nil
 }
