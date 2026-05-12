@@ -108,7 +108,7 @@ func (c *Client) uploadFile(ctx context.Context, file File) (string, error) {
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
 	header := make(textproto.MIMEHeader)
-	header.Set("Content-Disposition", `form-data; name="file"; filename="`+utils.FirstNotEmpty(file.Name, "source.json")+`"`)
+	header.Set("Content-Disposition", `form-data; name="file"; filename="`+utils.FirstNotEmpty(file.Name, "source.txt")+`"`)
 	header.Set("Content-Type", utils.FirstNotEmpty(file.ContentType, "application/octet-stream"))
 
 	part, err := writer.CreatePart(header)
