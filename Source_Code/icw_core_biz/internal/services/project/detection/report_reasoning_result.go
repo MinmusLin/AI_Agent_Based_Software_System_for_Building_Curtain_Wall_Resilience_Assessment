@@ -39,7 +39,8 @@ func (s *Service) reportReasoningResult(ctx context.Context, req *bizpb.ReportRe
 
 	artifactSha256Map := ""
 	if req.Status == commonpb.TaskStatus_Succeeded {
-		if err := utils.ValidateReasoningArtifactUploads(req.Artifacts); err != nil {
+		requireArtifacts := req.TaskCode != commonpb.DetectionTaskCode_Spalling
+		if err := utils.ValidateReasoningArtifactUploads(req.Artifacts, requireArtifacts); err != nil {
 			return err
 		}
 
