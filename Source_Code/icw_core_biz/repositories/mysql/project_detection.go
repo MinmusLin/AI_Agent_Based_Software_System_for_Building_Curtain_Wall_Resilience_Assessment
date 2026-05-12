@@ -897,6 +897,30 @@ func (r *Repository) StartProjectDetectionReasoningTask(ctx context.Context, tas
 	return task, subTask, err
 }
 
+// FindProjectDetectionReasoningTask 按项目图像检测子任务代码和子任务 UUID 查询推理任务
+func (r *Repository) FindProjectDetectionReasoningTask(ctx context.Context, taskCode, taskUuid string) (*model.ProjectDetectionTaskRecord, *model.ProjectDetectionSubTaskRecord, error) {
+	tx, err := r.mysql.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	subTask, err := project_detection.FindProjectDetectionSubTaskByUuidTx(ctx, tx, taskCode, taskUuid)
+	if err != nil || subTask == nil {
+		return nil, subTask, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, nil, err
+	}
+
+	task, err := r.FindProjectDetectionTaskById(ctx, subTask.MainTaskId)
+	return task, subTask, err
+}
+
 // StartProjectDetectionSummaryTask 执行总结任务时，按项目图像检测主任务 UUID 更新开始时间
 func (r *Repository) StartProjectDetectionSummaryTask(ctx context.Context, taskUuid string) (*model.ProjectDetectionTaskRecord, *model.ProjectDetectionSummaryTaskRecord, error) {
 	tx, err := r.mysql.BeginTx(ctx, nil)

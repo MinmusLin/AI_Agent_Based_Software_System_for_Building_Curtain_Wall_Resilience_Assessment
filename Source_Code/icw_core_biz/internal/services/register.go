@@ -106,6 +106,7 @@ func registry(ctx context.Context, serviceDeps *common.Deps) []rpc.ServiceMeta {
 			Methods: []rpc.MethodMeta{
 				{Name: "GetImageDetectionResult", Description: "获取图像检测结果"},
 				{Name: "GetProjectDetectionTasks", Description: "获取项目检测任务列表"},
+				{Name: "GetReasoningArtifactPolicy", Description: "获取图像检测推理产物上传授权"},
 				{Name: "ReportClassificationResult", Description: "上报图像检测分类结果"},
 				{Name: "ReportDetectionSummaryResult", Description: "上报图像检测总结结果"},
 				{Name: "ReportReasoningResult", Description: "上报图像检测推理结果"},

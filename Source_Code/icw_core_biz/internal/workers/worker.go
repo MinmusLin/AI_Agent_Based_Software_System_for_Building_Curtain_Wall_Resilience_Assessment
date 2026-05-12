@@ -168,37 +168,15 @@ func (w *DetectionWorker) StartReasoningTasks(ctx context.Context, subTasks map[
 
 // startReasoningTask 启动项目图像检测推理子任务
 func (w *DetectionWorker) startReasoningTask(ctx context.Context, task *model.ProjectDetectionTaskRecord, taskCode string, subTask *model.ProjectDetectionSubTaskRecord) error {
-	artifactPolicy, err := w.reasoningArtifactPolicy(ctx, task, taskCode)
-	if err != nil {
-		return err
-	}
 	req := &reasoningpb.StartRequest{
-		TaskUuid:       subTask.Uuid,
-		TaskCode:       enum.ParseDetectionTaskCode(taskCode),
-		UserId:         task.UserId,
-		ProjectId:      task.ProjectId,
-		ImageUuid:      task.ImageUuid,
-		ArtifactPolicy: artifactPolicy,
+		TaskUuid:  subTask.Uuid,
+		TaskCode:  enum.ParseDetectionTaskCode(taskCode),
+		UserId:    task.UserId,
+		ProjectId: task.ProjectId,
+		ImageUuid: task.ImageUuid,
 	}
 	resp := &reasoningpb.StartResponse{}
 	return icw_activity_reasoning.Start(ctx, w.reasoningClient, req, resp)
-}
-
-// reasoningArtifactPolicy 生成项目图像检测产物上传授权
-func (w *DetectionWorker) reasoningArtifactPolicy(ctx context.Context, task *model.ProjectDetectionTaskRecord, taskCode string) (*reasoningpb.ReasoningArtifactUploadPolicy, error) {
-	keyPrefix, err := minio.GenProjectDetectionArtifactPrefixByTask(task.ProjectId, task.ImageUuid, taskCode)
-	if err != nil {
-		return nil, err
-	}
-	policyURL, formData, err := w.minio.PresignPostPolicy(ctx, keyPrefix, w.cfg.ProjectImageUploadTTL)
-	if err != nil {
-		return nil, err
-	}
-	return &reasoningpb.ReasoningArtifactUploadPolicy{
-		Url:       policyURL,
-		KeyPrefix: keyPrefix,
-		FormData:  formData,
-	}, nil
 }
 
 // StartDetectionSummaryTask 启动项目图像检测总结任务
