@@ -2,6 +2,9 @@ package summary
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -28,10 +31,20 @@ const (
 	// ProjectSummaryType 项目总结任务
 	ProjectSummaryType = "project"
 	// ProjectSummarySourceFileName 项目总结原始数据附件名称
-	ProjectSummarySourceFileName = "source.json"
+	ProjectSummarySourceFileName = "source.txt"
 	// ProjectSummarySourceContentType 项目总结原始数据附件类型
-	ProjectSummarySourceContentType = "application/json"
+	ProjectSummarySourceContentType = "text/plain; charset=utf-8"
 )
+
+// projectSummarySourceMeta 项目总结原始数据
+type projectSummarySourceMeta struct {
+	GroupCount int `json:"group_count"`
+	ImageCount int `json:"image_count"`
+	Project    struct {
+		ProjectName  string `json:"project_name"`
+		BuildingName string `json:"building_name"`
+	} `json:"project"`
+}
 
 // StartProjectSummary 启动项目总结任务
 func (s *Service) StartProjectSummary(ctx context.Context, req *summarypb.StartProjectSummaryRequest) (*summarypb.StartProjectSummaryResponse, error) {
@@ -97,7 +110,11 @@ func executeProjectSummary(ctx context.Context, client *agent.Client, req *summa
 	if err != nil {
 		return "", err
 	}
-	output, err := client.ChatWithFile(ctx, "附件已上传，请根据指令进行符合要求的输出。", agent.File{
+	sourceMeta, err := parseProjectSummarySourceMeta(sourceFile)
+	if err != nil {
+		return "", err
+	}
+	output, err := client.ChatWithFile(ctx, buildProjectSummaryPrompt(sourceMeta), agent.File{
 		Name:        ProjectSummarySourceFileName,
 		Data:        sourceFile,
 		ContentType: ProjectSummarySourceContentType,
@@ -105,10 +122,17 @@ func executeProjectSummary(ctx context.Context, client *agent.Client, req *summa
 	if err != nil {
 		return "", err
 	}
-	return utils.CompactAgentJSONObjectString(output)
+	compacted, err := utils.CompactAgentJSONObjectString(output)
+	if err != nil {
+		return "", err
+	}
+	if err := validateProjectSummaryOutput(compacted, sourceMeta); err != nil {
+		return "", err
+	}
+	return compacted, nil
 }
 
-// downloadSummarySourceFile 下载项目总结原始数据 JSON 附件
+// downloadSummarySourceFile 下载项目总结原始数据文本附件
 func downloadSummarySourceFile(ctx context.Context, sourceURL string) ([]byte, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, sourceURL, nil)
 	if err != nil {
@@ -132,4 +156,45 @@ func downloadSummarySourceFile(ctx context.Context, sourceURL string) ([]byte, e
 		return nil, io.ErrUnexpectedEOF
 	}
 	return body, nil
+}
+
+// parseProjectSummarySourceMeta
+func parseProjectSummarySourceMeta(sourceFile []byte) (*projectSummarySourceMeta, error) {
+	meta := &projectSummarySourceMeta{}
+	if err := json.Unmarshal(sourceFile, meta); err != nil {
+		return nil, err
+	}
+	if meta.GroupCount <= 0 {
+		return nil, errors.New("source group_count is required")
+	}
+	if meta.ImageCount <= 0 {
+		return nil, errors.New("source image_count is required")
+	}
+	return meta, nil
+}
+
+// buildProjectSummaryPrompt
+func buildProjectSummaryPrompt(meta *projectSummarySourceMeta) string {
+	return fmt.Sprintf(
+		"请读取上传的 source.txt 附件。该附件是文本文件，但内容为压缩 JSON 对象字符串；必须严格依据附件中的 JSON 内容生成报告。项目名称为“%s”，建筑名称为“%s”。输出 JSON 顶层 group_count 必须为 %d，image_count 必须为 %d。",
+		strings.TrimSpace(meta.Project.ProjectName),
+		strings.TrimSpace(meta.Project.BuildingName),
+		meta.GroupCount,
+		meta.ImageCount,
+	)
+}
+
+// validateProjectSummaryOutput
+func validateProjectSummaryOutput(output string, meta *projectSummarySourceMeta) error {
+	result := &projectSummarySourceMeta{}
+	if err := json.Unmarshal([]byte(output), result); err != nil {
+		return err
+	}
+	if result.GroupCount != meta.GroupCount {
+		return fmt.Errorf("project summary group count mismatch: got %d, want %d", result.GroupCount, meta.GroupCount)
+	}
+	if result.ImageCount != meta.ImageCount {
+		return fmt.Errorf("project summary image count mismatch: got %d, want %d", result.ImageCount, meta.ImageCount)
+	}
+	return nil
 }
