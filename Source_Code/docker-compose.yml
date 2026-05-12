@@ -1,3 +1,53 @@
+x-icw-docker-logging: &icw-docker-logging
+  driver: json-file
+  options:
+    max-size: "100m"
+    max-file: "10"
+
+x-icw-log-collector-common: &icw-log-collector-common
+  image: docker:27-cli
+  restart: unless-stopped
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /root/logs:/root/logs
+  networks:
+    - icw-docker-network
+  logging: *icw-docker-logging
+  command: >
+    sh -c '
+      set -eu
+      : "$${TARGET_CONTAINER:?TARGET_CONTAINER is required}"
+      : "$${LOG_DIR:?LOG_DIR is required}"
+      LOG_MAX_SIZE_BYTES="$${LOG_MAX_SIZE_BYTES:-104857600}"
+      LOG_MAX_FILES="$${LOG_MAX_FILES:-10}"
+      LOG_FILE="$${LOG_DIR}/log"
+      mkdir -p "$${LOG_DIR}"
+      touch "$${LOG_FILE}"
+      rotate_logs() {
+        current_size="$$(stat -c%s "$${LOG_FILE}" 2>/dev/null || echo 0)"
+        if [ "$${current_size}" -lt "$${LOG_MAX_SIZE_BYTES}" ]; then
+          return 0
+        fi
+        rm -f "$${LOG_FILE}.$${LOG_MAX_FILES}"
+        i="$$(($${LOG_MAX_FILES} - 1))"
+        while [ "$${i}" -ge 1 ]; do
+          if [ -f "$${LOG_FILE}.$${i}" ]; then
+            mv "$${LOG_FILE}.$${i}" "$${LOG_FILE}.$$(($${i} + 1))"
+          fi
+          i="$$(($${i} - 1))"
+        done
+        mv "$${LOG_FILE}" "$${LOG_FILE}.1"
+        : > "$${LOG_FILE}"
+      }
+      while true; do
+        docker logs -f --tail=0 "$${TARGET_CONTAINER}" 2>&1 | while IFS= read -r line; do
+          rotate_logs
+          printf "%s\n" "$${line}" >> "$${LOG_FILE}"
+        done
+        sleep 3
+      done
+    '
+
 services:
   # icw.rocketmq.namesrv 服务
   icw-rocketmq-namesrv:
@@ -56,6 +106,7 @@ services:
     image: minmuslin/icw_activity_classification:latest
     container_name: icw.activity.classification
     restart: unless-stopped
+    logging: *icw-docker-logging
     environment:
       ICW_ACTIVITY_CLASSIFICATION_ADDR: 0.0.0.0:8002
       ICW_CORE_BIZ_ADDR: icw-core-biz:8001
@@ -76,6 +127,7 @@ services:
     image: minmuslin/icw_activity_reasoning:latest
     container_name: icw.activity.reasoning
     restart: unless-stopped
+    logging: *icw-docker-logging
     environment:
       ICW_ACTIVITY_REASONING_ADDR: 0.0.0.0:8003
       ICW_CORE_BIZ_ADDR: icw-core-biz:8001
@@ -98,6 +150,7 @@ services:
     image: minmuslin/icw_activity_summary:latest
     container_name: icw.activity.summary
     restart: unless-stopped
+    logging: *icw-docker-logging
     environment:
       ICW_ACTIVITY_SUMMARY_ADDR: 0.0.0.0:8004
       ICW_CORE_BIZ_ADDR: icw-core-biz:8001
@@ -121,6 +174,7 @@ services:
     image: minmuslin/icw_core_biz:latest
     container_name: icw.core.biz
     restart: unless-stopped
+    logging: *icw-docker-logging
     environment:
       ICW_CORE_BIZ_ADDR: 0.0.0.0:8001
       ICW_ACTIVITY_CLASSIFICATION_ADDR: icw-activity-classification:8002
@@ -176,6 +230,7 @@ services:
     image: minmuslin/icw_core_api:latest
     container_name: icw.core.api
     restart: unless-stopped
+    logging: *icw-docker-logging
     environment:
       GIN_MODE: release
       ICW_CORE_API_ADDR: 0.0.0.0:8000
@@ -192,6 +247,61 @@ services:
       - 8000:8000
     networks:
       - icw-docker-network
+
+  # icw.log.activity_classification 服务
+  icw-log-activity-classification:
+    <<: *icw-log-collector-common
+    container_name: icw.log.activity_classification
+    depends_on:
+      icw-activity-classification:
+        condition: service_started
+    environment:
+      TARGET_CONTAINER: icw.activity.classification
+      LOG_DIR: /root/logs/icw_activity_classification
+
+  # icw.log.activity_reasoning 服务
+  icw-log-activity-reasoning:
+    <<: *icw-log-collector-common
+    container_name: icw.log.activity_reasoning
+    depends_on:
+      icw-activity-reasoning:
+        condition: service_started
+    environment:
+      TARGET_CONTAINER: icw.activity.reasoning
+      LOG_DIR: /root/logs/icw_activity_reasoning
+
+  # icw.log.activity_summary 服务
+  icw-log-activity-summary:
+    <<: *icw-log-collector-common
+    container_name: icw.log.activity_summary
+    depends_on:
+      icw-activity-summary:
+        condition: service_started
+    environment:
+      TARGET_CONTAINER: icw.activity.summary
+      LOG_DIR: /root/logs/icw_activity_summary
+
+  # icw.log.core_biz 服务
+  icw-log-core-biz:
+    <<: *icw-log-collector-common
+    container_name: icw.log.core_biz
+    depends_on:
+      icw-core-biz:
+        condition: service_started
+    environment:
+      TARGET_CONTAINER: icw.core.biz
+      LOG_DIR: /root/logs/icw_core_biz
+
+  # icw.log.core_api 服务
+  icw-log-core-api:
+    <<: *icw-log-collector-common
+    container_name: icw.log.core_api
+    depends_on:
+      icw-core-api:
+        condition: service_started
+    environment:
+      TARGET_CONTAINER: icw.core.api
+      LOG_DIR: /root/logs/icw_core_api
 
   # icw.core.web 服务
   icw-core-web:
