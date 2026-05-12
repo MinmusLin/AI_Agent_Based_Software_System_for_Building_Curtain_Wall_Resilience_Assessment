@@ -39,6 +39,12 @@ type BucketStats struct {
 	RemainingBytes uint64
 }
 
+// ObjectMetadata MinIO 对象元数据
+type ObjectMetadata struct {
+	Key          string
+	LastModified time.Time
+}
+
 // NewClient 创建 MinIO SDK Client
 func NewClient(cfg configs.Config) (*minio.Client, error) {
 	endpoint, useSSL := normalizeEndpoint(cfg.MinIOEndpoint)
@@ -134,18 +140,34 @@ func (r *Repository) RemoveObjectsByPrefix(ctx context.Context, prefix string) e
 
 // ListObjectKeysByPrefix 按对象 Key 前缀查询对象 Key 列表
 func (r *Repository) ListObjectKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
+	objects, err := r.ListObjectsByPrefix(ctx, prefix)
+	if err != nil {
+		return nil, err
+	}
+	keys := make([]string, 0, len(objects))
+	for _, object := range objects {
+		keys = append(keys, object.Key)
+	}
+	return keys, nil
+}
+
+// ListObjectsByPrefix 按对象 Key 前缀查询对象元数据列表
+func (r *Repository) ListObjectsByPrefix(ctx context.Context, prefix string) ([]ObjectMetadata, error) {
 	objects := r.client.ListObjects(ctx, r.bucket, minio.ListObjectsOptions{
 		Prefix:    prefix,
 		Recursive: true,
 	})
-	keys := make([]string, 0)
+	metadata := make([]ObjectMetadata, 0)
 	for object := range objects {
 		if object.Err != nil {
 			return nil, object.Err
 		}
-		keys = append(keys, object.Key)
+		metadata = append(metadata, ObjectMetadata{
+			Key:          object.Key,
+			LastModified: object.LastModified,
+		})
 	}
-	return keys, nil
+	return metadata, nil
 }
 
 // PresignGetObject 生成对象下载预签名 URL
