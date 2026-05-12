@@ -1,5 +1,6 @@
 REPOSITORIES := icw_core_api icw_core_biz icw_activity_classification icw_activity_reasoning icw_activity_summary icw_common
-IMAGE_REPOSITORIES := icw_core_api icw_core_biz icw_activity_classification icw_activity_reasoning icw_activity_summary icw_core_web
+IMAGE_REPOSITORIES := icw_core_api icw_core_biz icw_activity_classification icw_activity_reasoning icw_activity_summary
+WEB_REPOSITORY := icw_core_web
 
 .DEFAULT_GOAL := help
 
@@ -11,7 +12,7 @@ help:
 	@echo "Commands:"
 	@echo "  make all     Run make all in all backend repositories"
 	@echo "  make verify  Run make verify in all backend repositories"
-	@echo "  make image   Run make image in all backend repositories"
+	@echo "  make image   Run image build in backend and web repositories"
 	@echo "  make clean   Run make clean in all backend repositories"
 
 all:
@@ -34,6 +35,8 @@ image:
 		echo "cd $$repo && make image"; \
 		$(MAKE) -C $$repo image; \
 	done
+	@echo "cd $(WEB_REPOSITORY) && npm run image"
+	@cd $(WEB_REPOSITORY) && npm run image
 
 clean:
 	@set -e; \
