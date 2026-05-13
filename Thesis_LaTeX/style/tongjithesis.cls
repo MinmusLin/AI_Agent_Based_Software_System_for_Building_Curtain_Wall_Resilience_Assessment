@@ -208,6 +208,7 @@
 \RequirePackage{siunitx}[=v2]
 \RequirePackage{pgf}
 \RequirePackage{tikz}
+\usetikzlibrary{shapes.geometric}
 
 \iftongjithesis@biblatex
   \RequirePackage[
