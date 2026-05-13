@@ -305,11 +305,11 @@ function ProjectReportContent({
         <ReportSection icon={<FileTextOutlined />} title="项目背景">
           <div className="space-y-4">
             <ParagraphBlock label="建筑背景" text={payload.project_background} />
-            <ParagraphBlock label="韧性评估目标" text={payload.resilience_assessment_objective} />
-            <ParagraphBlock label="数据集概述" text={payload.dataset_overview} />
+            <ParagraphBlock label="评估目标" text={payload.resilience_assessment_objective} />
+            <ParagraphBlock label="数据集" text={payload.dataset_overview} />
           </div>
         </ReportSection>
-        <ReportSection icon={<SafetyCertificateOutlined />} title="总体评估结论">
+        <ReportSection icon={<SafetyCertificateOutlined />} title="整体评估结论">
           <div className="grid gap-4 lg:grid-cols-2">
             <ParagraphBlock label="幕墙整体状态" text={payload.overall_conclusion.curtain_wall_overall_status} />
             <ParagraphBlock label="主要缺陷类型" text={payload.overall_conclusion.main_defect_types} />
@@ -317,7 +317,7 @@ function ProjectReportContent({
             <ParagraphBlock label="风险倾向" text={payload.overall_conclusion.risk_tendency} />
           </div>
         </ReportSection>
-        <ReportSection icon={<ClusterOutlined />} title="区域评估结论">
+        <ReportSection icon={<ClusterOutlined />} title="局部评估结论">
           <RegionalAssessments items={payload.regional_assessments} />
         </ReportSection>
         <ReportSection icon={<AuditOutlined />} title="总体韧性评估">
@@ -326,7 +326,7 @@ function ProjectReportContent({
         <ReportSection icon={<ToolOutlined />} title="维护和改进建议">
           <TextList items={payload.maintenance_and_improvement_recommendations} />
         </ReportSection>
-        <ReportSection icon={<InfoCircleOutlined />} title="报告限制说明">
+        <ReportSection icon={<InfoCircleOutlined />} title="报告说明">
           <p className="text-sm leading-7 text-slate-600">{payload.limitations || '-'}</p>
         </ReportSection>
       </div>
