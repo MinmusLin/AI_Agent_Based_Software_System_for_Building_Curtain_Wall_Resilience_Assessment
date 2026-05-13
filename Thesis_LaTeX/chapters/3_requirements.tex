@@ -1,7 +1,7 @@
 \chapter{系统需求分析}
 \label{chap:requirements}
 
-为了将幕墙韧性评估从人工经验流程转化为软件系统，首先需要明确业务对象与用户流程。业务对象包括项目、图像组、图像、检测主任务、检测子任务、图像总结、人工复核和项目报告等。项目保存建筑名称、位置、建设年份、既有问题和评估目标等背景信息；图像组对应建筑立面、楼层或采集区域；图像保存原图、尺寸、文件大小和上传状态；检测主任务以单张图像为单位，关联分类路由、五类子检测任务和图像总结；人工复核提供人的补充判断；项目报告则是最终面向运维决策的输出。用户流程可以抽象为项目基础信息、图像资产构建、Agent 智能检测、人工复核确认和评估报告生成五个阶段，各阶段之间存在严格依赖关系。基于上述对象模型和流程模型，本章进一步分析角色责任、典型用例、功能需求、非功能需求和相关约束条件。
+为了将幕墙韧性评估从人工经验流程转化为软件系统，首先需要明确业务对象与用户流程。业务对象包括项目、图像组、图像、检测主任务、检测子任务、图像总结、人工复核和项目报告等。项目保存建筑名称、位置、建设年份、既有问题和评估目标等背景信息；图像组对应建筑立面、楼层或采集区域；图像保存原图、尺寸、文件大小和上传状态；检测主任务以单张图像为单位，关联分类路由、五类检测子任务和图像总结；人工复核提供人的补充判断；项目报告则是最终面向运维决策的输出。用户流程可以抽象为项目基础信息、图像资产构建、Agent 智能检测、人工复核确认和评估报告生成五个阶段，各阶段之间存在严格依赖关系。基于上述对象模型和流程模型，本章进一步分析角色责任、典型用例、功能需求、非功能需求和相关约束条件。
 
 \section{业务闭环中的角色与责任}
 \label{sec:requirements-role-and-responsibility-in-business-closed-loop}
@@ -37,7 +37,7 @@
     \draw[arrow] ([xshift=-0.16cm]biz.north east) -- node[edge label, pos=0.55, above left=1pt] {图像路由任务} ([yshift=0.16cm]classification.south west);
     \draw[arrow] ([xshift=0.16cm]classification.south west) -- node[edge label, pos=0.55, below right=1pt] {任务代码} ([yshift=-0.16cm]biz.north east);
 
-    \draw[arrow] ([yshift=0.16cm]biz.east) -- node[edge label, above=2pt] {子检测任务} ([yshift=0.16cm]reasoning.west);
+    \draw[arrow] ([yshift=0.16cm]biz.east) -- node[edge label, above=2pt] {检测子任务} ([yshift=0.16cm]reasoning.west);
     \draw[arrow] ([yshift=-0.16cm]reasoning.west) -- node[edge label, below=2pt] {指标与产物} ([yshift=-0.16cm]biz.east);
 
     \draw[arrow] ([xshift=0.16cm]summary.north west) -- node[edge label, pos=0.55, above right=1pt] {总结与报告} ([yshift=0.16cm]biz.south east);
@@ -168,7 +168,113 @@
 \section{阶段化需求分析}
 \label{sec:requirements-staged-requirement-analysis}
 
-为了使系统符合土木工程领域用户的真实工作习惯，本文将项目工作流划分为五个阶段：项目基础信息、图像资产构建、Agent 智能检测、人工复核和报告生成。每个阶段既有独立功能，又为后续阶段提供数据。项目基础信息阶段提供建筑名称、地点、年份和描述等上下文；图像资产阶段提供图像和分组；智能检测阶段产生结构化结果和图像总结；人工复核阶段补充人的判断；报告生成阶段形成最终输出。
+为了使系统符合土木工程领域用户的真实工作习惯，本文将项目工作流划分为五个阶段：项目基础信息、图像资产构建、Agent 智能检测、人工复核确认和评估报告生成。每个阶段既有独立功能，又为后续阶段提供数据。项目基础信息阶段提供建筑名称、地点、年份和描述等上下文；图像资产阶段提供图像和分组；智能检测阶段产生结构化结果和图像总结；人工复核阶段补充人的判断；报告生成阶段形成最终输出。
+
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\footnotesize,
+      >=stealth,
+      state/.style={draw, rounded corners=2pt, align=center, minimum width=1.45cm, minimum height=0.62cm, line width=0.45pt, inner sep=2pt},
+      stage/.style={state, fill=blue!8, minimum width=1.65cm},
+      process/.style={state, fill=orange!10},
+      success/.style={state, fill=green!10},
+      failed/.style={state, fill=red!8},
+      panel/.style={draw, rounded corners=2pt, line width=0.45pt, fill=gray!4},
+      panel title/.style={font=\scriptsize, anchor=west},
+      arrow/.style={->, line width=0.5pt},
+      trigger/.style={->, dashed, gray!70, line width=0.45pt},
+      exception/.style={->, dashed, line width=0.45pt},
+      label/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \draw[panel] (0, -0.75) rectangle (12.4, 1.10);
+      \node[panel title] at (0.2, 0.80) {项目工作流主状态机};
+      \node[stage] (p-profile) at (1.05, 0) {项目基础\\信息};
+      \node[stage] (p-assets) at (3.11, 0) {图像资产\\构建};
+      \node[stage] (p-detection) at (5.17, 0) {Agent\\智能检测};
+      \node[stage] (p-review) at (7.23, 0) {人工复核\\确认};
+      \node[stage] (p-report) at (9.29, 0) {评估报告\\生成};
+      \node[success, minimum width=1.65cm] (p-done) at (11.35, 0) {项目\\完成};
+
+      \draw[arrow] (p-profile) -- (p-assets);
+      \draw[arrow] (p-assets) -- (p-detection);
+      \draw[arrow] (p-detection) -- (p-review);
+      \draw[arrow] (p-review) -- (p-report);
+      \draw[arrow] (p-report) -- (p-done);
+
+      \draw[panel] (0, -5.20) rectangle (6.05, -1.05);
+      \node[panel title] at (0.2, -1.35) {图像资产构建状态机};
+      \node[process] (u-submit) at (1.15, -2.45) {提交\\上传任务};
+      \node[process] (u-uploading) at (3.025, -2.45) {上传中};
+      \node[success] (u-success) at (4.90, -2.45) {上传成功};
+      \node[failed] (u-failed) at (3.025, -3.75) {上传失败};
+      \node[process] (u-retry) at (4.90, -3.75) {重新提交\\上传任务};
+
+      \draw[arrow] (u-submit) -- (u-uploading);
+      \draw[arrow] (u-uploading) -- (u-success);
+      \draw[exception] (u-uploading) -- (u-failed);
+      \draw[exception] (u-failed) -- (u-retry);
+      \draw[exception] (u-retry.north west) -- (u-uploading.south east);
+
+      \draw[panel] (6.35, -5.20) rectangle (12.40, -1.05);
+      \node[panel title] at (6.55, -1.35) {检测主任务状态机};
+      \node[process] (m-created) at (7.55, -2.15) {主任务\\已创建};
+      \node[process] (m-classifying) at (9.375, -2.15) {分类中};
+      \node[process] (m-subtask-created) at (11.20, -2.15) {子任务\\创建};
+      \node[process] (m-detecting) at (11.20, -3.25) {子任务\\检测中};
+      \node[process] (m-summarizing) at (9.375, -3.25) {单图\\总结中};
+      \node[success] (m-success) at (7.55, -4.35) {主任务\\成功};
+      \node[process] (m-retry) at (9.375, -4.35) {失败\\重试};
+      \node[failed] (m-failed) at (11.20, -4.35) {主任务\\失败};
+
+      \draw[arrow] (m-created) -- (m-classifying);
+      \draw[arrow] (m-classifying) -- (m-subtask-created);
+      \draw[arrow] (m-subtask-created) -- (m-detecting);
+      \draw[arrow] (m-detecting) -- (m-summarizing);
+      \draw[arrow] (m-summarizing) -- (m-success);
+      \draw[exception] (m-classifying.south east) -- (m-failed.north west);
+      \draw[exception] (m-detecting) -- (m-failed);
+      \draw[exception] (m-summarizing.south east) -- (m-failed.north west);
+      \draw[exception] (m-failed) -- (m-retry);
+      \draw[exception] (m-retry.north west) -- (m-created.south);
+
+      \draw[panel] (0, -8.90) rectangle (6.05, -5.50);
+      \node[panel title] at (0.2, -5.80) {检测子任务状态机};
+      \node[process] (s-waiting) at (1.15, -6.75) {子任务\\待执行};
+      \node[process] (s-running) at (3.025, -6.75) {模型\\推理中};
+      \node[process] (s-uploading) at (4.90, -6.75) {产物\\上传};
+      \node[process] (s-checking) at (3.025, -8.05) {产物完整性\\校验};
+      \node[success] (s-success) at (4.90, -8.05) {子任务\\成功};
+      \node[failed] (s-failed) at (1.15, -8.05) {子任务\\失败};
+
+      \draw[arrow] (s-waiting) -- (s-running);
+      \draw[arrow] (s-running) -- (s-uploading);
+      \draw[arrow] (s-uploading.south west) -- (s-checking.north east);
+      \draw[arrow] (s-checking) -- (s-success);
+      \draw[exception] (s-running.south west) -- (s-failed.north east);
+      \draw[exception] (s-checking) -- (s-failed);
+      \draw[exception] (s-failed) -- (s-waiting);
+
+      \draw[panel] (6.35, -8.90) rectangle (12.40, -5.50);
+      \node[panel title] at (6.55, -5.80) {评估报告生成状态机};
+      \node[process] (r-waiting) at (7.55, -6.75) {报告\\待生成};
+      \node[process] (r-generating) at (9.375, -6.75) {报告\\生成中};
+      \node[success] (r-success) at (11.20, -6.75) {报告生成\\成功};
+      \node[failed] (r-failed) at (9.375, -8.05) {报告生成\\失败};
+      \node[process] (r-retry) at (11.20, -8.05) {失败\\重试};
+
+      \draw[arrow] (r-waiting) -- (r-generating);
+      \draw[arrow] (r-generating) -- (r-success);
+      \draw[exception] (r-generating) -- (r-failed);
+      \draw[exception] (r-failed) -- (r-retry);
+      \draw[exception] (r-retry.north west) -- (r-generating.south east);
+    \end{tikzpicture}%
+  }
+  \caption{项目工作流与任务执行状态机总览}\label{fig:requirements-stage-state-machine}
+\end{figure}
+
+如\cref{fig:requirements-stage-state-machine} 所示，阶段化需求不仅包含页面阶段之间的推进关系，还包含每个阶段内部的细粒度状态机。图像资产阶段需要处理上传成功和上传失败后的重新提交；Agent 智能检测阶段需要处理主任务的分类、子任务创建、子任务检测和单图总结；检测子任务自身还包含模型执行、产物上传和完整性校验；报告生成阶段则需要区分生成中、生成成功和生成失败重试。只有将这些状态机统一纳入后端业务控制，系统才能在长耗时、跨服务和可失败的任务链路中保持一致。
 
 这种阶段化设计的意义在于把复杂评估任务拆分为用户可理解的步骤。用户不需要一次性理解所有数据对象，而是在流程推进中逐步完成输入、确认和输出。对于系统而言，阶段边界也提供了校验条件。例如，没有上传图像时不能进入检测阶段；检测任务未全部成功时不能进入人工复核阶段；只有报告生成成功后，项目才能被视为最终完成。阶段化需求因此同时承担用户体验组织和业务状态约束两个作用。
 
@@ -182,7 +288,7 @@
 \subsection{可扩展性}
 \label{subsec:requirements-scalability}
 
-建筑幕墙检测能力具有持续扩展需求。当前系统包含五类原子检测任务，但未来可能新增连接件松动、密封胶老化、幕墙变形、热工异常等检测能力。因此系统不能将检测流程写死在某个单体函数中，而应通过任务代码、统一接口和注册表机制组织能力。Agent 输出也应限制在系统已注册能力范围内，以便新增能力时只需补充任务代码、模型服务、数据库字段和前端展示逻辑。
+建筑幕墙检测能力具有持续扩展需求。当前系统包含五类原检测子任务，但未来可能新增连接件松动、密封胶老化、幕墙变形、热工异常等检测能力。因此系统不能将检测流程写死在某个单体函数中，而应通过任务代码、统一接口和注册表机制组织能力。Agent 输出也应限制在系统已注册能力范围内，以便新增能力时只需补充任务代码、模型服务、数据库字段和前端展示逻辑。
 
 \subsection{一致性}
 \label{subsec:requirements-consistency}
