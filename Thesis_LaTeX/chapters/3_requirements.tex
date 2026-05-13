@@ -87,8 +87,8 @@
     include/.style={->, dashed, line width=0.45pt},
     uml label/.style={font=\tiny, fill=white, inner sep=1pt}
   ]
-    \draw[line width=0.5pt, rounded corners=2pt] (1.2, -3.45) rectangle (12.3, 3.45);
-    \node[anchor=west] at (1.45, 3.16) {建筑幕墙韧性评估软件系统};
+    \draw[line width=0.5pt, rounded corners=2pt] (1.2, -4.4) rectangle (12.3, 4.05);
+    \node[anchor=west] at (1.45, 3.75) {建筑幕墙韧性评估软件系统};
 
     \draw[line width=0.5pt] (0, 1.0) circle (0.16);
     \draw[line width=0.5pt] (0, 0.84) -- (0, 0.2);
@@ -97,18 +97,18 @@
     \draw[line width=0.5pt] (0, 0.2) -- (0.3, -0.32);
     \node[align=center] (user) at (0, -0.78) {土木工程\\评估用户};
 
-    \node[usecase] (login) at (3.75, 2.35) {登录与\\身份鉴权};
-    \node[usecase] (project) at (3.75, 1.35) {创建与\\维护项目};
-    \node[usecase] (asset) at (3.75, 0.35) {管理图像组\\与图像};
-    \node[usecase] (start) at (3.75, -0.65) {启动 Agent\\智能检测};
-    \node[usecase] (review) at (3.75, -1.65) {复核\\检测结果};
-    \node[usecase] (report) at (3.75, -2.65) {生成与查看\\评估报告};
+    \node[usecase] (login) at (3.75, 2.85) {登录与\\身份鉴权};
+    \node[usecase] (project) at (3.75, 1.55) {创建与\\维护项目};
+    \node[usecase] (asset) at (3.75, 0.25) {管理图像组\\与图像};
+    \node[usecase] (start) at (3.75, -1.05) {启动 Agent\\智能检测};
+    \node[usecase] (review) at (3.75, -2.35) {复核\\检测结果};
+    \node[usecase] (report) at (3.75, -3.65) {生成与查看\\评估报告};
 
-    \node[usecase] (route) at (9.35, 2.1) {自动选择\\检测任务};
-    \node[usecase] (detect) at (9.35, 1.0) {执行原子\\检测能力};
-    \node[usecase] (summary) at (9.35, -0.1) {生成单图\\检测总结};
-    \node[usecase] (context) at (9.35, -1.2) {整合项目\\报告上下文};
-    \node[usecase] (retry) at (9.35, -2.3) {失败重试与\\状态恢复};
+    \node[usecase] (route) at (9.75, 2.25) {自动选择\\检测任务};
+    \node[usecase] (detect) at (9.75, 0.95) {执行原子\\检测能力};
+    \node[usecase] (summary) at (9.75, -0.35) {生成单图\\检测总结};
+    \node[usecase] (context) at (9.75, -1.65) {整合项目\\报告上下文};
+    \node[usecase] (retry) at (9.75, -2.95) {失败重试与\\状态恢复};
 
     \draw[association] (user.east) -- (login.west);
     \draw[association] (user.east) -- (project.west);
@@ -130,7 +130,7 @@
 
 需要说明的是，UML 用例图强调参与者与系统功能边界，不直接表达严格执行顺序。本文系统在真实使用中仍然遵循项目基础信息、图像资产构建、Agent 智能检测、人工复核确认和评估报告生成的阶段化流程，具体阶段约束将在后续需求分析中展开。
 
-这些用例覆盖了从数据进入系统到决策结果输出的全过程，也对应第一章提出的三个层次研究问题：图像资产构建解决数据组织问题，Agent 智能检测解决任务选择与调度问题，人工复核和报告生成解决韧性评估与报告表达问题。与普通后台管理系统相比，本系统的关键用例不是简单增删改查，而是长任务驱动的业务流程。尤其是智能检测用例，背后包含多个服务、多次回调和多种状态，必须通过状态机和异步编排保证可用。
+这些用例覆盖了从数据进入系统到决策结果输出的全过程，也对应\cref{sec:introduction-research-problem}提出的三个层次研究问题：图像资产构建解决数据组织问题，Agent 智能检测解决任务选择与调度问题，人工复核和报告生成解决韧性评估与报告表达问题。与普通后台管理系统相比，本系统的关键用例不是简单增删改查，而是长任务驱动的业务流程。Agent 智能检测背后包含多个服务、多次回调和多种状态，必须通过状态机和异步编排保证可用。
 
 \section{功能需求分析}
 \label{sec:requirements-functional-requirement-analysis}
@@ -163,7 +163,7 @@
 
 复核阶段需要支持读取和保存图像检测任务的复核信息，包括准确性判断和补充评论。人工复核不是对 Agent 和模型能力的否定，而是面向工程评估责任的必要补充。系统需要保留模型原始结果，同时记录人的判断，使项目报告能够体现“自动检测 + 人工确认”的协同过程。
 
-报告阶段需要支持报告状态查询、失败重试、报告结果展示和报告导出。报告生成本身属于后置任务，在用户推进项目阶段后自动触发。报告输入应包含项目基础信息、图像组信息、图像级总结、原子检测结果和人工复核意见，而不是只拼接原始底层指标。这样设计可以降低用户操作复杂度，使报告生成成为自然流程的一部分，也与第二章提出的 LLM 分层信息整合思想保持一致。
+报告阶段需要支持报告状态查询、失败重试、报告结果展示和报告导出。报告生成本身属于后置任务，在用户推进项目阶段后自动触发。报告输入应包含项目基础信息、图像组信息、图像级总结、原子检测结果和人工复核意见，而不是只拼接原始底层指标。这样设计可以降低用户操作复杂度，使报告生成成为自然流程的一部分，也与\cref{sec:foundation-large-language-model-information-integration-and-report-generation}提出的 LLM 分层信息整合思想保持一致。
 
 \section{阶段化需求分析}
 \label{sec:requirements-staged-requirement-analysis}
