@@ -21,7 +21,65 @@
 
 深度学习方法则通过数据驱动方式学习图像特征。卷积神经网络能够自动提取从边缘纹理到高层语义的多层特征，ResNet 等残差网络通过残差连接缓解深层网络训练困难，常用于图像分类任务\cite{article1,conf1}。目标检测模型能够同时输出目标类别和位置，YOLO 系列以端到端、实时检测为代表，适合缺陷候选区域快速定位\cite{redmon2016yolo}。语义分割和实例分割模型能够输出像素级区域，DeepLabV3+、SegFormer 以及 Segment Anything 等方法分别从空洞卷积、Transformer 表征和通用分割能力等方向提升区域分割效果\cite{chen2018deeplabv3plus,xie2021segformer,kirillov2023sam}。在建筑结构和幕墙场景中，裂缝检测、玻璃检测和表面缺陷识别等任务均已有较多研究。Ye 等人利用深度学习方法进行结构裂缝检测，为石材或混凝土裂缝识别提供了参考\cite{ye2019crack}；Mei 等人研究真实场景中的玻璃检测问题，对玻璃幕墙区域分析提供了参考\cite{mei2020glass}。
 
-Agent 自主调度的五类原子检测能力来自团队前期积累的检测模型和实验脚本，本系统将这些模型抽象为可调度、可替换、可治理的原子检测能力。在系统链路中，原子检测能力负责给出局部视觉判断，Agent 自主任务调度方法负责选择应执行的能力，LLM 分层信息整合策略负责将局部结果组织为图像总结和项目报告。本节对五类原子检测能力的基本原理进行说明。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      lane/.style={draw, rounded corners=2pt, line width=0.45pt, fill=gray!4},
+      capability/.style={draw, rounded corners=2pt, align=center, minimum width=2.2cm, minimum height=0.58cm, line width=0.45pt, fill=blue!6, inner sep=2pt},
+      method/.style={draw, rounded corners=2pt, align=center, minimum width=3.35cm, minimum height=0.58cm, line width=0.45pt, fill=orange!10, inner sep=2pt},
+      output/.style={draw, rounded corners=2pt, align=center, minimum width=3.3cm, minimum height=0.58cm, line width=0.45pt, fill=green!8, inner sep=2pt},
+      arrow/.style={->, line width=0.45pt},
+      header/.style={font=\scriptsize\bfseries, align=center}
+    ]
+      \node[header] at (1.1, 0) {原子检测能力};
+      \node[header] at (4.7, 0) {核心技术路线};
+      \node[header] at (8.85, 0) {结构化输出};
+
+      \draw[lane] (-0.25, -0.38) rectangle (10.75, -1.32);
+      \node[capability] (corrosion) at (1.1, -0.85) {金属锈蚀};
+      \node[method] (corrosion-method) at (4.7, -0.85) {YOLO / DeepLabV3+\\检测与语义分割};
+      \node[output] (corrosion-output) at (8.85, -0.85) {锈蚀区域、置信度\\锈蚀像素数与占比};
+
+      \draw[lane] (-0.25, -1.46) rectangle (10.75, -2.40);
+      \node[capability] (crack) at (1.1, -1.93) {石材裂缝};
+      \node[method] (crack-method) at (4.7, -1.93) {YOLO / SAM / SegFormer\\候选区域与裂缝分割};
+      \node[output] (crack-output) at (8.85, -1.93) {裂缝掩码、覆盖图\\裂缝像素数与占比};
+
+      \draw[lane] (-0.25, -2.54) rectangle (10.75, -3.48);
+      \node[capability] (stain) at (1.1, -3.01) {石材污渍};
+      \node[method] (stain-method) at (4.7, -3.01) {YOLO 实例分割\\透视校正与局部分析};
+      \node[output] (stain-output) at (8.85, -3.01) {污渍区域、校正图\\平均与最高污渍占比};
+
+      \draw[lane] (-0.25, -3.62) rectangle (10.75, -4.56);
+      \node[capability] (flatness) at (1.1, -4.09) {玻璃平整度};
+      \node[method] (flatness-method) at (4.7, -4.09) {Canny / Hough / Sobel / FFT\\多特征规则融合};
+      \node[output] (flatness-output) at (8.85, -4.09) {不平整判定指标\\边缘 / 直线 / 梯度 / 频谱};
+
+      \draw[lane] (-0.25, -4.70) rectangle (10.75, -5.64);
+      \node[capability] (spalling) at (1.1, -5.17) {玻璃爆裂};
+      \node[method] (spalling-method) at (4.7, -5.17) {ResNet34 二分类\\数据清洗与增强训练};
+      \node[output] (spalling-output) at (8.85, -5.17) {爆裂 / 未爆裂判定\\分类置信度};
+
+      \draw[arrow] (corrosion) -- (corrosion-method);
+      \draw[arrow] (corrosion-method) -- (corrosion-output);
+      \draw[arrow] (crack) -- (crack-method);
+      \draw[arrow] (crack-method) -- (crack-output);
+      \draw[arrow] (stain) -- (stain-method);
+      \draw[arrow] (stain-method) -- (stain-output);
+      \draw[arrow] (flatness) -- (flatness-method);
+      \draw[arrow] (flatness-method) -- (flatness-output);
+      \draw[arrow] (spalling) -- (spalling-method);
+      \draw[arrow] (spalling-method) -- (spalling-output);
+    \end{tikzpicture}%
+  }
+  \caption{五类原子检测能力技术路线总览图}
+  \label{fig:foundation-atomic-detection-capability-technical-routes}
+\end{figure}
+
+如\cref{fig:foundation-atomic-detection-capability-technical-routes} 所示，Agent 自主调度的五类原子检测能力来自团队前期积累的检测模型和实验脚本，本系统将这些模型抽象为可调度、可替换、可治理的原子检测能力。在系统链路中，原子检测能力负责给出局部视觉判断，Agent 自主任务调度方法负责选择应执行的能力，LLM 分层信息整合策略负责将局部结果组织为图像总结和项目报告。本节对五类原子检测能力的基本原理进行说明。
 
 \subsection{金属锈蚀检测原理}
 \label{sec:foundation-metal-corrosion-detection-principle}
