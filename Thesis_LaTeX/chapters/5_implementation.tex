@@ -1,146 +1,629 @@
 \chapter{系统架构与工程实现}
 \label{chap:implementation}
 
-本章说明第四章技术方案如何落地为可运行的软件系统。章节重点放在工程链路对 Agent 方法的支撑作用上，说明多服务架构、共享协议、数据库状态机、异步 Worker、对象存储和前端可视化如何共同支撑 Agent 自主任务调度方法与 LLM 分层信息整合策略，使智能能力从一次性模型调用转化为可追踪、可恢复、可部署的业务流程。
+\cref{chap:design}从方法层说明了本文如何通过 Agent 自主任务调度方法、原子检测能力工具化和 LLM 分层信息整合策略解决建筑幕墙韧性评估中的任务选择与信息融合问题。本章转向工程链路实现，重点说明上述方法如何落地为一个可运行、可部署、可观测、可恢复的软件系统。系统实现的核心不是简单把若干模型串联起来，而是围绕项目、图像、任务、产物、复核和报告构建完整的工程链路，使 Agent 能力在受控状态机中稳定发挥作用。
 
-\section{总体架构设计}
-\label{sec:impl-overall-architecture}
+\section{关键术语}
+\label{sec:implementation-key-terms}
 
-本文系统采用前后端分离和服务化架构。前端负责用户交互、阶段流程、图像展示、检测进度和报告页面；后端按照职责拆分为 Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common 等模块。基础设施包括 MySQL、Redis、MinIO 和 RocketMQ。这样的拆分并不是为了追求形式上的微服务，而是为了将不同性质的工作隔离：HTTP 接入、业务状态、Agent 调用、模型推理、报告生成和共享协议分别由不同模块承担。
-
-Core API 是前端入口，提供 HTTP 和 WebSocket 能力。Core BIZ 是业务中心，负责数据库事务、对象存储、任务 Worker、回调处理和事件发布。Activity Classification 封装分类 Agent，Activity Reasoning 封装 Python 检测模型，Activity Summary 封装图像总结和项目报告 Agent。ICW Common 统一提供 Protocol Buffers 接口、枚举定义、gRPC 调用封装、日志工具、错误结构和通用工具函数。
-
-这种架构的核心原则是“智能能力外置，业务状态内聚”。Agent 和模型能力被放在 Activity 服务中，可以独立演进；项目、图像、任务和报告状态集中在 BIZ 服务中，避免状态分散。API 服务不承担复杂业务，只负责把前端请求转换为 BIZ 调用，并把 BIZ 产生的事件推送给前端。这样的职责划分使系统既能接入外部智能能力，又能保持核心业务一致性。
-
-从工作量角度看，本文系统不是简单调用一次大语言模型，而是需要把多个异构能力编排在同一业务流程中。Classification 调用的是外部 Agent 平台，Reasoning 调用的是本地 Python 模型，Summary 再次调用外部 Agent 平台，三类能力的运行时间、失败模式和返回格式均不同。系统必须通过统一协议和状态机把它们组织起来。
+本章涉及的对象更多偏向工程实现，包括服务模块、通信方式、存储对象和运维机制等。为便于阅读，现对本章关键术语进行说明。
 
 \begin{table}[!htb]
-  \caption{系统服务划分}\label{tab:service-division}
+  \caption{系统架构与工程实现关键术语}\label{tab:implementation-key-terms}
   \centering
-  \begin{tabular}{@{}p{0.22\linewidth}p{0.68\linewidth}@{}} \toprule
-    \textbf{服务或模块} & \textbf{主要职责} \\ \midrule
-    Core Web & 项目流程页面、图像资产管理、检测进度可视化、复核与报告展示。 \\
-    Core API & HTTP 接口、鉴权入口、WebSocket 连接、RocketMQ 消息消费与前端广播。 \\
-    Core BIZ & 业务状态机、数据库事务、对象存储封装、检测 Worker、回调落库和事件生产。 \\
-    Activity Classification & 调用分类 Agent，输出需要执行的检测任务代码。 \\
-    Activity Reasoning & 调用五类原子检测模型，上传检测产物并回调检测结果。 \\
-    Activity Summary & 调用总结 Agent，生成单图总结和项目级评估报告。 \\
-    ICW Common & 共享协议、枚举、gRPC 基础设施、日志、错误和工具函数。 \\ \bottomrule
+  \begin{tabular}{@{}p{0.16\linewidth}p{0.72\linewidth}@{}} \toprule
+    \textbf{术语} & \textbf{含义} \\ \midrule
+    PSM & 服务进程或模块的逻辑名称，用于区分 Core API、Core BIZ、Activity 服务、CronJob 和日志采集等运行单元。 \\
+    Core API & 面向前端提供 HTTP、鉴权入口和 WebSocket 通道等的接入服务。 \\
+    Core BIZ & 系统业务中心，负责状态机推进、数据库事务、对象存储授权、Worker 编排、回调处理、事件发布和定时任务等。 \\
+    Activity 服务 & 独立智能能力服务，包括 Classification、Reasoning 和 Summary，分别封装分类 Agent、原子检测模型和总结 Agent。 \\
+    Worker & 后台任务执行器，异步推进检测任务和报告任务，避免用户请求长时间阻塞。 \\
+    回调 & Activity 服务完成任务后，通过 gRPC 将状态、结果、产物清单和错误信息上报给 Core BIZ 的机制。 \\
+    RocketMQ 事件 & Core BIZ 在图像、检测任务或报告状态变化后发布的项目事件，由 Core API 消费并转发给前端。 \\
+    WebSocket Scope & WebSocket 推送范围，包括图像资产、检测任务和报告三类，用于隔离不同阶段的实时消息。 \\
+    预签名 URL & Core BIZ 为前端或 Activity 服务生成的有时效对象存储访问地址，用于上传或下载图像与报告源文件。 \\
+    产物 & Reasoning 服务生成并上传到 MinIO 的中间图像，如标注图、区域图、浮层图、梯度图、直线图和频谱图等。 \\
+    CronJob & Core BIZ 内部定时任务，用于上传超时处理和 MinIO 脏对象清理等后台维护工作。 \\ \bottomrule
   \end{tabular}
 \end{table}
+
+\section{总体架构设计与实现}
+\label{sec:implementation-overall-architecture-design}
+
+系统采用前后端分离与服务化架构。前端 Core Web 负责项目工作台、项目阶段页面、图像资产管理、检测进度展示、检测结果查看、人工复核和报告展示；后端按照职责拆分为 Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common；基础设施包含 MySQL、Redis、MinIO 和 RocketMQ；部署层由 Docker Compose 统一组织容器、网络、环境变量、日志采集和依赖启动顺序。
+
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      region/.style={draw, rounded corners=4pt, line width=0.65pt, align=center},
+      layerTitle/.style={font=\bfseries\scriptsize, anchor=west, align=left},
+      cell/.style={draw, rounded corners=2pt, align=center, minimum height=0.46cm, line width=0.42pt, inner sep=2pt},
+      userbox/.style={region, draw=blue!55!black, fill=blue!4},
+      corebox/.style={region, draw=teal!55!black, fill=teal!5},
+      activitybox/.style={region, draw=orange!75!black, fill=orange!7},
+      infrabox/.style={region, draw=gray!70!black, fill=gray!7},
+      deploybox/.style={region, draw=purple!55!black, fill=purple!5},
+      usercell/.style={cell, draw=blue!55!black, fill=blue!8},
+      corecell/.style={cell, draw=teal!55!black, fill=teal!10},
+      activitycell/.style={cell, draw=orange!75!black, fill=orange!12},
+      infracell/.style={cell, draw=gray!70!black, fill=gray!12},
+      deploycell/.style={cell, draw=purple!55!black, fill=purple!9}
+    ]
+      \node[deploybox, minimum width=14.30cm, minimum height=1.30cm] at (0, 5.45) {};
+      \node[layerTitle] at (-7.00, 5.77) {部署与运行治理层};
+      \node[deploycell, minimum width=1.80cm] at (-5.15, 5.24) {Docker};
+      \node[deploycell, minimum width=1.80cm] at (-3.09, 5.24) {统一网络};
+      \node[deploycell, minimum width=1.80cm] at (-1.03, 5.24) {环境变量};
+      \node[deploycell, minimum width=1.80cm] at (1.03, 5.24) {依赖启动};
+      \node[deploycell, minimum width=1.80cm] at (3.09, 5.24) {日志采集};
+      \node[deploycell, minimum width=1.80cm] at (5.15, 5.24) {镜像发布};
+
+      \node[userbox, minimum width=14.30cm, minimum height=1.55cm] at (0, 3.83) {};
+      \node[layerTitle] at (-7.00, 4.28) {用户与前端层};
+      \node[usercell, minimum width=1.80cm] at (-5.15, 3.64) {浏览器用户\\项目操作};
+      \node[usercell, minimum width=1.80cm] at (-3.09, 3.64) {Core Web\\React 页面};
+      \node[usercell, minimum width=1.80cm] at (-1.03, 3.64) {阶段流程\\状态展示};
+      \node[usercell, minimum width=1.80cm] at (1.03, 3.64) {图像结果\\可视化};
+      \node[usercell, minimum width=1.80cm] at (3.09, 3.64) {人工复核\\报告打印};
+      \node[usercell, minimum width=1.80cm] at (5.15, 3.64) {WebSocket\\实时刷新};
+
+      \node[corebox, minimum width=14.30cm, minimum height=2.35cm] at (0, 1.72) {};
+      \node[layerTitle] at (-7.00, 2.56) {核心业务服务层};
+      \node[corecell, minimum width=2.10cm] at (-5.00, 1.96) {Core API\\HTTP 接入};
+      \node[corecell, minimum width=2.10cm] at (-2.50, 1.96) {鉴权权限\\请求日志};
+      \node[corecell, minimum width=2.10cm] at (0.00, 1.96) {WebSocket\\Hub};
+      \node[corecell, minimum width=2.10cm] at (2.50, 1.96) {Core BIZ\\状态机中心};
+      \node[corecell, minimum width=2.10cm] at (5.00, 1.96) {Worker\\任务编排};
+      \node[corecell, minimum width=2.10cm] at (-5.00, 1.04) {ICW Common\\Proto / Enum};
+      \node[corecell, minimum width=2.10cm] at (-2.50, 1.04) {Repository\\事务封装};
+      \node[corecell, minimum width=2.10cm] at (0.00, 1.04) {回调处理\\聚合推进};
+      \node[corecell, minimum width=2.10cm] at (2.50, 1.04) {事件生产\\状态广播};
+      \node[corecell, minimum width=2.10cm] at (5.00, 1.04) {CronJob\\后台维护};
+
+      \node[activitybox, minimum width=14.30cm, minimum height=2.35cm] at (0, -0.81) {};
+      \node[layerTitle] at (-7.00, 0.03) {智能活动服务层};
+      \node[activitycell, minimum width=2.50cm] at (-4.80, -0.57) {Classification\\分类 Agent};
+      \node[activitycell, minimum width=2.50cm] at (-1.60, -0.57) {Reasoning\\原子检测能力};
+      \node[activitycell, minimum width=2.50cm] at (1.60, -0.57) {Summary\\总结 Agent};
+      \node[activitycell, minimum width=2.50cm] at (4.80, -0.57) {Python Worker\\模型脚本};
+      \node[activitycell, minimum width=2.50cm] at (-4.80, -1.49) {图像附件\\任务代码};
+      \node[activitycell, minimum width=2.50cm] at (-1.60, -1.49) {检测产物与指标\\report.json};
+      \node[activitycell, minimum width=2.50cm] at (1.60, -1.49) {报告上下文\\source.txt};
+      \node[activitycell, minimum width=2.50cm] at (4.80, -1.49) {Summary 输出\\压缩 JSON};
+
+      \node[infrabox, minimum width=14.30cm, minimum height=1.55cm] at (0, -2.94) {};
+      \node[layerTitle] at (-7.00, -2.50) {基础设施与数据层};
+      \node[infracell, minimum width=1.80cm] at (-5.15, -3.14) {MySQL\\结构化状态};
+      \node[infracell, minimum width=1.80cm] at (-3.09, -3.14) {Redis\\令牌与缓存};
+      \node[infracell, minimum width=1.80cm] at (-1.03, -3.14) {MinIO\\图像与产物};
+      \node[infracell, minimum width=1.80cm] at (1.03, -3.14) {RocketMQ\\项目事件};
+      \node[infracell, minimum width=1.80cm] at (3.09, -3.14) {Log Sidecar\\分 PSM 日志};
+      \node[infracell, minimum width=1.80cm] at (5.15, -3.14) {Config\\环境变量配置};
+    \end{tikzpicture}
+  }
+  \caption{系统总体架构与服务关系}\label{fig:implementation-overall-architecture}
+\end{figure}
+
+如\cref{fig:implementation-overall-architecture} 所示，系统总体架构可以概括为五个层次：部署与运行治理层覆盖所有服务，提供容器编排、网络隔离、环境配置、日志采集和镜像发布能力；用户与前端层负责页面交互和实时状态呈现；核心业务服务层负责接入、鉴权、状态机、任务编排、回调处理和事件生产；智能活动服务层负责分类、检测和总结等相对独立的智能能力；基础设施与数据层负责结构化状态、缓存、对象产物、事件消息和日志留存。各服务或模块的实现职责见\cref{tab:service-division}。
+
+\begin{table}[!htb]
+  \caption{系统服务划分与实现职责}\label{tab:service-division}
+  \centering
+  \begin{tabular}{@{}p{0.18\linewidth}p{0.76\linewidth}@{}} \toprule
+    \textbf{服务或模块} & \textbf{实现职责} \\ \midrule
+    Core Web & React 前端页面、阶段化项目流程、图像和检测结果可视化、人工复核、报告展示与打印 \\
+    Core API & HTTP 路由、鉴权中间件、请求日志、跨域处理、WebSocket 连接、RocketMQ 事件消费与前端广播 \\
+    Core BIZ & 业务状态机、数据库事务、对象存储封装、Redis 缓存、检测 Worker、报告 Worker、回调处理、事件生产和 CronJob \\
+    Activity Classification & 调用分类 Agent，上传图像附件，解析受控 JSON 输出，回调检测任务代码 \\
+    Activity Reasoning & 统一封装五类 Python 原子检测能力，负责原图下载、模型执行、产物上传和结果回调 \\
+    Activity Summary & 调用图像总结 Agent 和项目报告 Agent，压缩 Agent 输出 JSON，并回调总结与报告结果 \\
+    ICW Common & Protocol Buffers 协议、共享枚举、gRPC 调用封装、错误码、日志工具、JSON 归一化和通用工具函数 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+该架构遵循“智能能力外置，业务状态内聚”的原则。Classification、Reasoning 和 Summary 可以独立演进各自 Agent 或模型逻辑，但不直接拥有业务状态；项目、图像、任务、复核和报告状态集中由 Core BIZ 控制；Core API 不承担复杂业务事务，只负责接入与事件转发；Core Web 只展示和触发业务动作，不自行判断最终状态。这样的边界划分避免了 Agent 与模型服务越权，也使失败恢复和日志追踪更清晰。
+
+从工程复杂度看，用户一次“启动 Agent 智能检测”背后会触发多条异步链路：Core Web 发起 HTTP 请求，Core API 鉴权并转发到 Core BIZ，Core BIZ 为图像创建检测主任务并投递 Worker，Worker 调用分类 Agent，分类回调后创建多个子任务，Reasoning 服务执行 Python 模型并上传产物，Summary 服务生成单图总结，BIZ 发布 RocketMQ 事件，API 消费后通过 WebSocket 推送给前端。系统必须保证这些链路在并发和失败情况下仍能保持状态一致。
 
 \section{通信与协议设计}
-\label{sec:impl-communication}
+\label{sec:implementation-communication-and-protocol-design}
 
-系统外部通信采用 HTTP 和 WebSocket，内部服务通信采用 gRPC。前端通过 HTTP 发起项目、图像、检测、复核和报告相关请求；API 服务再通过 gRPC 调用 BIZ 服务。BIZ 调用 Activity 服务启动分类、推理和总结任务，Activity 服务执行完成后通过 gRPC 回调 BIZ。BIZ 将状态变化写入数据库并发布 RocketMQ 事件，API 服务消费事件后通过 WebSocket 推送给前端。
+系统通信分为四类。第一类是前端到 Core API 的 HTTP 请求，用于登录、项目管理、图像上传授权、检测启动、结果查询、复核更新和报告查询。第二类是 Core API、Core BIZ 与 Activity 服务之间的 gRPC 请求，用于服务间强类型调用。第三类是 Core BIZ 到 Activity 服务的异步启动与 Activity 服务到 Core BIZ 的回调，用于长任务结果上报。第四类是 Core BIZ 发布 RocketMQ 项目事件、Core API 消费事件并通过 WebSocket 广播给前端，用于实时状态刷新。
 
-gRPC 的引入使服务间接口具有明确契约。系统中的任务状态、项目进度、检测任务代码、复核结论和报告状态均通过共享枚举定义，避免不同服务各自维护字符串常量。请求 ID 通过 gRPC metadata 透传，使 HTTP 请求、BIZ 处理、Activity 调用和回调日志能够关联起来。这对于复杂链路调试非常重要。
+Protocol Buffers 是内部协议的核心。系统将 Auth、ProjectCore、ProjectProfile、ProjectAssets、ProjectDetection、ProjectReview、ProjectReport、Socket 和 User 等 BIZ 接口定义在 Common 仓库中；Activity 侧定义 Classification、Reasoning 和 Summary 三类服务接口；前端 API 类型也由 proto 生成 TypeScript 文件。通过共享协议，项目进度、图像状态、检测任务代码、主任务状态、子任务状态、复核结论、报告状态和 WebSocket Scope 等均使用统一枚举，以避免服务间常量漂移。
 
-协议设计还承担了约束 Agent 输出的作用。分类结果、推理结果和总结结果都通过固定 gRPC 回调接口进入 BIZ。这样，即使 Agent 或模型服务内部实现发生变化，上层业务仍然只依赖稳定协议。接口定义统一放在 Common 模块中，并通过代码生成供 API、BIZ 和 Activity 服务使用，减少手写结构体转换带来的错误。
+请求链路中还通过请求 ID 实现日志关联。Core API 在 HTTP 中间件生成请求 ID，gRPC 调用时通过 \texttt{Metadata} 透传，Activity 服务异步执行和回调时继续携带该请求 ID。这样可以在日志中关联一次用户操作、BIZ 处理、Agent 调用、模型执行和回调结果，对长链路排障具有直接价值。
 
-在接口设计中，本文尽量避免让调用方依赖被调用方内部结构。例如，Reasoning 服务不要求 BIZ 预先知道污渍和平整度任务会生成多少区域图像；BIZ 只提供受限上传前缀，Reasoning 执行后回调实际产物清单。再如，Summary 服务不直接读取数据库，而是接收 BIZ 生成的数据源或压缩上下文。这样，每个服务只暴露必要边界，内部实现可以独立变化。
+RocketMQ 用于承接业务状态变化后的异步项目事件。Core BIZ 在图像上传、检测主任务、检测子任务、单图总结和项目报告等状态发生变化后，将项目 ID、事件类型和事件载荷发布到统一 Topic；Core API 作为消费者订阅该 Topic，解析事件类型并映射为前端需要的 WebSocket Scope。通过消息队列，业务状态推进与前端连接管理被解耦：BIZ 只负责在事务完成后发布事实事件，不直接感知在线客户端；API 只负责消费事件和广播消息，不参与业务事务。该机制既避免长任务回调直接阻塞 HTTP 请求，也使图像资产、检测进度和报告状态能够在页面中以增量方式刷新。
 
-\section{共享协议与枚举治理}
-\label{sec:impl-common-protocol}
+WebSocket 设计采用“票据 + Scope”的方式。前端先通过鉴权 HTTP 请求创建连接票据，再使用项目 ID、Scope 和 Ticket 建立 WebSocket。Scope 将图像资产、检测任务和报告状态隔离，避免所有页面都接收全量事件。API 侧 Hub 按项目和 Scope 管理连接，RocketMQ 消费到项目事件后只广播给对应项目与对应 Scope 的客户端。
 
-由于系统跨越 API、BIZ、Classification、Reasoning 和 Summary 多个 Go 仓库，如果每个仓库都自行定义请求结构、状态枚举和错误常量，很容易出现字段名不一致、枚举值不一致和转换函数膨胀等问题。本文将公共协议收敛到 ICW Common 模块，并通过 Protocol Buffers 生成代码。所有服务都依赖生成后的结构体和枚举，减少手写 DTO 转换。
+\section{模块设计与实现}
+\label{sec:implementation-module-design-and-implementation}
 
-共享协议治理在项目中体现为三个方面。第一，业务状态使用统一枚举，例如项目进度、图像状态、检测任务状态、子任务状态、报告状态等。第二，RPC 接口由 proto 文件定义，服务端实现接口，客户端调用生成代码。第三，API 层返回给前端的结构也尽量复用生成结构，减少 API 与 BIZ 之间重复定义。这样做提高了开发成本的前期投入，但降低了后续维护成本。
+本节说明各服务模块的核心设计与实现，每个模块都给出职责说明和核心时序图。
 
-在 Agent 场景中，枚举治理尤其重要。分类 Agent 的输出最终会被解析为检测任务代码，如果代码在不同服务中以字符串散落维护，新增或修改任务时很容易遗漏。通过共享枚举和解析函数，系统可以在编译阶段暴露部分问题，并在运行时统一校验非法值。
+\subsection{Core API 服务}
+\label{subsec:implementation-api-service}
 
-\section{数据库与状态机实现}
-\label{sec:impl-db-state}
+Core API 是前端访问系统的统一入口。该服务基于 Gin 注册 HTTP 路由，覆盖认证、用户头像、项目核心流程、项目基础信息、图像资产、智能检测、人工复核、评估报告和 WebSocket 票据等接口。API 服务通过鉴权中间件从令牌中解析用户身份，通过项目访问中间件校验用户是否拥有项目权限，然后将请求转换为 Core BIZ gRPC 请求。
 
-数据库设计围绕项目、图像资产和检测任务展开。项目表保存建筑基础信息和项目进度；图像组和图像表保存资产组织关系；检测主任务表保存每张图像的检测状态；五张子任务表分别保存不同原子检测能力的结构化结果；图像总结表保存单图总结；项目报告表保存项目级报告结果。该设计虽然表数量较多，但可以将不同任务的专属指标清晰拆分，避免所有结果塞入一个无法维护的大字段。
+除 HTTP 接入外，Core API 还承担实时事件转发职责。Core BIZ 不直接维护前端连接，而是将图像状态、检测任务状态和报告状态写入 RocketMQ。Core API 作为消费者订阅项目事件，根据事件类型选择 WebSocket Scope，再向对应项目连接广播消息。这样设计使 BIZ 不依赖 WebSocket 实现，也使 API 服务成为前端通信的唯一入口。
 
-检测主任务状态机是系统复杂度的集中体现。主任务从 pending 开始，经过 classifying、detecting、summarizing，最终进入 succeeded 或 failed。分类结果决定是否创建子任务，子任务结果决定是否进入总结，总结结果决定主任务是否完成。所有状态推进均由 BIZ 控制，Activity 服务只上报结果。这种设计避免外部模型服务直接操作核心数据库，提高系统一致性。
+如\cref{fig:implementation-api-service-sequence} 所示，Core API 的实现重点在于把同步查询和异步事件统一到前端体验中。首次进入页面或手动刷新时，前端通过 HTTP 获取全量状态；任务执行过程中，API 通过 WebSocket 推送增量事件。前端收到事件后静默刷新局部数据，避免页面反复进入加载态。
 
-五类子任务表采用“通用字段 + 专属指标”的设计。通用字段包括任务 UUID、主任务 ID、用户 ID、项目 ID、图像 ID、状态、开始时间、完成时间和运行耗时；专属指标则根据检测任务差异定义。例如锈蚀检测需要记录锈蚀区域数量、锈蚀像素和锈蚀占比；平整度检测需要记录平整、不平整或非玻璃结论；爆裂检测只需要记录是否爆裂和置信度。相比所有结果统一存 JSON，这种设计便于后续查询、筛选和前端结构化展示。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      participant/.style={draw, rounded corners=2pt, align=center, minimum width=1.9cm, minimum height=0.62cm, fill=blue!6, line width=0.55pt},
+      service/.style={participant},
+      infra/.style={participant},
+      lifeline/.style={dashed, gray!70, line width=0.45pt},
+      activation/.style={draw, fill=gray!18, minimum width=0.18cm, inner sep=0pt, line width=0.45pt},
+      msg/.style={->, line width=0.55pt},
+      ret/.style={->, dashed, line width=0.55pt},
+      label/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \node[participant] (web) at (0, 0) {Core Web};
+      \node[service] (api) at (2.25, 0) {Core API\\HTTP};
+      \node[service] (auth) at (4.50, 0) {鉴权与\\项目权限};
+      \node[service] (biz) at (6.75, 0) {Core BIZ\\gRPC};
+      \node[infra] (mq) at (9.00, 0) {RocketMQ};
+      \node[service] (hub) at (11.25, 0) {WebSocket\\Hub};
 
-数据库事务用于保证关键状态推进的原子性。例如，分类回调成功后，系统需要同时更新主任务路由字段、创建子任务、关联子任务 ID 并推进主任务到 detecting。如果这些操作分散执行，可能出现主任务已进入 detecting 但子任务尚未创建的中间状态。类似地，子任务回调时，系统需要在同一事务中写入检测结果、更新子任务状态、检查同一主任务下其他子任务状态，并在全部成功后创建总结任务。这些事务边界是系统一致性的核心。
+      \foreach \x in {0,2.25,4.50,6.75,9.00,11.25} {
+        \draw[lifeline] (\x,-0.45) -- (\x,-9.15);
+      }
+      \node[activation, minimum height=5.75cm] at (2.25,-3.775) {};
+      \node[activation, minimum height=0.60cm] at (4.50,-3.15) {};
+      \node[activation, minimum height=0.60cm] at (6.75,-4.45) {};
+      \node[activation, minimum height=0.70cm] at (9.00,-7.70) {};
+      \node[activation, minimum height=0.70cm] at (11.25,-8.40) {};
 
-数据库还承担了重试能力的基础。虽然本文当前阶段不展开单个子任务重试，但表结构和任务 UUID 已经为重试预留空间。失败任务可以通过主任务和子任务记录定位历史结果，后续可按图像维度删除旧子任务、清理对象存储并重新创建任务。没有结构化任务表，重试只能依赖文件状态或日志，难以成为可靠业务能力。
+      \draw[msg] (0,-0.90) -- node[label, above] {HTTP 请求 / 携带 token 与 project\_id} (2.17,-0.90);
+      \draw[msg] (2.33,-1.55) -- (3.12,-1.55) -- node[label, right, pos=0.5] {路由匹配 / 绑定请求参数 / 生成 request id} (3.12,-2.15) -- (2.33,-2.15);
+      \draw[msg] (2.33,-2.85) -- node[label, above] {解析用户身份 / 校验项目权限} (4.42,-2.85);
+      \draw[ret] (4.42,-3.45) -- node[label, below] {user\_id / project 权限结果} (2.33,-3.45);
+      \draw[msg] (2.33,-4.15) -- node[label, above] {封装 gRPC payload / metadata 透传 request id} (6.67,-4.15);
+      \draw[ret] (6.67,-4.75) -- node[label, below] {业务响应 / 业务错误码} (2.33,-4.75);
+      \draw[msg] (2.33,-5.45) -- (3.12,-5.45) -- node[label, right, pos=0.5] {统一 ApiEnvelope / 错误映射 / 访问日志} (3.12,-6.05) -- (2.33,-6.05);
+      \draw[ret] (2.17,-6.65) -- node[label, below] {HTTP 响应} (0,-6.65);
+      \draw[msg] (6.83,-7.35) -- node[label, above] {业务状态变化后发布项目事件} (8.92,-7.35);
+      \draw[msg] (9.08,-8.05) -- node[label, above] {API 消费事件并解析 event\_type / scope} (11.17,-8.05);
+      \draw[msg] (11.17,-8.75) -- node[label, above] {按 project\_id + scope 广播} (0,-8.75);
+    \end{tikzpicture}
+  }
+  \caption{Core API 服务核心时序图}\label{fig:implementation-api-service-sequence}
+\end{figure}
 
-\section{Detection Worker 实现}
-\label{sec:impl-worker}
+\subsection{Core BIZ 服务}
+\label{subsec:implementation-biz-service}
 
-Detection Worker 是检测流程的编排核心。用户启动检测时，BIZ 服务先为项目下图像创建主任务并返回，Worker 随后按配置的最大并发数消费任务。每个任务执行时，Worker 先将主任务推进到分类阶段，调用 Classification 服务；分类回调成功后，Worker 根据任务代码创建子任务并调用 Reasoning 服务；所有需要执行的子任务成功后，Worker 创建图像总结任务并调用 Summary 服务。
+Core BIZ 是系统中最复杂的服务，也是工程链路的状态中心。它负责项目创建、项目阶段推进、图像组管理、图像上传授权、图像上报、检测任务创建、人工复核、报告任务创建、对象存储访问、Redis 缓存、RocketMQ 事件生产、CronJob 和后台 Worker。所有会改变业务状态的操作都集中在 BIZ 服务中执行。
 
-Worker 设计解决了同步调用难以支撑长任务的问题。如果前端请求一直等待所有模型执行结束，用户体验和服务稳定性都会受到影响。通过 Worker，启动检测接口只负责创建任务和入队，真正的检测链路在后台推进。前端通过 WebSocket 获得状态变化，从而实现“请求立即返回、任务持续执行、进度实时可见”的体验。
+BIZ 服务的核心设计是“服务层 + Repository 层 + Worker 层”。服务层实现 gRPC 接口和业务规则，Repository 层封装 MySQL、Redis、MinIO 和 RocketMQ 操作，Worker 层异步推进检测和报告任务。Activity 服务回调 BIZ 后，BIZ 在数据库事务中写入结果、判断聚合状态、创建下一阶段任务并发布项目事件。
 
-Worker 还负责处理状态之间的因果关系。例如，分类失败时不应继续创建子任务；分类成功但没有任何检测能力需要执行时，应直接完成主任务；任一必要子任务失败时，主任务最终应进入失败；全部子任务成功后，才能创建图像总结任务。这些逻辑如果分散在各 Activity 服务中，会导致状态难以维护。集中在 Worker 中处理，可以保持业务规则一致。
+如\cref{fig:implementation-biz-service-sequence} 所示，BIZ 服务既是请求处理者，也是长任务编排者。Worker 只负责启动 Activity 服务，真正结果通过回调回到 BIZ。这样可以避免 Worker 阻塞等待模型推理，也能保证所有状态变更都回到同一业务中心处理。
 
-Worker 的另一个职责是并发控制。检测任务可能同时包含多张图像，如果不限制并发，分类 Agent、Python 模型、对象存储和数据库都会承受突发压力。系统通过最大并发配置限制后台任务推进速度，使吞吐量和资源占用保持平衡。并发控制不是简单性能参数，而是保证外部 Agent 平台、模型服务和存储服务稳定运行的必要条件。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      participant/.style={draw, rounded corners=2pt, align=center, minimum width=1.75cm, minimum height=0.62cm, fill=blue!6, line width=0.55pt},
+      service/.style={participant},
+      infra/.style={participant},
+      lifeline/.style={dashed, gray!70, line width=0.45pt},
+      activation/.style={draw, fill=gray!18, minimum width=0.18cm, inner sep=0pt, line width=0.45pt},
+      msg/.style={->, line width=0.55pt},
+      ret/.style={->, dashed, line width=0.55pt},
+      label/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \node[participant] (api) at (0, 0) {Core API};
+      \node[service] (biz) at (2.10, 0) {Core BIZ\\Service};
+      \node[infra] (db) at (4.20, 0) {MySQL};
+      \node[infra] (store) at (6.30, 0) {MinIO / Redis};
+      \node[service] (worker) at (8.40, 0) {Worker};
+      \node[service] (activity) at (10.50, 0) {Activity\\服务};
+      \node[infra] (mq) at (12.60, 0) {RocketMQ};
 
-Worker 与回调之间形成非阻塞协作关系。Worker 调用 Activity 服务时，只要求对方成功接收任务；真正执行结果通过回调返回。这种方式避免 BIZ Worker 长时间阻塞等待模型执行，也使 Activity 服务可以在内部使用协程和并发队列。对于外部 Agent 调用和深度学习推理这种长耗时任务，回调式架构比同步阻塞更适合。
+      \foreach \x in {0,2.10,4.20,6.30,8.40,10.50,12.60} {
+        \draw[lifeline] (\x,-0.45) -- (\x,-11.25);
+      }
+      \node[activation, minimum height=9.95cm] at (2.10,-5.875) {};
+      \node[activation, minimum height=0.60cm] at (4.20,-3.15) {};
+      \node[activation, minimum height=0.60cm] at (4.20,-7.85) {};
+      \node[activation, minimum height=0.60cm] at (6.30,-4.45) {};
+      \node[activation, minimum height=0.60cm] at (6.30,-9.15) {};
+      \node[activation, minimum height=1.40cm] at (8.40,-6.15) {};
+      \node[activation, minimum height=0.70cm] at (10.50,-6.50) {};
+      \node[activation, minimum height=0.40cm] at (12.60,-10.35) {};
 
-\section{对象存储与产物管理}
-\label{sec:impl-object-storage}
+      \draw[msg] (0,-0.90) -- node[label, above] {启动检测 / 推进阶段 / 查询状态} (2.02,-0.90);
+      \draw[msg] (2.18,-1.55) -- (2.95,-1.55) -- node[label, right, pos=0.5] {校验项目阶段 / 幂等检查 / 构造领域对象} (2.95,-2.15) -- (2.18,-2.15);
+      \draw[msg] (2.18,-2.85) -- node[label, above] {开启事务：写入项目、图像、检测主任务} (4.12,-2.85);
+      \draw[ret] (4.12,-3.45) -- node[label, below] {任务 UUID / 当前状态 / 版本字段} (2.18,-3.45);
+      \draw[msg] (2.18,-4.15) -- node[label, above] {生成预签名 URL / 写入 Redis 临时控制} (6.22,-4.15);
+      \draw[ret] (6.22,-4.75) -- node[label, below] {对象地址 / 缓存结果} (2.18,-4.75);
+      \draw[msg] (2.18,-5.45) -- node[label, above] {提交后台任务并释放用户请求} (8.32,-5.45);
+      \draw[msg] (8.48,-6.15) -- node[label, above] {按状态启动分类、检测、总结或报告} (10.42,-6.15);
+      \draw[ret] (10.42,-6.85) -- node[label, below] {Activity 回调结果 / 失败原因 / 产物清单} (2.18,-6.85);
+      \draw[msg] (2.18,-7.55) -- node[label, above] {回调事务：写结果、聚合子状态、创建下一阶段任务} (4.12,-7.55);
+      \draw[ret] (4.12,-8.15) -- node[label, below] {落库成功 / 回滚失败} (2.18,-8.15);
+      \draw[msg] (2.18,-8.85) -- node[label, above] {读取/写入 source.txt、产物授权、URL 缓存} (6.22,-8.85);
+      \draw[ret] (6.22,-9.45) -- node[label, below] {对象 Key / 缓存命中 / 授权策略} (2.18,-9.45);
+      \draw[msg] (2.18,-10.15) -- node[label, above] {发布图像、检测或报告状态事件} (12.52,-10.15);
+      \draw[ret] (2.02,-10.85) -- node[label, below] {gRPC 响应或异步处理结束} (0,-10.85);
+    \end{tikzpicture}
+  }
+  \caption{Core BIZ 服务核心时序图}\label{fig:implementation-biz-service-sequence}
+\end{figure}
 
-幕墙图像和检测产物体积较大，不适合直接存入数据库。系统使用 MinIO 作为对象存储，数据库只保存元数据和对象 Key。图像上传时，BIZ 生成预签名上传 URL，前端直接上传对象存储。检测产物上传时，由于污渍和平整度任务可能产生不定数量的区域图像，系统采用受限前缀 POST Policy，允许 Reasoning 服务在指定前缀下上传动态数量的 PNG 产物。
+Core BIZ 内部还包含两个 CronJob。上传中图像超时任务定期扫描长时间未完成上报的图像，将其状态置为失败并发布事件；MinIO 脏对象清理任务每小时扫描对象存储，删除失败图像、失败子任务、失败报告和数据库已无引用对象对应的文件夹，并设置 30 分钟保护窗口，避免刚生成但尚未完成数据库状态同步的对象被误删。
 
-对象访问 URL 具有有效期，系统使用 Redis 缓存预签名下载 URL，降低重复生成成本。删除对象时，系统先删除 Redis 缓存，再删除 MinIO 对象，避免前端使用已失效缓存。对于检测产物，Reasoning 服务还计算 SHA256 并回调给 BIZ 保存，用于后续校验和追踪。
+\subsection{Classification 服务}
+\label{subsec:implementation-classification-service}
 
-产物管理的难点在于不同检测任务的产物数量不同。裂缝检测通常输出原图、掩码图和浮层图；污渍和平整度检测可能根据区域数量输出多个编号图像；爆裂检测可能只有原图和报告。系统不能要求 BIZ 在调用前预知所有产物名称，因此采用前缀授权和回调产物清单的方式。Reasoning 服务实际发现并上传哪些文件，就在回调中告诉 BIZ。这样既支持动态产物数量，也避免业务服务和模型脚本强耦合。
+Classification 服务封装分类 Agent。BIZ 启动分类任务时传入任务 UUID、图像 UUID 和原图预签名下载地址。Classification 服务下载并压缩图像后，通过 Agent 平台文件上传接口上传附件，再通过流式对话接口获取模型输出。服务端将 Agent 输出归一化为 JSON 对象，解析 \texttt{task\_codes}，转换为共享枚举后回调 BIZ。
 
-对象存储设计还影响前端展示。检测结果页面需要根据任务类型展示不同产物组合：锈蚀任务展示标注图，裂缝任务展示浮层图和掩码图，污渍任务展示总体标注图以及每个区域的裁剪图和浮层图，平整度任务展示区域、线条、梯度和频域图。由于产物最终都以对象方式存储，前端只需要通过 BIZ 返回的预签名访问地址展示图像，而不需要理解对象存储内部权限机制。
+\cref{fig:implementation-classification-service-sequence} 的关键点是：分类 Agent 只决定任务代码，不创建子任务。输出异常时，Classification 服务回调失败状态；输出成功时，BIZ 仍要进行枚举转换、任务去重和子任务创建。这样既利用 Agent 对幕墙材质的语义判断能力，又避免 Agent 越过业务状态机。
 
-\section{Reasoning 服务实现}
-\label{sec:impl-reasoning}
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      participant/.style={draw, rounded corners=2pt, align=center, minimum width=1.95cm, minimum height=0.62cm, fill=blue!6, line width=0.55pt},
+      infra/.style={participant},
+      agent/.style={participant},
+      lifeline/.style={dashed, gray!70, line width=0.45pt},
+      activation/.style={draw, fill=gray!18, minimum width=0.18cm, inner sep=0pt, line width=0.45pt},
+      msg/.style={->, line width=0.55pt},
+      ret/.style={->, dashed, line width=0.55pt},
+      label/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \node[participant] (biz) at (0, 0) {Core BIZ};
+      \node[participant] (cls) at (2.55, 0) {Classification\\Service};
+      \node[infra] (minio) at (5.10, 0) {MinIO\\原图};
+      \node[agent] (file) at (7.65, 0) {Agent\\文件上传};
+      \node[agent] (chat) at (10.20, 0) {分类 Agent\\对话};
 
-Reasoning 服务是 Go 与 Python 模型能力的连接层。Go 服务负责 gRPC 接口、请求校验、运行目录准备、原图下载、Python Worker 调用、产物上传和回调。Python Worker 负责加载和执行具体检测模块。为避免每次检测都重新启动 Python 脚本和加载模型，系统采用常驻 Worker 和懒加载策略：某类模型首次调用时加载，后续任务复用已加载模型。
+      \foreach \x in {0,2.55,5.10,7.65,10.20} {
+        \draw[lifeline] (\x,-0.45) -- (\x,-11.10);
+      }
+      \node[activation, minimum height=9.85cm] at (2.55,-5.825) {};
+      \node[activation, minimum height=0.60cm] at (5.10,-3.15) {};
+      \node[activation, minimum height=0.60cm] at (7.65,-5.75) {};
+      \node[activation, minimum height=0.70cm] at (10.20,-7.10) {};
 
-该实现兼顾了 Go 的工程能力和 Python 的模型生态。Go 适合处理网络、并发、对象存储和服务通信；Python 适合调用深度学习模型和图像处理库。通过明确边界，系统避免在 Python 中实现业务上传和数据库逻辑，也避免在 Go 中直接处理复杂模型推理。
+      \draw[msg] (0,-0.90) -- node[label, above] {StartClassification(task\_uuid, image\_uuid, url)} (2.47,-0.90);
+      \draw[msg] (2.63,-1.55) -- (3.48,-1.55) -- node[label, right, pos=0.5] {加载 prompt / 校验 bot id 与 token / 创建请求上下文} (3.48,-2.15) -- (2.63,-2.15);
+      \draw[msg] (2.63,-2.85) -- node[label, above] {按预签名 URL 下载原图附件} (5.02,-2.85);
+      \draw[ret] (5.02,-3.45) -- node[label, below] {图像字节流} (2.63,-3.45);
+      \draw[msg] (2.63,-4.15) -- (3.48,-4.15) -- node[label, right, pos=0.5] {压缩图像 / 控制附件体积 / 生成文件名} (3.48,-4.75) -- (2.63,-4.75);
+      \draw[msg] (2.63,-5.45) -- node[label, above] {上传图像附件} (7.57,-5.45);
+      \draw[ret] (7.57,-6.05) -- node[label, below] {file\_id} (2.63,-6.05);
+      \draw[msg] (2.63,-6.75) -- node[label, above] {提示词 + file\_id 流式调用分类 Agent} (10.12,-6.75);
+      \draw[ret] (10.12,-7.45) -- node[label, below] {模型输出：JSON 字符串} (2.63,-7.45);
+      \draw[msg] (2.63,-8.15) -- (3.48,-8.15) -- node[label, right, pos=0.5] {CompactAgentJSONObjectString / 解析 task\_codes} (3.48,-8.75) -- (2.63,-8.75);
+      \draw[msg] (2.63,-9.45) -- (3.48,-9.45) -- node[label, right, pos=0.5] {非法代码拦截 / 去重 / 固定顺序排序 / 空集合允许} (3.48,-10.05) -- (2.63,-10.05);
+      \draw[ret] (2.47,-10.75) -- node[label, below] {ReportClassificationResult(task\_codes / error)} (0,-10.75);
+    \end{tikzpicture}
+  }
+  \caption{Classification 服务核心时序图}\label{fig:implementation-classification-service-sequence}
+\end{figure}
 
-Reasoning 服务的实现经历了从脚本执行到常驻 Worker 的优化。若每次任务都通过命令行启动 Python 脚本，则模型加载成本会重复发生，检测延迟较高。采用常驻 Python Worker 后，Go 服务通过标准输入输出或内部协议向 Worker 发送任务，Worker 在首次使用某个模型时加载并缓存。这样既保留 Python 模型实现，又降低重复加载成本。
+\subsection{Reasoning 服务}
+\label{subsec:implementation-reasoning-service}
 
-运行目录设计也体现了工程约束。每次任务按任务代码和图像 UUID 创建独立目录，执行前清空旧目录并重新下载原图，避免重试或重复执行时读取历史产物。Python 模型只需要在约定目录中生成约定文件，Go 服务负责读取、上传和清理。这种目录约定比共享临时文件名更可靠，也便于调试和定位。
+Reasoning 服务是 Go 工程层与 Python 模型层之间的桥梁。服务启动时注册五类原子检测能力，并根据任务代码检查模型目录中对应权重文件是否存在、是否可读取、是否为 Git LFS 指针文件。任务执行时，Reasoning 服务从 BIZ 获取最新原图下载地址，下载到隔离运行目录，再调用常驻 Python Worker 执行对应检测模块。模型执行结束后，Go 层读取压缩后的 \texttt{report.json}，再从 BIZ 获取产物上传授权，将目录中的产物并发上传到 MinIO，并带着结果 JSON 和产物清单回调 BIZ。
 
-\section{前端可视化实现}
-\label{sec:impl-frontend}
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      participant/.style={draw, rounded corners=2pt, align=center, minimum width=1.85cm, minimum height=0.62cm, fill=blue!6, line width=0.55pt},
+      infra/.style={participant},
+      model/.style={participant},
+      lifeline/.style={dashed, gray!70, line width=0.45pt},
+      activation/.style={draw, fill=gray!18, minimum width=0.18cm, inner sep=0pt, line width=0.45pt},
+      msg/.style={->, line width=0.55pt},
+      ret/.style={->, dashed, line width=0.55pt},
+      label/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \node[participant] (biz) at (0, 0) {Core BIZ};
+      \node[participant] (rsn) at (2.15, 0) {Reasoning\\Service};
+      \node[participant] (registry) at (4.30, 0) {能力注册表};
+      \node[infra] (minio) at (6.45, 0) {MinIO};
+      \node[model] (py) at (8.60, 0) {Python\\Worker};
+      \node[model] (model) at (10.75, 0) {检测模型\\脚本};
 
-前端按照项目阶段组织页面。图像资产阶段提供上传、分组、批量操作和原图查看；智能检测阶段提供开始检测、失败重试、状态统计、实时进度和检测结果查看；人工复核阶段复用检测结果视图，并增加评论和准确性选择；报告阶段展示项目级评估报告。
+      \foreach \x in {0,2.15,4.30,6.45,8.60,10.75} {
+        \draw[lifeline] (\x,-0.45) -- (\x,-13.75);
+      }
+      \node[activation, minimum height=12.45cm] at (2.15,-7.125) {};
+      \node[activation, minimum height=0.60cm] at (4.30,-1.90) {};
+      \node[activation, minimum height=0.60cm] at (0,-3.20) {};
+      \node[activation, minimum height=0.60cm] at (6.45,-5.80) {};
+      \node[activation, minimum height=2.00cm] at (8.60,-7.80) {};
+      \node[activation, minimum height=0.60cm] at (10.75,-7.80) {};
+      \node[activation, minimum height=0.60cm] at (6.45,-11.10) {};
 
-检测进度可视化由两部分组成。一部分是图像卡片上的整体进度条，用于快速展示每张图像当前状态；另一部分是进度弹窗中的流程图，用于展示分类、并行原子检测、总结和结束节点。检测完成后，结果弹窗展示原始信息、子任务结果和图像总结。对于不同检测任务，系统根据产物数量自适应展示单图、双图或四图布局。
+      \draw[msg] (0,-0.90) -- node[label, above] {StartReasoning(task\_code, image\_uuid)} (2.07,-0.90);
+      \draw[msg] (2.23,-1.60) -- node[label, above] {按 task\_code 查询执行器与产物规则} (4.22,-1.60);
+      \draw[ret] (4.22,-2.20) -- node[label, below] {模型入口 / 动态产物清单} (2.23,-2.20);
+      \draw[msg] (2.07,-2.90) -- node[label, above] {获取最新原图 URL 与上传授权} (0.08,-2.90);
+      \draw[ret] (0.08,-3.50) -- node[label, below] {presign get / artifact policy} (2.07,-3.50);
+      \draw[msg] (2.23,-4.20) -- (3.05,-4.20) -- node[label, right, pos=0.5] {创建隔离运行目录 / 初始化输入与产物路径} (3.05,-4.80) -- (2.23,-4.80);
+      \draw[msg] (2.23,-5.50) -- node[label, above] {下载原图到运行目录} (6.37,-5.50);
+      \draw[ret] (6.37,-6.10) -- node[label, below] {原图文件} (2.23,-6.10);
+      \draw[msg] (2.23,-6.80) -- node[label, above] {提交 Python 检测任务} (8.52,-6.80);
+      \draw[msg] (8.68,-7.50) -- node[label, above] {懒加载模型并执行脚本} (10.67,-7.50);
+      \draw[ret] (10.67,-8.10) -- node[label, below] {report.json / 图像产物} (8.68,-8.10);
+      \draw[ret] (8.52,-8.80) -- node[label, below] {检测结果目录} (2.23,-8.80);
+      \draw[msg] (2.23,-9.50) -- (3.05,-9.50) -- node[label, right, pos=0.5] {读取并压缩 report.json / 计算产物 SHA256} (3.05,-10.10) -- (2.23,-10.10);
+      \draw[msg] (2.23,-10.80) -- node[label, above] {上传全部产物并校验 Uploaded=true} (6.37,-10.80);
+      \draw[ret] (6.37,-11.40) -- node[label, below] {object key / sha256 / uploaded} (2.23,-11.40);
+      \draw[msg] (2.23,-12.10) -- (3.05,-12.10) -- node[label, right, pos=0.5] {产物数量与动态清单校验 / 失败则阻断成功回调} (3.05,-12.70) -- (2.23,-12.70);
+      \draw[ret] (2.07,-13.35) -- node[label, below] {ReportReasoningResult(result JSON / artifacts / error)} (0,-13.35);
+    \end{tikzpicture}
+  }
+  \caption{Reasoning 服务核心时序图}\label{fig:implementation-reasoning-service-sequence}
+\end{figure}
 
-前端状态合并也是实现难点之一。WebSocket 消息可能因为网络、刷新或并发而出现延迟，前端不能简单用最后一条消息覆盖全部状态。系统因此同时提供状态查询接口和增量消息合并逻辑。页面首次进入或刷新时通过查询接口获得全量状态，运行过程中再用 WebSocket 消息更新对应图像和节点。这种设计提高了实时展示的可靠性。
+如\cref{fig:implementation-reasoning-service-sequence} 所示，Reasoning 服务不依赖 BIZ 在启动时传入可能过期的原图下载地址和产物上传策略，而是在真正执行时向 BIZ 获取最新授权。这解决了长队列场景中预签名 URL 过期导致下载或上传失败的问题。对于除玻璃爆裂以外的检测任务，Reasoning 服务要求产物不为空且全部上传成功，否则回调失败，不将不完整检测结果视为成功。
 
-检测结果展示采用任务类型驱动布局。不同原子任务的数据字段和图像产物不同，前端需要将数据库中的结构化结果转化为用户可读界面。例如，裂缝和污渍需要展示区域列表，平整度需要展示平整、不平整或非玻璃结果，爆裂任务没有区域数据。前端并非只显示 JSON，而是将字段翻译为中文指标，并根据区域序号切换对应产物。这样的展示方式使复杂检测数据能够被普通用户理解。
+Python 模型采用懒加载方式。Go 服务通过常驻 Worker 向 Python 发送任务，Python 首次使用某类检测模型时加载权重，后续复用已加载模型。这样既保留 Python 图像处理和深度学习生态，又避免每次检测重复加载模型造成高延迟。
 
-人工复核阶段复用检测结果视图，并在弹窗中增加评论和准确性选择。该设计避免重复开发两套结果页面，也保持用户体验一致。报告阶段则从检测图像视图转向项目报告视图，体现流程从图像级事实逐步走向项目级结论。
+\subsection{Summary 服务}
+\label{subsec:implementation-summary-service}
 
-\section{部署实现}
-\label{sec:impl-deployment}
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      participant/.style={draw, rounded corners=2pt, align=center, minimum width=1.95cm, minimum height=0.62cm, fill=blue!6, line width=0.55pt},
+      infra/.style={participant},
+      agent/.style={participant},
+      lifeline/.style={dashed, gray!70, line width=0.45pt},
+      activation/.style={draw, fill=gray!18, minimum width=0.18cm, inner sep=0pt, line width=0.45pt},
+      msg/.style={->, line width=0.55pt},
+      ret/.style={->, dashed, line width=0.55pt},
+      label/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \node[participant] (biz) at (0, 0) {Core BIZ};
+      \node[participant] (summary) at (2.40, 0) {Summary\\Service};
+      \node[infra] (minio) at (4.80, 0) {MinIO\\source.txt};
+      \node[agent] (file) at (7.20, 0) {Agent\\附件上传};
+      \node[agent] (agent) at (9.60, 0) {总结 Agent\\对话};
 
-系统最终以 Docker 镜像和 Docker Compose 方式部署。Go 服务镜像尽量保持轻量，Reasoning 服务由于需要 Python 环境和模型文件，采用 Go+Python 运行镜像并通过挂载目录提供模型权重。部署顺序上，先启动 RocketMQ，再初始化 Topic，随后启动三个 Activity 服务，再启动 BIZ，最后启动 API。这样的顺序保证依赖服务可用后，上层服务再开始接收请求。
+      \foreach \x in {0,2.40,4.80,7.20,9.60} {
+        \draw[lifeline] (\x,-0.45) -- (\x,-11.20);
+      }
+      \node[activation, minimum height=9.90cm] at (2.40,-5.85) {};
+      \node[activation, minimum height=0.60cm] at (4.80,-4.50) {};
+      \node[activation, minimum height=0.60cm] at (7.20,-5.80) {};
+      \node[activation, minimum height=0.70cm] at (9.60,-7.15) {};
 
-部署过程中还需要处理服务地址、消息队列 NameServer、对象存储端点、Redis、MySQL 和 Agent 平台 Token 等环境配置。由于系统服务较多，部署配置本身也是工程工作量的一部分。本文通过显式环境变量和统一 Docker Compose 文件降低部署复杂度。
+      \draw[msg] (0,-0.90) -- node[label, above] {StartDetectionSummary / StartProjectSummary} (2.32,-0.90);
+      \draw[msg] (2.48,-1.60) -- (3.35,-1.60) -- node[label, right, pos=0.5] {读取任务类型 / 加载 detection 或 project prompt} (3.35,-2.20) -- (2.48,-2.20);
+      \draw[msg] (2.48,-2.90) -- (3.35,-2.90) -- node[label, right, pos=0.5] {检测总结：使用结构化 JSON 文本输入} (3.35,-3.50) -- (2.48,-3.50);
+      \draw[msg] (2.48,-4.20) -- node[label, above] {项目报告：下载 source.txt} (4.72,-4.20);
+      \draw[ret] (4.72,-4.80) -- node[label, below] {结构化源数据文本} (2.48,-4.80);
+      \draw[msg] (2.48,-5.50) -- node[label, above] {上传 source.txt 附件或复用单图文本} (7.12,-5.50);
+      \draw[ret] (7.12,-6.10) -- node[label, below] {file\_id / 输入上下文} (2.48,-6.10);
+      \draw[msg] (2.48,-6.80) -- node[label, above] {提示词 + 文本 / 附件调用 Agent} (9.52,-6.80);
+      \draw[ret] (9.52,-7.50) -- node[label, below] {检测总结 JSON 或项目报告 JSON} (2.48,-7.50);
+      \draw[msg] (2.48,-8.20) -- (3.35,-8.20) -- node[label, right, pos=0.5] {CompactAgentJSONObjectString / JSON object 校验} (3.35,-8.80) -- (2.48,-8.80);
+      \draw[msg] (2.48,-9.50) -- (3.35,-9.50) -- node[label, right, pos=0.5] {项目报告校验 group\_count、image\_count 与源数据一致} (3.35,-10.10) -- (2.48,-10.10);
+      \draw[ret] (2.32,-10.80) -- node[label, below] {ReportDetectionSummaryResult / ReportProjectSummaryResult} (0,-10.80);
+    \end{tikzpicture}
+  }
+  \caption{Summary 服务核心时序图}\label{fig:implementation-summary-service-sequence}
+\end{figure}
 
-部署实践中还需要处理 RocketMQ Topic 初始化、Reasoning 模型文件挂载、Docker 镜像体积和服务启动顺序等问题。Reasoning 服务包含模型依赖，不适合作为纯 Go scratch 镜像；若把模型权重直接打入多架构镜像，镜像体积和推送稳定性都会受到影响。因此本文采用运行镜像与模型目录分离的方式，在服务器上通过只读挂载提供模型文件。该方案更适合大模型文件和检测权重的长期维护。
+Summary 服务包含图像总结和项目报告两类任务。如\cref{fig:implementation-summary-service-sequence} 所示，图像总结任务接收 BIZ 组装的单图检测结果 JSON，直接调用检测总结 Agent，并要求输出固定七字段 JSON：总体概述、五类缺陷总结和后续建议。项目报告任务接收 BIZ 提供的 \texttt{source.txt} 预签名地址，先下载该附件，再将附件上传至报告 Agent，要求输出固定项目报告 JSON。
 
-\section{本章小结}
-\label{sec:impl-complexity-summary}
+Summary 服务的实现重点在于输出稳定性。Agent 输出需要经过 JSON 压缩和对象校验，项目报告还要校验输出中的图像组数量和图像数量是否与源数据一致，防止 Agent 生成与项目数据不匹配的报告。数据库中保存的是压缩 JSON 字符串，前端按字段解析和展示。
 
-从表面看，系统使用的是成熟工程技术；但从整体链路看，工作量集中在多服务协同和状态一致性上。用户一次点击“开始检测”，背后会触发主任务创建、Worker 入队、分类 Agent 调用、分类回调、子任务创建、多个推理任务并发执行、产物上传、子任务结果落库、图像总结、报告准备、WebSocket 推送和前端状态合并等操作。每个环节都需要处理失败、重试、日志和数据一致性。
+\subsection{Core Web 服务}
+\label{subsec:implementation-web-service}
 
-因此，本文工程实现不是简单页面和接口堆叠，而是为了支撑 Agent 自主任务调度方法和 LLM 分层信息整合策略而构建的复杂运行环境。该环境使 Agent 能力从一次性调用转化为可持续执行的业务流程。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      participant/.style={draw, rounded corners=2pt, align=center, minimum width=1.85cm, minimum height=0.62cm, fill=blue!6, line width=0.55pt},
+      service/.style={participant},
+      infra/.style={participant},
+      lifeline/.style={dashed, gray!70, line width=0.45pt},
+      activation/.style={draw, fill=gray!18, minimum width=0.18cm, inner sep=0pt, line width=0.45pt},
+      msg/.style={->, line width=0.55pt},
+      ret/.style={->, dashed, line width=0.55pt},
+      label/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \node[participant] (user) at (0, 0) {用户};
+      \node[service] (page) at (2.10, 0) {阶段页面\\组件};
+      \node[service] (store) at (4.20, 0) {状态与\\弹窗组件};
+      \node[service] (http) at (6.30, 0) {HTTP\\Client};
+      \node[service] (api) at (8.40, 0) {Core API};
+      \node[infra] (ws) at (10.50, 0) {WebSocket};
+
+      \foreach \x in {0,2.10,4.20,6.30,8.40,10.50} {
+        \draw[lifeline] (\x,-0.45) -- (\x,-11.50);
+      }
+      \node[activation, minimum height=8.90cm] at (2.10,-5.35) {};
+      \node[activation, minimum height=9.50cm] at (4.20,-6.35) {};
+      \node[activation, minimum height=6.10cm] at (6.30,-5.35) {};
+      \node[activation, minimum height=0.60cm] at (8.40,-4.60) {};
+      \node[activation, minimum height=0.70cm] at (10.50,-6.65) {};
+
+      \draw[msg] (0,-0.90) -- node[label, above] {进入项目阶段页面} (2.02,-0.90);
+      \draw[msg] (2.18,-1.60) -- node[label, above] {初始化页面状态 / 显示首次加载态} (4.12,-1.60);
+      \draw[msg] (2.18,-2.30) -- node[label, above] {查询基础信息、资产、检测、报告} (6.22,-2.30);
+      \draw[msg] (6.38,-3.00) -- (7.20,-3.00) -- node[label, right, pos=0.5] {请求前判断 access token 是否需要刷新} (7.20,-3.60) -- (6.38,-3.60);
+      \draw[msg] (6.38,-4.30) -- node[label, above] {HTTP 请求 / payload request 格式} (8.32,-4.30);
+      \draw[ret] (8.32,-4.90) -- node[label, below] {结构化响应 / 401 则排队刷新 token} (6.38,-4.90);
+      \draw[ret] (6.22,-5.60) -- node[label, below] {页面数据} (2.18,-5.60);
+      \draw[msg] (2.18,-6.30) -- node[label, above] {根据阶段 scope 创建 socket ticket 并建连} (10.42,-6.30);
+      \draw[ret] (10.42,-7.00) -- node[label, below] {图像 / 检测 / 报告状态事件} (2.18,-7.00);
+      \draw[msg] (2.18,-7.70) -- node[label, above] {静默刷新受影响列表，不触发全屏加载} (6.22,-7.70);
+      \draw[ret] (6.22,-8.40) -- node[label, below] {最新列表数据} (4.28,-8.40);
+      \draw[msg] (0,-9.10) -- node[label, above] {查看进度 / 结果 / 复核 / 打印报告} (2.02,-9.10);
+      \draw[msg] (2.18,-9.80) -- node[label, above] {打开弹窗，默认 Agent 总结页并重置 tab} (4.12,-9.80);
+      \draw[msg] (4.28,-10.50) -- (5.12,-10.50) -- node[label, right, pos=0.5] {按生成类型和枚举字段渲染指标、产物、评论} (5.12,-11.10) -- (4.28,-11.10);
+    \end{tikzpicture}
+  }
+  \caption{Core Web 服务核心时序图}\label{fig:implementation-web-service-sequence}
+\end{figure}
+
+Core Web 使用 React 和 TypeScript 实现。前端页面按项目阶段组织，包括项目基础信息、图像资产构建、Agent 智能检测、人工复核确认和评估报告生成。前端类型尽量复用 Common 中生成的 TypeScript 结构和枚举，避免手写常量与后端不一致。HTTP 请求统一经过 Axios 封装，处理令牌刷新、错误提示和 API 地址配置。
+
+如\cref{fig:implementation-web-service-sequence} 所示，前端采用“首次全量加载 + WebSocket 增量事件 + 静默刷新”的方式维护页面状态。首次进入页面时显示加载态并拉取完整数据；WebSocket 连接建立或收到事件后，不再强制展示全页面加载，而是静默拉取最新列表并更新局部状态。检测结果弹窗、进度弹窗和报告页面均基于结构化数据渲染，而不是直接展示原始 JSON。
+
+\subsection{ICW Common 模块}
+\label{subsec:implementation-common-module}
+
+ICW Common 是跨仓库共享基础设施。它包含 Protocol Buffers 定义、生成后的 Golang/TypeScript 代码、共享枚举、错误码、日志常量、JSON 压缩归一化、gRPC 调用封装、表格化日志输出和 ID 编解码等工具。Common 模块的作用是确保多个服务在协议和基础行为上保持一致。
+
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      participant/.style={draw, rounded corners=2pt, align=center, minimum width=1.9cm, minimum height=0.62cm, fill=blue!6, line width=0.55pt},
+      service/.style={participant},
+      lifeline/.style={dashed, gray!70, line width=0.45pt},
+      activation/.style={draw, fill=gray!18, minimum width=0.18cm, inner sep=0pt, line width=0.45pt},
+      msg/.style={->, line width=0.55pt},
+      ret/.style={->, dashed, line width=0.55pt},
+      label/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \node[participant] (dev) at (0, 0) {开发者};
+      \node[participant] (proto) at (2.30, 0) {Common\\Proto};
+      \node[participant] (gen) at (4.60, 0) {buf / protoc\\生成器};
+      \node[service] (go) at (6.90, 0) {Go 服务\\API/BIZ/Activity};
+      \node[service] (web) at (9.20, 0) {Core Web\\TypeScript};
+      \node[service] (runtime) at (11.50, 0) {运行期\\gRPC/HTTP};
+
+      \foreach \x in {0,2.30,4.60,6.90,9.20,11.50} {
+        \draw[lifeline] (\x,-0.45) -- (\x,-10.00);
+      }
+      \node[activation, minimum height=4.10cm] at (2.30,-2.95) {};
+      \node[activation, minimum height=0.70cm] at (4.60,-1.95) {};
+      \node[activation, minimum height=2.00cm] at (6.90,-5.30) {};
+      \node[activation, minimum height=0.70cm] at (6.90,-9.25) {};
+      \node[activation, minimum height=4.60cm] at (9.20,-7.30) {};
+      \node[activation, minimum height=0.60cm] at (11.50,-8.60) {};
+
+      \draw[msg] (0,-0.90) -- node[label, above] {维护接口、枚举、消息结构} (2.22,-0.90);
+      \draw[msg] (2.38,-1.60) -- node[label, above] {执行 buf generate / protoc} (4.52,-1.60);
+      \draw[ret] (4.52,-2.30) -- node[label, below] {Go pb、gRPC stub、TypeScript gen} (2.38,-2.30);
+      \draw[msg] (2.38,-3.00) -- (3.20,-3.00) -- node[label, right, pos=0.5] {统一枚举：任务代码、状态、Scope、事件类型} (3.20,-3.60) -- (2.38,-3.60);
+      \draw[msg] (2.38,-4.30) -- node[label, above] {发布 gRPC 接口、错误码、JSON 工具、日志工具} (6.82,-4.30);
+      \draw[msg] (2.38,-5.00) -- node[label, above] {同步请求响应结构、枚举与常量} (9.12,-5.00);
+      \draw[msg] (6.98,-5.70) -- (7.80,-5.70) -- node[label, right, pos=0.5] {go fmt / goimports / go vet / make verify} (7.80,-6.30) -- (6.98,-6.30);
+      \draw[msg] (9.28,-7.00) -- (10.10,-7.00) -- node[label, right, pos=0.5] {src/gen 禁止 lint，业务代码直接引用生成类型} (10.10,-7.60) -- (9.28,-7.60);
+      \draw[msg] (9.28,-8.30) -- node[label, above] {按生成类型封装 payload} (11.42,-8.30);
+      \draw[msg] (11.42,-8.90) -- node[label, above] {HTTP / gRPC 调用进入后端} (6.98,-8.90);
+      \draw[ret] (6.98,-9.60) -- node[label, below] {统一错误码、状态枚举和 JSON 归一化结果} (9.28,-9.60);
+    \end{tikzpicture}
+  }
+  \caption{ICW Common 模块核心时序图}\label{fig:implementation-common-module-sequence}
+\end{figure}
+
+\cref{fig:implementation-common-module-sequence} 展示了 Common 模块的开发与使用链路。共享枚举对本文系统尤其重要，因为 Agent 输出的任务代码、WebSocket Scope、项目事件类型和检测状态都需要在前后端与多个后端服务间保持一致。统一协议减少了重复定义，也降低了后续新增检测能力时的维护成本。
+
+\section{数据实体与状态机实现}
+\label{sec:implementation-database-and-state-machine-implementation}
+
+数据库设计围绕“项目级资产”和“图像级任务”展开。项目表保存项目名称、建筑名称、位置、建成年份、建筑描述、已知问题、评估目标、项目状态和项目进度；图像组表保存项目内区域或用户自定义分组；图像表保存图像 UUID、文件名、尺寸、大小、上传状态和元数据；检测主任务表保存每张图像的检测整体状态、五类子任务是否执行、子任务 ID、图像总结任务 ID 和人工复核字段；五张子任务表分别保存不同原子检测能力的专属指标；图像总结任务表保存单图总结；项目报告表保存项目级报告 JSON 和状态。
 
 \begin{table}[!htb]
-  \caption{一次图像检测任务涉及的主要工程环节}\label{tab:detection-engineering-steps}
+  \caption{核心数据实体与作用}\label{tab:implementation-core-entities}
   \centering
-  \begin{tabular}{@{}p{0.26\linewidth}p{0.64\linewidth}@{}} \toprule
-    \textbf{环节} & \textbf{说明} \\ \midrule
-    任务创建 & 为图像创建主任务，记录用户、项目、图像和初始状态。 \\
-    分类路由 & 调用分类 Agent，解析任务代码并校验输出合法性。 \\
-    子任务生成 & 根据路由结果创建对应子任务，并关联到主任务。 \\
-    原子检测 & 调用 Reasoning 服务执行模型，生成报告和图像产物。 \\
-    产物上传 & 使用对象存储授权上传动态数量产物，并记录产物清单。 \\
-    结果落库 & 将不同任务的结构化字段写入对应子任务表。 \\
-    状态推进 & 判断子任务聚合状态，决定是否进入图像总结或失败终态。 \\
-    实时通知 & 通过 RocketMQ 和 WebSocket 将状态变化推送给前端。 \\
-    图像总结 & 调用 Summary 服务生成单图总结并写入数据库。 \\ \bottomrule
+  \begin{tabular}{@{}p{0.28\linewidth}p{0.62\linewidth}@{}} \toprule
+    \textbf{数据实体} & \textbf{作用} \\ \midrule
+    \texttt{projects} & 保存项目基础信息、项目状态和阶段进度，是所有业务数据的归属边界。 \\
+    \texttt{project\_groups}、\texttt{project\_group\_images} & 保存图像组、图像元数据、图像状态和图像资产组织关系。 \\
+    \texttt{project\_detection\_tasks} & 保存单张图像检测主任务、任务路由结果、主任务状态、总结任务和人工复核字段。 \\
+    五类检测子任务表 & 分别保存锈蚀、裂缝、污渍、平整度、爆裂检测结果、区域 JSON、产物 SHA256 和运行耗时。 \\
+    \texttt{project\_detection\_summary\_tasks} & 保存图像级总结任务状态和 Agent 输出结果。 \\
+    \texttt{project\_reports} & 保存项目级报告状态和项目报告 JSON。 \\ \bottomrule
   \end{tabular}
 \end{table}
 
-\cref{tab:detection-engineering-steps} 展示了单张图像检测背后的主要工程环节。对于一个包含多张图像的项目，上述链路会并发执行多次，因此系统必须在并发控制、事务处理和前端状态合并上保持一致。这也是本文工程工作量的重要体现。
+检测主任务状态机是数据层设计的核心。主任务状态包括 \texttt{pending}、\texttt{classifying}、\texttt{detecting}、\texttt{summarizing}、\texttt{succeeded} 和 \texttt{failed}。子任务状态包括 \texttt{pending}、\texttt{succeeded} 和 \texttt{failed}。报告状态包括 \texttt{pending}、\texttt{succeeded} 和 \texttt{failed}。项目阶段进度从项目初始化、基础信息完成、图像资产完成、检测完成、复核完成推进到项目完成。只有报告成功生成后，项目才允许被视为完成。
+
+数据库事务用于保证状态推进的一致性。例如，分类回调成功后，BIZ 需要在同一事务内写入任务路由字段、创建子任务、关联子任务 ID、创建必要的总结任务并推进主任务状态；子任务回调后，BIZ 需要写入专属指标、保存产物 SHA256、更新子任务状态，并判断同一主任务下所有必要子任务是否完成；项目报告回调后，BIZ 需要写入报告 JSON、更新报告状态并发布报告事件。事务边界保证了前端查询到的状态与任务记录保持一致。
+
+不同子任务表采用“公共任务字段 + 专属指标字段”的结构。公共字段便于统一查询和状态展示，专属字段便于前端按任务类型展示不同指标，也方便项目报告源数据按任务类型组装。相比所有检测结果都以一个大 JSON 字段保存，该结构更利于状态聚合、索引优化和工程维护。
+
+\section{对象存储与产物管理}
+\label{sec:implementation-object-storage-and-artifact-management}
+
+系统使用 MinIO 保存项目缩略图、图像原图、图像缩略图、检测产物和项目报告源数据。数据库不保存二进制文件，只保存元数据、状态和必要的产物校验信息。前端上传图像时，BIZ 生成预签名 PUT URL，前端将原图和缩略图直接上传到对象存储，再调用图像上报接口确认状态。检测产物上传时，Reasoning 服务向 BIZ 获取受限前缀上传授权，在指定路径下上传动态数量产物。
+
+对象存储路径按项目、图像和任务组织。图像资产使用 \texttt{projects/\{project\}/assets/\{image\}/} 前缀，检测产物使用 \texttt{projects/\{project\}/detections/\{image\}/\{task\}/} 前缀，项目报告源数据使用 \texttt{projects/\{project\}/reports/source.txt}。这样的路径结构便于按项目、图像或任务维度清理和追踪。
+
+产物完整性是 Reasoning 链路的关键约束。Reasoning 服务上传产物后会返回名称、对象 Key、SHA256 和上传结果。BIZ 在回调处理阶段校验产物清单，对于需要产物的任务，必须保证所有产物 \texttt{uploaded=true} 且 SHA256 非空，才将子任务视为成功。否则该子任务失败，不写入成功结果，后续可以通过重试重新生成并上传产物。这样可以避免“检测结果成功但产物缺失”的页面异常。
+
+Redis 用于缓存预签名下载 URL 和临时控制状态。由于图像和产物可能被前端反复查看，缓存可以减少重复生成 URL 的开销。删除图像或清理脏对象时，系统会清理对应 Redis 缓存，避免前端继续使用过期对象地址。
+
+\section{安全性设计与实现}
+\label{sec:implementation-security-design-and-implementation}
+
+安全性设计覆盖用户身份、项目权限、对象存储访问、WebSocket 连接和服务边界。用户登录后获得访问令牌和刷新令牌，API 鉴权中间件校验访问令牌并向 BIZ 查询用户信息。刷新令牌由 BIZ 管理，配合过期时间和刷新状态控制，避免多个请求并发刷新造成令牌混乱。
+
+项目权限由后端统一校验。所有项目相关接口都必须携带用户身份和项目 ID，Core BIZ 检查项目归属后才允许读取、修改或推进阶段。前端只负责隐藏不可用按钮，不能作为权限判断来源。WebSocket 连接也不直接使用访问令牌拼接 URL，而是先通过鉴权 HTTP 接口创建短时 ticket，再用 ticket 建立连接，降低长连接 URL 暴露后的风险。
+
+对象存储不向前端暴露长期凭证。前端上传和下载图像使用预签名 URL，Reasoning 上传产物使用短时上传策略，Summary 下载报告源文件也使用预签名 URL。这样，即使前端或 Activity 服务拿到某个 URL，其权限也被限制在具体对象、具体前缀和有限时间内。
+
+Agent 输出也需要安全性和可靠性约束。分类输出必须被解析为受控任务代码；总结输出必须被压缩为合法 JSON 对象；项目报告输出还需要校验图像组数量和图像数量是否与源数据一致。Reasoning 服务启动时校验模型文件，避免部署中只存在 Git LFS 指针而非真实模型权重。通过这些约束，系统将外部 Agent 和模型的非确定性限制在可处理范围内。
+
+\section{稳定性设计与实现}
+\label{sec:implementation-stability-design-and-implementation}
+
+系统稳定性主要体现在日志、异常处理、容量控制、超时控制、重试恢复和清理机制上。日志方面，各服务按 HTTP、RPC、MQ、WS、CRON、CLS、RSN、SMR 等范围输出结构化日志，并保留请求 ID、任务 UUID、图像 UUID、状态、耗时和错误信息。Docker Compose 中为五个后端服务配置日志采集 sidecar，将容器日志按 PSM 写入 \texttt{/root/logs/\{psm\}/log}，并按文件大小和最大文件数量进行轮转。
+
+容量控制方面，Classification、Reasoning、Summary 和 Detection Worker 都有最大并发配置。Agent 调用和模型推理属于高耗时任务，如果不限制并发，容易压垮外部 Agent 平台、Python 模型进程、对象存储和数据库。通过并发上限和任务队列，系统在吞吐量与稳定性之间取得平衡。
+
+超时控制方面，Agent 请求、Reasoning 总任务、产物下载、产物上传、图像上传待确认、Socket ticket 和预签名 URL 都有独立 TTL 或 timeout。Reasoning 服务在真正执行时再向 BIZ 获取原图 URL 和产物上传授权，避免长队列导致授权过期。上传中图像超时 CronJob 会将长期未上报的图像标记为失败并推送前端，避免页面长期停留在上传中。
+
+异常恢复方面，检测和报告均支持失败状态和重试。检测失败后，前端可以重新启动失败任务；报告失败后，前端显示失败重试按钮，由 BIZ 重新创建报告任务并调用 Summary 服务。MinIO 脏对象清理 CronJob 负责删除失败图像、失败子任务、失败报告和无数据库引用对象对应的文件夹，降低对象存储长期膨胀风险。清理前设置保护窗口，避免并发执行中的对象被误删。
+
+可观测性方面，工作台提供项目数量、图像数量、图像组数量、中间产物数量、检测执行次数、报告生成次数和对象存储容量概览。虽然它不是完整监控系统，但能让用户和维护者从账号维度观察系统使用情况和存储占用。结合服务日志、RocketMQ 消费日志、WebSocket 广播日志和 CronJob 日志，可以定位大部分业务链路问题。
+
+\section{部署设计与实现}
+\label{sec:implementation-deployment-implementation}
+
+系统采用 Docker Compose 部署。Compose 文件中定义 RocketMQ NameServer、Broker、Topic 初始化服务、三个 Activity 服务、Core BIZ、Core API、Core Web 以及日志采集 sidecar。所有服务挂载到统一 Docker 网络中，服务之间通过容器服务名访问。Core API 对外暴露 HTTP 端口，Core Web 使用 Nginx 托管前端静态资源并映射到 80 端口，Reasoning 服务通过只读挂载方式加载服务器上的模型目录。
+
+部署顺序由 \texttt{depends\_on} 和健康检查控制。RocketMQ Broker 健康后执行 Topic 初始化，Activity 服务、BIZ 和 API 均依赖 RocketMQ 初始化完成。BIZ 还依赖 Classification、Reasoning 和 Summary 服务启动，以保证检测 Worker 调用目标可用。这样的启动顺序降低了服务刚启动时因依赖未就绪导致的异常。
+
+环境变量集中描述服务地址、MySQL、Redis、MinIO、RocketMQ、JWT、邮箱验证码、Socket ticket、对象存储 TTL、Agent Token、Agent Bot ID、任务超时和并发配置。与把配置写死在代码中相比，环境变量便于本地和服务器切换，也便于毕业设计系统在不同机器上复现部署。
+
+Reasoning 模型文件没有打入 Docker 镜像，而是通过 \texttt{/root/models:/app/models:ro} 方式挂载。这样可以避免模型权重导致镜像体积过大，也便于更新模型文件。服务启动时会检查模型文件是否存在且不是 Git LFS 指针，提前暴露部署问题。
+
+日志部署采用两层机制。容器自身使用 Docker \texttt{json-file} 驱动进行基础轮转，日志采集 sidecar 通过 Docker socket 读取目标容器日志，并按 PSM 写入宿主机目录。该方案比在每个业务容器中接入复杂日志组件更轻量，适合当前项目规模，也便于服务器直接查看各服务日志。
+
+\section{本章小结}
+\label{sec:implementation-chapter-summary}
+
+本章从工程角度说明了第四章技术方案的落地方式。系统通过 Core Web、Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common 七类模块，将前端交互、业务状态、Agent 调用、模型推理、报告生成和共享协议拆分到清晰边界中。BIZ 服务集中控制任务状态和数据库事务，Activity 服务只返回结构化结果，API 服务负责接入与实时推送，Web 服务负责阶段化展示和用户复核。
+
+工程实现的主要工作量体现在长链路协同上：一次检测任务涉及 HTTP 请求、gRPC 调用、Worker 入队、分类 Agent、子任务创建、Python 模型执行、MinIO 产物上传、回调落库、RocketMQ 事件、WebSocket 推送和前端状态合并；一次项目报告任务还涉及项目级源数据组装、source.txt 存储、附件式 Agent 调用、报告 JSON 校验和报告展示。通过协议治理、状态机、对象存储、CronJob、日志、并发控制和 Docker 部署，系统将 Agent 能力转化为可运行、可追踪、可恢复的软件系统。
