@@ -1,145 +1,635 @@
 \chapter{技术方案设计}
 \label{chap:design}
 
-本章在需求分析基础上提出本文的核心技术方案。方案围绕两个问题展开：一是如何让 Agent 在受控边界内完成幕墙图像检测任务规划，二是如何让 LLM 在多图像、多任务、多区域的复杂输入下完成稳定的信息整合与报告生成。为此，本章依次介绍 Agent 角色定义、Agent 自主任务调度方法、原子检测工具化、任务状态机和 LLM 分层信息整合策略。
+本章重点讨论 Agent 方法层设计：如何在受控边界内使用 Agent 完成检测任务规划，如何将既有原子检测能力工具化，如何把多张图像、多类缺陷、多组区域和人工复核意见逐层整合为项目级评估报告。整体上，本系统采用“工程状态机约束 Agent，Agent 补足语义决策能力”的技术方案，使智能能力服务于确定性业务流程。
 
-\section{方法概述}
-\label{sec:method-overview}
+\section{关键术语}
+\label{sec:design-key-terms}
 
-本文提出的核心方法可以概括为“Agent 自主任务调度方法 + 原子检测工具化 + LLM 分层信息整合策略”。其中，Agent 自主任务调度方法用于解决检测前的任务选择问题，原子检测工具化用于解决不同模型能力的统一接入问题，LLM 分层信息整合策略用于解决检测结果到项目报告的语义转换问题。三者共同构成本文区别于普通工程系统的技术主线。
-
-在该方法中，Agent 不是自由行动的黑箱，而是被放置在明确业务节点中。分类 Agent 只负责输出任务代码列表；图像级总结 Agent 只负责总结单张图像的检测结果；项目级报告 Agent 只负责融合项目级上下文。每个 Agent 的输入、输出和业务后果均由系统协议约束。这种设计既发挥大语言模型的语义能力，又保证工程系统可控。
-
-本文方法的基本判断是：Agent 最适合承担“语义不确定但动作空间有限”的任务。幕墙图像检测正符合这一特点。图像中可能存在多种材料，材料判断具有一定语义不确定性；但系统可执行的检测工具只有五类，动作空间是有限的。项目报告生成同样如此：报告表达具有自然语言复杂性，但报告依据来自数据库和人工复核，输入边界是有限的。因此，本文把 Agent 放在可发挥语义能力的位置，同时用工程协议限制其行为范围。
-
-\section{Agent 在本系统中的角色定义}
-\label{sec:agent-role-definition}
-
-为避免“只要接入大语言模型就是 Agent”的泛化理解，本文对 Agent 的角色进行明确限定。第一，Agent 不是聊天机器人。系统不提供开放问答入口，Agent 只在业务流程中的固定节点被调用。第二，Agent 不是数据库操作者。所有数据读取、落库和状态推进均由 BIZ 服务完成。第三，Agent 不是检测模型替代品。像素级缺陷识别仍由原子检测模型完成，Agent 主要负责路由和语义整合。
-
-在此基础上，本文定义了三个 Agent 节点。分类 Agent 面向图像输入，输出任务代码；图像总结 Agent 面向单张图像的检测结果，输出面向用户的单图总结；项目报告 Agent 面向整个项目的汇总上下文，输出项目级报告。三个节点形成从“选择工具”到“解释局部结果”再到“形成整体结论”的递进关系。
+为了避免后续表述产生歧义，本章首先对使用的关键术语进行说明。这里的术语并非孤立概念，而是对应系统中真实存在的设计对象、服务节点和数据结构。
 
 \begin{table}[!htb]
-  \caption{本文 Agent 节点设计}\label{tab:agent-node-design}
+  \caption{技术方案设计关键术语}\label{tab:design-key-terms}
   \centering
-  \begin{tabular}{@{}p{0.22\linewidth}p{0.24\linewidth}p{0.24\linewidth}p{0.20\linewidth}@{}} \toprule
-    \textbf{Agent 节点} & \textbf{输入} & \textbf{输出} & \textbf{业务作用} \\ \midrule
-    分类 Agent & 原始图像与路由提示词。 & 检测任务代码列表。 & 决定是否执行五类原子检测。 \\
-    图像总结 Agent & 单图结构化检测结果。 & 单图自然语言总结。 & 压缩底层指标，形成图像级语义。 \\
-    项目报告 Agent & 项目上下文、单图总结、复核意见。 & 项目评估报告。 & 形成整体韧性评估结论。 \\ \bottomrule
+  \begin{tabular}{@{}p{0.22\linewidth}p{0.68\linewidth}@{}} \toprule
+    \textbf{术语} & \textbf{含义} \\ \midrule
+    Agent 自主任务调度方法 & 由分类 Agent 根据幕墙图像中的材质和缺陷线索，输出受控检测任务代码列表，再由业务系统创建和调度后续检测子任务的方法。 \\
+    LLM 分层信息整合策略 & 将原子检测结果、单图总结、人工复核和项目上下文分层组织，逐级生成图像级总结和项目级评估报告的策略。 \\
+    原子检测能力 & 面向某一类幕墙材质或缺陷的最小可调度检测能力，包括金属锈蚀、石材裂缝、石材污渍、玻璃平整度和玻璃爆裂五类。 \\
+    任务代码 & 用于连接 Agent 决策与工程调度的有限动作集合，即 \texttt{corrosion}、\texttt{crack}、\texttt{stain}、\texttt{flatness} 和 \texttt{spalling}。 \\
+    受控 Agent & 只能在固定业务节点被调用、只能输出固定结构、不能直接写库或推进业务状态的 Agent。 \\
+    检测主任务 & 以单张项目图像为单位创建的检测业务记录，串联分类、子检测、单图总结和最终状态。 \\
+    检测子任务 & 由某个原子检测能力执行的具体任务，保存该类检测结果、区域指标、产物信息和执行状态。 \\
+    图像级总结 & 针对单张图像的结构化检测结果生成的专业文字总结，用于前端展示和项目报告上游输入。 \\
+    项目级评估报告 & 综合项目基础信息、图像组、图像检测结果、图像总结和人工复核意见形成的建筑幕墙韧性评估结论。 \\
+    人机协同复核 & 用户对 Agent 和模型结果进行准确性判断与补充评论，并将复核信息纳入项目级报告上下文的机制。 \\ \bottomrule
   \end{tabular}
 \end{table}
 
-\cref{tab:agent-node-design} 中的三个节点构成本文的 Agent 主线。分类 Agent 解决“做什么检测”的问题，图像总结 Agent 解决“这一张图说明什么”的问题，项目报告 Agent 解决“这个项目整体说明什么”的问题。三者共同把图像检测从单点算法能力提升为项目级评估流程。
+\section{总体方法框架}
+\label{sec:design-method-overview}
 
-\section{Agent 自主任务调度方法}
-\label{sec:controlled-agent-routing}
+本文的总体方法框架面向\cref{chap:requirements}提出的系统需求，重点回答两个问题：第一，如何把项目级图像资产、多材质幕墙图像和用户真实评估目标组织为可执行的检测任务；第二，如何把原子检测事实、图像语义、人工复核和项目上下文整合为建筑级韧性评估报告。与单纯的检测模型调用不同，本文方法不把智能能力集中在某一个端到端模型中，而是将系统拆分为“工程约束、数据证据、原子检测、Agent 调度、LLM 整合、质量治理和目标输出”等多个层次，使每一层都有明确职责。
 
-分类 Agent 的输入包括幕墙图像和路由提示词，输出为任务代码列表。任务代码限定为 corrosion、crack、stain、flatness 和 spalling 五类，分别对应金属锈蚀、石材裂缝、石材污渍、玻璃平整度和玻璃爆裂。Agent 需要根据图像中的材料和场景判断是否执行对应能力。如果图像不是幕墙，或无法判断需要检测的材料，则输出空列表。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      region/.style={draw, rounded corners=4pt, line width=0.65pt, align=center},
+      layerTitle/.style={font=\bfseries\scriptsize, align=left, anchor=west},
+      sideTitle/.style={font=\bfseries\scriptsize, align=center},
+      cell/.style={draw, rounded corners=2pt, align=center, minimum height=0.40cm, line width=0.42pt, inner sep=1.7pt},
+      note/.style={font=\tiny, align=center},
+      legend/.style={font=\tiny, align=center},
+      arrow/.style={->, line width=0.58pt},
+      dashedarrow/.style={->, dashed, line width=0.55pt},
+      roofbox/.style={draw=purple!65!black, fill=purple!7, line width=0.70pt},
+      demandbox/.style={region, draw=blue!55!black, fill=blue!4},
+      outputbox/.style={region, draw=magenta!55!black, fill=magenta!4},
+      llmbox/.style={region, draw=green!50!black, fill=green!5},
+      routebox/.style={region, draw=teal!55!black, fill=teal!5},
+      toolbox/.style={region, draw=orange!70!black, fill=orange!7},
+      databox/.style={region, draw=cyan!55!black, fill=cyan!5},
+      runtimebox/.style={region, draw=red!55!black, fill=red!4},
+      qualitybox/.style={region, draw=yellow!55!black, fill=yellow!7},
+      basebox/.style={region, draw=gray!70!black, fill=gray!7},
+      demandcell/.style={cell, draw=blue!55!black, fill=blue!8, minimum width=2.82cm, minimum height=0.62cm},
+      outcell/.style={cell, draw=magenta!55!black, fill=magenta!8, minimum height=0.42cm},
+      llmcell/.style={cell, draw=green!50!black, fill=green!9, minimum height=0.42cm},
+      llmcheck/.style={cell, draw=green!50!black, fill=green!12, minimum height=0.42cm},
+      routecell/.style={cell, draw=teal!55!black, fill=teal!9, minimum height=0.42cm},
+      toolcell/.style={cell, draw=orange!70!black, fill=orange!11, minimum height=0.42cm},
+      datacell/.style={cell, draw=cyan!55!black, fill=cyan!9, minimum height=0.42cm},
+      govcell/.style={cell, draw=red!55!black, fill=red!7, minimum height=0.42cm},
+      qualitycell/.style={cell, draw=yellow!55!black, fill=yellow!15, minimum width=2.82cm, minimum height=0.42cm},
+      basecell/.style={cell, draw=gray!70!black, fill=gray!12, minimum width=1.34cm}
+    ]
+      \draw[roofbox, rounded corners=2pt]
+        (-9.15, 6.16) -- (0, 7.66) -- (9.15, 6.16) -- cycle;
+      \node[font=\bfseries\small] at (0, 6.98) {框架价值与意义};
+      \node[note] at (0, 6.46) {从单图检测事实到项目级韧性评估闭环，形成可追溯、可复核、可扩展、可部署、可恢复的 Agent 工程方案};
 
-Agent 自主任务调度方法的关键在于“让 Agent 判断，但不让 Agent 越界”。系统不允许 Agent 输出任意文本作为任务名称，也不允许 Agent 直接调用数据库或模型服务。Agent 只输出结构化任务代码，BIZ 服务负责解析、校验、创建子任务和调度 Reasoning 服务。这种方式将 Agent 的智能判断转化为工程系统可消费的有限动作。
+      \node[demandbox, minimum width=3.20cm, minimum height=11.56cm] (demand) at (-7.55, -0.03) {};
+      \node[sideTitle] at (-7.55, 5.42) {业务需求与问题输入};
+      \node[demandcell] at (-7.55, 4.78) {项目级图像资产};
+      \node[demandcell] at (-7.55, 3.68) {图像组 / 立面区域};
+      \node[demandcell] at (-7.55, 2.59) {多材质幕墙图像};
+      \node[demandcell] at (-7.55, 1.49) {批量上传与状态追踪};
+      \node[demandcell] at (-7.55, 0.40) {单图单缺陷检测\\难以形成项目结论};
+      \node[demandcell] at (-7.55, -0.70) {人工汇总成本高\\报告形成滞后};
+      \node[demandcell] at (-7.55, -1.79) {用户真实目标\\建筑级韧性评估};
+      \node[demandcell] at (-7.55, -2.89) {可复核证据\\维护优先级};
+      \node[demandcell] at (-7.55, -3.98) {多区域风险\\分级处置};
+      \node[demandcell] at (-7.55, -5.08) {报告成果\\归档交付};
 
-在提示词设计上，系统要求 Agent 只输出合法 JSON，且任务代码必须来自固定集合。提示词会说明不同幕墙材料对应的检测能力：金属材料对应锈蚀检测，石材或混凝土材料对应裂缝和污渍检测，玻璃材料对应平整度和爆裂检测。这样，Agent 的视觉理解结果被映射到明确工具集合中。若 Agent 输出异常内容，服务端会解析失败并回调失败状态，而不会继续推进后续检测。
+      \node[outputbox, minimum width=10.05cm, minimum height=1.16cm] (output) at (0, 5.20) {};
+      \node[layerTitle] at (-4.92, 5.50) {目标输出层};
+      \node[outcell, minimum width=1.85cm] at (-3.425, 4.98) {单图检测总结};
+      \node[outcell, minimum width=1.85cm] at (-1.142, 4.98) {项目评估报告};
+      \node[outcell, minimum width=1.85cm] at (1.142, 4.98) {区域风险等级};
+      \node[outcell, minimum width=1.85cm] at (3.425, 4.98) {维护改进建议};
 
-Agent 自主任务调度方法还包括输出后的二次校验。即使提示词要求 Agent 输出合法任务代码，服务端仍然需要对返回内容进行解析和过滤。只有 corrosion、crack、stain、flatness 和 spalling 五种代码能够被接受，重复代码会被去重，不支持的代码会被忽略或导致任务失败。这样可以避免模型偶然输出解释性文字、中文任务名或未知字段时破坏状态机。
+      \node[llmbox, minimum width=10.05cm, minimum height=1.95cm] (llm) at (0, 3.33) {};
+      \node[layerTitle] at (-4.92, 4.03) {LLM 分层信息整合层};
+      \node[llmcell, minimum width=1.85cm] at (-3.425, 3.37) {原子事实层\\指标与产物};
+      \node[llmcell, minimum width=1.85cm] at (-1.142, 3.37) {图像语义层\\单图总结};
+      \node[llmcell, minimum width=1.85cm] at (1.142, 3.37) {项目报告层\\多源融合};
+      \node[llmcell, minimum width=1.85cm] at (3.425, 3.37) {报告结构层\\固定字段};
+      \node[llmcheck, minimum width=2.55cm] at (-3.075, 2.69) {结构化数据输入};
+      \node[llmcheck, minimum width=2.55cm] at (0.00, 2.69) {输出压缩 JSON 校验};
+      \node[llmcheck, minimum width=2.55cm] at (3.075, 2.69) {一致性约束};
 
-该机制的实质是把 Agent 的开放语义判断压缩为离散动作集合。对于工程系统而言，离散动作更容易落库、重试和展示；对于 Agent 而言，有限工具集合降低了决策难度。二者结合后，系统既不需要人工逐张选择检测能力，也不需要信任一个完全自由的模型代理。
+      \node[routebox, minimum width=10.05cm, minimum height=1.72cm] (routing) at (0, 1.17) {};
+      \node[layerTitle] at (-4.92, 1.75) {Agent 自主任务调度层};
+      \node[routecell, minimum width=1.85cm] at (-3.425, 1.23) {幕墙场景识别};
+      \node[routecell, minimum width=1.85cm] at (-1.142, 1.23) {材质语义识别};
+      \node[routecell, minimum width=1.85cm] at (1.142, 1.23) {任务代码生成};
+      \node[routecell, minimum width=1.85cm] at (3.425, 1.23) {非幕墙过滤};
+      \node[routecell, minimum width=2.55cm] at (-3.075, 0.67) {枚举归一去重排序};
+      \node[routecell, minimum width=2.55cm] at (0.00, 0.67) {子任务创建策略};
+      \node[routecell, minimum width=2.55cm] at (3.075, 0.67) {失败回调重试入口};
 
-\section{为什么不是端到端大模型}
-\label{sec:why-not-end-to-end-agent}
+      \node[toolbox, minimum width=10.05cm, minimum height=1.72cm] (tools) at (0, -0.87) {};
+      \node[layerTitle] at (-4.92, -0.29) {原子检测工具层};
+      \node[toolcell, minimum width=1.42cm] at (-3.64, -0.81) {金属锈蚀};
+      \node[toolcell, minimum width=1.42cm] at (-1.82, -0.81) {石材裂缝};
+      \node[toolcell, minimum width=1.42cm] at (0.00, -0.81) {石材污渍};
+      \node[toolcell, minimum width=1.42cm] at (1.82, -0.81) {玻璃平整度};
+      \node[toolcell, minimum width=1.42cm] at (3.64, -0.81) {玻璃爆裂};
+      \node[toolcell, minimum width=1.85cm] at (-3.425, -1.37) {模型注册};
+      \node[toolcell, minimum width=1.85cm] at (-1.142, -1.37) {运行目录隔离};
+      \node[toolcell, minimum width=1.85cm] at (1.142, -1.37) {模型懒加载};
+      \node[toolcell, minimum width=1.85cm] at (3.425, -1.37) {动态产物清单};
 
-一种看似简单的方案是让大语言模型直接读取图像并生成最终报告。本文没有采用该方案，原因有三点。第一，幕墙评估需要可追踪证据。用户需要查看原图、掩码、浮层、区域指标和置信度，而不是只接受一段不可追溯的自然语言。第二，项目级报告可能涉及大量图像和区域，大模型一次性处理会受到上下文长度和注意力分散限制。第三，工程系统需要可恢复状态。如果模型一步生成失败，很难判断失败发生在材质判断、缺陷识别还是报告融合阶段。
+      \node[databox, minimum width=10.05cm, minimum height=1.72cm] (data) at (0, -2.91) {};
+      \node[layerTitle] at (-4.92, -2.33) {数据证据与上下文层};
+      \node[datacell, minimum width=1.85cm] at (-3.425, -2.85) {项目信息};
+      \node[datacell, minimum width=1.85cm] at (-1.142, -2.85) {图像组};
+      \node[datacell, minimum width=1.85cm] at (1.142, -2.85) {图像资产};
+      \node[datacell, minimum width=1.85cm] at (3.425, -2.85) {检测产物};
+      \node[datacell, minimum width=2.55cm] at (-3.075, -3.41) {区域指标};
+      \node[datacell, minimum width=2.55cm] at (0.00, -3.41) {人工复核};
+      \node[datacell, minimum width=2.55cm] at (3.075, -3.41) {报告源数据};
 
-因此，本文采用分解式路线：图像理解中的任务选择交给分类 Agent，像素级和区域级事实交给专业检测工具，语义总结交给总结 Agent，流程状态交给工程系统。该路线虽然工程链路更长，但每一步职责更清晰，失败更容易定位，结果也更容易复核。
+      \node[runtimebox, minimum width=10.05cm, minimum height=1.72cm] (runtime) at (0, -4.95) {};
+      \node[layerTitle] at (-4.92, -4.37) {工程约束与运行治理层};
+      \node[govcell, minimum width=1.42cm] at (-3.64, -4.89) {状态机};
+      \node[govcell, minimum width=1.42cm] at (-1.82, -4.89) {协议回调};
+      \node[govcell, minimum width=1.42cm] at (0.00, -4.89) {事务落库};
+      \node[govcell, minimum width=1.42cm] at (1.82, -4.89) {对象授权};
+      \node[govcell, minimum width=1.42cm] at (3.64, -4.89) {事件广播};
+      \node[govcell, minimum width=1.85cm] at (-3.425, -5.45) {失败重试};
+      \node[govcell, minimum width=1.85cm] at (-1.142, -5.45) {并发超时};
+      \node[govcell, minimum width=1.85cm] at (1.142, -5.45) {日志追踪};
+      \node[govcell, minimum width=1.85cm] at (3.425, -5.45) {CronJob 清理};
 
-\section{原子检测能力工具化}
-\label{sec:atomic-tooling}
+      \node[qualitybox, minimum width=3.20cm, minimum height=11.56cm] (quality) at (7.55, -0.03) {};
+      \node[sideTitle] at (7.55, 5.42) {质量治理与反馈};
+      \node[qualitycell] at (7.55, 4.78) {提示词规则\\字段白名单};
+      \node[qualitycell] at (7.55, 3.68) {输出合法性校验\\JSON 对象};
+      \node[qualitycell] at (7.55, 2.59) {任务代码校验\\非法值拦截};
+      \node[qualitycell] at (7.55, 1.49) {产物完整性校验\\Uploaded=true};
+      \node[qualitycell] at (7.55, 0.40) {报告一致性校验\\图像组与图像数};
+      \node[qualitycell] at (7.55, -0.70) {人机协同复核\\准确 / 不准确 / 评论};
+      \node[qualitycell] at (7.55, -1.79) {WebSocket 反馈\\进度与状态};
+      \node[qualitycell] at (7.55, -2.89) {失败重试闭环\\检测与报告};
+      \node[qualitycell] at (7.55, -3.98) {可扩展接入\\新增模型能力};
+      \node[qualitycell] at (7.55, -5.08) {日志观测\\问题定位};
 
-原子检测能力工具化是指将具体模型或算法封装为统一可调度能力。本文系统中，Reasoning 服务对 BIZ 只暴露一个启动接口，接口参数包括任务 UUID、任务代码、图像 UUID 和原图访问地址。Reasoning 服务内部根据任务代码路由到对应 Python 模型。模型执行后，Go 服务读取报告和产物，上传图像产物，并将结果回调给 BIZ。
+      \node[basebox, minimum width=18.30cm, minimum height=0.95cm] (base) at (0, -6.61) {};
+      \node[layerTitle] at (-8.65, -6.61) {基础支撑};
+      \node[basecell] at (-6.10, -6.61) {MySQL};
+      \node[basecell] at (-4.08, -6.61) {Redis};
+      \node[basecell] at (-2.07, -6.61) {MinIO};
+      \node[basecell] at (-0.05, -6.61) {RocketMQ};
+      \node[basecell] at (1.97, -6.61) {gRPC};
+      \node[basecell] at (3.99, -6.61) {Docker};
+      \node[basecell] at (6.00, -6.61) {Log};
+      \node[basecell] at (8.02, -6.61) {Config};
 
-这种封装方式有三个好处。第一，BIZ 服务不需要知道每个模型的运行细节，只需要知道任务代码。第二，Python 模型不需要知道业务数据库和对象存储细节，只需要按约定生成文件。第三，新增模型时可以沿用统一路由和回调机制。由此，检测能力从“脚本”变成了“可被 Agent 自主任务调度方法统一调度的工具”。
+      \draw[arrow] (-5.95, 1.17) -- node[note, above] {需求牵引} (-5.025, 1.17);
+      \draw[arrow] (-5.95, -2.91) -- node[note, above] {项目资产} (-5.025, -2.91);
+      \draw[arrow] (5.025, 3.33) -- node[note, above] {输出约束} (5.95, 3.33);
+      \draw[arrow] (5.025, 1.17) -- node[note, above] {任务治理} (5.95, 1.17);
+      \draw[arrow] (5.025, -0.87) -- node[note, above] {产物校验} (5.95, -0.87);
+      \draw[arrow] (5.025, -2.91) -- node[note, above] {复核反馈} (5.95, -2.91);
 
-工具化还要求每个检测能力输出结构稳定。不同模型可以采用不同算法，但需要遵守统一的外部约定：报告字段应能落入数据库，图像产物应使用约定文件名，执行失败应被 Go 服务捕获，成功或失败都必须通过回调上报。只有满足这些条件，检测能力才能成为 Agent 可调用工具，而不是只能人工运行的实验脚本。
+      \draw[arrow] (0.00, -6.13) -- node[note, right] {工程底座} (0.00, -5.81);
+      \draw[arrow] (0.00, -4.09) -- node[note, right] {状态约束} (0.00, -3.77);
+      \draw[arrow] (0.00, -2.05) -- node[note, right] {工具事实} (0.00, -1.73);
+      \draw[arrow] (0.00, -0.01) -- node[note, right] {工具候选} (0.00, 0.31);
+      \draw[arrow] (0.00, 2.03) -- node[note, right] {结构化输入} (0.00, 2.36);
+      \draw[arrow] (0.00, 4.31) -- node[note, right] {专业输出} (0.00, 4.62);
 
-在本文系统中，原子检测工具并不直接暴露给前端，也不由 Agent 直接调用。Agent 只输出任务代码，Worker 根据任务代码调用 Reasoning 服务，Reasoning 再路由到具体模型。这种间接调用链路看似更长，但能够保留业务控制权，避免 Agent 越权调用模型或绕过状态机。
+    \end{tikzpicture}
+  }
+  \caption{Agent 驱动的幕墙检测与韧性评估方法框架}\label{fig:design-agent-method-framework}
+\end{figure}
 
-\section{检测任务状态流转}
-\label{sec:method-state-machine}
+如\cref{fig:design-agent-method-framework} 所示，该框架可以按照“左右约束、底层支撑、自下而上生成结果”的方式理解。左侧是业务需求与问题输入，描述系统需要处理的项目级图像资产、图像组、立面区域、多材质幕墙图像、批量上传与状态追踪等真实业务对象，也对应\cref{chap:introduction}提出的单图单缺陷检测难以形成项目级结论、人工汇总成本高、报告形成滞后等痛点。右侧是质量治理与反馈，描述系统对 Agent 输出、任务代码、检测产物、报告一致性、人工复核、WebSocket 状态反馈、失败重试和日志观测等环节的约束。中间主体部分则从底部基础支撑开始，逐层向上形成检测事实、语义整合和用户可读结论。
 
-检测任务状态流转是方法落地的骨架。每张图像对应一个主任务，主任务从 pending 开始，Worker 消费后进入 classifying。分类成功后，如果 Agent 输出了需要执行的任务代码，系统创建对应子任务并进入 detecting；如果 Agent 输出空列表，说明该图像无需执行原子检测和总结，可以直接成功结束。子任务全部成功后，系统创建图像总结任务并进入 summarizing。图像总结成功后，主任务进入 succeeded。任一必要节点失败，主任务进入 failed。
+图中箭头反映了总体方法的主线：业务需求首先牵引 Agent 自主任务调度层进行任务选择，项目资产进入数据证据与上下文层形成结构化上下文；基础支撑和工程治理层为上层提供状态、协议、对象授权、事务落库和失败恢复能力；原子检测工具层生成可追溯的检测事实；LLM 分层信息整合层在结构化输入基础上完成单图总结与项目报告整合；目标输出层最终面向用户呈现单图检测总结、项目评估报告、区域风险等级和维护改进建议。该框架的价值在于把不确定的语义判断限制在受控 Agent 节点中，把确定性的状态推进、数据管理和质量校验交还给工程系统。
 
-这一状态机表达了系统对 Agent 决策的理解。Agent 的路由结果决定后续是否创建子任务，子任务结果决定是否进入总结，总结结果决定主任务是否完成。状态机既反映业务逻辑，也为前端进度展示提供数据基础。
+从层次关系看，基础支撑层由 MySQL、Redis、MinIO、RocketMQ、gRPC、Docker、日志和配置等工程基础设施构成。该层并不直接产生智能结论，但它决定系统能否稳定保存状态、存储图像产物、传递事件、完成服务间通信和支持容器化部署。基础支撑之上是工程约束与运行治理层，包含状态机、协议回调、事务落库、对象授权、事件广播、失败重试、并发超时、日志追踪和 CronJob 清理等机制。该层是 Agent 工程化可控性的基础，负责将上层智能行为约束在确定性流程中，避免 Agent 直接写库、直接推进项目状态或绕过产物完整性校验。
+
+数据证据与上下文层保存系统进行智能决策和报告生成所需的结构化证据，包括项目信息、图像组、图像资产、检测产物、区域指标、人工复核和报告源数据。该层把原本分散在单张图像、多个任务和多类缺陷中的信息组织成可查询、可复核、可追溯的上下文，为上层 Agent 提供事实依据。原子检测工具层则对团队已有的检测模型和图像处理脚本进行能力封装，将金属锈蚀、石材裂缝、石材污渍、玻璃平整度和玻璃爆裂五类能力统一纳入任务调度框架，同时通过模型注册、运行目录隔离、模型懒加载和动态产物清单降低不同模型之间的耦合。
+
+Agent 自主任务调度层解决“哪些图像需要执行哪些检测”的问题。该层不直接输出缺陷结论，而是根据幕墙场景识别和材质语义识别结果生成有限任务代码，并通过枚举归一、去重排序、子任务创建策略和失败回调重试入口，把自然语言语义判断转换为可执行的工程动作。LLM 分层信息整合层解决“检测结果如何转化为项目级认知”的问题。该层将原子事实层的指标与产物、图像语义层的单图总结、项目报告层的多源融合和报告结构层的固定字段分开处理，并通过结构化数据输入、输出压缩 JSON 校验和一致性约束降低输出漂移与事实编造风险。
+
+目标输出层面向最终用户，提供单图检测总结、项目评估报告、区域风险等级和维护改进建议。右侧质量治理与反馈贯穿整个框架，确保提示词规则、字段白名单、JSON 对象合法性、任务代码合法性、产物完整性、报告一致性、人工复核、WebSocket 反馈、失败重试、扩展接入和日志观测能够形成闭环。因此，这张框架图强调的是宏观方法组织，而不是一次请求的技术链路。系统并不是让一个 Agent 从图像直接生成最终报告，也不是让所有模型无差别执行后再堆叠结果，而是把“证据生成”和“语义整合”分开，把“Agent 判断”和“业务状态推进”分开。分类 Agent 负责把图像语义映射为有限任务代码，Reasoning 服务负责生成可追溯的检测事实，图像总结 Agent 负责把底层指标转换为单图语义，项目报告 Agent 再结合项目背景、图像组和复核意见形成建筑级结论。
+
+该方法与\cref{sec:foundation-agent-engineering-controllability-problem}讨论的 Agent 工程化可控性问题相对应。Agent 具有语义理解和自然语言组织优势，但直接赋予 Agent 自由行动权限会带来输出不稳定、工具选择错误和状态误推进等风险。因此，本文采用“动作空间有限、输出结构固定、业务状态外置”的设计。Agent 的输出必须经过协议解析和业务校验，所有数据库写入和项目状态推进均由 Core BIZ 执行。总体而言，该框架的核心在于：Agent 负责受控语义决策和分层信息整合，工程系统负责边界、状态、权限、数据、质量治理和异常恢复。
+
+\section{Agent 在系统中的角色边界}
+\label{sec:design-agent-role-definition}
+
+在本系统中，Agent 不是一个开放式聊天入口，也不是可以自主操作数据库的通用代理。本系统将 Agent 限定为业务流程中的三个受控节点：分类 Agent、图像总结 Agent 和项目报告 Agent。三者对应从“任务选择”到“局部解释”再到“整体评估”的递进关系。
 
 \begin{table}[!htb]
-  \caption{检测任务状态含义}\label{tab:detection-state-meaning}
+  \caption{系统 Agent 节点设计}\label{tab:agent-node-design}
+  \centering
+  \begin{tabular}{@{}p{0.14\linewidth}p{0.26\linewidth}p{0.28\linewidth}p{0.22\linewidth}@{}} \toprule
+    \textbf{Agent 节点} & \textbf{输入} & \textbf{输出} & \textbf{业务作用} \\ \midrule
+    分类 Agent & 待检测幕墙图像与路由提示词 & 检测任务代码列表 & 判断该图像应执行哪些原子检测能力 \\
+    图像总结 Agent & 单张图像的结构化检测结果 & 固定字段的单图检测总结 JSON & 将底层指标压缩为可读的图像级语义 \\
+    项目报告 Agent & 项目基础信息、图像组、单图总结、检测结果和复核意见 & 固定字段的项目评估报告 JSON & 形成建筑幕墙韧性评估结论和维护建议 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+\cref{tab:agent-node-design} 表明，本文所说的 Agent 不是“大模型能力”的笼统称呼，而是具有固定业务入口、固定输入来源和固定输出契约的智能节点。分类 Agent 不输出缺陷结论，只输出任务代码；图像总结 Agent 不重新判断图像，只总结已完成检测结果；项目报告 Agent 不读取数据库，只依据系统组织好的项目上下文生成报告。这样的角色边界使 Agent 能够参与业务流程，但不会成为业务状态的所有者。
+
+角色边界还体现在权限控制上。Agent 不能直接调用原子检测模型，不能直接访问 MySQL，不能直接写入 MinIO，也不能直接推进项目阶段。所有 Agent 输出都必须先返回 Activity 服务，再由 Activity 服务通过 gRPC 回调 Core BIZ。
+
+从设计原则上看，本文采用的是“智能节点最小授权”思想。分类 Agent 只获得图像，不获得数据库写权限；总结 Agent 只获得结构化 JSON，不获得项目状态推进权限；项目报告 Agent 只获得系统整理后的多源检测结构化数据，不直接访问数据库和对象存储目录。这样可以降低 Agent 输出异常时的影响范围。即便某一次 Agent 输出不合规，最多导致当前节点失败，不会破坏项目主数据，也不会造成跨项目数据污染。
+
+\section{技术路线取舍分析}
+\label{sec:design-technical-route-tradeoff-analysis}
+
+本小节解释为什么系统采用“受控 Agent + 原子检测能力 + 分层整合”的路线，而不是采用固定检测流程、端到端大模型或开放式 Agent 等更直观的方案。
+
+\subsection{方案评价维度}
+\label{subsec:design-scheme-evaluation-dimensions}
+
+建筑幕墙韧性评估不是单纯的图像分类任务。系统既要能处理多张、多组、多材质图像，又要让土木工程用户能够追溯缺陷证据、查看中间产物、补充人工意见并获得项目级报告。因此，技术方案不能只用模型精度或开发难度评价，还需要从业务角度建立评价维度。
+
+\begin{table}[!htb]
+  \caption{技术方案评价维度}\label{tab:design-scheme-evaluation-dimensions}
+  \centering
+  \begin{tabular}{@{}p{0.16\linewidth}p{0.38\linewidth}p{0.38\linewidth}@{}} \toprule
+    \textbf{评价维度} & \textbf{设计含义} & \textbf{本文关注点} \\ \midrule
+    任务选择能力 & 系统能否根据图像材质和缺陷线索自动选择检测能力 & 避免人工逐图选择模型，也避免所有图像无差别执行全量检测 \\
+    证据可追溯性 & 用户能否追溯结论来自哪张图像、哪个检测任务和哪些产物 & 原图、掩码、标注图、区域指标和人工复核都应被保留 \\
+    状态可控性 & 长链路任务失败时能否定位失败节点并恢复 & 分类、子检测、产物上传、总结和报告生成必须有独立状态 \\
+    报告可组织性 & 系统能否把大量单图结果转化为建筑级评估结论 & 需要支持图像组、区域差异、风险等级和维护建议 \\
+    工程可扩展性 & 后续能否新增检测能力、展示字段或报告字段 & 任务代码、模型注册、结构化结果和前端展示应保持松耦合 \\
+    用户可信性 & 输出是否符合工程用户对安全、责任和复核的要求 & Agent 结论不能覆盖事实，人工复核必须进入最终报告上下文 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+如\cref{tab:design-scheme-evaluation-dimensions} 所示，本文关注的是一个工程系统的综合可用性，而不是单一模型调用能力。若方案只强调端到端生成文本，可能在演示时看起来简单，但无法满足证据追踪和人工复核要求；若方案只强调数据库和流程控制，则又难以解决材质识别、任务选择和报告语言组织问题。本文技术路线正是在这两类需求之间寻找平衡。
+
+\subsection{技术路线比较}
+\label{subsec:design-technical-route-comparison}
+
+本文在方案设计阶段形成了六类可选技术路线。它们都具有一定合理性，但适用范围和风险不同。为突出选择过程，本文从“如何选择检测任务”和“如何生成项目报告”两个关键问题出发进行比较。
+
+\begin{table}[!htb]
+  \caption{不同技术路线适用性比较}\label{tab:design-technical-route-comparison}
+  \centering
+  \begin{tabular}{@{}p{0.16\linewidth}p{0.3\linewidth}p{0.3\linewidth}p{0.16\linewidth}@{}} \toprule
+    \textbf{方案} & \textbf{优势} & \textbf{主要问题} & \textbf{本文取舍} \\ \midrule
+    固定全量检测流程 & 实现简单，所有图像执行相同检测，状态容易控制 & 大量无关模型调用会浪费资源；非适用材质可能产生干扰性结果；用户难以理解为什么某类图像出现无关检测项 & 不采用 \\
+    人工选择检测能力 & 人的判断准确性较高，便于结合现场经验 & 图像数量大时成本高、效率低；用户需要理解五类模型能力；难以支撑批量项目 & 作为复核补充 \\
+    规则引擎路由 & 可解释性强，可根据文件夹、图像组或用户选项触发检测 & 规则依赖人工配置；难以处理混合材质图像；无法利用图像语义线索 & 不作为主方案 \\
+    端到端大模型 & 链路短，理论上可以从图像或文本直接生成结论 & 缺少稳定区域指标和图像产物；上下文容易超限；失败节点不可定位；结论证据链薄弱 & 不作为主链路 \\
+    开放式 Agent & 自主性强，理论上可自行规划和调用工具 & 工具边界不清晰，容易越权调用、状态误推进和输出不可控；不适合直接接管工程状态 & 不采用开放式权限 \\
+    本系统方案 & 任务选择具备语义能力，像素级事实可追溯，报告生成分层可控，状态由工程系统统一推进 & 工程链路更复杂，需要协议、状态机、Worker、回调和产物管理协同实现 & 采用 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+如\cref{tab:design-technical-route-comparison} 所示，本文没有选择端到端大模型，核心原因不是大模型能力不足，而是建筑幕墙评估需要“可追溯、可复核、可恢复”。土木工程用户不仅需要一段自然语言，还需要知道某张图像是否检测过、执行了哪些检测、检测区域在哪里、对应产物能否查看、人工复核如何影响最终报告。如果让大模型直接从图像生成报告，系统很难解释某一结论来自哪张图像、哪类缺陷和哪项指标，也难以在失败后定位是图像理解、缺陷识别还是报告生成环节出错。
+
+固定全量检测流程也不适合本文场景。建筑幕墙图像可能是玻璃、石材、金属或多材质组合，若所有图像都执行五类检测，一方面增加推理成本，另一方面会产生大量对用户没有意义的“未检测到某类缺陷”的结论。对于工程用户而言，关键问题不是系统是否调用了足够多模型，而是系统是否在合适图像上调用了合适模型，并能解释对应检测结果。
+
+规则引擎方案在传统业务系统中常见，例如根据图像组名称、用户选择或固定项目模板决定检测类型。但在无人机巡检或批量图像上传场景中，图像组名称并不能可靠表示图像材质，同一图像中也可能同时包含玻璃和金属构件。纯规则方案难以处理视觉语义不确定性。本文因此引入分类 Agent，使任务选择能够利用图像内容，而不是完全依赖人工配置。
+
+\subsection{技术路线组合逻辑}
+\label{subsec:design-technical-route-composition}
+
+本系统最终采用组合式技术路线，而不是单一技术路线。其组合逻辑可以概括为三点。第一，视觉语义判断交给 Agent，但任务动作集合必须固定。Agent 可以判断图像中是否存在金属、石材或玻璃，但只能输出系统预定义的五类任务代码。第二，像素级事实交给原子检测能力。锈蚀区域、裂缝区域、污渍占比、平整度指标和爆裂置信度都来自专门模型或图像处理流程，而不是由 LLM 直接编写。第三，工程结论交给 LLM 分层整合。LLM 不负责发现像素级缺陷，而负责把结构化结果组织为用户可读、专业一致的评估语言。
+
+这种组合使系统在智能性和可控性之间取得平衡。Agent 自主任务调度方法解决“做哪些检测”的语义选择问题；原子检测能力工具化解决“怎样获得像素级和区域级事实”的问题；LLM 分层信息整合策略解决“如何从局部事实形成工程评估结论”的问题；工程状态机解决“如何保证流程可追踪和可恢复”的问题。也就是说，Agent 并不是替代工程系统，而是补足传统工程系统在语义判断和信息整合上的不足。
+
+该方案的代价是工程复杂度提高。系统需要维护任务代码、检测主任务、子任务、总结任务、报告任务、对象存储产物、人工复核和事件通知等多个对象。但这些复杂度是为了解决真实业务痛点而引入的必要复杂度，而不是形式上的服务拆分。通过将复杂度显式建模，系统才能支撑项目级韧性评估，而不是只完成单次图像推理。
+
+\subsection{工业界实践启示}
+\label{subsec:design-industry-practice-inspiration}
+
+从工业界智能体系统实践看，可靠的 Agent 应用通常不会让大模型直接掌控全部业务状态，而是将大模型放在受限规划、信息抽取、内容生成或工具选择节点中。任务执行、权限控制、状态管理和数据持久化仍由传统工程系统完成。本文方案借鉴这一思路，将 Agent 定位为“受控决策节点”和“语义整合节点”，而不是完整业务流程的所有者。
+
+这种设计尤其适合建筑幕墙韧性评估场景。幕墙检测结果具有安全属性，报告结论可能影响后续维护决策和工程责任，系统不能只追求自然语言输出的流畅性，还必须保留证据链、状态链和人工复核链。因此，本文不是简单地把大模型接入前端，而是围绕 Agent 输出契约、任务代码枚举、项目状态机、对象存储产物和人工复核机制构建完整方案。
+
+\section{Agent 自主任务调度方法}
+\label{sec:design-agent-autonomous-task-scheduling-method}
+
+Agent 自主任务调度方法是本文核心方法之一。其目标是将“用户或工程师人工判断应该跑什么模型”的过程转化为受控的自动任务规划过程。具体而言，如\cref{fig:design-agent-autonomous-task-scheduling-flow} 所示，分类 Agent 接收单张图像，判断图像是否属于建筑幕墙场景，并识别其中可能存在的金属、石材/混凝土和玻璃等幕墙材质，再输出对应的原子检测任务代码。
+
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{0.94\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      process/.style={draw, rounded corners=4pt, line width=0.62pt, align=center, minimum width=10.8cm, fill=blue!4, draw=blue!55!black, inner sep=4pt},
+      agent/.style={process, fill=green!6, draw=green!50!black},
+      rule/.style={process, fill=orange!8, draw=orange!70!black},
+      contract/.style={process, fill=purple!6, draw=purple!55!black},
+      biz/.style={draw, rounded corners=4pt, line width=0.62pt, align=center, minimum width=4.95cm, minimum height=0.78cm, fill=cyan!6, draw=cyan!55!black},
+      reasoning/.style={biz, fill=red!5, draw=red!55!black},
+      arrow/.style={->, line width=0.62pt},
+      note/.style={font=\tiny, align=center}
+    ]
+      \draw[draw=gray!70!black, fill=gray!7, rounded corners=4pt, line width=0.65pt]
+        (-6.05, 0.82) rectangle (8.20, -9.52);
+
+      \node[process, minimum height=0.76cm] (input) at (0, 0) {输入图像 $I$};
+
+      \node[agent, minimum height=1.08cm] (semantic) at (0, -1.52) {
+        \textbf{图像语义理解}\\[2pt]
+        是否为建筑幕墙 \quad 幕墙材质识别 \quad 明显缺陷线索识别
+      };
+
+      \node[rule, minimum height=1.08cm] (candidate) at (0, -3.20) {
+        \textbf{候选任务生成}\\[2pt]
+        金属 $\rightarrow$ \texttt{corrosion}
+        \quad 石材/混凝土 $\rightarrow$ \texttt{crack} + \texttt{stain}
+        \quad 玻璃 $\rightarrow$ \texttt{flatness} + \texttt{spalling}
+      };
+
+      \node[contract, minimum height=1.08cm] (governance) at (0, -4.88) {
+        \textbf{任务代码治理}\\[2pt]
+        非幕墙过滤 \quad 非法任务代码拦截 \quad 去重 \quad 固定顺序排序 \quad 空集合允许
+      };
+
+      \node[process, minimum height=1.08cm, fill=teal!6, draw=teal!55!black] (set) at (0, -6.56) {
+        \textbf{受控任务集合 $R(I)$}\\[2pt]
+        $\{\texttt{corrosion},\texttt{crack},\texttt{stain},\texttt{flatness},\texttt{spalling}\}$ 的子集
+      };
+
+      \node[biz] (biz) at (-2.85, -8.69) {Core BIZ 创建检测子任务};
+      \node[reasoning] (reasoning) at (2.85, -8.69) {Reasoning 执行原子检测};
+
+      \draw[arrow] (input.south) -- (semantic.north);
+      \draw[arrow] (semantic.south) -- (candidate.north);
+      \draw[arrow] (candidate.south) -- (governance.north);
+      \draw[arrow] (governance.south) -- (set.north);
+      \draw[arrow] (set.south) -- (0, -7.70) -| (biz.north);
+      \draw[arrow] (biz.east) -- (reasoning.west);
+      \node[note, anchor=west] at (5.60, -1.52) {Agent 负责语义判断};
+      \node[note, anchor=west] at (5.60, -4.88) {系统负责输出约束};
+      \node[note, anchor=west] at (5.60, -8.69) {BIZ 负责状态推进};
+    \end{tikzpicture}
+  }
+  \caption{Agent 自主任务调度方法流程}\label{fig:design-agent-autonomous-task-scheduling-flow}
+\end{figure}
+
+\subsection{任务调度问题建模}
+\label{subsec:design-task-scheduling-problem-modeling}
+
+从形式上看，任务调度可以抽象为一个受限多标签选择问题。输入为项目中的单张图像，输出为任务代码集合：
+
+\begin{equation}\label{eq:design-agent-task-routing-set}
+  R(I) \subseteq \{\texttt{corrosion}, \texttt{crack}, \texttt{stain}, \texttt{flatness}, \texttt{spalling}\}
+\end{equation}
+
+其中，$I$ 表示图像，$R(I)$ 表示该图像需要执行的原子检测能力集合。与普通多标签分类不同，本文任务调度结果并不是最终用户结论，而是后续工程状态机的输入。因此，输出集合必须满足三个条件：第一，元素必须属于固定任务代码枚举；第二，集合允许为空，表示图像不适合或不需要检测；第三，集合中的每个任务代码最多出现一次，并应按统一顺序归一化，以便数据库保存、前端展示和日志排查。
+
+这种问题建模的意义在于把 Agent 的开放语义理解能力压缩为工程系统可以消费的离散动作。对于 Agent 而言，判断图像中是否存在玻璃、石材、金属或明显缺陷线索属于语义判断；对于工程系统而言，真正可执行的动作只有五类原子检测能力。Agent 自主任务调度方法正是连接这两者的桥梁。
+
+\subsection{材质语义与任务代码映射}
+\label{subsec:design-material-to-task-code-mapping}
+
+建筑幕墙常见材质与检测任务之间存在较明确的对应关系。金属构件主要关注锈蚀问题；石材或混凝土面板主要关注裂缝和污渍问题；玻璃幕墙主要关注平整度异常和爆裂问题。本文将这一工程经验固化为任务映射规则，并通过提示词约束分类 Agent 的输出。
+
+\begin{table}[!htb]
+  \caption{幕墙材质语义与任务代码映射关系}\label{tab:design-material-task-code-mapping}
+  \centering
+  \begin{tabular}{@{}p{0.2\linewidth}p{0.2\linewidth}p{0.54\linewidth}@{}} \toprule
+    \textbf{图像语义线索} & \textbf{对应任务代码} & \textbf{设计说明} \\ \midrule
+    金属幕墙、金属连接件、明显锈蚀痕迹 & \texttt{corrosion} & 金属锈蚀会影响构件耐久性和连接可靠性，是金属类图像的重点检测能力 \\
+    石材、混凝土、类似石材面板 & \texttt{crack}、\texttt{stain} & 石材类图像同时需要关注裂缝和污渍，前者偏安全与耐久性，后者偏外观和渗水线索 \\
+    玻璃幕墙、玻璃反射面、明显玻璃破损 & \texttt{flatness}、\texttt{spalling} & 玻璃类图像既需要判断表面或安装状态异常，也需要判断是否存在爆裂风险 \\
+    多材质组合幕墙 & 多类任务代码合并去重 & 对包含玻璃、金属和石材的图像，允许输出多个任务代码，后续并行执行 \\
+    非建筑幕墙、无法判断、无检测意义图像 & 空数组 & 系统不强行执行检测，避免产生无意义结果和错误报告依据 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+\cref{tab:design-material-task-code-mapping} 中的映射并不是简单关键词规则，而是提示 Agent 结合图像内容进行判断。比如，图像中只要出现大面积玻璃面板，即使没有明显爆裂，也应输出 \texttt{flatness} 和 \texttt{spalling}，因为检测任务的目的不仅是确认已知缺陷，还包括排查潜在异常；图像中若出现石材或混凝土表面，即使裂缝不明显，也需要执行 \texttt{crack} 和 \texttt{stain}，以获得可追溯检测结果。
+
+\subsection{输出契约与服务端归一化}
+\label{subsec:design-classification-output-contract}
+
+分类 Agent 的输出必须是单行压缩 JSON 字符串，且只能包含 \texttt{task\_codes} 任务代码字段。该字段的值为任务代码字符串数组。例如，玻璃幕墙图像可以输出 \texttt{\{"task\_codes":["flatness","spalling"]\}}，非幕墙图像输出 \texttt{\{"task\_codes":[]\}}。这种输出格式看似简单，但对于工程稳定性非常关键。若 Agent 输出自然语言解释、Markdown 代码块、中文任务名或额外字段，后续 Worker 就无法可靠创建子任务。
+
+因此，服务端不会完全信任提示词约束，而是进行二次归一化。归一化过程包括去除多余空白、解析 JSON 对象、检查字段是否存在、检查 \texttt{task\_codes} 是否为字符串数组、过滤或拒绝非法任务代码、去重并按统一顺序排序。归一化后的任务代码再转换为系统枚举，进入 Core BIZ 的任务创建逻辑。该过程体现了 Agent 工程化的一个基本原则：提示词负责引导模型，服务端校验负责保护系统。
+
+\subsection{任务调度闭环设计}
+\label{subsec:design-task-scheduling-closed-loop}
+
+Agent 自主任务调度方法不是一个孤立的模型调用，而是嵌入检测主任务状态机中的闭环设计。用户在前端启动 Agent 智能检测后，Core BIZ 为每张图像创建检测主任务；后台 Worker 将主任务推进到分类中状态，获取图像访问地址并调用 Classification 服务；分类 Agent 返回任务代码后，Classification 服务回调 Core BIZ；Core BIZ 在事务中写入任务代码、创建对应子任务，并将主任务推进到子任务检测阶段。
+
+这个闭环设计包含两个关键点。第一，分类 Agent 只决定“应该做什么”，不决定“是否已经完成”。是否创建子任务、是否进入检测阶段、是否向前端发布状态事件，都由 Core BIZ 根据事务状态执行。第二，调度结果与后续检测结果绑定。主任务记录保存任务代码，后续用户查看检测结果时能够看到系统为什么执行了这些子任务，项目报告也可以根据任务代码判断某类检测是否实际执行过。
+
+\subsection{异常场景与边界处理}
+\label{subsec:design-routing-exception-handling}
+
+任务调度中存在多种异常情况。第一，Agent 输出空任务列表。该情况并不一定是失败，可能表示图像不是建筑幕墙、图像质量不足、或无法可靠判断材质。系统应将其视为一种有效结果，并根据业务规则结束当前图像检测链路。第二，Agent 输出格式错误。该情况属于分类节点失败，应回调失败状态，允许用户后续重试。第三，Agent 输出合法但不符合实际材质。该情况需要通过人工复核和项目报告上下文进行纠偏，而不是在系统层面强行修改历史检测事实。
+
+本文没有采用“输出不确定时执行全部检测”的策略。原因在于，全部检测虽然看似保险，但会产生大量非适用检测结果，反而降低报告可信度。对于无法可靠判断的图像，系统更适合输出空任务，并由用户根据图像质量或项目需要重新上传、重新分组或人工补充说明。这样的策略符合土木工程场景对结论依据的审慎要求。
+
+\section{原子检测能力工具化}
+\label{sec:design-atomic-detection-capability-tooling}
+
+原子检测能力工具化是指将团队前期积累的检测模型和图像处理脚本封装为统一可调度能力。\cref{sec:foundation-curtain-wall-defect-detection-technology}已经介绍五类原子检测能力的技术基础，本节关注它们如何在本系统中成为 Agent 可间接调度的工具。如\cref{fig:design-atomic-detection-tooling-flow} 所示，工具化设计的关键不是重新提出某个检测模型，而是让不同来源、不同输入输出形式、不同产物数量的检测能力在同一工程协议下运行。
+
+\begin{figure}[!htb]
+  \centering
+  \resizebox{0.94\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      process/.style={draw, rounded corners=4pt, line width=0.62pt, align=center, minimum width=10.8cm, minimum height=1.08cm, fill=blue!4, draw=blue!55!black, inner sep=4pt},
+      registry/.style={process, fill=green!6, draw=green!50!black},
+      runtime/.style={process, fill=orange!8, draw=orange!70!black},
+      model/.style={process, fill=purple!6, draw=purple!55!black},
+      artifact/.style={process, fill=teal!6, draw=teal!55!black},
+      result/.style={process, fill=cyan!6, draw=cyan!55!black},
+      callback/.style={process, fill=red!5, draw=red!55!black},
+      arrow/.style={->, line width=0.62pt},
+      note/.style={font=\tiny, align=center}
+    ]
+      \draw[draw=gray!70!black, fill=gray!7, rounded corners=4pt, line width=0.65pt]
+        (-6.05, 0.82) rectangle (8.20, -10.90);
+
+      \node[process, minimum height=0.76cm] (task) at (0, 0) {检测子任务};
+
+      \node[registry] (registry) at (0, -1.52) {
+        \textbf{工具选择与模型注册}\\[2pt]
+        \texttt{task\_code} 匹配检测能力 \quad 模型路径与运行参数加载 \quad 动态产物清单生成
+      };
+
+      \node[runtime] (workdir) at (0, -3.20) {
+        \textbf{运行目录隔离}\\[2pt]
+        创建子任务工作目录 \quad 下载原图 / 区域图 \quad 初始化产物目录
+      };
+
+      \node[model] (execute) at (0, -4.88) {
+        \textbf{原子检测执行}\\[2pt]
+        金属锈蚀 \quad 石材裂缝 \quad 石材污渍 \quad 玻璃平整度 \quad 玻璃爆裂
+      };
+
+      \node[artifact] (upload) at (0, -6.56) {
+        \textbf{产物上传与完整性校验}\\[2pt]
+        产物上传 MinIO \quad \texttt{Uploaded=true} 校验 \quad 产物数量与动态清单一致
+      };
+
+      \node[result] (result) at (0, -8.24) {
+        \textbf{结构化结果生成}\\[2pt]
+        缺陷状态 \quad 区域指标 \quad 图像产物 Key \quad 检测 Summary 原始数据
+      };
+
+      \node[callback] (callback) at (0, -9.92) {
+        \textbf{Reasoning 回调 Core BIZ}\\[2pt]
+        成功：写入子任务结果 \quad 失败：记录失败原因并等待重试
+      };
+
+      \draw[arrow] (task.south) -- (registry.north);
+      \draw[arrow] (registry.south) -- (workdir.north);
+      \draw[arrow] (workdir.south) -- (execute.north);
+      \draw[arrow] (execute.south) -- (upload.north);
+      \draw[arrow] (upload.south) -- (result.north);
+      \draw[arrow] (result.south) -- (callback.north);
+
+      \node[note, anchor=west] at (5.60, -1.52) {注册负责能力发现};
+      \node[note, anchor=west] at (5.60, -3.20) {目录负责并发隔离};
+      \node[note, anchor=west] at (5.60, -6.56) {校验负责结果可信};
+      \node[note, anchor=west] at (5.60, -9.92) {回调负责状态闭环};
+    \end{tikzpicture}
+  }
+  \caption{原子检测能力工具化执行流程}\label{fig:design-atomic-detection-tooling-flow}
+\end{figure}
+
+\subsection{统一注册机制}
+\label{subsec:design-atomic-capability-registration}
+
+工具化的第一层是任务代码统一。五类能力通过统一任务代码注册，Reasoning 服务启动时读取模型目录，并检查每个任务代码下的模型文件是否存在、是否为目录、是否为 Git LFS 指针文件。这样可以在服务启动阶段发现模型缺失或部署错误，而不是等到用户启动检测后才失败。
+
+注册信息不仅包括任务代码，还包括模型名称、Python 执行入口和结果解析方式。通过注册机制，工程系统可以把不同模型统一看作“输入原图、输出报告和产物”的可调用工具。新增检测能力时，不需要改变 Agent 调用方式和 Worker 编排框架，只需新增任务代码、注册元数据、模型目录和 Python 检测入口。
+
+\subsection{统一执行协议}
+\label{subsec:design-atomic-execution-protocol}
+
+工具化的第二层是执行协议统一。无论内部模型使用 YOLO、ResNet、OpenCV 还是其他图像处理流程，对外都遵守相同执行约定：输入为项目图像原图，运行目录按任务代码和图像 UUID 隔离，输出为 \texttt{report.json} 和若干图像产物。Go 层读取并压缩报告 JSON，上传图像产物，再将结构化结果和产物清单回调给 Core BIZ。Python 模型不直接访问数据库，也不直接参与业务状态推进。
+
+运行目录隔离是工具化中的重要设计。每个子任务拥有独立目录，目录中包含输入图像、模型生成的中间产物和报告文件。这样可以避免并发任务之间相互覆盖，也便于失败后定位具体任务。对于需要重试的任务，系统可以重新创建运行目录并重新执行，而不依赖上一次执行遗留文件。
+
+通过统一执行协议，原本异构的检测模型和图像处理脚本被封装为可调度、可复核、可重试和可恢复的工程工具，为上层 Agent 调度和后续信息整合提供稳定的事实生成接口。
+
+\subsection{统一结果契约}
+\label{subsec:design-atomic-result-contract}
+
+工具化的第三层是结果契约统一。不同任务的指标不同，例如锈蚀检测关注锈蚀区域数量、置信度、像素数和占比，裂缝检测关注裂缝像素与占比，污渍检测关注污渍区域和污渍占比，平整度检测关注边缘、梯度、直线和频谱等指标，爆裂检测关注是否爆裂与置信度。但这些结果都必须被整理为可落库、可展示、可总结的结构化字段。只有具备这种契约，原子检测能力才能从实验脚本变成工程系统中的工具。
+
+\begin{table}[!htb]
+  \caption{五类原子检测能力的主要结构化指标与图像产物}\label{tab:design-atomic-capability-output}
+  \centering
+  \begin{tabular}{@{}p{0.1\linewidth}p{0.4\linewidth}p{0.4\linewidth}@{}} \toprule
+    \textbf{检测能力} & \textbf{主要结构化指标} & \textbf{主要图像产物} \\ \midrule
+    金属锈蚀 & 是否锈蚀、区域数量、平均置信度、最高置信度、锈蚀像素数、锈蚀占比、区域列表 & 标注图、区域框、必要的检测可视化结果 \\
+    石材裂缝 & 是否存在裂缝、裂缝区域数量、裂缝像素数、裂缝占比、区域列表 & 裂缝浮层图、裂缝图、区域可视化结果 \\
+    石材污渍 & 是否存在污渍、污渍区域数量、平均污渍占比、最高污渍占比、区域列表 & 总体标注图、区域裁剪图、区域污渍结果图 \\
+    玻璃平整度 & 结果类型、异常区域数量、边缘异常、梯度异常、直线异常、频谱异常和相关数值指标 & 区域原图、梯度图、直线图、频谱图 \\
+    玻璃爆裂 & 是否爆裂、置信度、分类结果 & 原图或分类结果相关报告产物 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+\cref{tab:design-atomic-capability-output} 展示了工具化输出的差异。系统不要求所有检测能力输出完全相同字段，而是要求它们遵守共同的外层契约：是否成功、报告 JSON、产物清单、区域指标和任务状态。这样既保留每类检测模型的专业性，又保证上层 Agent 总结和前端展示能够使用统一入口读取结果。
+
+\subsection{工具化与 Agent 调度的关系}
+\label{subsec:design-tooling-and-agent-routing}
+
+原子检测能力并不直接暴露给用户，也不直接由 Agent 调用。Agent 输出的是任务代码，Core BIZ 根据任务代码创建子任务，Reasoning 服务再根据子任务代码查找已注册检测能力。这样的间接调用方式使系统能够控制执行顺序、并发、权限、失败重试和结果落库。若让 Agent 直接调用 Python 工具，则难以保证数据库状态一致，也难以在产物上传失败时阻止任务被误判为成功。
+
+因此，本文中的“工具”不是大模型工具调用框架中的自由工具，而是工程系统管理下的受控工具。Agent 决定选择哪些工具，工程系统决定何时执行、如何执行、结果是否有效以及是否推进状态。这一点是本系统方案区别于开放式 Agent 的核心。
+
+\section{LLM 分层信息整合策略}
+\label{sec:design-large-language-model-hierarchical-information-integration-strategy}
+
+LLM 分层信息整合策略是本文从单图检测走向项目级韧性评估的关键设计。旧式做法通常把每个模型的检测结果直接展示给用户，用户再人工汇总；另一种极端做法是把所有检测结果一次性输入大模型并要求其生成报告。前者无法解决报告滞后问题，后者容易受到上下文长度、低层指标噪声和输出不稳定影响。本文采用分层整合方案，将信息处理划分为原子事实层、图像语义层和项目报告层。
+
+\subsection{分层整合的必要性}
+\label{subsec:design-llm-hierarchy-necessity}
+
+项目级幕墙评估与普通文本摘要不同。输入数据既包括项目基础信息，又包括图像组、图像元数据、五类检测指标、区域列表、图像产物、单图总结和人工复核意见。如果将所有底层 JSON 直接输入项目报告 Agent，一方面会造成上下文过长，另一方面低层细节会干扰模型对项目级风险的组织。相反，如果只把单图总结输入项目报告 Agent，又会损失必要的结构化指标和复核依据。
+
+本文因此采用分层整合。原子检测能力首先产生可追溯事实，图像总结 Agent 将每张图像的事实压缩为语义概要，项目报告 Agent 再同时读取项目结构、检测事实、图像总结和人工复核意见。这样既避免项目报告直接处理过多像素级或区域级细节，又保留必要的证据字段。
+
+\begin{table}[!htb]
+  \caption{LLM 分层信息整合策略}\label{tab:design-llm-hierarchical-integration}
+  \centering
+  \begin{tabular}{@{}p{0.17\linewidth}p{0.34\linewidth}p{0.39\linewidth}@{}} \toprule
+    \textbf{层次} & \textbf{输入内容} & \textbf{输出作用} \\ \midrule
+    原子事实层 & 五类原子检测能力输出的结构化结果，包括缺陷存在性、区域指标、置信度、占比和产物。 & 保留可追溯、可展示、可复核的底层证据。 \\
+    图像语义层 & 单张图像实际执行过的检测结果 JSON。 & 生成固定字段的图像总结，说明该图像是否存在缺陷、主要问题和维护建议。 \\
+    项目报告层 & 项目基础信息、图像组、每张图像检测结果、图像总结和人工复核意见。 & 生成项目级韧性评估报告，给出整体状态、区域差异、风险等级和维护建议。 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+\cref{tab:design-llm-hierarchical-integration} 表明，图像级总结和项目级报告不是两个重复的摘要任务，而是两个不同抽象层次。图像级总结只回答“这一张图像说明什么”，输出字段限定为总体概述、五类缺陷总结和后续建议。项目级报告回答“整个项目说明什么”，需要综合图像组、缺陷分布、人工复核和项目背景，形成项目背景、数据集概述、总体结论、区域评估、风险等级、韧性评估、维护建议和限制说明等内容。
+
+\subsection{图像级总结设计}
+\label{subsec:design-image-level-summary}
+
+图像级总结的目标是把一张图像中的多类检测结果转化为用户可读的结构化文本。它并不重新执行检测，也不重新判断图像是否存在某类缺陷，而是基于已经落库的检测结果生成解释。输出字段包括总体概述、金属锈蚀、石材裂缝、石材污渍、玻璃平整度、玻璃爆裂和后续建议。前端可以根据字段是否为空决定展示哪些标签，从而提升可读性。
+
+在单图总结设计中，系统不会将未执行的检测任务描述为“未发现缺陷”。例如，分类 Agent 没有选择金属锈蚀检测时，单图总结不应写“未发现锈蚀”，因为系统并没有对该图像执行锈蚀检测。该规则能够避免报告中出现证据范围之外的结论。对于已执行但未发现缺陷的任务，则可以在总体概述中说明已执行任务未提示明显异常，但对应缺陷字段保持为空。
+
+该设计使图像级总结具有较强的证据边界意识。普通自然语言生成容易出现“顺手补全”现象，即模型为了让文本完整而描述未执行的任务。本文通过提示词规则和字段设计限制这种行为：只有存在对应材质或缺陷并且检测结果支持时，才填写对应字段；如果没有发现缺陷，后续建议可以为空；如果某类任务未执行，则不得把未执行任务等同于无缺陷结论。
+
+\subsection{项目级报告源数据设计}
+\label{subsec:design-project-report-source-data}
+
+项目报告生成设计的关键不在于让 Agent 写长文本，而在于如何把多源数据组织成可供 Agent 稳定阅读的上下文。Core BIZ 会先将项目基础信息、图像组、图像检测结果、单图总结和复核意见组装为结构化 JSON，并以 \texttt{source.txt} 文件形式存入对象存储。项目报告 Agent 通过预签名 URL 下载该文件并作为附件读取。
+
+采用 \texttt{source.txt} 附件有两个原因。第一，项目级数据可能较长，直接把压缩 JSON 放在消息正文中容易触发上下文限制，也不利于日志阅读。附件方式可以让 Agent 明确读取完整源数据。第二，报告源数据本身是一个重要中间产物，保存在对象存储中可以追溯报告依据。若项目报告存在争议，可以查看当时传给 Agent 的源数据，而不是只查看最终报告文本。
+
+\begin{table}[!htb]
+  \caption{项目级报告源数据设计}\label{tab:design-project-report-source-data}
+  \centering
+  \begin{tabular}{@{}p{0.24\linewidth}p{0.58\linewidth}@{}} \toprule
+    \textbf{数据块} & \textbf{设计作用} \\ \midrule
+    项目基础信息 & 提供项目名称、建筑名称、地址、建成年份、描述等报告背景信息。 \\
+    图像组与图像列表 & 保留项目图像组织结构，使报告能够按立面、区域或图像组描述缺陷分布。 \\
+    原子检测结果 & 提供五类检测能力的结构化事实，包括缺陷存在性、数值指标和区域列表。 \\
+    图像级总结 & 将单图多任务结果压缩为可读语义，帮助项目报告 Agent 更好理解单图重点。 \\
+    人工复核意见 & 将用户对 Agent 结果的准确性判断和补充评论纳入最终报告依据。 \\
+    统计字段 & 包括图像组数量和图像数量，用于防止报告 Agent 编造数据规模。 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+\cref{tab:design-project-report-source-data} 中的设计体现了“去无用信息、保留工程语义”的原则。系统不会把数据库中的所有字段都传给 Agent，例如内部 ID、任务主键、产物 SHA256、运行耗时和部分图像坐标对项目报告意义有限，可以不进入报告上下文；但缺陷指标、区域数量、图像组、人工复核和单图总结都与工程判断相关，应完整保留。这样既减少上下文噪声，又保证报告内容翔实。
+
+\subsection{项目级报告输出契约}
+\label{subsec:design-project-report-output-contract}
+
+项目级报告输出必须是结构化 JSON，而不是普通 Markdown 文本。原因在于前端需要按照字段展示项目背景、韧性评估目标、数据集概述、总体评估结论、总体风险等级、区域评估结论、总体韧性评估、维护和改进建议以及限制说明。结构化输出可以避免前端解析自然语言段落，也便于后续扩展报告打印、导出和字段化展示。
+
+项目报告 Agent 的输出还需要满足一致性约束。报告中的图像组数量和图像数量必须来自 \texttt{source.txt}，不得自行估算；区域评估应基于源数据中的图像组组织，而不是编造不存在的立面；风险等级需要与检测事实和人工复核保持一致；限制说明需要指出图像检测无法完全替代现场复核。系统在接收回调时会将 Agent 输出压缩为单行 JSON，并校验其为合法 JSON 对象。
+
+\subsection{防止幻觉与上下文漂移的设计}
+\label{subsec:design-llm-hallucination-control}
+
+LLM 分层信息整合策略还承担防止幻觉的作用。项目报告生成最容易出现的问题是模型补充不存在的项目名称、图像数量、立面信息或风险判断。对此，本文从输入、提示词和回调校验三个层面约束。输入层面，系统显式传入 \texttt{group\_count} 和 \texttt{image\_count} 等统计字段；提示词层面，要求所有报告内容必须基于附件中的 JSON，不能编造项目背景；回调层面，系统对报告 JSON 进行压缩和合法性校验，并在必要字段不符合要求时将任务视为失败。
+
+这种约束并不能从理论上完全消除大模型幻觉，但可以显著降低幻觉进入系统结果的概率。更重要的是，报告源数据被保存为 \texttt{source.txt}，使报告依据可复查。若用户认为报告内容不准确，可以对照源数据判断是检测结果问题、人工复核问题、源数据组织问题还是 Agent 生成问题。这种可追溯性是工程场景中使用 LLM 的关键。
+
+\subsection{分层整合与工程认知路径}
+\label{subsec:design-engineering-cognition-path}
+
+该策略体现了工程报告生成的认知路径。实际工程师撰写项目报告时，也不会直接从每个像素坐标开始写，而是先理解每张图像的主要现象，再比较不同区域之间的缺陷分布，最后给出整体风险和维护优先级。LLM 分层信息整合策略把这一过程固化为软件流程，使 Agent 的语言能力服务于工程语义组织，而不是替代检测事实。
+
+从用户体验角度看，图像级总结和项目级报告也解决了不同层次用户需求。项目操作人员在检测阶段需要快速知道某张图是否存在异常，因此需要图像级总结；项目负责人或土木工程团队更关注建筑整体状态、区域风险和维护优先级，因此需要项目级报告。分层输出使同一套检测事实能够服务不同层次的业务阅读场景。
+
+\section{任务状态流转与人机协同机制}
+\label{sec:design-detection-task-state-transition}
+
+任务状态流转是本文方法落地的骨架。每张图像对应一个检测主任务，主任务从 \texttt{pending} 开始，后台 Worker 消费后进入 \texttt{classifying}。分类成功后，如果 Agent 输出了需要执行的任务代码，系统创建对应子任务并进入 \texttt{detecting}；如果 Agent 输出空任务列表，说明当前图像不需要进入原子检测链路，主任务可以直接成功结束。子任务全部成功后，系统创建图像总结任务并进入 \texttt{summarizing}；图像总结成功后，主任务进入 \texttt{succeeded}；任一必要节点失败，主任务进入 \texttt{failed}。
+
+\begin{table}[!htb]
+  \caption{检测主任务状态含义}\label{tab:detection-state-meaning}
   \centering
   \begin{tabular}{@{}p{0.18\linewidth}p{0.72\linewidth}@{}} \toprule
     \textbf{状态} & \textbf{业务含义} \\ \midrule
-    pending & 主任务已创建，等待 Worker 消费。 \\
-    classifying & 分类 Agent 正在判断该图像需要执行哪些检测能力。 \\
-    detecting & 至少一个原子检测子任务已创建，系统正在等待子任务完成。 \\
-    summarizing & 原子检测已满足进入总结条件，图像总结 Agent 正在生成单图总结。 \\
-    succeeded & 该图像检测链路已成功结束。 \\
-    failed & 必要节点失败，当前图像检测链路失败。 \\ \bottomrule
+    \texttt{pending} & 主任务已创建，等待后台 Worker 消费。 \\
+    \texttt{classifying} & 分类 Agent 正在判断该图像需要执行哪些原子检测能力。 \\
+    \texttt{detecting} & 原子检测子任务已创建，系统正在等待检测结果和产物上传。 \\
+    \texttt{summarizing} & 子任务结果已满足总结条件，图像总结 Agent 正在生成单图总结。 \\
+    \texttt{succeeded} & 该图像检测链路已成功结束。 \\
+    \texttt{failed} & 必要节点失败，当前图像检测链路失败，可通过重试重新创建任务。 \\ \bottomrule
   \end{tabular}
 \end{table}
 
-状态机设计还需要处理一个容易被忽略的情况：分类 Agent 判断不需要执行任何检测。此时系统不应创建空的子任务，也不应调用图像总结 Agent，因为没有原子检测结果需要总结。该主任务应直接进入成功状态。这一规则体现了 Agent 自主任务调度方法对流程结构的影响，也说明状态机必须理解“无需检测”与“检测失败”之间的差别。
+状态机与 Agent 方法之间存在直接关系。分类 Agent 的输出决定是否创建子任务，Reasoning 子任务结果决定是否进入图像总结，图像总结结果决定检测主任务是否完成。也就是说，Agent 决策不是孤立文本，而是会改变后续状态流转。因此，状态推进必须由 Core BIZ 统一执行，避免 Activity 服务或前端根据局部信息自行改变业务状态。
 
-\section{LLM 分层信息整合策略}
-\label{sec:hierarchical-integration}
+在人机协同方面，本文在检测结束后引入人工复核阶段。用户可以查看检测产物、区域指标和 Agent 总结，对结果选择“准确”或“不准确”，也可以填写补充评论。复核信息不会删除或覆盖原始检测事实，而是作为项目报告输入的一部分。这样既保留自动检测证据，也保留人的判断痕迹。
 
-LLM 分层信息整合策略是本文最重要的创新设计之一。其基本思想是：不把所有检测结果一次性交给项目报告 Agent，而是先在图像级进行总结，再在项目级进行综合。该策略可表示为三层结构：
-
-\begin{enumerate}
-  \item 原子事实层：由五类检测模型输出结构化结果，包括缺陷是否存在、区域数量、置信度、像素占比、区域坐标和产物图像。
-  \item 图像语义层：由图像级总结 Agent 将一张图像的多个原子结果压缩为自然语言总结，表达该图像的主要问题和维护建议。
-  \item 项目报告层：由项目级报告 Agent 汇总所有图像总结、项目背景、图像组信息和人工复核意见，生成项目级韧性评估报告。
-\end{enumerate}
-
-这种层次化组织方式符合工程认知过程。检测人员通常也不会直接根据所有像素指标编写项目报告，而是先理解每张图像的主要情况，再总结整个建筑的整体风险。本文将这一人工认知过程固化为系统方法，使 Agent 报告生成具有更清晰的数据来源和推理层次。
-
-LLM 分层信息整合策略也可以理解为一种面向工程报告的上下文管理机制。原子事实层保留最大信息量，但不适合直接给最终用户阅读；图像语义层舍弃过细字段，保留该图像的主要问题；项目报告层进一步聚合多张图像之间的共性和差异。三层之间不是简单摘要关系，而是从局部事实到局部判断，再到整体结论的逐级抽象。
-
-与普通摘要不同，LLM 分层信息整合策略具有明确的工程约束。图像级总结必须以结构化检测结果为依据，不能凭空推断；项目级报告必须考虑图像组、人工复核和项目背景，不能只罗列每张图像的结论。也就是说，每一层的输入都有边界，每一层的输出都有用途。该策略不是为了减少字数，而是为了让信息从算法语义逐步转化为工程语义。
-
-该策略还降低了项目报告 Agent 的认知负担。假设一个项目包含数十张图像，每张图像包含多个检测区域，如果直接输入全部区域指标，模型需要同时处理大量低层数据。采用图像级总结后，项目报告 Agent 面对的是“每张图的主要问题和建议”，更容易分析区域分布、共性问题和维护优先级。这种方法使 Agent 的上下文使用更接近人类工程师撰写报告时的工作方式。
-
-\section{单图总结设计}
-\label{sec:image-summary-design}
-
-单图总结的输入是某张图像的全部检测结果。对于只执行一个子任务的图像，总结重点是该任务的结论和建议；对于执行多个子任务的图像，总结需要综合不同缺陷之间的关系。例如，一张石材幕墙图像可能同时执行裂缝和污渍检测，单图总结需要说明是否存在裂缝、是否存在污渍、哪个问题更突出以及后续维护建议。
-
-单图总结并不替代结构化数据。结构化数据仍然保存在数据库中，供前端展示和追溯；单图总结则作为更高层语义表示，供项目报告 Agent 使用。这样设计避免了在项目报告阶段重复处理大量底层字段，也避免了丢失原始检测指标。
-
-\section{项目报告生成设计}
-\label{sec:project-report-design}
-
-项目报告生成的输入包括项目基础信息、图像组信息、每张图像的检测状态、图像级总结、人工复核结果和用户补充评论。报告 Agent 需要在这些信息基础上输出结构化报告。报告不只是列出缺陷，而是需要说明主要风险、区域分布、维护优先级和总体结论。
-
-项目报告阶段是本文方法的最终输出。它体现了 Agent 从局部信息到整体结论的综合能力。由于输入已经经过图像级总结压缩，项目报告 Agent 可以更关注跨图像和跨区域关系，而不是被区域坐标和像素统计干扰。这是 LLM 分层信息整合策略相对直接拼接方案的核心优势。
-
-在项目报告输入组织中，图像组名称具有特殊价值。用户可能将图像组命名为“北立面”“东侧裙楼”“玻璃幕墙区域”等，这些名称本身包含空间或业务语义。项目报告 Agent 可以利用这些分组信息分析不同区域的问题分布。与完全无结构的图像列表相比，按项目、图像组和图像三级组织输入，更有利于生成具有工程语义的报告。
-
-\section{人机协同机制}
-\label{sec:human-agent-collaboration}
-
-完全自动化评估在工程领域并不总是可靠，尤其是在模型置信度不足或图像质量较差时。因此本文系统引入人工复核阶段。用户可以查看检测产物和结构化指标，对结果标记准确或不准确，并填写补充评论。这些复核信息不会改变原子检测事实，但会作为项目报告生成的补充上下文。
-
-该设计体现了人机协同思想。Agent 和模型承担批量处理与初步分析，人类保留最终判断和补充解释能力。系统通过复核字段将人工意见结构化保存，使项目报告既包含自动检测结果，也包含人的专业判断。
-
-人工复核并不是对自动化能力的削弱，而是工程系统可信性的组成部分。幕墙评估涉及维护成本和安全责任，系统应允许用户对检测结果进行确认或纠正。本文将复核信息作为项目报告输入，而不是直接覆盖模型结果，这样既保留自动检测证据，也保留人工判断痕迹。最终报告因此能够体现“模型初判 + 人工确认 + Agent 汇总”的协同过程。
-
-\section{方法优势分析}
-\label{sec:method-advantage}
-
-与固定检测流程相比，Agent 自主任务调度方法能够减少无意义模型调用，并使检测任务更符合图像内容。与直接报告生成相比，LLM 分层信息整合策略能够降低上下文压力，提高报告生成稳定性。与单纯工程系统相比，Agent 的引入使系统具备语义判断和自然语言整合能力。与开放式 Agent 相比，受控输出和工程状态机保证了系统边界和可追踪性。
-
-因此，本文方法并不是简单把大语言模型接入系统，而是围绕幕墙韧性评估业务重新组织 Agent 的角色。Agent 被放在最能体现价值的三个节点上：检测前路由、检测后压缩、项目级融合。这种位置选择使 Agent 能力和工程流程形成互补关系。
+人工复核机制具有两层价值。第一，它适应土木工程场景中对责任和可信性的要求。幕墙维护建议可能涉及安全、成本和施工安排，完全自动化结论需要人工确认。第二，它为项目级报告提供纠偏上下文。如果某张图像的检测结果被用户标记为不准确，项目报告 Agent 在形成整体结论时应体现这一复核信息，而不是机械地把模型结果当作绝对事实。
 
 \section{本章小结}
-\label{sec:method-flow-summary}
+\label{sec:design-chapter-summary}
 
-从流程上看，本文方法可以概括为：用户启动项目检测，BIZ 创建主任务，Classification Agent 输出任务路线，BIZ 创建对应子任务，Reasoning 服务执行原子检测，BIZ 汇总子任务结果，Summary 服务生成单图总结，项目进入人工复核，最后 Summary 服务生成项目报告。每一步都有明确输入、输出和状态变化。
+本章提出了面向建筑幕墙韧性评估的技术方案设计。方案以 Agent 自主任务调度方法和 LLM 分层信息整合策略为核心，以原子检测能力工具化和业务状态机为支撑。分类 Agent 将图像语义映射为有限任务代码，Reasoning 服务将既有检测模型封装为可调度工具，图像总结 Agent 和项目报告 Agent 将底层检测结果逐级转化为工程语义，人工复核机制则保证最终结论能够吸收人的判断。
 
-这种流程具有较强可扩展性。新增检测能力时，需要新增任务代码、模型实现、结果结构和展示逻辑，但分类 Agent 和 Worker 调度框架可以复用。新增报告维度时，可以调整项目级报告 Agent 的提示词和输出结构，而无需改变原子检测链路。由此，本文方法不仅适用于当前五类幕墙检测任务，也可扩展到更多建筑运维智能评估场景。
+与端到端大模型方案相比，本文方案链路更长，但每个环节都有明确边界、证据来源和失败恢复路径。与固定检测流程相比，本文方案能够根据图像材质自动选择检测能力，减少无意义模型调用。与普通工程系统相比，本文方案引入 Agent 处理语义判断和信息整合，使系统能够从单图单缺陷检测扩展到项目级韧性评估。第五章将在本章方法设计基础上，进一步说明多服务架构、协议、数据库、对象存储、Worker、回调、消息队列、WebSocket、CronJob 和部署配置如何共同支撑这一方案落地。
