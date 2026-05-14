@@ -527,23 +527,90 @@ Agent 自主任务调度方法不是一个孤立的模型调用，而是嵌入�
 \section{LLM 分层信息整合策略}
 \label{sec:design-large-language-model-hierarchical-information-integration-strategy}
 
-LLM 分层信息整合策略是本文从单图检测走向项目级韧性评估的关键设计。旧式做法通常把每个模型的检测结果直接展示给用户，用户再人工汇总；另一种极端做法是把所有检测结果一次性输入大模型并要求其生成报告。前者无法解决报告滞后问题，后者容易受到上下文长度、低层指标噪声和输出不稳定影响。本文采用分层整合方案，将信息处理划分为原子事实层、图像语义层和项目报告层。
+LLM 分层信息整合策略是本文从单图检测走向项目级韧性评估的关键设计。旧式做法通常把每个模型的检测结果直接展示给用户，用户再人工汇总；另一种极端做法是把所有检测结果一次性输入大模型并要求其生成报告。前者无法解决报告滞后问题，后者容易受到上下文长度、低层指标噪声和输出不稳定影响。如\cref{fig:design-llm-hierarchical-integration-flow} 所示，本文采用分层整合方案，将信息处理划分为原子事实层、图像语义层和项目报告层。
 
-\subsection{分层整合的必要性}
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{0.94\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      process/.style={draw, rounded corners=4pt, line width=0.62pt, align=center, minimum width=10.8cm, minimum height=1.08cm, fill=blue!4, draw=blue!55!black, inner sep=4pt},
+      fact/.style={process, fill=green!6, draw=green!50!black},
+      imageSummary/.style={process, fill=orange!8, draw=orange!70!black},
+      source/.style={process, fill=purple!6, draw=purple!55!black},
+      projectAgent/.style={process, fill=teal!6, draw=teal!55!black},
+      report/.style={process, fill=cyan!6, draw=cyan!55!black},
+      validation/.style={process, fill=red!5, draw=red!55!black},
+      arrow/.style={->, line width=0.62pt},
+      note/.style={font=\tiny, align=center}
+    ]
+      \draw[draw=gray!70!black, fill=gray!7, rounded corners=4pt, line width=0.65pt]
+        (-6.05, 0.82) rectangle (8.20, -10.90);
+
+      \node[process, minimum height=0.76cm] (input) at (0, 0) {检测事实与项目上下文};
+
+      \node[fact] (fact) at (0, -1.52) {
+        \textbf{原子事实层}\\[2pt]
+        缺陷状态 \quad 区域指标 \quad 置信度 / 占比 \quad 图像产物 Key
+      };
+
+      \node[imageSummary] (image) at (0, -3.20) {
+        \textbf{图像语义层}\\[2pt]
+        单图总结 Agent 生成总体概述、五类缺陷总结和后续建议
+      };
+
+      \node[source] (source) at (0, -4.88) {
+        \textbf{项目报告源数据层}\\[2pt]
+        项目信息 \quad 图像组 \quad 检测结果 \quad 图像总结 \quad 人工复核 \quad 统计字段
+      };
+
+      \node[projectAgent] (agent) at (0, -6.56) {
+        \textbf{附件输入与项目报告 Agent}\\[2pt]
+        读取多源检测结构化数据，按图像组、缺陷类型、复核意见进行多源融合
+      };
+
+      \node[report] (report) at (0, -8.24) {
+        \textbf{结构化项目评估报告}\\[2pt]
+        项目背景 \quad 总体结论 \quad 区域评估 \quad 风险等级 \quad 韧性评估 \quad 维护建议
+      };
+
+      \node[validation] (validation) at (0, -9.92) {
+        \textbf{输出压缩与一致性校验}\\[2pt]
+        单行 JSON 对象 \quad 图像组与图像数校验 \quad 防止编造 \quad 前端字段化展示
+      };
+
+      \draw[arrow] (input.south) -- (fact.north);
+      \draw[arrow] (fact.south) -- (image.north);
+      \draw[arrow] (image.south) -- (source.north);
+      \draw[arrow] (source.south) -- (agent.north);
+      \draw[arrow] (agent.south) -- (report.north);
+      \draw[arrow] (report.south) -- (validation.north);
+
+      \node[note, anchor=west] at (5.60, -1.52) {事实负责可追溯};
+      \node[note, anchor=west] at (5.60, -3.20) {单图负责语义压缩};
+      \node[note, anchor=west] at (5.60, -6.56) {项目负责多源融合};
+      \node[note, anchor=west] at (5.60, -9.92) {校验负责输出稳定};
+    \end{tikzpicture}
+  }
+  \caption{LLM 分层信息整合策略流程}\label{fig:design-llm-hierarchical-integration-flow}
+\end{figure}
+
+\subsection{信息分层整合的必要性}
 \label{subsec:design-llm-hierarchy-necessity}
 
 项目级幕墙评估与普通文本摘要不同。输入数据既包括项目基础信息，又包括图像组、图像元数据、五类检测指标、区域列表、图像产物、单图总结和人工复核意见。如果将所有底层 JSON 直接输入项目报告 Agent，一方面会造成上下文过长，另一方面低层细节会干扰模型对项目级风险的组织。相反，如果只把单图总结输入项目报告 Agent，又会损失必要的结构化指标和复核依据。
 
-本文因此采用分层整合。原子检测能力首先产生可追溯事实，图像总结 Agent 将每张图像的事实压缩为语义概要，项目报告 Agent 再同时读取项目结构、检测事实、图像总结和人工复核意见。这样既避免项目报告直接处理过多像素级或区域级细节，又保留必要的证据字段。
+本文因此采用分层整合。原子检测能力首先产生可追溯事实，图像总结 Agent 将每张图像的事实压缩为语义概要，项目报告 Agent 再同时读取项目结构、检测事实、图像总结和人工复核意见等。这样既避免项目报告直接处理过多像素级或区域级细节，又保留必要的证据字段。
 
 \begin{table}[!htb]
-  \caption{LLM 分层信息整合策略}\label{tab:design-llm-hierarchical-integration}
+  \caption{LLM 信息整合分层输入内容和输出作用}\label{tab:design-llm-hierarchical-integration}
   \centering
-  \begin{tabular}{@{}p{0.17\linewidth}p{0.34\linewidth}p{0.39\linewidth}@{}} \toprule
+  \begin{tabular}{@{}p{0.12\linewidth}p{0.42\linewidth}p{0.4\linewidth}@{}} \toprule
     \textbf{层次} & \textbf{输入内容} & \textbf{输出作用} \\ \midrule
-    原子事实层 & 五类原子检测能力输出的结构化结果，包括缺陷存在性、区域指标、置信度、占比和产物。 & 保留可追溯、可展示、可复核的底层证据。 \\
-    图像语义层 & 单张图像实际执行过的检测结果 JSON。 & 生成固定字段的图像总结，说明该图像是否存在缺陷、主要问题和维护建议。 \\
-    项目报告层 & 项目基础信息、图像组、每张图像检测结果、图像总结和人工复核意见。 & 生成项目级韧性评估报告，给出整体状态、区域差异、风险等级和维护建议。 \\ \bottomrule
+    原子事实层 & 五类原子检测能力输出的结构化结果，包括缺陷存在性、区域指标、置信度、占比和产物 & 保留可追溯、可展示、可复核的底层证据 \\
+    图像语义层 & 单张图像实际执行过的检测结果 JSON & 生成固定字段的图像总结，说明该图像是否存在缺陷、主要问题和维护建议 \\
+    项目报告层 & 项目基础信息、图像组、每张图像检测结果、图像总结和人工复核意见 & 生成项目级韧性评估报告，给出整体状态、区域差异、风险等级和维护建议 \\ \bottomrule
   \end{tabular}
 \end{table}
 
@@ -568,68 +635,136 @@ LLM 分层信息整合策略是本文从单图检测走向项目级韧性评估�
 \begin{table}[!htb]
   \caption{项目级报告源数据设计}\label{tab:design-project-report-source-data}
   \centering
-  \begin{tabular}{@{}p{0.24\linewidth}p{0.58\linewidth}@{}} \toprule
+  \begin{tabular}{@{}p{0.2\linewidth}p{0.7\linewidth}@{}} \toprule
     \textbf{数据块} & \textbf{设计作用} \\ \midrule
-    项目基础信息 & 提供项目名称、建筑名称、地址、建成年份、描述等报告背景信息。 \\
-    图像组与图像列表 & 保留项目图像组织结构，使报告能够按立面、区域或图像组描述缺陷分布。 \\
-    原子检测结果 & 提供五类检测能力的结构化事实，包括缺陷存在性、数值指标和区域列表。 \\
-    图像级总结 & 将单图多任务结果压缩为可读语义，帮助项目报告 Agent 更好理解单图重点。 \\
-    人工复核意见 & 将用户对 Agent 结果的准确性判断和补充评论纳入最终报告依据。 \\
-    统计字段 & 包括图像组数量和图像数量，用于防止报告 Agent 编造数据规模。 \\ \bottomrule
+    项目基础信息 & 提供项目名称、建筑名称、地址、建成年份、描述等报告背景信息 \\
+    图像组与图像列表 & 保留项目图像组织结构，使报告能够按立面、区域或图像组描述缺陷分布 \\
+    原子检测结果 & 提供五类检测能力的结构化事实，包括缺陷存在性、数值指标和区域列表 \\
+    图像级总结 & 将单图多任务结果压缩为可读语义，帮助项目报告 Agent 更好理解单图重点 \\
+    人工复核意见 & 将用户对 Agent 结果的准确性判断和补充评论纳入最终报告依据 \\
+    统计字段 & 包括图像组数量和图像数量，用于防止报告 Agent 编造数据规模 \\ \bottomrule
   \end{tabular}
 \end{table}
 
-\cref{tab:design-project-report-source-data} 中的设计体现了“去无用信息、保留工程语义”的原则。系统不会把数据库中的所有字段都传给 Agent，例如内部 ID、任务主键、产物 SHA256、运行耗时和部分图像坐标对项目报告意义有限，可以不进入报告上下文；但缺陷指标、区域数量、图像组、人工复核和单图总结都与工程判断相关，应完整保留。这样既减少上下文噪声，又保证报告内容翔实。
+\cref{tab:design-project-report-source-data} 中的设计体现了“去除无效噪声、保留工程语义”的原则。系统不会将数据库中的所有字段都传给 Agent，而是先剔除内部 ID、任务主键、产物 SHA256、运行耗时和部分图像坐标等对项目报告意义有限的字段，避免这些底层实现细节干扰报告生成。与工程判断直接相关的信息则需要保留，例如缺陷指标、区域数量、图像组结构、人工复核意见和单图总结。通过这种取舍，报告源数据既能减少上下文噪声，又能保留形成建筑级韧性评估结论所需的关键依据。
 
 \subsection{项目级报告输出契约}
 \label{subsec:design-project-report-output-contract}
 
-项目级报告输出必须是结构化 JSON，而不是普通 Markdown 文本。原因在于前端需要按照字段展示项目背景、韧性评估目标、数据集概述、总体评估结论、总体风险等级、区域评估结论、总体韧性评估、维护和改进建议以及限制说明。结构化输出可以避免前端解析自然语言段落，也便于后续扩展报告打印、导出和字段化展示。
+项目级报告输出必须是结构化 JSON，而不是普通 Markdown 文本。原因在于前端需要按照字段展示项目背景、韧性评估目标、数据集概述、总体评估结论、总体风险等级、局部评估结论、局部风险等级、总体韧性评估、维护和改进建议以及限制说明等信息。结构化输出可以避免前端解析自然语言段落，也便于后续扩展报告打印、导出和字段化展示。
 
 项目报告 Agent 的输出还需要满足一致性约束。报告中的图像组数量和图像数量必须来自 \texttt{source.txt}，不得自行估算；区域评估应基于源数据中的图像组组织，而不是编造不存在的立面；风险等级需要与检测事实和人工复核保持一致；限制说明需要指出图像检测无法完全替代现场复核。系统在接收回调时会将 Agent 输出压缩为单行 JSON，并校验其为合法 JSON 对象。
 
-\subsection{防止幻觉与上下文漂移的设计}
+\subsection{幻觉与上下文漂移防止机制}
 \label{subsec:design-llm-hallucination-control}
 
 LLM 分层信息整合策略还承担防止幻觉的作用。项目报告生成最容易出现的问题是模型补充不存在的项目名称、图像数量、立面信息或风险判断。对此，本文从输入、提示词和回调校验三个层面约束。输入层面，系统显式传入 \texttt{group\_count} 和 \texttt{image\_count} 等统计字段；提示词层面，要求所有报告内容必须基于附件中的 JSON，不能编造项目背景；回调层面，系统对报告 JSON 进行压缩和合法性校验，并在必要字段不符合要求时将任务视为失败。
 
 这种约束并不能从理论上完全消除大模型幻觉，但可以显著降低幻觉进入系统结果的概率。更重要的是，报告源数据被保存为 \texttt{source.txt}，使报告依据可复查。若用户认为报告内容不准确，可以对照源数据判断是检测结果问题、人工复核问题、源数据组织问题还是 Agent 生成问题。这种可追溯性是工程场景中使用 LLM 的关键。
 
-\subsection{分层整合与工程认知路径}
+\subsection{信息分层整合与工程认知路径}
 \label{subsec:design-engineering-cognition-path}
 
-该策略体现了工程报告生成的认知路径。实际工程师撰写项目报告时，也不会直接从每个像素坐标开始写，而是先理解每张图像的主要现象，再比较不同区域之间的缺陷分布，最后给出整体风险和维护优先级。LLM 分层信息整合策略把这一过程固化为软件流程，使 Agent 的语言能力服务于工程语义组织，而不是替代检测事实。
+LLM 分层信息整合策略体现了工程报告生成的认知路径。实际工程师撰写项目报告时，也不会直接从每个像素坐标开始写，而是先理解每张图像的主要现象，再比较不同区域之间的缺陷分布，最后给出整体风险和维护优先级。LLM 分层信息整合策略把这一过程固化为软件流程，使 Agent 的语言能力服务于工程语义组织，而不是替代检测事实。
 
 从用户体验角度看，图像级总结和项目级报告也解决了不同层次用户需求。项目操作人员在检测阶段需要快速知道某张图是否存在异常，因此需要图像级总结；项目负责人或土木工程团队更关注建筑整体状态、区域风险和维护优先级，因此需要项目级报告。分层输出使同一套检测事实能够服务不同层次的业务阅读场景。
 
 \section{任务状态流转与人机协同机制}
 \label{sec:design-detection-task-state-transition}
 
-任务状态流转是本文方法落地的骨架。每张图像对应一个检测主任务，主任务从 \texttt{pending} 开始，后台 Worker 消费后进入 \texttt{classifying}。分类成功后，如果 Agent 输出了需要执行的任务代码，系统创建对应子任务并进入 \texttt{detecting}；如果 Agent 输出空任务列表，说明当前图像不需要进入原子检测链路，主任务可以直接成功结束。子任务全部成功后，系统创建图像总结任务并进入 \texttt{summarizing}；图像总结成功后，主任务进入 \texttt{succeeded}；任一必要节点失败，主任务进入 \texttt{failed}。
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{0.94\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      process/.style={draw, rounded corners=4pt, line width=0.62pt, align=center, minimum width=10.8cm, minimum height=1.08cm, fill=blue!4, draw=blue!55!black, inner sep=4pt},
+      classify/.style={process, fill=green!6, draw=green!50!black},
+      detect/.style={process, fill=orange!8, draw=orange!70!black},
+      summary/.style={process, fill=purple!6, draw=purple!55!black},
+      state/.style={process, fill=teal!6, draw=teal!55!black},
+      review/.style={process, fill=cyan!6, draw=cyan!55!black},
+      report/.style={process, fill=red!5, draw=red!55!black},
+      arrow/.style={->, line width=0.62pt},
+      note/.style={font=\tiny, align=center}
+    ]
+      \draw[draw=gray!70!black, fill=gray!7, rounded corners=4pt, line width=0.65pt]
+        (-6.05, 0.82) rectangle (8.20, -10.90);
+
+      \node[process, minimum height=0.76cm] (start) at (0, 0) {检测主任务创建};
+
+      \node[classify] (classifying) at (0, -1.52) {
+        \textbf{分类 Agent 调度}\\[2pt]
+        \texttt{pending} $\rightarrow$ \texttt{classifying} \quad 输出任务代码或空集合
+      };
+
+      \node[detect] (detecting) at (0, -3.20) {
+        \textbf{子任务检测执行}\\[2pt]
+        \texttt{detecting} \quad Reasoning 执行原子检测并上传产物
+      };
+
+      \node[summary] (summarizing) at (0, -4.88) {
+        \textbf{图像级总结生成}\\[2pt]
+        \texttt{summarizing} \quad 基于已落库检测结果生成单图总结
+      };
+
+      \node[state] (converge) at (0, -6.56) {
+        \textbf{状态收敛与失败重试}\\[2pt]
+        成功进入 \texttt{succeeded} 并开放复核 \quad 失败进入 \texttt{failed} 并等待重试
+      };
+
+      \node[review] (review) at (0, -8.24) {
+        \textbf{人工复核确认}\\[2pt]
+        查看产物、区域指标和 Agent 总结 \quad 选择准确 / 不准确并补充评论
+      };
+
+      \node[report] (source) at (0, -9.92) {
+        \textbf{项目报告上下文归并}\\[2pt]
+        检测事实 + 单图总结 + 人工复核意见进入报告源数据
+      };
+
+      \draw[arrow] (start.south) -- (classifying.north);
+      \draw[arrow] (classifying.south) -- (detecting.north);
+      \draw[arrow] (detecting.south) -- (summarizing.north);
+      \draw[arrow] (summarizing.south) -- (converge.north);
+      \draw[arrow] (converge.south) -- (review.north);
+      \draw[arrow] (review.south) -- (source.north);
+
+      \node[note, anchor=west] at (5.60, -1.52) {Agent 负责任务选择};
+      \node[note, anchor=west] at (5.60, -3.20) {Reasoning 只回调结果};
+      \node[note, anchor=west] at (5.60, -6.56) {Core BIZ 统一推进状态};
+      \node[note, anchor=west] at (5.60, -8.24) {用户负责复核判断};
+      \node[note, anchor=west] at (5.60, -9.92) {报告吸收复核上下文};
+    \end{tikzpicture}
+  }
+  \caption{任务状态流转与人机协同机制流程}\label{fig:design-task-state-human-review-flow}
+\end{figure}
+
+如\cref{fig:design-task-state-human-review-flow} 和\cref{tab:detection-state-meaning} 所示，任务状态流转是本文方法落地的骨架。每张图像对应一个检测主任务，主任务从 \texttt{pending} 开始，后台 Worker 消费后进入 \texttt{classifying}。分类成功后，如果 Agent 输出了需要执行的任务代码，系统创建对应子任务并进入 \texttt{detecting}；如果 Agent 输出空任务列表，说明当前图像不需要进入原子检测链路，主任务可以直接成功结束。子任务全部成功后，系统创建图像总结任务并进入 \texttt{summarizing}；图像总结成功后，主任务进入 \texttt{succeeded}；任一必要节点失败，主任务进入 \texttt{failed}。
 
 \begin{table}[!htb]
-  \caption{检测主任务状态含义}\label{tab:detection-state-meaning}
+  \caption{检测主任务状态枚举含义}\label{tab:detection-state-meaning}
   \centering
-  \begin{tabular}{@{}p{0.18\linewidth}p{0.72\linewidth}@{}} \toprule
-    \textbf{状态} & \textbf{业务含义} \\ \midrule
-    \texttt{pending} & 主任务已创建，等待后台 Worker 消费。 \\
-    \texttt{classifying} & 分类 Agent 正在判断该图像需要执行哪些原子检测能力。 \\
-    \texttt{detecting} & 原子检测子任务已创建，系统正在等待检测结果和产物上传。 \\
-    \texttt{summarizing} & 子任务结果已满足总结条件，图像总结 Agent 正在生成单图总结。 \\
-    \texttt{succeeded} & 该图像检测链路已成功结束。 \\
-    \texttt{failed} & 必要节点失败，当前图像检测链路失败，可通过重试重新创建任务。 \\ \bottomrule
+  \begin{tabular}{@{}p{0.18\linewidth}p{0.64\linewidth}@{}} \toprule
+    \textbf{状态枚举} & \textbf{业务含义} \\ \midrule
+    \texttt{pending} & 主任务已创建，等待后台 Worker 消费 \\
+    \texttt{classifying} & 分类 Agent 正在判断该图像需要执行哪些原子检测能力 \\
+    \texttt{detecting} & 原子检测子任务已创建，系统正在等待检测结果和产物上传 \\
+    \texttt{summarizing} & 子任务结果已满足总结条件，图像总结 Agent 正在生成单图总结 \\
+    \texttt{succeeded} & 该图像检测链路已成功结束 \\
+    \texttt{failed} & 必要节点失败，当前图像检测链路失败，可通过重试重新创建任务 \\ \bottomrule
   \end{tabular}
 \end{table}
 
 状态机与 Agent 方法之间存在直接关系。分类 Agent 的输出决定是否创建子任务，Reasoning 子任务结果决定是否进入图像总结，图像总结结果决定检测主任务是否完成。也就是说，Agent 决策不是孤立文本，而是会改变后续状态流转。因此，状态推进必须由 Core BIZ 统一执行，避免 Activity 服务或前端根据局部信息自行改变业务状态。
 
-在人机协同方面，本文在检测结束后引入人工复核阶段。用户可以查看检测产物、区域指标和 Agent 总结，对结果选择“准确”或“不准确”，也可以填写补充评论。复核信息不会删除或覆盖原始检测事实，而是作为项目报告输入的一部分。这样既保留自动检测证据，也保留人的判断痕迹。
+在人机协同方面，本文在检测结束后引入人工复核阶段。用户可以查看检测产物、区域指标和 Agent 总结，对结果选择“准确”或“不准确”，也可以填写补充评论。复核信息不会删除或覆盖原始检测事实，而是作为项目报告输入的一部分。这样既保留自动检测证据，也保留专业判断痕迹。
 
 人工复核机制具有两层价值。第一，它适应土木工程场景中对责任和可信性的要求。幕墙维护建议可能涉及安全、成本和施工安排，完全自动化结论需要人工确认。第二，它为项目级报告提供纠偏上下文。如果某张图像的检测结果被用户标记为不准确，项目报告 Agent 在形成整体结论时应体现这一复核信息，而不是机械地把模型结果当作绝对事实。
 
 \section{本章小结}
 \label{sec:design-chapter-summary}
 
-本章提出了面向建筑幕墙韧性评估的技术方案设计。方案以 Agent 自主任务调度方法和 LLM 分层信息整合策略为核心，以原子检测能力工具化和业务状态机为支撑。分类 Agent 将图像语义映射为有限任务代码，Reasoning 服务将既有检测模型封装为可调度工具，图像总结 Agent 和项目报告 Agent 将底层检测结果逐级转化为工程语义，人工复核机制则保证最终结论能够吸收人的判断。
+本章提出了面向建筑幕墙韧性评估软件系统的技术方案设计。方案以 Agent 自主任务调度方法和 LLM 分层信息整合策略为核心，以原子检测能力工具化和业务状态机为支撑。分类 Agent 将图像语义映射为有限任务代码，Reasoning 服务将既有检测模型封装为可调度工具，图像总结 Agent 和项目报告 Agent 将底层检测结果逐级转化为工程语义，人工复核机制则保证最终结论能够吸收专业判断。
 
-与端到端大模型方案相比，本文方案链路更长，但每个环节都有明确边界、证据来源和失败恢复路径。与固定检测流程相比，本文方案能够根据图像材质自动选择检测能力，减少无意义模型调用。与普通工程系统相比，本文方案引入 Agent 处理语义判断和信息整合，使系统能够从单图单缺陷检测扩展到项目级韧性评估。第五章将在本章方法设计基础上，进一步说明多服务架构、协议、数据库、对象存储、Worker、回调、消息队列、WebSocket、CronJob 和部署配置如何共同支撑这一方案落地。
+与端到端大模型方案相比，本系统技术方案链路更长，但每个环节都有明确边界、证据来源和失败恢复路径。与固定检测流程相比，本文方案能够根据图像材质自动选择检测能力，减少无意义模型调用。与普通工程系统相比，本文方案引入 Agent 处理语义判断和信息整合，使系统能够从单图单缺陷检测扩展到项目级韧性评估。\cref{chap:implementation}将在本章技术方案的设计基础上，进一步说明多服务架构、协议、数据库、缓存、对象存储、Worker、回调、消息队列、WebSocket、CronJob 和部署配置如何共同支撑这一技术方案落地。
