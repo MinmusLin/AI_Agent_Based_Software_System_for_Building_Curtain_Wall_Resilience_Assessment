@@ -8,7 +8,59 @@
 
 在建筑运维数字化和 BIM\footnote{BIM（Building Information Modeling），即建筑信息模型。它通过数字化方式组织建筑的几何形态、构件属性、空间关系和运维信息，使建筑全生命周期中的设计、施工、检测和维护数据能够被统一表达和管理。} 技术发展的背景下，幕墙评估的目标正在从“发现某个缺陷”转向“理解建筑外围护系统的整体状态”。韧性概念强调系统在扰动或退化条件下维持关键功能、恢复功能和适应环境变化的能力。对于建筑幕墙而言，韧性评估不仅需要知道某张图像中是否存在缺陷，还需要回答缺陷分布在哪些区域、不同材料上的损伤类型是否具有聚集趋势、局部损伤对整体运维决策有何意义、后续维护应优先关注哪些问题等更高层次的问题。
 
-现实工程中，幕墙巡检仍然大量依赖人工经验。检测人员需要面对高空作业、大面积立面、海量图像、复杂材料和不一致的现场环境。即便无人机和高清相机降低了图像采集难度，后续的图像整理、材质判断、缺陷识别、结果汇总和报告撰写仍然消耗大量人工。实际业务中经常出现“图像采集已经完成，但评估报告迟迟难以形成”的情况：现场已经获得大量巡检图像，但图像缺少面向建筑区域的分类整理，单张图像的检测结果彼此割裂，缺陷类型、分布区域、风险倾向和维护优先级需要工程人员反复比对、筛选和汇总。已有计算机视觉方法能够完成裂缝、锈蚀、破损等局部缺陷检测，但多数方案仍停留在单模型、单图像、单缺陷识别层面，只能检测某张图像是否存在某类缺陷，缺少多组巡检图像、多种幕墙材质、多类检测结果之间的汇总融合。对于土木工程领域用户而言，实际需求并不是孤立的单图检测结论，而是面向整栋建筑形成的包括幕墙整体状态、主要缺陷类型、缺陷集中区域、风险倾向等多维度韧性评估结论。
+现实工程中，幕墙巡检仍然大量依赖人工经验。检测人员需要面对高空作业、大面积立面、海量图像、复杂材料和不一致的现场环境。即便无人机和高清相机降低了图像采集难度，后续的图像整理、材质判断、缺陷识别、结果汇总和报告撰写仍然消耗大量人工。实际业务中经常出现“图像采集已经完成，但评估报告迟迟难以形成”的情况：现场已经获得大量巡检图像，但图像缺少面向建筑区域的分类整理，单张图像的检测结果彼此割裂，缺陷类型、分布区域、风险倾向和维护优先级需要工程人员反复比对、筛选和汇总。已有计算机视觉方法能够完成裂缝、锈蚀、破损等局部缺陷检测，但多数方案仍停留在单模型、单图像、单缺陷识别层面，只能检测某张图像是否存在某类缺陷，缺少多组巡检图像、多种幕墙材质、多类检测结果之间的汇总融合。如\cref{fig:introduction-traditional-inspection-and-user-demand} 所示，对于土木工程领域用户而言，实际需求并不是孤立的单图检测结论，而是面向整栋建筑形成的包括幕墙整体状态、主要缺陷类型、缺陷集中区域、风险倾向等多维度韧性评估结论。
+
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      panel/.style={draw, rounded corners=2pt, line width=0.45pt, fill=gray!4},
+      title/.style={font=\small\bfseries, align=center},
+      flowstep/.style={draw, rounded corners=2pt, align=center, minimum width=3.65cm, minimum height=0.72cm, line width=0.45pt, inner sep=3pt},
+      oldstep/.style={flowstep, fill=red!6},
+      newstep/.style={flowstep, fill=blue!6},
+      keyold/.style={flowstep, fill=red!12},
+      keynew/.style={flowstep, fill=green!10},
+      arrow/.style={->, line width=0.5pt},
+      note/.style={align=center, font=\scriptsize, text=black}
+    ]
+      \draw[panel] (0, 0) rectangle (5.1, -6.9);
+      \node[title] at (2.55, -0.45) {传统幕墙巡检流程};
+      \node[oldstep] (old-collect) at (2.55, -1.35) {无人机或人工采集图像};
+      \node[oldstep] (old-organize) at (2.55, -2.55) {人工整理图像文件};
+      \node[oldstep] (old-detect) at (2.55, -3.75) {单图单缺陷检测};
+      \node[oldstep] (old-merge) at (2.55, -4.95) {人工比对汇总结果};
+      \node[keyold] (old-report) at (2.55, -6.15) {评估报告形成滞后};
+
+      \draw[arrow] (old-collect) -- (old-organize);
+      \draw[arrow] (old-organize) -- (old-detect);
+      \draw[arrow] (old-detect) -- (old-merge);
+      \draw[arrow] (old-merge) -- (old-report);
+
+      \node[note] at (6.2, -3.45) {从单图割裂\\到建筑级融合};
+      \draw[arrow] (5.35, -3.45) -- (7.05, -3.45);
+
+      \draw[panel] (7.3, 0) rectangle (12.4, -6.9);
+      \node[title] at (9.85, -0.45) {用户真实评估需求};
+      \node[newstep] (new-assets) at (9.85, -1.35) {项目级图像统一管理};
+      \node[newstep] (new-agent) at (9.85, -2.55) {按图像内容自动分流};
+      \node[newstep] (new-detect) at (9.85, -3.75) {多类缺陷协同检测};
+      \node[newstep] (new-summary) at (9.85, -4.95) {单图结果可读总结};
+      \node[keynew] (new-report) at (9.85, -6.15) {建筑级韧性评估报告};
+
+      \draw[arrow] (new-assets) -- (new-agent);
+      \draw[arrow] (new-agent) -- (new-detect);
+      \draw[arrow] (new-detect) -- (new-summary);
+      \draw[arrow] (new-summary) -- (new-report);
+    \end{tikzpicture}%
+  }
+  \caption{传统幕墙巡检流程与用户真实评估需求对比}
+  \label{fig:introduction-traditional-inspection-and-user-demand}
+\end{figure}
+
+因此，本文关注的核心矛盾并不仅是单个检测模型能否识别某类缺陷，而是如何把图像采集、资产组织、任务分流、检测结果解释和建筑级报告生成连接为完整闭环。
 
 \section{研究问题}
 \label{sec:introduction-research-problem}
@@ -21,14 +73,88 @@
 
 第三个层次是韧性评估与报告生成问题。检测模型通常输出区域坐标、像素占比、置信度、掩码图像和浮层图像等底层结果。这些结果对算法复核有价值，但并不能直接构成建筑运维人员可读的韧性评估报告。如果直接把所有检测结果拼接给大语言模型，海量数据内容会造成上下文过长、信息重复、重点不清和报告生成不稳定等问题。因此，系统需要一种从原子检测结果到图像级总结，再到项目级报告的中间组织机制，使单图单点检测结果能够逐步转化为面向建筑整体的缺陷概述、风险判断和维护建议。
 
-上述三个层次共同构成本文的研究问题：如何设计一套面向建筑幕墙韧性评估的软件系统，使其能够管理项目级图像资产，基于图像内容自主选择检测能力，调度原子检测工具，并将多源检测结果逐层整合为项目级评估报告。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      problem/.style={draw, rounded corners=2pt, align=center, minimum width=4.0cm, minimum height=0.82cm, line width=0.45pt, fill=red!6, inner sep=3pt},
+      ability/.style={draw, rounded corners=2pt, align=center, minimum width=5.1cm, minimum height=0.82cm, line width=0.45pt, fill=blue!6, inner sep=3pt},
+      group/.style={draw, rounded corners=2pt, line width=0.45pt, fill=gray!4},
+      layer/.style={font=\scriptsize\bfseries, align=center},
+      arrow/.style={->, line width=0.5pt}
+    ]
+      \path[use as bounding box] (-0.60, 0.85) rectangle (12.30, -3.62);
+      \draw[group] (0.00, 0.75) rectangle (4.90, -3.52);
+      \draw[group] (5.70, 0.75) rectangle (11.70, -3.52);
+
+      \node[layer] at (2.45, 0.30) {研究问题层次};
+      \node[layer] at (8.70, 0.30) {系统能力指向};
+
+      \node[problem] (p-data) at (2.45, -0.56) {数据规模与组织问题};
+      \node[ability] (a-data) at (8.70, -0.56) {项目 / 图像组 / 图像资产管理};
+
+      \node[problem] (p-task) at (2.45, -1.61) {任务选择与调度问题};
+      \node[ability] (a-task) at (8.70, -1.61) {材质识别、检测能力选择、任务代码生成};
+
+      \node[problem] (p-report) at (2.45, -2.66) {韧性评估与报告生成问题};
+      \node[ability] (a-report) at (8.70, -2.66) {单图总结、项目汇总、维护建议};
+
+      \draw[arrow] (p-data) -- (a-data);
+      \draw[arrow] (p-task) -- (a-task);
+      \draw[arrow] (p-report) -- (a-report);
+    \end{tikzpicture}%
+  }
+  \caption{建筑幕墙韧性评估的三层研究问题模型}
+  \label{fig:introduction-three-layer-research-problem-model}
+\end{figure}
+
+如\cref{fig:introduction-three-layer-research-problem-model} 所示，上述三个层次共同构成本文的研究问题：如何设计一套面向建筑幕墙韧性评估的软件系统，使其能够管理项目级图像资产，基于图像内容自主选择检测能力，调度原子检测工具，并将多源检测结果逐层整合为项目级评估报告。
 
 \section{Agent 范式的场景适用性}
 \label{sec:introduction-agent-paradigm-scenario-applicability}
 
 传统软件系统擅长执行确定流程，但面对“先判断场景，再选择工具，再综合输出结论”的任务时，往往需要大量规则和人工配置。建筑幕墙检测正属于这种情况。图像是否属于幕墙、主要材料是什么、应该运行哪些检测能力、检测结果如何转化为工程语言，这些问题具有一定语义判断和上下文理解需求。单纯依靠硬编码规则难以覆盖复杂场景，单纯依靠检测模型又无法完成任务规划和报告表达。
 
-AI Agent 范式为该问题提供了新的解决思路。近年来，学术界和工业界逐渐将大语言模型从“文本生成器”扩展为“任务规划和工具调用中心”。ReAct 方法强调推理和行动交替进行，使模型能够在推理过程中调用工具并利用工具反馈更新计划\cite{yao2023react}；Toolformer 讨论语言模型学习使用外部 API 的能力\cite{schick2023toolformer}；AutoGen 等框架进一步展示了多 Agent 协作和可编程智能工作流的工程价值\cite{wu2023autogen}。这些研究表明，Agent 的核心价值不只是输出自然语言，而是把理解、规划、工具调用和结果整合连接起来。
+AI Agent 范式为该问题提供了新的解决思路。近年来，学术界和工业界逐渐将大语言模型从“文本生成器”扩展为“任务规划和工具调用中心”。ReAct 方法强调推理和行动交替进行，使模型能够在推理过程中调用工具并利用工具反馈更新计划\cite{yao2023react}；Toolformer 讨论语言模型学习使用外部 API 的能力\cite{schick2023toolformer}；AutoGen 等框架进一步展示了多 Agent 协作和可编程智能工作流的工程价值\cite{wu2023autogen}。这些研究表明，Agent 的核心价值不只是输出自然语言，而是把理解、规划、工具调用和结果整合连接起来。如\cref{fig:introduction-ai-agent-paradigm-workflow} 所示，AI Agent 范式通常不是一次性生成答案，而是在任务输入、语义理解、任务规划、工具调用、观察反馈和结构化输出之间形成闭环。
+
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      node/.style={draw, rounded corners=2pt, align=center, minimum width=2.18cm, minimum height=0.82cm, line width=0.45pt, inner sep=3pt},
+      input/.style={node, fill=blue!6},
+      agent/.style={node, fill=green!9},
+      tool/.style={node, fill=orange!10},
+      output/.style={node, fill=purple!7},
+      panel/.style={draw, rounded corners=2pt, line width=0.45pt, fill=gray!4},
+      arrow/.style={->, line width=0.5pt},
+      loop/.style={->, dashed, line width=0.45pt}
+    ]
+      \draw[panel] (-0.2, 0.55) rectangle (12.5, -3.75);
+
+      \node[input] (task) at (1.15, -0.73) {任务输入\\与上下文};
+      \node[agent] (understand) at (3.65, -0.73) {语义理解\\与目标识别};
+      \node[agent] (plan) at (6.15, -0.73) {任务规划\\与工具选择};
+      \node[tool] (execute) at (8.65, -0.73) {工具调用\\与外部执行};
+      \node[output] (result) at (11.15, -0.73) {结构化输出\\与状态反馈};
+      \node[agent] (observe) at (8.65, -2.48) {观察反馈\\与结果校验};
+
+      \draw[arrow] (task) -- (understand);
+      \draw[arrow] (understand) -- (plan);
+      \draw[arrow] (plan) -- (execute);
+      \draw[arrow] (execute) -- (result);
+      \draw[arrow] (execute) -- (observe);
+      \draw[arrow] (observe) -- (result);
+      \draw[loop] (observe.west) to[out=180, in=-90] (plan.south);
+    \end{tikzpicture}%
+  }
+  \caption{AI Agent 范式的一般工作流}
+  \label{fig:introduction-ai-agent-paradigm-workflow}
+\end{figure}
 
 本文将 Agent 引入建筑幕墙韧性评估，并不是为了给系统增加一个聊天入口，而是为了让 Agent 承担三个具体职责：在检测前完成任务路由，在检测后完成图像级语义压缩，在项目结束时完成报告级信息融合。这样的设计使 Agent 真正嵌入业务链路，而不是作为孤立的问答功能存在。
 
