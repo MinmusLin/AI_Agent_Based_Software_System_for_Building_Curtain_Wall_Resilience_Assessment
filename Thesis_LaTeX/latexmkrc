@@ -9,7 +9,7 @@ $pdf_mode = 5;
 set_tex_cmds( '-synctex=1 -interaction=nonstopmode %O %S' );
 
 # Use xdvipdfmx to convert .xdv to .pdf, always try to embed fonts
-$xdvipdfmx = 'xdvipdfmx -E -o %D %S';
+$xdvipdfmx = 'xdvipdfmx -q -E -o %D %S';
 
 # Run biber whenever it appears necessary, always delete .bbl files in a cleanup
 $bibtex_use = 2;
