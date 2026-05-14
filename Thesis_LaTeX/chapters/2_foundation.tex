@@ -116,14 +116,65 @@
 
 玻璃爆裂检测能力不仅包含分类推理，还包含数据准备和训练前处理流程。数据清洗阶段会对图像完整性、文件重复、分辨率、标注缺失和拍摄角度进行校验；数据增强阶段使用旋转、水平翻转、缩放、亮度对比度扰动、高斯噪声、椒盐噪声和透视畸变等策略提升模型对拍摄条件变化的鲁棒性；数据划分阶段按照工程类型、区域和年份构造分层键，将数据划分为训练集、验证集和测试集。原始脚本中还包含基于 Canny 与 Hough 直线的辅助处理，用于过滤与横纵轴近似平行的线性纹理干扰。玻璃爆裂检测虽然在系统中表现为简单的二分类接口，但其背后仍依赖较完整的数据治理、增强和模型训练流程。
 
-综上，五类原子检测能力在技术路线和输出形态上存在明显差异：金属锈蚀和石材裂缝更偏向分割，石材污渍结合了实例分割与透视校正，玻璃平整度依赖多种传统视觉特征融合，玻璃爆裂则采用深度分类模型。本文将这些差异封装在统一的原子能力接口之后，使上层 Agent 不需要感知每个算法的内部实现，而只需要基于图像内容选择任务代码并接收结构化结果。这也是本文从单点检测算法走向工程化智能评估系统的基础。
+综上，五类原子检测能力在技术路线和输出形态上存在差异：金属锈蚀和石材裂缝更偏向分割，石材污渍结合了实例分割与透视校正，玻璃平整度依赖多种视觉特征融合，玻璃爆裂则采用深度分类模型。本文将这些差异封装在统一的原子能力接口之后，使上层 Agent 不需要感知每个算法的内部实现，而只需要基于图像内容选择任务代码并接收结构化结果。这也是本文从单点检测算法走向工程化智能评估系统的基础。
 
-\section{从单点算法到项目级评估的差距}
+\section{从单点检测到项目级评估的差距}
 \label{sec:foundation-single-algorithm-to-project-level-assessment-gap}
 
 已有幕墙缺陷检测研究通常以单一任务为目标，例如裂缝识别、玻璃检测或表面污渍检测。这类研究能够回答算法层面的问题：给定输入图像，模型是否能够准确输出目标区域。然而，项目级评估需要回答更复杂的问题：哪些图像需要执行哪些检测，多个检测结果之间如何互相补充，哪些缺陷对项目整体风险影响更大，报告中应如何表达证据与结论之间的关系。
 
-从单点算法到项目级评估之间至少存在四个缺口。第一是数据组织缺口，图像需要按照项目、图像组、图像和检测任务多层组织。第二是任务编排缺口，系统需要根据图像内容动态选择检测能力，而不是机械执行全部模型。第三是结果解释缺口，模型输出的像素和坐标指标需要转化为工程语言。第四是报告生成缺口，系统需要把多张图像的局部结论融合为项目级评估意见。本文的研究价值正是在这些缺口处构建桥梁。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      outer/.style={draw, rounded corners=2pt, line width=0.45pt, fill=gray!4},
+      single/.style={draw, rounded corners=2pt, align=center, minimum width=2.75cm, minimum height=0.66cm, line width=0.45pt, fill=blue!6, inner sep=2pt},
+      gap/.style={draw, rounded corners=2pt, align=center, minimum width=4.0cm, minimum height=0.62cm, line width=0.45pt, fill=orange!10, inner sep=2pt},
+      target/.style={draw, rounded corners=2pt, align=center, minimum width=2.95cm, minimum height=0.62cm, line width=0.45pt, fill=green!8, inner sep=2pt},
+      title/.style={font=\scriptsize\bfseries, align=center},
+      arrow/.style={->, line width=0.45pt}
+    ]
+      \draw[outer] (-0.15, 0.45) rectangle (12.25, -4.25);
+
+      \node[title] at (1.65, 0) {单点检测算法};
+      \node[title] at (6.25, 0) {必须跨越的缺口};
+      \node[title] at (10.35, 0) {项目级评估问题};
+
+      \node[single] (single-image) at (1.65, -1.00) {输入对象\\单张图像};
+      \node[single] (single-result) at (1.65, -2.18) {输出结果\\缺陷框 / 掩码 / 分类};
+      \node[single, minimum height=0.7cm] (single-question) at (1.65, -3.28) {核心回答\\这张图有什么缺陷};
+      \draw[arrow] (single-image) -- (single-result);
+      \draw[arrow] (single-result) -- (single-question);
+
+      \node[gap] (gap-data) at (6.25, -0.80) {数据组织缺口\\图像进入项目 / 图像组 / 资产};
+      \node[gap] (gap-task) at (6.25, -1.78) {任务编排缺口\\材质识别与检测能力选择};
+      \node[gap] (gap-explain) at (6.25, -2.68) {结果解释缺口\\像素坐标指标需转化为工程语义};
+      \node[gap] (gap-report) at (6.25, -3.58) {报告生成缺口\\局部结论需融合为建筑级报告};
+
+      \node[target] (target-select) at (10.35, -0.80) {哪些图像需要检测};
+      \node[target] (target-distribution) at (10.35, -1.78) {缺陷如何分布};
+      \node[target] (target-risk) at (10.35, -2.68) {风险如何判断};
+      \node[target] (target-report) at (10.35, -3.58) {报告如何生成};
+
+      \coordinate (gap-branch) at (3.64, -3.28);
+      \draw[arrow] (single-question.east) -- (gap-branch) |- (gap-data.west);
+      \draw[arrow] (single-question.east) -- (gap-branch) |- (gap-task.west);
+      \draw[arrow] (single-question.east) -- (gap-branch) |- (gap-explain.west);
+      \draw[arrow] (single-question.east) -- (gap-branch) |- (gap-report.west);
+
+      \draw[arrow] (gap-data) -- (target-select);
+      \draw[arrow] (gap-task) -- (target-distribution);
+      \draw[arrow] (gap-explain) -- (target-risk);
+      \draw[arrow] (gap-report) -- (target-report);
+    \end{tikzpicture}%
+  }
+  \caption{从单点检测到项目级评估的跨越关系}
+  \label{fig:foundation-single-detection-to-project-assessment-transition}
+\end{figure}
+
+如\cref{fig:foundation-single-detection-to-project-assessment-transition} 所示，从单点检测到项目级评估之间至少存在四个缺口。第一是数据组织缺口，图像需要按照项目、图像组、图像和检测任务多层组织。第二是任务编排缺口，系统需要根据图像内容动态选择检测能力，而不是机械执行全部模型。第三是结果解释缺口，模型输出的像素和坐标指标需要转化为工程语言。第四是报告生成缺口，系统需要把多张图像的局部结论融合为项目级评估意见。本文的研究价值正是在这些缺口处构建桥梁。
 
 如果只关注检测模型，系统会缺少业务闭环；如果只关注 Web 管理界面，系统又缺少智能决策能力。本文选择的路线是以工程系统组织检测模型，以 Agent 承担语义决策和信息整合，从而把二者连接为完整应用。
 
@@ -132,7 +183,7 @@
 
 大语言模型的兴起使 Agent 成为当前人工智能应用的重要范式。早期大语言模型主要用于文本生成和问答，而 Agent 更强调模型与外部工具、环境和用户目标之间的交互。ReAct 提出将推理和行动交替结合，使模型能够生成思考过程并执行任务动作\cite{yao2023react}。Toolformer 进一步说明语言模型可以学习何时调用工具、如何传递参数以及如何利用工具返回结果\cite{schick2023toolformer}。这些工作共同说明，模型本身的语言能力需要通过工具调用机制转化为可执行能力。
 
-工业界和开源社区也逐渐形成 Agent 工作流开发范式。AutoGen 通过多智能体对话组织复杂任务，说明 Agent 可以被看作具有不同角色和能力的可编程组件\cite{wu2023autogen}。相关综述指出，大语言模型 Agent 可以应用于单智能体、多智能体和人机协作等场景，其关键能力包括规划、记忆、工具使用和反馈学习\cite{wang2023llmagents}。在工程实践中，Agent 往往不会完全自由行动，而是被放置在受控工作流中，通过结构化输入输出、工具白名单和状态管理保证系统可控。
+工业界和开源社区也逐渐形成 Agent 工作流开发范式。AutoGen 通过多智能体对话组织复杂任务，说明 Agent 可以被看作具有不同角色和能力的可编程组件\cite{wu2023autogen}。相关综述指出，大语言模型 Agent 可应用于单智能体、多智能体和人机协作等场景，其关键能力包括规划、记忆、工具使用和反馈学习\cite{wang2023llmagents}。在实践中，Agent 不会完全自由行动，而是被放置在受控工作流中，通过结构化输入输出、工具白名单和状态管理保证系统可控。
 
 本文正是基于这一认识，将 Agent 设计为业务链路中的受控智能节点。分类 Agent 不是自由选择任意工具，而是在预定义五类任务代码中选择；总结 Agent 不是直接修改系统状态，而是通过回调接口提交总结结果；项目报告 Agent 不是自行读取数据库，而是接收由 BIZ 服务组织好的项目上下文。这样的设计符合当前 Agent 工程化趋势：让模型承担语义理解和决策任务，让工程系统负责边界和状态。
 
@@ -155,7 +206,59 @@
 
 Agent 系统虽然具备更强的自主性，但也带来工程可控性问题。大语言模型输出具有概率性，可能出现格式不稳定、内容越界、幻觉或工具选择错误等情况。幻觉问题已经被大量研究指出，其核心风险在于模型可能生成看似合理但缺少事实依据的内容，进而影响真实系统中的信息可靠性\cite{huang2023hallucination}。在工具调用场景中，模型还需要判断何时调用工具、调用哪个工具以及如何组织参数。Toolformer、ToolLLM 等研究说明了大语言模型可以学习或增强工具使用能力，但也从侧面说明工具使用不是天然稳定能力，需要通过工具集合、调用路径和评估机制进行约束\cite{schick2023toolformer,qin2023toolllm}。对于普通问答系统，这些问题可能只是回答质量问题；对于工程业务系统，如果 Agent 输出直接驱动数据库状态或任务调度，则可能造成错误流程。因此，Agent 工程化必须关注结构化输出、工具白名单、状态隔离和人工复核。
 
-现有研究和工程实践中的解决思路大体可以分为三类。第一类是限制动作空间，即只允许 Agent 在预定义工具、API 或任务代码中选择，ReAct 通过推理与行动交替使模型能够形成可解释行动轨迹，AutoGen 则通过多 Agent 对话和人类参与机制组织复杂任务流程\cite{yao2023react,wu2023autogen}。第二类是约束输出格式，通过语法、解析器或有限状态机限制生成结果，使模型输出满足结构化接口要求。PICARD 通过增量解析约束自回归解码，Outlines 相关研究则将文本生成表示为有限状态机转移，以正则表达式或上下文无关文法保证生成结构\cite{scholak2021picard,willard2023efficient}。第三类是将 Agent 放入受控工作流，由工程系统负责状态推进、失败重试、日志记录和人工复核。相关综述也指出，LLM Agent 的规划、工具使用和反馈机制需要与评估和控制机制共同设计，才能进入可靠应用\cite{wang2023llmagents}。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      risk/.style={draw, rounded corners=2pt, align=center, minimum width=4.0cm, minimum height=0.58cm, line width=0.45pt, fill=red!6, inner sep=2pt},
+      control/.style={draw, rounded corners=2pt, align=center, minimum width=5.1cm, minimum height=0.58cm, line width=0.45pt, fill=green!8, inner sep=2pt},
+      group/.style={draw, rounded corners=2pt, line width=0.45pt, fill=gray!4},
+      layer/.style={font=\scriptsize\bfseries, align=center},
+      principle/.style={font=\scriptsize, align=center},
+      arrow/.style={->, line width=0.5pt}
+    ]
+      \path[use as bounding box] (-0.60, 1.05) rectangle (12.30, -5.02);
+      \node[principle] at (5.85, 0.78) {核心原则：Agent 承担受控决策，工程系统负责边界、状态与恢复};
+
+      \draw[group] (0.00, 0.48) rectangle (4.90, -4.92);
+      \draw[group] (5.70, 0.48) rectangle (11.70, -4.92);
+
+      \node[layer] at (2.45, 0.08) {Agent 工程化风险};
+      \node[layer] at (8.70, 0.08) {工程约束机制};
+
+      \node[risk] (risk-format) at (2.45, -0.60) {输出格式不稳定};
+      \node[control] (control-format) at (8.70, -0.60) {JSON Schema / 固定字段 / 解析校验};
+      \draw[arrow] (risk-format) -- (control-format);
+
+      \node[risk] (risk-tool) at (2.45, -1.36) {工具选择错误};
+      \node[control] (control-tool) at (8.70, -1.36) {工具白名单 / 有限任务代码};
+      \draw[arrow] (risk-tool) -- (control-tool);
+
+      \node[risk] (risk-hallucination) at (2.45, -2.12) {幻觉与事实偏移};
+      \node[control] (control-hallucination) at (8.70, -2.12) {结构化上下文 / 系统组装数据源};
+      \draw[arrow] (risk-hallucination) -- (control-hallucination);
+
+      \node[risk] (risk-state) at (2.45, -2.88) {状态误推进};
+      \node[control] (control-state) at (8.70, -2.88) {BIZ 统一推进状态 / Agent 不直接写库};
+      \draw[arrow] (risk-state) -- (control-state);
+
+      \node[risk] (risk-recovery) at (2.45, -3.64) {异常不可恢复};
+      \node[control] (control-recovery) at (8.70, -3.64) {状态机 / 失败记录 / 重试机制};
+      \draw[arrow] (risk-recovery) -- (control-recovery);
+
+      \node[risk] (risk-trust) at (2.45, -4.40) {结果可信度不足};
+      \node[control] (control-trust) at (8.70, -4.40) {人工复核 / 评论修正 / 审核闭环};
+      \draw[arrow] (risk-trust) -- (control-trust);
+
+    \end{tikzpicture}%
+  }
+  \caption{Agent 工程化风险与约束机制关系}
+  \label{fig:foundation-agent-engineering-risk-control-mechanism}
+\end{figure}
+
+如\cref{fig:foundation-agent-engineering-risk-control-mechanism} 所示，现有研究和工程实践中的解决思路大体可以分为三类。第一类是限制动作空间，即只允许 Agent 在预定义工具、API 或任务代码中选择，ReAct 通过推理与行动交替使模型能够形成可解释行动轨迹，AutoGen 则通过多 Agent 对话和人类参与机制组织复杂任务流程\cite{yao2023react,wu2023autogen}。第二类是约束输出格式，通过语法、解析器或有限状态机限制生成结果，使模型输出满足结构化接口要求。PICARD 通过增量解析约束自回归解码，Outlines 相关研究则将文本生成表示为有限状态机转移，以正则表达式或上下文无关文法保证生成结构\cite{scholak2021picard,willard2023efficient}。第三类是将 Agent 放入受控工作流，由工程系统负责状态推进、失败重试、日志记录和人工复核。相关综述也指出，LLM Agent 的规划、工具使用和反馈机制需要与评估和控制机制共同设计，才能进入可靠应用\cite{wang2023llmagents}。
 
 本文采用的思路是将 Agent 决策限制在有限动作空间内。分类 Agent 只能输出五种任务代码的组合；图像总结 Agent 的结果只作为总结字段保存，不直接修改检测状态；项目报告 Agent 接收的输入由 BIZ 服务生成，输出也通过固定回调进入数据库。这样做牺牲了一部分开放性，但换来了工程系统所需的确定性和可追踪性。对于建筑幕墙评估这种专业场景，这种受控形式是 Agent 自主任务调度方法能够落地的基础。
 
