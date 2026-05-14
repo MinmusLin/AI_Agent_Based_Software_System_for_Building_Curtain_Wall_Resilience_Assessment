@@ -62,27 +62,119 @@ LLM 分层信息整合策略验证覆盖图像级总结和项目级报告两个�
 
 通过这些界面截图，能够直观呈现系统已经从“模型调用脚本”发展为“项目级评估软件”：用户可以从工作台进入项目，维护项目资料，上传并组织图像，启动 Agent 智能检测，查看进度和结果，完成人工复核，最终生成项目级韧性评估报告。
 
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_01_user_login.png}
+  \caption{用户登录界面}
+  \label{fig:validation-showcase-user-login}
+\end{figure}
 
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_02_dashboard.png}
+  \caption{工作台数据概览界面}
+  \label{fig:validation-showcase-dashboard}
+\end{figure}
 
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_03_project_management.png}
+  \caption{项目管理界面}
+  \label{fig:validation-showcase-project-management}
+\end{figure}
 
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_04_project_profile.png}
+  \caption{项目基础信息界面}
+  \label{fig:validation-showcase-project-profile}
+\end{figure}
 
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_05_project_assets.png}
+  \caption{图像资产构建界面}
+  \label{fig:validation-showcase-project-assets}
+\end{figure}
 
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_06_project_detection.png}
+  \caption{Agent 智能检测界面}
+  \label{fig:validation-showcase-project-detection}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_07_corrosion_detection.png}
+  \caption{金属锈蚀检测结果界面}
+  \label{fig:validation-showcase-corrosion-detection}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_08_crack_detection.png}
+  \caption{石材裂缝检测结果界面}
+  \label{fig:validation-showcase-crack-detection}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_09_stain_detection.png}
+  \caption{石材污渍检测结果界面}
+  \label{fig:validation-showcase-stain-detection}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_10_flatness_detection.png}
+  \caption{玻璃平整度检测结果界面}
+  \label{fig:validation-showcase-flatness-detection}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_11_spalling_detection.png}
+  \caption{玻璃爆裂检测结果界面}
+  \label{fig:validation-showcase-spalling-detection}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_12_detection_summary.png}
+  \caption{单图 Agent 总结与人工复核界面}
+  \label{fig:validation-showcase-detection-summary}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_13_project_summary.png}
+  \caption{项目韧性评估报告界面（一）}
+  \label{fig:validation-showcase-project-summary}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/showcase_14_project_summary.png}
+  \caption{项目韧性评估报告界面（二）}
+  \label{fig:validation-showcase-project-summary}
+\end{figure}
 
 \section{应用价值分析}
 \label{sec:validation-application-value-analysis}
 
-应用价值分析基于前述功能验证、方法验证、状态一致性验证和部署验证结果展开，重点说明系统在建筑幕墙数字运维场景中的实际作用。该部分关注系统对图像资产组织、检测任务选择、检测结果解释、人工复核协同和项目报告生成的支撑效果。
+本基于 AI Agent 的建筑幕墙韧性评估软件系统在应用层面体现出四方面价值。第一，图像资产管理使大量幕墙巡检图像能够按项目和图像组维度进行组织，便于后续追踪和区域化分析；第二，Agent 自主任务调度方法减少了人工判断检测能力的成本，使系统能够根据图像内容动态执行任务；第三，LLM 分层信息整合策略使检测结果能够逐步转化为可读报告，降低人工整理报告的负担；第四，实时进度和结果可视化提升了用户对长任务的可理解性。
 
-分析结果表明，系统在应用层面体现出四方面价值。首先，图像资产管理使大量巡检图像能够按项目和图像组组织，便于后续追踪和区域化分析。其次，Agent 自主任务调度方法减少了人工判断检测能力的成本，使系统能够根据图像内容动态执行任务。再次，LLM 分层信息整合策略使检测结果能够逐步转化为可读报告，降低人工整理报告的负担。最后，实时进度和结果可视化提升了用户对长任务的可理解性。与单一检测工具相比，本文系统更接近实际运维软件，它不仅告诉用户某张图是否有缺陷，还把项目、图像、检测、总结、复核和报告纳入同一个流程；与纯 Agent 应用相比，本文系统具有更强工程约束，Agent 的输出会被数据库、状态机和接口协议管理，从而使系统既具有智能性，也具有可落地性。
+与单一检测工具相比，本系统更接近实际运维软件，它不仅告诉用户某张图是否有缺陷，还把项目、图像、检测、总结、复核和报告纳入同一个流程；与纯 Agent 应用相比，本系统具有更强的工程约束，Agent 的输出会被数据库、状态机和接口协议管理，从而使系统既具有智能性，也具有可落地性。
 
 \begin{table}[!htb]
-  \caption{不同方案对比}\label{tab:solution-comparison}
+  \caption{不同实现方案对比}\label{tab:solution-comparison}
   \centering
-  \begin{tabular}{@{}p{0.22\linewidth}p{0.22\linewidth}p{0.22\linewidth}p{0.24\linewidth}@{}} \toprule
+  \begin{tabular}{@{}p{0.16\linewidth}p{0.25\linewidth}p{0.25\linewidth}p{0.25\linewidth}@{}} \toprule
     \textbf{方案} & \textbf{主要特点} & \textbf{适用范围} & \textbf{本文系统体现} \\ \midrule
     人工巡检 & 专家经验强，判断灵活 & 现场核验、经验判断和最终处置决策 & 用系统管理图像与流程，辅助形成结构化评估依据 \\
     单模型检测 & 对单类缺陷识别直接有效 & 单张图像、单类缺陷和局部结果判断 & 将模型封装为 Agent 可调度的原子检测能力 \\
-    直接大模型报告 & 自然语言生成能力强 & 文本整理、语义归纳和报告表达 & 采用 LLM 分层信息整合策略和结构化落库 \\
+    端到端大模型报告 & 自然语言生成能力强 & 文本整理、语义归纳和报告表达 & 采用 LLM 分层信息整合策略和结构化落库 \\
     本文方案 & 可调度、可追踪、可复核、可报告 & 项目级图像资产管理和建筑级韧性评估 & 通过工程链路形成从图像资产到评估报告的软件闭环 \\ \bottomrule
   \end{tabular}
 \end{table}
@@ -92,4 +184,4 @@ LLM 分层信息整合策略验证覆盖图像级总结和项目级报告两个�
 \section{本章小结}
 \label{sec:validation-chapter-summary}
 
-本章从功能、Agent 自主任务调度方法、LLM 分层信息整合策略、状态一致性、部署、验证结果展示和应用价值等角度验证了系统。验证结果表明，本文系统能够完成从项目级图像资产到项目级韧性评估报告的闭环流程，Agent 自主任务调度方法能够真实影响后续检测任务，LLM 分层信息整合策略能够降低报告生成输入复杂度，工程架构能够支撑长任务异步执行、实时展示和失败恢复。通过上述验证，本文完成了从研究问题、方法设计、工程实现到软件应用展示的闭环论证，体现出完整工作量、明确技术特色和实际应用价值。
+本章从功能、Agent 自主任务调度方法、LLM 分层信息整合策略、状态一致性、部署、验证结果展示和应用价值等角度验证了系统。验证结果表明，本系统能够完成从项目级图像资产到项目级韧性评估报告的闭环流程，Agent 自主任务调度方法能够真实影响后续检测任务，LLM 分层信息整合策略能够降低报告生成输入复杂度，工程架构能够支撑长任务异步执行、实时展示和失败恢复。通过上述验证，本文完成了从研究问题、方法设计、工程实现到软件应用展示的闭环论证，体现出完整工作量、明确技术特色和实际应用价值。
