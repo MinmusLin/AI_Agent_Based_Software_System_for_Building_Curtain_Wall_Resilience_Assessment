@@ -332,38 +332,116 @@ Agent 和模型调用存在外部依赖，失败原因可能来自网络、模�
 \section{数据流分析}
 \label{sec:requirements-data-flow-analysis}
 
-系统数据流从图像上传开始。前端获取上传授权后将图像上传至对象存储，BIZ 服务记录图像元数据。启动检测后，BIZ 读取图像信息并创建检测主任务，Classification 服务根据图像内容调用分类 Agent 输出任务代码。分类结果回调后，BIZ 创建对应子任务，并为 Reasoning 服务提供图像读取和产物上传所需的受控授权。Reasoning 服务执行原子检测模型，上传图像产物，将结构化报告和产物清单回调给 BIZ。BIZ 将不同检测任务的专属字段解析落库，并在全部子任务满足条件后触发 Summary 服务生成单图总结。项目报告阶段，BIZ 聚合项目基础信息、图像组信息、单图总结、原子检测结果和人工复核意见，交由 Summary 服务生成最终报告。
+数据流分析用于说明系统中的数据如何从用户输入转化为可复核的检测结果和可阅读的评估报告。与普通信息管理系统不同，本文系统同时包含前端交互数据、业务状态数据、图像文件数据、模型推理结果、Agent 语义输出和实时事件数据。为了体现这些数据之间的关系，\cref{fig:requirements-system-data-flow} 从 FE 前端、API 接入层、BIZ 业务层、Activity 基础能力服务和基础设施五个层次刻画系统主要数据流。
 
-这个数据流说明系统中同时存在三类数据：文件数据、结构化数据和语义数据。文件数据包括原图、缩略图和检测产物，存储在 MinIO；结构化数据包括项目、图像、任务状态、指标字段和区域 JSON，存储在 MySQL；语义数据包括单图总结和项目报告，由 Agent 生成后写入数据库。三类数据分别服务于不同目标：文件用于复核，结构化数据用于追踪和展示，语义数据用于报告和决策。需求分析必须同时覆盖三类数据，否则系统无法形成从视觉证据到工程结论的可追溯链路。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\footnotesize,
+      >=stealth,
+      role/.style={draw, rounded corners=2pt, align=center, minimum width=2.6cm, minimum height=0.95cm, line width=0.5pt, inner sep=2pt},
+      service/.style={draw, rounded corners=2pt, align=center, minimum width=2.75cm, minimum height=0.95cm, line width=0.5pt, inner sep=2pt},
+      storage/.style={draw, rounded corners=2pt, align=center, minimum width=2.55cm, minimum height=0.88cm, line width=0.5pt, inner sep=2pt},
+      arrow/.style={->, line width=0.55pt},
+      callback/.style={->, line width=0.58pt, draw=red!70!black},
+      object/.style={<->, dashed, line width=0.58pt, draw=blue!70!black},
+      object read/.style={->, dashed, line width=0.58pt, draw=blue!70!black},
+      mq event/.style={->, dashed, line width=0.58pt, draw=orange!85!black},
+      ws event/.style={->, dashed, line width=0.58pt, draw=cyan!70!black},
+      state/.style={<->, dashed, line width=0.58pt, draw=green!45!black},
+      note/.style={align=center, font=\footnotesize},
+      edge label/.style={font=\tiny, inner sep=1pt},
+      legend/.style={font=\tiny, align=left}
+    ]
+      \node[role, fill=blue!8] (user) at (0, 3) {FE 前端\\项目创建、图像上传\\结果查看与人工复核};
+      \node[service, fill=cyan!8] (api) at (3.85, 3) {Core API\\HTTP 接入\\鉴权与 WebSocket};
+      \node[service, fill=green!8, minimum width=3.1cm, minimum height=1.2cm] (biz) at (7.75, 3) {Core BIZ\\业务状态机\\任务创建与事务落库};
+
+      \node[service, fill=orange!10] (classification) at (12.0, 5.25) {Classification\\分类 Agent\\输出检测任务代码};
+      \node[service, fill=red!7] (reasoning) at (12.0, 3) {Reasoning\\检测模型服务\\执行原子检测};
+      \node[service, fill=purple!8] (summary) at (12.0, 0.75) {Summary\\总结 Agent\\单图总结与项目报告};
+
+      \node[storage, fill=yellow!14, minimum width=2.35cm] (websocket) at (1.92, 1.40) {WebSocket\\实时状态通道};
+      \node[storage, fill=gray!10, anchor=west] (mysql) at (-0.80, -1.25) {MySQL\\项目 / 图像 / 任务\\指标 / 复核 / 报告};
+      \path (mysql.east) ++(0.78, 0) node[storage, fill=gray!10, anchor=west] (redis) {Redis\\令牌状态\\缓存与临时控制};
+      \path (redis.east) ++(0.78, 0) node[storage, fill=gray!10, anchor=west] (minio) {MinIO\\原图 / 缩略图 / 检测产物\\结构化多源分析数据};
+      \path (minio.east) ++(0.78, 0) node[storage, fill=yellow!14, anchor=west] (rocketmq) {RocketMQ\\项目事件 Topic};
+
+      \draw[arrow] ([yshift=0.16cm]user.east) -- node[edge label, above=2pt] {操作请求} ([yshift=0.16cm]api.west);
+      \draw[arrow] ([yshift=-0.16cm]api.west) -- node[edge label, below=2pt] {状态展示} ([yshift=-0.16cm]user.east);
+      \draw[arrow] ([yshift=0.16cm]api.east) -- node[edge label, above=2pt] {RPC 调用} ([yshift=0.16cm]biz.west);
+      \draw[arrow] ([yshift=-0.16cm]biz.west) -- node[edge label, below=2pt] {查询结果} ([yshift=-0.16cm]api.east);
+
+      \draw[arrow] ([xshift=-0.16cm]biz.north east) -- node[edge label, pos=0.55, above left=1pt] {图像路由任务} ([yshift=0.16cm]classification.south west);
+      \draw[callback] ([xshift=0.16cm]classification.south west) -- node[edge label, pos=0.55, below right=1pt] {任务代码} ([yshift=-0.16cm]biz.north east);
+
+      \draw[arrow] ([yshift=0.16cm]biz.east) -- node[edge label, above=2pt] {检测子任务} ([yshift=0.16cm]reasoning.west);
+      \draw[callback] ([yshift=-0.16cm]reasoning.west) -- node[edge label, below=2pt] {指标与产物} ([yshift=-0.16cm]biz.east);
+
+      \draw[callback] ([xshift=0.16cm]summary.north west) -- node[edge label, pos=0.55, above right=1pt] {总结与报告} ([yshift=0.16cm]biz.south east);
+      \draw[arrow] ([xshift=-0.16cm]biz.south east) -- node[edge label, pos=0.55, below left=1pt] {总结/报告任务} ([yshift=-0.16cm]summary.north west);
+
+      \draw[state] ([xshift=-0.36cm]biz.south) -- node[edge label, left=2pt] {状态读写} (mysql.north east);
+      \draw[object] (minio.north) -- node[edge label, right=2pt] {文件读写} ([xshift=0.18cm]biz.south);
+      \draw[object] (user.south east) -- (minio.north west);
+      \draw[object read] ([xshift=-0.22cm]minio.north east) -- (classification.west);
+      \draw[object] (minio.north east) -- (reasoning.west);
+      \draw[object] ([yshift=-0.22cm]minio.north east) -- (summary.west);
+      \draw[state] ([xshift=-0.10cm]biz.south) -- node[edge label, pos=0.55, right=2pt] {缓存读写} (redis.north east);
+      \draw[mq event] ([xshift=0.42cm]biz.south) -- (rocketmq.north);
+      \draw[mq event] (rocketmq.north west) -- (api.south east);
+      \draw[ws event] (api.south) -- node[edge label, right=1pt] {状态广播} (websocket.east);
+      \draw[ws event] (websocket.west) -- node[edge label, left=1pt] {实时刷新} (user.south);
+
+      \node[font=\tiny, anchor=center, inner sep=0pt] at (6.00, -2.58) {%
+        \begin{tabular}{@{}c@{\hspace{0.10cm}}l@{\hspace{0.38cm}}c@{\hspace{0.10cm}}l@{\hspace{0.38cm}}c@{\hspace{0.10cm}}l@{\hspace{0.38cm}}c@{\hspace{0.10cm}}l@{\hspace{0.38cm}}c@{\hspace{0.10cm}}l@{\hspace{0.38cm}}c@{\hspace{0.10cm}}l@{}}
+          \tikz[baseline=-0.55ex]{\draw[->, line width=0.55pt] (0,0) -- (0.34,0);} & HTTP / RPC 控制流 &
+          \tikz[baseline=-0.55ex]{\draw[->, line width=0.58pt, draw=red!70!black] (0,0) -- (0.34,0);} & 回调控制流 &
+          \tikz[baseline=-0.55ex]{\draw[->, dashed, line width=0.58pt, draw=blue!70!black] (0,0) -- (0.34,0);} & 对象存储文件流 &
+          \tikz[baseline=-0.55ex]{\draw[->, dashed, line width=0.58pt, draw=orange!85!black] (0,0) -- (0.34,0);} & MQ 事件流 &
+          \tikz[baseline=-0.55ex]{\draw[->, dashed, line width=0.58pt, draw=cyan!70!black] (0,0) -- (0.34,0);} & WebSocket 事件流 &
+          \tikz[baseline=-0.55ex]{\draw[->, dashed, line width=0.58pt, draw=green!45!black] (0,0) -- (0.34,0);} & 状态与缓存读写
+        \end{tabular}%
+      };
+    \end{tikzpicture}%
+  }
+  \caption{系统核心数据流与事件流图示}\label{fig:requirements-system-data-flow}
+\end{figure}
+
+如\cref{fig:requirements-system-data-flow} 所示，系统数据流首先从用户在前端发起项目操作和图像上传开始。前端通过 Core API 获取业务数据和上传授权，并将大体量图像文件直接写入 MinIO；Core API 负责鉴权、HTTP 接入和 WebSocket 连接维护，复杂业务状态则下沉到 Core BIZ。Core BIZ 在 MySQL 中保存项目、图像、检测主任务、检测子任务、复核记录和报告状态，在 Redis 中配合完成令牌状态和临时控制，并根据业务阶段创建分类、检测、总结和报告任务。
+
+Activity 服务与 BIZ 之间形成受控的异步执行关系。Classification 服务只返回图像对应的任务代码，Reasoning 服务只返回原子检测指标和产物清单，Summary 服务只返回结构化 JSON 总结或项目报告；所有结果都通过回调进入 BIZ，由 BIZ 在事务中解析、落库并推进状态。图像原图、缩略图、检测产物和项目报告源文件等文件数据统一存储在 MinIO，模型服务在执行时读取受控授权下的原图，并在产物上传完整后再回调结构化结果。
+
+数据流中还存在一条独立的实时事件链路。BIZ 在状态变化后向 RocketMQ 发布项目事件，Core API 消费事件后通过 WebSocket 广播给前端，使用户能够实时看到图像上传、检测进度和报告状态变化。页面刷新或 WebSocket 断线后，前端仍然可以重新调用列表和详情接口，从 MySQL 中恢复完整状态。因此，RocketMQ 和 WebSocket 主要承担增量通知职责，数据库中的结构化状态仍然是系统最终可信来源。
+
+该数据流说明系统中至少同时存在三类核心数据：文件数据、结构化数据和语义数据。文件数据包括原图、缩略图、检测产物和报告源文件，存储在 MinIO；结构化数据包括项目、图像、任务状态、指标字段、区域 JSON 和复核意见，存储在 MySQL；语义数据包括单图总结和项目评估报告，由 Agent 生成后经 BIZ 校验并写入数据库。三类数据分别服务于不同目标：文件用于工程复核，结构化数据用于过程追踪和页面展示，语义数据用于报告生成和运维决策。需求分析必须同时覆盖三类数据及其流转关系，否则系统无法形成从视觉证据到工程结论的可追溯链路。
 
 \section{约束条件}
 \label{sec:requirements-constraints}
 
-系统设计还需要满足若干约束。第一，模型服务和业务服务应保持边界清晰。Python 模型不应直接操作数据库和对象存储业务 Key，否则后续新增模型会带来大量耦合。第二，Agent 输出必须可校验。分类结果需要解析为任务代码，报告结果需要通过固定接口回调，不能让自由文本直接控制状态。第三，检测任务需要支持失败状态和重试扩展。即使当前版本只实现基础重试，也必须在数据库设计、任务清理逻辑和对象存储产物管理上为后续扩展预留空间。第四，前端状态需要能从服务端恢复，不能只依赖 WebSocket 增量消息，因为用户可能刷新页面或断线重连。第五，报告生成必须以系统已有数据为依据，不能让模型脱离项目上下文自由编造工程背景和检测结论。
+系统设计还需要满足若干约束。第一，模型服务和业务服务应保持边界清晰。Python 模型不应直接操作数据库和对象存储业务 Key，否则后续新增模型会带来大量耦合。第二，Agent 输出必须可校验。分类结果需要解析为任务代码，报告结果需要通过固定接口回调，不能让自由文本直接控制状态。第三，检测任务需要支持失败状态和重试扩展。第四，前端状态需要能从服务端恢复，不能只依赖 WebSocket 增量消息，因为用户可能刷新页面或断线重连。第五，报告生成必须以系统已有数据为依据，不能让模型脱离项目上下文自由编造工程背景和检测结论。
 
-\section{需求与设计目标映射}
-\label{sec:requirements-requirement-and-design-goal-mapping}
+\section{本章小结}
+\label{sec:requirements-chapter-summary}
+
+本章在摘要、绪论和相关研究基础之上，将“项目级图像资产管理、Agent 自主任务调度、LLM 分层信息整合”三条主线转化为系统需求。通过业务对象和用户流程建模，本章明确了系统角色责任、典型用例、功能需求、非功能需求、数据流和约束条件。需求分析表明，本文系统的核心难点不只是提供图像上传和结果展示功能，而是需要在多阶段业务流程中实现 Agent 自主任务调度方法、原子检测、人工复核和报告生成的闭环协同。
 
 \begin{table}[!htb]
   \caption{需求与设计目标映射}\label{tab:requirement-goal-map}
   \centering
-  \begin{tabular}{@{}p{0.22\linewidth}p{0.34\linewidth}p{0.34\linewidth}@{}} \toprule
+  \begin{tabular}{@{}p{0.14\linewidth}p{0.3\linewidth}p{0.5\linewidth}@{}} \toprule
     \textbf{需求类型} & \textbf{现实问题} & \textbf{设计目标} \\ \midrule
-    图像资产管理 & 图像数量多、组织混乱、难以复核 & 建立项目、图像组和图像三级资产结构。 \\
-    检测任务选择 & 不同材质需要不同检测能力 & 使用分类 Agent 输出受控任务代码。 \\
-    Agent 可控性 & 模型输出存在不确定性 & 通过工具集合、结构化输出和 BIZ 状态机限制业务后果。 \\
-    长任务执行 & 检测和总结耗时较长 & 使用 Worker、异步启动和回调推进状态。 \\
-    多源结果整合 & 底层指标难以直接形成报告 & 采用单图总结到项目报告的 LLM 分层信息整合策略。 \\
-    用户感知 & 长时间执行容易造成等待焦虑 & 使用 WebSocket、进度条和流程节点实时展示。 \\
-    可追踪性 & 多服务链路失败难以定位 & 使用 UUID、状态机、日志和数据库记录追踪全流程。 \\ \bottomrule
+    图像资产管理 & 图像数量多、组织混乱、难以复核 & 建立项目、图像组和图像三级资产结构 \\
+    检测任务选择 & 不同材质需要不同检测能力 & 使用分类 Agent 输出受控任务代码 \\
+    Agent 可控性 & 模型输出存在不确定性 & 通过工具集合、结构化输出和 BIZ 状态机限制业务后果 \\
+    长任务执行 & 检测和总结耗时较长 & 使用 Worker、异步启动和回调推进状态 \\
+    多源结果整合 & 底层指标难以直接形成报告 & 采用单图总结到项目报告的 LLM 分层信息整合策略 \\
+    用户感知 & 长时间执行容易造成等待焦虑 & 使用 WebSocket、进度条和流程节点实时展示 \\
+    可追踪性 & 多服务链路失败难以定位 & 使用 UUID、状态机、日志和数据库记录追踪全流程 \\ \bottomrule
   \end{tabular}
 \end{table}
 
 如\cref{tab:requirement-goal-map} 所示，本文的设计目标并非孤立功能堆叠，而是围绕现实问题建立相应解决策略。每个策略都对应系统中的一个工程或 Agent 设计点，最终共同构成完整解决方案。
 
-\section{本章小结}
-\label{sec:requirements-chapter-summary}
-
-本章在摘要、绪论和相关研究基础之上，将“项目级图像资产管理、Agent 自主任务调度、LLM 分层信息整合”三条主线转化为系统需求。通过业务对象和用户流程建模，本文明确了系统角色责任、典型用例、功能需求、非功能需求、数据流和约束条件。需求分析表明，本文系统的核心难点不只是提供图像上传和结果展示功能，而是需要在多阶段业务流程中实现 Agent 自主任务调度方法、原子检测、人工复核和报告生成的闭环协同。
-
-上述需求为第四章技术方案设计和第五章工程实现提供了明确依据。第四章将重点回答如何设计受控 Agent 调度和分层信息整合方法，第五章则进一步说明这些需求如何落地为服务架构、协议、数据库状态机、对象存储和前端可视化实现。
+上述需求分析为\cref{chap:design}技术方案设计和\cref{chap:implementation}系统架构与工程实现提供了明确依据。\cref{chap:design}将重点回答如何设计受控 Agent 调度和分层信息整合方法，\cref{chap:implementation}则进一步说明这些需求如何落地为服务架构、协议、数据库状态机、对象存储和前端可视化实现。
