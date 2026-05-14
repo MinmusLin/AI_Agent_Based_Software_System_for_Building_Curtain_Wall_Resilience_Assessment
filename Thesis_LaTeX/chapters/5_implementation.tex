@@ -609,7 +609,7 @@ Redis 中保存的内容均具有明确 TTL，不作为长期业务事实来源�
 \section{安全性设计与实现}
 \label{sec:implementation-security-design-and-implementation}
 
-安全性设计覆盖用户身份管理、登录鉴权、项目权限、令牌生命周期、对象存储访问、WebSocket 连接、密码存储、服务边界和 Agent 输出约束等。系统的安全基本原则是：前端只保存必要的短期访问凭据，不暴露长期后端凭证；所有项目级数据访问均回到后端校验；对象存储访问通过短时授权完成；Agent 与模型服务只返回结构化结果，不直接写库或推进状态。
+安全性设计覆盖用户身份管理、登录鉴权、项目权限、令牌生命周期、对象存储访问、WebSocket 连接、密码存储、服务边界和 Agent 输出约束等。系统的安全性基本原则是：前端只保存必要的短期访问凭据，不暴露长期后端凭证；所有项目级数据访问均回到后端校验；对象存储访问通过短时授权完成；Agent 与模型服务只返回结构化结果，不直接写库或推进状态。
 
 用户认证采用 Access Token 与 Refresh Token 组合。Access Token 是短时 JWT，包含用户 ID、邮箱、用户名、签发时间、过期时间、签发方和 jti，并使用 HMAC 签名算法；Refresh Token 是长期随机令牌，明文只返回给客户端，数据库只保存其哈希值和 Token ID。API 鉴权中间件只校验 Access Token，当前端检测到访问令牌即将过期或收到 401 后，再通过 \texttt{/auth/refresh} 使用 HttpOnly Cookie 中的 Refresh Token 换取新令牌。
 
@@ -681,37 +681,43 @@ WebSocket 安全采用“鉴权接口创建票据 + Scope 隔离”的方式。�
 
 Agent 输出也需要安全性和可靠性约束。分类输出必须被解析为受控任务代码，非法任务代码会被拦截；总结输出必须被压缩为合法 JSON 对象；项目报告输出还需要校验图像组数量和图像数量是否与源数据一致。Reasoning 服务启动时校验模型文件，避免部署中只存在 Git LFS 指针而非真实模型权重。通过这些约束，系统将外部 Agent 和模型的非确定性限制在可处理范围内。
 
+总体而言，本系统的安全性设计并不依赖单一鉴权点，而是将用户身份、项目权限、对象访问、长连接票据和 Agent 输出约束组合起来，形成覆盖“用户、数据、文件、服务和智能输出”的多层安全边界。该设计将安全校验前移到访问入口，同时将关键业务决策收束到 Core BIZ 中执行，避免前端状态或外部 Agent 输出直接影响数据库事实。通过短期授权、范围隔离和结构化校验，系统在保证交互便利性的同时，降低了越权访问、凭证泄露和非受控输出带来的工程风险。
+
 \section{稳定性设计与实现}
 \label{sec:implementation-stability-design-and-implementation}
 
-系统稳定性主要体现在日志、异常处理、容量控制、超时控制、幂等重试、产物校验和清理机制上。日志方面，各服务按 HTTP、RPC、MQ、WS、CRON、CLS、RSN、SMR 等范围输出结构化日志，并保留请求 ID、任务 UUID、图像 UUID、状态、耗时和错误信息。Docker Compose 中为五个后端服务配置日志采集 sidecar，将容器日志按 PSM 写入 \texttt{/root/logs/\{psm\}/log}，并按文件大小和最大文件数量进行轮转。
+稳定性设计覆盖日志、异常处理、容量控制、超时控制、幂等重试、产物校验和清理机制等方面。系统的稳定性基本原则是：将长链路任务中的失败、超时和中间产物异常视为常态，通过可观测日志、受控并发、明确超时、状态机推进、事务一致性、失败重试和后台清理机制，使系统在局部异常发生时仍然能够定位问题、保留业务事实并恢复到可继续执行的状态。
+
+日志方面，各服务按 HTTP、RPC、MQ、WS、CRON、CLS、RSN、SMR 等范围输出结构化日志，并保留请求 ID、任务 UUID、图像 UUID、状态、耗时和错误信息。Docker Compose 中为五个后端服务配置日志采集 Sidecar，将容器日志按 PSM 写入 \texttt{/root/logs/\{psm\}/log}，并按文件大小和最大文件数量进行轮转。
 
 容量控制方面，Classification、Reasoning、Summary 和 Detection Worker 都有最大并发配置。Agent 调用和模型推理属于高耗时任务，如果不限制并发，容易压垮外部 Agent 平台、Python 模型进程、对象存储和数据库。通过并发上限和任务队列，系统在吞吐量与稳定性之间取得平衡。
 
-超时控制方面，Agent 请求、Reasoning 总任务、产物下载、产物上传、图像上传待确认、Socket ticket 和预签名 URL 都有独立 TTL 或 timeout。Reasoning 服务在真正执行时再向 BIZ 获取原图 URL 和产物上传授权，避免长队列导致授权过期。上传中图像超时 CronJob 会将长期未上报的图像标记为失败并推送前端，避免页面长期停留在上传中。
+超时控制方面，Agent 请求、Reasoning 总任务、产物下载、产物上传、图像上传待确认、Socket Ticket 和预签名 URL 都有独立 TTL 或 Timeout。Reasoning 服务在真正执行时再向 BIZ 获取原图 URL 和产物上传授权，避免长队列导致授权过期。上传中图像超时 CronJob 会将长期未上报的图像标记为失败并推送前端，避免页面长期停留在上传中。
 
-数据一致性方面，系统将状态推进集中在 BIZ 服务中执行，并使用数据库事务包裹关键更新。Activity 服务完成任务后只通过回调上报结果，不能直接写库；BIZ 收到回调后校验任务是否仍然可访问、状态是否可替换、产物是否完整，再更新状态并发布事件。对于 Reasoning 产物，系统要求全部必要产物上传成功后才允许子任务成功，避免前端结果页出现缺图或对象不存在的问题。
+数据一致性方面，系统将状态推进集中在 BIZ 服务中执行，并使用数据库事务机制处理关键更新。Activity 服务完成任务后只通过回调上报结果，不能直接写库；BIZ 收到回调后校验任务是否仍然可访问、状态是否可替换、产物是否完整，再更新状态并发布事件。对于 Reasoning 产物，系统要求全部必要产物上传成功后才允许子任务成功，避免前端结果页出现缺图或对象不存在的问题。
 
 异常恢复方面，检测和报告均支持失败状态和重试。检测失败后，前端可以重新启动失败任务；报告失败后，前端显示失败重试按钮，由 BIZ 重新创建报告任务并调用 Summary 服务。MinIO 脏对象清理 CronJob 负责删除失败图像、失败子任务、失败报告和无数据库引用对象对应的文件夹，降低对象存储长期膨胀风险。清理前设置保护窗口，避免并发执行中的对象被误删。
 
 可观测性方面，工作台提供项目数量、图像数量、图像组数量、中间产物数量、检测执行次数、报告生成次数和对象存储容量概览。虽然它不是完整监控系统，但能让用户和维护者从账号维度观察系统使用情况和存储占用。结合服务日志、RocketMQ 消费日志、WebSocket 广播日志和 CronJob 日志，可以定位大部分业务链路问题。
 
+因此，系统稳定性并非只由单个服务的异常捕获实现，而是由状态机、事务、队列、超时、重试、日志、清理任务和容量控制共同支撑，使长链路 Agent 任务在失败、超时或产物异常时仍能被定位、回滚、重试和恢复。
+
 \section{部署设计与实现}
 \label{sec:implementation-deployment-implementation}
 
-系统采用 Docker Compose 部署。Compose 文件中定义 RocketMQ NameServer、Broker、Topic 初始化服务、三个 Activity 服务、Core BIZ、Core API、Core Web 以及日志采集 sidecar。所有服务挂载到统一 Docker 网络中，服务之间通过容器服务名访问。Core API 对外暴露 HTTP 端口，Core Web 使用 Nginx 托管前端静态资源并映射到 80 端口，Reasoning 服务通过只读挂载方式加载服务器上的模型目录。
+系统采用 Docker Compose 部署。Compose 文件中定义 RocketMQ NameServer、Broker、Topic 初始化服务、三个 Activity 服务、Core BIZ、Core API、Core Web 以及日志采集 Sidecar。所有服务挂载到统一 Docker 网络中，服务之间通过容器服务名访问。Core API 对外暴露 HTTP 端口，Core Web 使用 Nginx 托管前端静态资源并映射到 80 端口，Reasoning 服务通过只读挂载方式加载服务器上的模型目录。
 
 部署顺序由 \texttt{depends\_on} 和健康检查控制。RocketMQ Broker 健康后执行 Topic 初始化，Activity 服务、BIZ 和 API 均依赖 RocketMQ 初始化完成。BIZ 还依赖 Classification、Reasoning 和 Summary 服务启动，以保证检测 Worker 调用目标可用。这样的启动顺序降低了服务刚启动时因依赖未就绪导致的异常。
 
-环境变量集中描述服务地址、MySQL、Redis、MinIO、RocketMQ、JWT、邮箱验证码、Socket ticket、对象存储 TTL、Agent Token、Agent Bot ID、任务超时和并发配置。与把配置写死在代码中相比，环境变量便于本地和服务器切换，也便于毕业设计系统在不同机器上复现部署。
+环境变量集中描述服务地址、MySQL、Redis、MinIO、RocketMQ、JWT、邮箱验证码、Socket Ticket、对象存储 TTL、Agent Token、Agent Bot ID、任务超时和并发配置。与把配置硬编码在代码中相比，环境变量便于本地调试环境和服务器生产环境的切换，也便于软件系统在不同机器上的复现部署。
 
-Reasoning 模型文件没有打入 Docker 镜像，而是通过 \texttt{/root/models:/app/models:ro} 方式挂载。这样可以避免模型权重导致镜像体积过大，也便于更新模型文件。服务启动时会检查模型文件是否存在且不是 Git LFS 指针，提前暴露部署问题。
+Reasoning 模型文件通过 \texttt{/root/models:/app/models:ro} 方式挂载进 Docker 镜像。这样可以避免模型权重导致镜像体积过大，也便于更新模型文件。服务启动时会检查模型文件是否存在且不是 Git LFS 指针，提前暴露部署问题。
 
-日志部署采用两层机制。容器自身使用 Docker \texttt{json-file} 驱动进行基础轮转，日志采集 sidecar 通过 Docker socket 读取目标容器日志，并按 PSM 写入宿主机目录。该方案比在每个业务容器中接入复杂日志组件更轻量，适合当前项目规模，也便于服务器直接查看各服务日志。
+日志部署采用两层机制。容器自身使用 Docker \texttt{json-file} 驱动进行基础轮转，日志采集 Sidecar 通过 Docker Socket 读取目标容器日志，并按 PSM 写入宿主机目录。该方案比在每个业务容器中接入复杂日志组件更轻量，适合当前项目规模，也便于服务器直接查看各服务日志。
 
 \section{本章小结}
 \label{sec:implementation-chapter-summary}
 
-本章从工程角度说明了第四章技术方案的落地方式。系统通过 Core Web、Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common 七类模块，将前端交互、业务状态、Agent 调用、模型推理、报告生成和共享协议拆分到清晰边界中。BIZ 服务集中控制任务状态和数据库事务，Activity 服务只返回结构化结果，API 服务负责接入与实时推送，Web 服务负责阶段化展示和用户复核。
+本章从工程角度说明了\cref{chap:design}技术方案的落地方式。系统通过 Core Web、Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common 七个服务或模块，将前端交互、业务状态、Agent 调用、模型推理、报告生成和共享协议拆分到清晰边界中。BIZ 服务集中控制任务状态和数据库事务，Activity 服务只返回结构化结果，API 服务负责接入与实时推送，Web 服务负责阶段化展示和用户复核。
 
-工程实现的主要工作量体现在长链路协同上：一次检测任务涉及 HTTP 请求、gRPC 调用、Worker 入队、分类 Agent、子任务创建、Python 模型执行、MinIO 产物上传、回调落库、RocketMQ 事件、WebSocket 推送和前端状态合并；一次项目报告任务还涉及项目级源数据组装、source.txt 存储、附件式 Agent 调用、报告 JSON 校验和报告展示。通过协议治理、状态机、对象存储、CronJob、日志、并发控制和 Docker 部署，系统将 Agent 能力转化为可运行、可追踪、可恢复的软件系统。
+工程实现的主要工作量体现在长链路协同上：一次检测任务涉及 HTTP 请求、gRPC 调用、Worker 入队、分类 Agent、子任务创建、Python 模型执行、MinIO 产物上传、回调落库、RocketMQ 事件、WebSocket 推送和前端状态合并；一次项目报告任务还涉及项目级源数据组装、多源检测结构化数据存储、附件式 Agent 调用、报告 JSON 校验和报告展示。通过协议治理、状态机、对象存储、CronJob、日志、并发控制和 Docker 部署，系统将 Agent 能力转化为可运行、可追踪、可恢复的软件系统。
