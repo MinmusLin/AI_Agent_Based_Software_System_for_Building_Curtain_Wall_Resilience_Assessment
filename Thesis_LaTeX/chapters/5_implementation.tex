@@ -6,31 +6,31 @@
 \section{关键术语}
 \label{sec:implementation-key-terms}
 
-本章涉及的对象更多偏向工程实现，包括服务模块、通信方式、存储对象和运维机制等。为便于阅读，现对本章关键术语进行说明。
+本章涉及的对象更多偏向工程实现，包括服务模块、通信方式、存储对象和运维机制等。为便于阅读，现在\cref{tab:implementation-key-terms} 中对本章关键术语进行说明。
 
 \begin{table}[!htb]
   \caption{系统架构与工程实现关键术语}\label{tab:implementation-key-terms}
   \centering
   \begin{tabular}{@{}p{0.16\linewidth}p{0.72\linewidth}@{}} \toprule
     \textbf{术语} & \textbf{含义} \\ \midrule
-    PSM & 服务进程或模块的逻辑名称，用于区分 Core API、Core BIZ、Activity 服务、CronJob 和日志采集等运行单元。 \\
-    Core API & 面向前端提供 HTTP、鉴权入口和 WebSocket 通道等的接入服务。 \\
-    Core BIZ & 系统业务中心，负责状态机推进、数据库事务、对象存储授权、Worker 编排、回调处理、事件发布和定时任务等。 \\
-    Activity 服务 & 独立智能能力服务，包括 Classification、Reasoning 和 Summary，分别封装分类 Agent、原子检测模型和总结 Agent。 \\
-    Worker & 后台任务执行器，异步推进检测任务和报告任务，避免用户请求长时间阻塞。 \\
-    回调 & Activity 服务完成任务后，通过 gRPC 将状态、结果、产物清单和错误信息上报给 Core BIZ 的机制。 \\
-    RocketMQ 事件 & Core BIZ 在图像、检测任务或报告状态变化后发布的项目事件，由 Core API 消费并转发给前端。 \\
-    WebSocket Scope & WebSocket 推送范围，包括图像资产、检测任务和报告三类，用于隔离不同阶段的实时消息。 \\
-    预签名 URL & Core BIZ 为前端或 Activity 服务生成的有时效对象存储访问地址，用于上传或下载图像与报告源文件。 \\
-    产物 & Reasoning 服务生成并上传到 MinIO 的中间图像，如标注图、区域图、浮层图、梯度图、直线图和频谱图等。 \\
-    CronJob & Core BIZ 内部定时任务，用于上传超时处理和 MinIO 脏对象清理等后台维护工作。 \\ \bottomrule
+    PSM & 服务进程或模块的逻辑名称，用于区分 Core API、Core BIZ、Activity 服务、CronJob 和日志采集等运行单元 \\
+    Core API & 面向前端提供 HTTP、鉴权入口和 WebSocket 通道等的接入服务 \\
+    Core BIZ & 系统业务中心，负责状态机推进、数据库事务、对象存储授权、Worker 编排、回调处理、事件发布和定时任务等 \\
+    Activity 服务 & 独立智能能力服务，包括 Classification、Reasoning 和 Summary，分别封装分类 Agent、原子检测模型和总结 Agent \\
+    Worker & 后台任务执行器，异步推进检测任务和报告任务，避免用户请求长时间阻塞 \\
+    回调 & Activity 服务完成任务后，通过 gRPC 将状态、结果、产物清单和错误信息上报给 Core BIZ 的机制 \\
+    RocketMQ 事件 & Core BIZ 在图像、检测任务或报告状态变化后发布的项目事件，由 Core API 消费并转发给前端 \\
+    WebSocket Scope & WebSocket 推送范围，包括图像资产、检测任务和报告三类，用于隔离不同阶段的实时消息 \\
+    预签名 URL & Core BIZ 为前端或 Activity 服务生成的有时效对象存储访问地址，用于上传或下载图像与报告源文件 \\
+    产物 & Reasoning 服务生成并上传到 MinIO 的中间图像，如标注图、区域图、浮层图、梯度图、直线图和频谱图等 \\
+    CronJob & Core BIZ 内部定时任务，用于上传超时处理和 MinIO 脏对象清理等后台维护工作 \\ \bottomrule
   \end{tabular}
 \end{table}
 
 \section{总体架构设计与实现}
 \label{sec:implementation-overall-architecture-design}
 
-系统采用前后端分离与服务化架构。前端 Core Web 负责项目工作台、项目阶段页面、图像资产管理、检测进度展示、检测结果查看、人工复核和报告展示；后端按照职责拆分为 Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common；基础设施包含 MySQL、Redis、MinIO 和 RocketMQ；部署层由 Docker Compose 统一组织容器、网络、环境变量、日志采集和依赖启动顺序。
+系统采用前后端分离与微服务架构。前端 Core Web 负责项目工作台、项目阶段页面、图像资产管理、检测进度展示、检测结果查看、人工复核和报告展示；后端按照职责拆分为 Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common；基础设施包含 MySQL、Redis、MinIO 和 RocketMQ；部署层由 Docker Compose 统一组织容器、网络、环境变量、日志采集和依赖启动顺序。
 
 \begin{figure}[!htb]
   \centering
@@ -125,7 +125,7 @@
 
 该架构遵循“智能能力外置，业务状态内聚”的原则。Classification、Reasoning 和 Summary 可以独立演进各自 Agent 或模型逻辑，但不直接拥有业务状态；项目、图像、任务、复核和报告状态集中由 Core BIZ 控制；Core API 不承担复杂业务事务，只负责接入与事件转发；Core Web 只展示和触发业务动作，不自行判断最终状态。这样的边界划分避免了 Agent 与模型服务越权，也使失败恢复和日志追踪更清晰。
 
-从工程复杂度看，用户一次“启动 Agent 智能检测”背后会触发多条异步链路：Core Web 发起 HTTP 请求，Core API 鉴权并转发到 Core BIZ，Core BIZ 为图像创建检测主任务并投递 Worker，Worker 调用分类 Agent，分类回调后创建多个子任务，Reasoning 服务执行 Python 模型并上传产物，Summary 服务生成单图总结，BIZ 发布 RocketMQ 事件，API 消费后通过 WebSocket 推送给前端。系统必须保证这些链路在并发和失败情况下仍能保持状态一致。
+从工程复杂度看，用户一次“启动 Agent 智能检测”背后会触发多条异步链路：Core Web 发起 HTTP 请求，Core API 鉴权并转发到 Core BIZ，Core BIZ 为图像创建检测主任务并投递 Worker，Worker 调用分类 Agent，分类回调后创建多个子任务，Reasoning 服务执行 Python 模型并上传产物，Summary 服务生成图像级总结，BIZ 发布 RocketMQ 事件，API 消费后通过 WebSocket 推送给前端。系统必须保证这些链路在并发和失败情况下仍能保持状态一致。
 
 \section{通信与协议设计}
 \label{sec:implementation-communication-and-protocol-design}
@@ -136,9 +136,9 @@ Protocol Buffers 是内部协议的核心。系统将 Auth、ProjectCore、Proje
 
 请求链路中还通过请求 ID 实现日志关联。Core API 在 HTTP 中间件生成请求 ID，gRPC 调用时通过 \texttt{Metadata} 透传，Activity 服务异步执行和回调时继续携带该请求 ID。这样可以在日志中关联一次用户操作、BIZ 处理、Agent 调用、模型执行和回调结果，对长链路排障具有直接价值。
 
-RocketMQ 用于承接业务状态变化后的异步项目事件。Core BIZ 在图像上传、检测主任务、检测子任务、单图总结和项目报告等状态发生变化后，将项目 ID、事件类型和事件载荷发布到统一 Topic；Core API 作为消费者订阅该 Topic，解析事件类型并映射为前端需要的 WebSocket Scope。通过消息队列，业务状态推进与前端连接管理被解耦：BIZ 只负责在事务完成后发布事实事件，不直接感知在线客户端；API 只负责消费事件和广播消息，不参与业务事务。该机制既避免长任务回调直接阻塞 HTTP 请求，也使图像资产、检测进度和报告状态能够在页面中以增量方式刷新。
+RocketMQ 用于承接业务状态变化后的异步项目事件。Core BIZ 在图像上传、检测主任务、检测子任务、图像级总结和项目报告等状态发生变化后，将项目 ID、事件类型和事件载荷发布到统一 Topic；Core API 作为消费者订阅该 Topic，解析事件类型并映射为前端需要的 WebSocket Scope。通过消息队列，业务状态推进与前端连接管理被解耦：BIZ 只负责在事务完成后发布事实事件，不直接感知在线客户端；API 只负责消费事件和广播消息，不参与业务事务。该机制既避免长任务回调直接阻塞 HTTP 请求，也使图像资产、检测进度和报告状态能够在页面中以增量方式刷新。
 
-WebSocket 设计采用“票据 + Scope”的方式。前端先通过鉴权 HTTP 请求创建连接票据，再使用项目 ID、Scope 和 Ticket 建立 WebSocket。Scope 将图像资产、检测任务和报告状态隔离，避免所有页面都接收全量事件。API 侧 Hub 按项目和 Scope 管理连接，RocketMQ 消费到项目事件后只广播给对应项目与对应 Scope 的客户端。
+WebSocket 设计采用“连接票据 + Scope”的方式。前端先通过鉴权 HTTP 请求创建连接票据，再使用项目 ID、Scope 和 Ticket 建立 WebSocket。Scope 将图像资产、检测任务和报告状态隔离，避免所有页面都接收全量事件。API 侧 Hub 按项目和 Scope 管理连接，RocketMQ 消费到项目事件后只广播给对应项目与对应 Scope 的客户端。
 
 \section{模块设计与实现}
 \label{sec:implementation-module-design-and-implementation}
@@ -148,7 +148,7 @@ WebSocket 设计采用“票据 + Scope”的方式。前端先通过鉴权 HTTP
 \subsection{Core API 服务}
 \label{subsec:implementation-api-service}
 
-Core API 是前端访问系统的统一入口。该服务基于 Gin 注册 HTTP 路由，覆盖认证、用户头像、项目核心流程、项目基础信息、图像资产、智能检测、人工复核、评估报告和 WebSocket 票据等接口。API 服务通过鉴权中间件从令牌中解析用户身份，通过项目访问中间件校验用户是否拥有项目权限，然后将请求转换为 Core BIZ gRPC 请求。
+Core API 是前端访问系统的统一入口。该服务基于 Gin 注册 HTTP 路由，覆盖认证、用户头像、项目核心流程、项目基础信息、图像资产、智能检测、人工复核、评估报告和 WebSocket 连接票据等接口。API 服务通过鉴权中间件从令牌中解析用户身份，通过项目访问权限中间件校验用户是否拥有项目权限，然后将请求转换为 Core BIZ gRPC 请求。
 
 除 HTTP 接入外，Core API 还承担实时事件转发职责。Core BIZ 不直接维护前端连接，而是将图像状态、检测任务状态和报告状态写入 RocketMQ。Core API 作为消费者订阅项目事件，根据事件类型选择 WebSocket Scope，再向对应项目连接广播消息。这样设计使 BIZ 不依赖 WebSocket 实现，也使 API 服务成为前端通信的唯一入口。
 
@@ -323,7 +323,7 @@ Classification 服务封装分类 Agent。BIZ 启动分类任务时传入任务 
 \subsection{Reasoning 服务}
 \label{subsec:implementation-reasoning-service}
 
-Reasoning 服务是 Go 工程层与 Python 模型层之间的桥梁。服务启动时注册五类原子检测能力，并根据任务代码检查模型目录中对应权重文件是否存在、是否可读取、是否为 Git LFS 指针文件。任务执行时，Reasoning 服务从 BIZ 获取最新原图下载地址，下载到隔离运行目录，再调用常驻 Python Worker 执行对应检测模块。模型执行结束后，Go 层读取压缩后的 \texttt{report.json}，再从 BIZ 获取产物上传授权，将目录中的产物并发上传到 MinIO，并带着结果 JSON 和产物清单回调 BIZ。
+Reasoning 服务是 Golang 工程层与 Python 模型层之间的桥梁。服务启动时注册五类原子检测能力，并根据任务代码检查模型目录中对应权重文件是否存在、是否可读取、是否为 Git LFS 指针文件。任务执行时，Reasoning 服务从 BIZ 获取最新原图下载地址，下载到隔离运行目录，再调用常驻 Python Worker 执行对应检测模块。模型执行结束后，Go 层读取压缩后的 \texttt{report.json}，再从 BIZ 获取产物上传授权，将目录中的产物并发上传到 MinIO，并带着结果 JSON 和产物清单回调 BIZ。
 
 \begin{figure}[!htb]
   \centering
@@ -556,9 +556,7 @@ ICW Common 是跨仓库共享基础设施。它包含 Protocol Buffers 定义、
 \subsection{数据库设计与实现}
 \label{subsec:implementation-database-design-and-implementation}
 
-数据库设计围绕“项目级资产”和“图像级任务”展开。项目表保存项目名称、建筑名称、位置、建成年份、建筑描述、已知问题、评估目标、项目状态和项目进度；图像组表保存项目内图像分组名称、用户归属和排序信息，用于表达立面、区域或用户自定义图像集合；图像表保存单张图像的 UUID、所属图像组、文件名、尺寸、大小、上传状态和元数据，是后续检测主任务、子检测任务和人工复核的图像级数据入口；检测主任务表保存每张图像的检测整体状态、五类子任务是否执行、子任务 ID、图像总结任务 ID 和人工复核字段；五张子任务表分别保存不同原子检测能力的专属指标；图像总结任务表保存单图总结；项目报告表保存项目级报告 JSON 和状态。
-
-本文系统的核心数据库实体及其作用见\cref{tab:implementation-core-entities}。
+如\cref{tab:implementation-core-entities} 所示，数据库设计围绕“项目级资产”和“图像级任务”展开。项目表保存项目名称、建筑名称、位置、建成年份、建筑描述、已知问题、评估目标、项目状态和项目进度；图像组表保存项目内图像分组名称、用户归属和排序信息，用于表达立面、区域或用户自定义图像集合；图像表保存单张图像的 UUID、所属图像组、文件名、尺寸、大小、上传状态和元数据，是后续检测主任务、检测子任务和人工复核的图像级数据入口；检测主任务表保存每张图像的检测整体状态、五类子任务是否执行、子任务 ID、图像总结任务 ID 和人工复核字段；五张子任务表分别保存不同原子检测能力的专属指标；图像总结任务表保存图像级总结；项目报告表保存项目级报告 JSON 和状态。
 
 数据库事务用于保证状态推进的一致性。例如，分类回调成功后，BIZ 需要在同一事务内写入任务路由字段、创建子任务、关联子任务 ID、创建必要的总结任务并推进主任务状态；子任务回调后，BIZ 需要写入专属指标、保存产物 SHA256、更新子任务状态，并判断同一主任务下所有必要子任务是否完成；项目报告回调后，BIZ 需要写入报告 JSON、更新报告状态并发布报告事件。事务边界保证了前端查询到的状态与任务记录保持一致。
 
@@ -602,7 +600,7 @@ Redis 中保存的内容均具有明确 TTL，不作为长期业务事实来源�
 
 项目阶段进度从项目初始化、基础信息完成、图像资产完成、检测完成、复核完成推进到项目完成。每一次阶段推进都由 Core BIZ 检查前置条件：基础信息阶段要求保存项目资料，图像资产阶段要求至少存在一张上传成功图像，检测阶段要求主任务全部完成，复核阶段要求用户完成确认，报告阶段只有报告成功生成后才允许将项目视为完成。前端按钮状态只作为交互约束，最终阶段判断始终由后端执行。
 
-检测主任务状态机是任务编排的核心。主任务状态包括 \texttt{pending}、\texttt{classifying}、\texttt{detecting}、\texttt{summarizing}、\texttt{succeeded} 和 \texttt{failed}。分类 Agent 成功后，BIZ 根据任务代码创建必要子任务；子任务全部成功后创建单图总结；单图总结成功后主任务进入成功状态。任一必要环节失败时，主任务进入失败状态，并保留失败原因供前端展示和用户重试。
+检测主任务状态机是任务编排的核心。主任务状态包括 \texttt{pending}、\texttt{classifying}、\texttt{detecting}、\texttt{summarizing}、\texttt{succeeded} 和 \texttt{failed}。分类 Agent 成功后，BIZ 根据任务代码创建必要子任务；子任务全部成功后创建图像级总结；图像级总结成功后主任务进入成功状态。任一必要环节失败时，主任务进入失败状态，并保留失败原因供前端展示和用户重试。
 
 子任务状态包括 \texttt{pending}、\texttt{succeeded} 和 \texttt{failed}。Reasoning 回调成功不等于子任务必然成功，BIZ 还需要校验产物完整性、产物上传状态和任务指标合法性。报告生成状态同样包括 \texttt{pending}、\texttt{succeeded} 和 \texttt{failed}。报告生成失败时前端显示失败重试按钮，报告生成中允许刷新当前状态，报告生成成功后不再显示重试或刷新操作。通过这些状态机，系统把多服务异步执行转化为可查询、可重试和可解释的业务过程。
 
@@ -611,7 +609,7 @@ Redis 中保存的内容均具有明确 TTL，不作为长期业务事实来源�
 
 安全性设计覆盖用户身份管理、登录鉴权、项目权限、令牌生命周期、对象存储访问、WebSocket 连接、密码存储、服务边界和 Agent 输出约束等。系统的安全性基本原则是：前端只保存必要的短期访问凭据，不暴露长期后端凭证；所有项目级数据访问均回到后端校验；对象存储访问通过短时授权完成；Agent 与模型服务只返回结构化结果，不直接写库或推进状态。
 
-用户认证采用 Access Token 与 Refresh Token 组合。Access Token 是短时 JWT，包含用户 ID、邮箱、用户名、签发时间、过期时间、签发方和 jti，并使用 HMAC 签名算法；Refresh Token 是长期随机令牌，明文只返回给客户端，数据库只保存其哈希值和 Token ID。API 鉴权中间件只校验 Access Token，当前端检测到访问令牌即将过期或收到 401 后，再通过 \texttt{/auth/refresh} 使用 HttpOnly Cookie 中的 Refresh Token 换取新令牌。
+用户认证采用 Access Token 与 Refresh Token 组合。Access Token 是短时 JWT，包含用户 ID、邮箱、用户名、签发时间、过期时间、签发方和 JTI，并使用 HMAC 签名算法；Refresh Token 是长期随机令牌，明文只返回给客户端，数据库只保存其哈希值和 Token ID。API 鉴权中间件只校验 Access Token，当前端检测到访问令牌即将过期或收到 401 后，再通过 \texttt{/auth/refresh} 使用 HttpOnly Cookie 中的 Refresh Token 换取新令牌。
 
 \begin{figure}[!htb]
   \centering
@@ -669,7 +667,7 @@ Redis 中保存的内容均具有明确 TTL，不作为长期业务事实来源�
   \caption{用户登录与令牌刷新安全流程}\label{fig:implementation-auth-token-security-flow}
 \end{figure}
 
-如\cref{fig:implementation-auth-token-security-flow} 所示，刷新流程不是简单续期，而是令牌轮换。BIZ 使用 Redis 对同一个 Refresh Token 设置短时刷新锁，防止多个并发请求同时刷新；刷新成功后签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token。Refresh Token 通过 HttpOnly Cookie 保存，前端 JavaScript 无法直接读取，降低脚本窃取风险。用户登出时，系统会将未过期 Access Token 的 jti 加入 Redis 黑名单，并吊销对应 Refresh Token。
+如\cref{fig:implementation-auth-token-security-flow} 所示，刷新流程不是简单续期，而是令牌轮换。BIZ 使用 Redis 对同一个 Refresh Token 设置短时刷新锁，防止多个并发请求同时刷新；刷新成功后签发新的 Access Token 和 Refresh Token，并吊销旧 Refresh Token。Refresh Token 通过 HttpOnly Cookie 保存，前端 JavaScript 无法直接读取，降低脚本窃取风险。用户登出时，系统会将未过期 Access Token 的 JTI 加入 Redis 黑名单，并吊销对应 Refresh Token。
 
 项目权限由后端统一校验。所有项目相关接口都必须携带用户身份和项目 ID，Core BIZ 检查项目归属后才允许读取、修改或推进阶段。前端只负责隐藏不可用按钮，不能作为权限判断来源。WebSocket 连接也不直接使用访问令牌拼接 URL，而是先通过鉴权 HTTP 接口创建短时 Ticket，再用 Ticket 建立连接，降低长连接 URL 暴露后的风险。
 
@@ -677,11 +675,11 @@ Redis 中保存的内容均具有明确 TTL，不作为长期业务事实来源�
 
 密码安全采用服务端哈希存储。注册和重置密码时，BIZ 会进行密码长度和复杂度校验，并使用 Bcrypt 生成密码哈希后写入数据库；登录时通过 Bcrypt 比对哈希，不保存明文密码。邮箱验证码按登录、注册和重置密码等场景区分，并通过 Redis 与签名密钥完成验证和消费，避免验证码跨场景复用。
 
-WebSocket 安全采用“鉴权接口创建票据 + Scope 隔离”的方式。前端不能直接凭项目 ID 建立长连接，而是先调用受鉴权保护的 \texttt{/socket/ticket} 接口，由 BIZ 校验用户和项目权限后生成短时 Ticket。建立连接时需要同时携带项目 ID、Scope 和 ticket，API 再调用 BIZ 校验票据。Scope 将图像资产、检测任务和报告事件分开，避免一个页面接收不属于当前阶段的事件。
+WebSocket 安全采用“鉴权接口创建连接票据 + Scope 隔离”的方式。前端不能直接凭项目 ID 建立长连接，而是先调用受鉴权保护的 \texttt{/socket/ticket} 接口，由 BIZ 校验用户和项目权限后生成短时 Ticket。建立连接时需要同时携带项目 ID、Scope 和 ticket，API 再调用 BIZ 校验连接票据。Scope 将图像资产、检测任务和报告事件分开，避免一个页面接收不属于当前阶段的事件。
 
 Agent 输出也需要安全性和可靠性约束。分类输出必须被解析为受控任务代码，非法任务代码会被拦截；总结输出必须被压缩为合法 JSON 对象；项目报告输出还需要校验图像组数量和图像数量是否与源数据一致。Reasoning 服务启动时校验模型文件，避免部署中只存在 Git LFS 指针而非真实模型权重。通过这些约束，系统将外部 Agent 和模型的非确定性限制在可处理范围内。
 
-总体而言，本系统的安全性设计并不依赖单一鉴权点，而是将用户身份、项目权限、对象访问、长连接票据和 Agent 输出约束组合起来，形成覆盖“用户、数据、文件、服务和智能输出”的多层安全边界。该设计将安全校验前移到访问入口，同时将关键业务决策收束到 Core BIZ 中执行，避免前端状态或外部 Agent 输出直接影响数据库事实。通过短期授权、范围隔离和结构化校验，系统在保证交互便利性的同时，降低了越权访问、凭证泄露和非受控输出带来的工程风险。
+综上所述，本系统的安全性设计并不依赖单一鉴权点，而是将用户身份、项目权限、对象访问、长连接票据和 Agent 输出约束组合起来，形成覆盖“用户、数据、文件、服务和智能输出”的多层安全边界。该设计将安全校验前移到访问入口，同时将关键业务决策收束到 Core BIZ 中执行，避免前端状态或外部 Agent 输出直接影响数据库事实。通过短期授权、范围隔离和结构化校验，系统在保证交互便利性的同时，降低了越权访问、凭证泄露和非受控输出带来的工程风险。
 
 \section{稳定性设计与实现}
 \label{sec:implementation-stability-design-and-implementation}
@@ -707,7 +705,7 @@ Agent 输出也需要安全性和可靠性约束。分类输出必须被解析�
 
 系统采用 Docker Compose 部署。Compose 文件中定义 RocketMQ NameServer、Broker、Topic 初始化服务、三个 Activity 服务、Core BIZ、Core API、Core Web 以及日志采集 Sidecar。所有服务挂载到统一 Docker 网络中，服务之间通过容器服务名访问。Core API 对外暴露 HTTP 端口，Core Web 使用 Nginx 托管前端静态资源并映射到 80 端口，Reasoning 服务通过只读挂载方式加载服务器上的模型目录。
 
-部署顺序由 \texttt{depends\_on} 和健康检查控制。RocketMQ Broker 健康后执行 Topic 初始化，Activity 服务、BIZ 和 API 均依赖 RocketMQ 初始化完成。BIZ 还依赖 Classification、Reasoning 和 Summary 服务启动，以保证检测 Worker 调用目标可用。这样的启动顺序降低了服务刚启动时因依赖未就绪导致的异常。
+部署顺序由 \texttt{depends\_on} 和健康检查控制。RocketMQ Broker 状态健康后执行 Topic 初始化，Activity 服务、BIZ 和 API 均依赖 RocketMQ 初始化完成。BIZ 还依赖 Classification、Reasoning 和 Summary 服务启动，以保证检测 Worker 调用目标可用。这样的启动顺序降低了服务刚启动时因依赖未就绪导致的异常。
 
 环境变量集中描述服务地址、MySQL、Redis、MinIO、RocketMQ、JWT、邮箱验证码、Socket Ticket、对象存储 TTL、Agent Token、Agent Bot ID、任务超时和并发配置。与把配置硬编码在代码中相比，环境变量便于本地调试环境和服务器生产环境的切换，也便于软件系统在不同机器上的复现部署。
 
@@ -718,6 +716,6 @@ Reasoning 模型文件通过 \texttt{/root/models:/app/models:ro} 方式挂载�
 \section{本章小结}
 \label{sec:implementation-chapter-summary}
 
-本章从工程角度说明了\cref{chap:design}技术方案的落地方式。系统通过 Core Web、Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common 七个服务或模块，将前端交互、业务状态、Agent 调用、模型推理、报告生成和共享协议拆分到清晰边界中。BIZ 服务集中控制任务状态和数据库事务，Activity 服务只返回结构化结果，API 服务负责接入与实时推送，Web 服务负责阶段化展示和用户复核。
+本章从工程角度说明了\cref{chap:design}技术方案设计的落地方式。系统通过 Core Web、Core API、Core BIZ、Activity Classification、Activity Reasoning、Activity Summary 和 ICW Common 七个服务与模块，将前端交互、业务状态、Agent 调用、模型推理、报告生成和共享协议拆分到清晰边界中。BIZ 服务集中控制任务状态和数据库事务，Activity 服务只返回结构化结果，API 服务负责接入与实时推送，Web 服务负责阶段化展示和用户复核。
 
-工程实现的主要工作量体现在长链路协同上：一次检测任务涉及 HTTP 请求、gRPC 调用、Worker 入队、分类 Agent、子任务创建、Python 模型执行、MinIO 产物上传、回调落库、RocketMQ 事件、WebSocket 推送和前端状态合并；一次项目报告任务还涉及项目级源数据组装、多源检测结构化数据存储、附件式 Agent 调用、报告 JSON 校验和报告展示。通过协议治理、状态机、对象存储、CronJob、日志、并发控制和 Docker 部署，系统将 Agent 能力转化为可运行、可追踪、可恢复的软件系统。
+工程实现的主要工作量体现在长链路协同上：一次检测任务涉及 HTTP 请求、gRPC 调用、Worker 入队、分类 Agent、子任务创建、Python 模型执行、MinIO 产物上传、回调落库、RocketMQ 事件、WebSocket 推送和前端状态合并；一次项目报告任务还涉及项目级源数据组装、多源检测结构化数据存储、附件式 Agent 调用、报告 JSON 校验和报告展示。通过协议治理、状态机、对象存储、CronJob 定时任务、日志、并发控制和 Docker Compose 部署，系统将 Agent 能力转化为可运行、可追踪、可恢复的软件系统。

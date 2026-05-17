@@ -1,50 +1,56 @@
 \providecommand{\apicode}[1]{{\footnotesize\ttfamily\detokenize{#1}}}
 
+附录从工程视角补充说明系统涉及的 PSM、接口清单与环境变量配置。
+
 \appendixsection{系统模块与 PSM 划分}\label{sec:appendix-psm}
 
-本附录从工程部署视角补充说明系统涉及的 PSM、接口清单与环境变量配置。PSM 划分覆盖前端、后端业务服务、Agent 活动服务、消息队列、日志采集、定时任务、共享协议模块与外部基础设施，便于从部署和运行维护角度理解系统边界。
+PSM 划分覆盖前端、后端业务服务、Agent 活动服务、消息队列、日志采集、定时任务、共享协议模块与外部基础设施，便于从部署和运行维护角度理解系统边界。
 
 {\small
-\begin{longtable}{@{}p{0.26\linewidth}p{0.24\linewidth}p{0.42\linewidth}@{}}
+\begin{longtable}{@{}p{0.35\linewidth}p{0.24\linewidth}p{0.35\linewidth}@{}}
   \caption{系统模块与 PSM 划分}\label{tab:appendix-psm}\\
   \toprule
   \textbf{PSM} & \textbf{服务名称} & \textbf{职责} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{PSM} & \textbf{服务名称} & \textbf{职责} \\ \midrule
   \endhead
-  \apicode{icw.core.web} & Core Web 前端服务 & 提供工作台、项目管理、基础信息维护、图像资产构建、Agent 智能检测、人工复核和评估报告展示等用户界面。 \\
-  \apicode{icw.core.api} & Core API 网关服务 & 对外提供 HTTP 与 WebSocket 入口，负责鉴权中间件、请求参数解析、响应包装、跨域处理和 RocketMQ 项目事件到 WebSocket 的转发。 \\
-  \apicode{icw.core.biz} & Core BIZ 业务服务 & 承载项目全流程业务编排，负责 MySQL 持久化、Redis 缓存、MinIO 对象存储、RocketMQ 事件发布、检测任务调度和报告状态管理。 \\
-  \apicode{icw.activity.classification} & 图像分类 Agent 服务 & 调用图像分类 Agent，识别幕墙材质并输出需要执行的原子检测能力列表。 \\
-  \apicode{icw.activity.reasoning} & 原子检测推理服务 & 封装金属锈蚀、石材裂缝、石材污渍、玻璃平整度、玻璃爆裂五类检测能力，完成模型懒加载、检测执行、产物上传和结果回调。 \\
-  \apicode{icw.activity.summary} & 总结 Agent 服务 & 调用检测总结 Agent 与项目报告 Agent，生成单图结构化总结和项目级韧性评估报告。 \\
-  \apicode{icw.common} & 共享协议与通用模块 & 维护跨服务复用的 proto 协议、枚举常量、gRPC 客户端与服务端封装、错误模型、日志工具和 JSON 归一化工具。 \\
-  \apicode{icw.worker.detection} & 智能检测任务 Worker & 在 Core BIZ 内部执行检测编排，串联分类、原子推理、单图总结和项目状态推进，保证检测链路按任务状态闭环。 \\
-  \apicode{icw.cron.pending_image_timeout} & 上传中图像超时任务 & 定时扫描长时间处于上传中的图像，将超时图像置为失败状态并发布项目图像状态事件。 \\
-  \apicode{icw.cron.minio_dirty_object_cleanup} & MinIO 脏对象清理任务 & 定时清理失败或数据库记录已不存在的图像、检测产物和报告对象前缀，并设置三十分钟保护窗口避免误删仍在写入的对象。 \\
-  \apicode{icw.rocketmq.namesrv} & RocketMQ NameServer & 维护 RocketMQ 路由元数据，为生产者和消费者提供 Broker 发现能力。 \\
-  \apicode{icw.rocketmq.broker} & RocketMQ Broker & 存储和投递项目事件消息，承载项目图像状态、检测任务状态和报告状态变更事件。 \\
-  \apicode{icw.rocketmq.init} & RocketMQ 初始化任务 & 在 Broker 健康后创建项目事件主题 \apicode{ICW_PROJECT_EVENT}，为后续业务服务启动提供消息队列前置条件。 \\
-  \apicode{icw.log.core_api} & Core API 日志采集服务 & 通过 Docker socket 读取 \apicode{icw.core.api} 容器日志，并写入 \apicode{/root/logs/icw_core_api/log}，按文件大小轮转。 \\
-  \apicode{icw.log.core_biz} & Core BIZ 日志采集服务 & 通过 Docker socket 读取 \apicode{icw.core.biz} 容器日志，并写入 \apicode{/root/logs/icw_core_biz/log}，按文件大小轮转。 \\
-  \apicode{icw.log.activity_classification} & Classification 日志采集服务 & 通过 Docker socket 读取 \apicode{icw.activity.classification} 容器日志，并写入 \apicode{/root/logs/icw_activity_classification/log}。 \\
-  \apicode{icw.log.activity_reasoning} & Reasoning 日志采集服务 & 通过 Docker socket 读取 \apicode{icw.activity.reasoning} 容器日志，并写入 \apicode{/root/logs/icw_activity_reasoning/log}。 \\
-  \apicode{icw.log.activity_summary} & Summary 日志采集服务 & 通过 Docker socket 读取 \apicode{icw.activity.summary} 容器日志，并写入 \apicode{/root/logs/icw_activity_summary/log}。 \\
-  \apicode{icw.docker.logging} & Docker 日志轮转策略 & 为后端容器配置 \apicode{json-file} 日志驱动，单个 Docker 日志文件最大 \apicode{10m}，最多保留 \apicode{100} 个文件。 \\
-  \apicode{icw.docker.network} & Docker Compose 网络 & 使用 bridge 网络连接 Web、API、BIZ、Activity 服务、RocketMQ 和日志采集容器。 \\
-  \apicode{icw.data.mysql} & MySQL 数据库 & 存储用户、项目、图像资产、检测任务、复核记录、报告状态和业务统计数据。 \\
-  \apicode{icw.data.redis} & Redis 缓存 & 存储登录态辅助信息、邮箱验证码、刷新令牌、WebSocket 票据和短期业务缓存。 \\
-  \apicode{icw.data.minio} & MinIO 对象存储 & 存储项目缩略图、原始图像、检测中间产物、Agent 报告源文件和结果文件。 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{icw.core.web} & Core Web 前端服务 & 提供项目操作、图像管理、检测复核和报告展示界面 \\
+  \apicode{icw.core.api} & Core API 网关服务 & 提供 HTTP 与 WebSocket 接入，处理鉴权、路由、响应和事件转发 \\
+  \apicode{icw.core.biz} & Core BIZ 业务服务 & 负责项目编排、状态推进、数据存储、任务调度和事件发布 \\
+  \apicode{icw.activity.classification} & 图像分类 Agent 服务 & 识别幕墙材质，生成原子检测任务代码 \\
+  \apicode{icw.activity.reasoning} & 原子检测推理服务 & 执行五类原子检测，上传产物并回调结果 \\
+  \apicode{icw.activity.summary} & 总结 Agent 服务 & 生成图像级总结与项目级韧性评估报告 \\
+  \apicode{icw.common} & 共享协议与通用模块 & 提供跨服务 Proto 协议、枚举、错误、日志和 JSON 工具等 \\
+  \apicode{icw.cron.pending_image_timeout} & 上传中图像超时任务 & 扫描上传超时图像并置为失败 \\
+  \apicode{icw.cron.minio_dirty_object_cleanup} & MinIO 脏对象清理任务 & 清理失败或失联对象，保留三十分钟窗口 \\
+  \apicode{icw.rocketmq.namesrv} & RocketMQ NameServer & 提供 RocketMQ 路由发现能力 \\
+  \apicode{icw.rocketmq.broker} & RocketMQ Broker & 存储并投递项目事件消息 \\
+  \apicode{icw.rocketmq.init} & RocketMQ 初始化任务 & 初始化项目事件 Topic \\
+  \apicode{icw.log.core_api} & Core API 日志采集服务 & 采集 Core API 容器日志并独立归档轮转 \\
+  \apicode{icw.log.core_biz} & Core BIZ 日志采集服务 & 采集 Core BIZ 容器日志并独立归档轮转 \\
+  \apicode{icw.log.activity_classification} & Classification 日志采集服务 & 采集 Classification 容器日志并独立归档 \\
+  \apicode{icw.log.activity_reasoning} & Reasoning 日志采集服务 & 采集 Reasoning 容器日志并独立归档 \\
+  \apicode{icw.log.activity_summary} & Summary 日志采集服务 & 采集 Summary 容器日志并独立归档 \\
+  \apicode{icw.docker.logging} & Docker 日志轮转策略 & 配置容器日志文件大小和保留数量 \\
+  \apicode{icw.docker.network} & Docker Compose 网络 & 连接 Web、后端服务、消息队列和日志等 \\
+  \apicode{icw.data.mysql} & MySQL 数据库 & 存储用户、项目、图像、任务、复核和报告等结构化数据 \\
+  \apicode{icw.data.redis} & Redis 缓存 & 存储验证码、令牌、连接票据和短期缓存 \\
+  \apicode{icw.data.minio} & MinIO 对象存储 & 存储图像、检测产物和报告源文件 \\
 \end{longtable}
 }
 
 \appendixsection{HTTP 与 RPC 接口清单}\label{sec:appendix-interface}
 
-本节按照运行时 PSM 对 HTTP 与 RPC 接口进行归档，Core API 直接对前端暴露 HTTP 与 WebSocket 接口，其余服务主要通过 gRPC 进行服务间调用
+本附录按照运行时 PSM 对 HTTP 与 RPC 接口进行归档，Core API 直接对前端暴露 HTTP 与 WebSocket 接口，其余服务主要通过 gRPC 进行服务间调用。
 
-\appendixsubsection{icw.core.api}
+\appendixsubsection{icw.core.api 服务接口清单}
 
 {\small
 \begin{longtable}{@{}p{0.12\linewidth}p{0.36\linewidth}p{0.42\linewidth}@{}}
@@ -52,9 +58,15 @@
   \toprule
   \textbf{方法} & \textbf{路径} & \textbf{说明} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{方法} & \textbf{路径} & \textbf{说明} \\ \midrule
   \endhead
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
+  \bottomrule
+  \endlastfoot
   \apicode{POST} & \apicode{/auth/login} & 登录 \\
   \apicode{POST} & \apicode{/auth/logout} & 登出 \\
   \apicode{GET} & \apicode{/auth/me} & 获取当前登录用户信息 \\
@@ -95,11 +107,10 @@
   \apicode{DELETE} & \apicode{/user/avatar} & 删除用户自定义头像 \\
   \apicode{GET} & \apicode{/user/avatar} & 获取用户头像 \\
   \apicode{POST} & \apicode{/user/avatar} & 上传用户自定义头像 \\
-  \bottomrule
 \end{longtable}
 }
 
-\appendixsubsection{icw.core.biz}
+\appendixsubsection{icw.core.biz 服务接口清单}
 
 {\small
 \begin{longtable}{@{}p{0.28\linewidth}p{0.27\linewidth}p{0.37\linewidth}@{}}
@@ -107,9 +118,15 @@
   \toprule
   \textbf{Service} & \textbf{RPC} & \textbf{说明} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{Service} & \textbf{RPC} & \textbf{说明} \\ \midrule
   \endhead
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
+  \bottomrule
+  \endlastfoot
   \apicode{AuthService} & \apicode{Login} & 用户登录并签发令牌 \\
   \apicode{AuthService} & \apicode{Logout} & 用户登出并注销刷新令牌 \\
   \apicode{AuthService} & \apicode{Me} & 校验访问令牌并返回用户信息 \\
@@ -142,7 +159,7 @@
   \apicode{ProjectDetectionService} & \apicode{GetProjectDetectionTasks} & 获取项目检测任务列表 \\
   \apicode{ProjectDetectionService} & \apicode{GetReasoningArtifactPolicy} & 获取推理产物上传策略 \\
   \apicode{ProjectDetectionService} & \apicode{ReportClassificationResult} & 接收分类 Agent 回调结果 \\
-  \apicode{ProjectDetectionService} & \apicode{ReportDetectionSummaryResult} & 接收单图总结 Agent 回调结果 \\
+  \apicode{ProjectDetectionService} & \apicode{ReportDetectionSummaryResult} & 接收图像级总结 Agent 回调结果 \\
   \apicode{ProjectDetectionService} & \apicode{ReportReasoningResult} & 接收原子检测推理回调结果 \\
   \apicode{ProjectDetectionService} & \apicode{RetryProjectDetection} & 重试项目智能检测 \\
   \apicode{ProjectDetectionService} & \apicode{StartProjectDetection} & 启动项目智能检测 \\
@@ -156,11 +173,10 @@
   \apicode{UserService} & \apicode{DeleteAvatar} & 删除用户头像 \\
   \apicode{UserService} & \apicode{GetAvatar} & 获取用户头像 \\
   \apicode{UserService} & \apicode{UploadAvatar} & 上传用户头像 \\
-  \bottomrule
 \end{longtable}
 }
 
-\appendixsubsection{icw.activity.classification}
+\appendixsubsection{icw.activity.classification 服务接口清单}
 
 {\small
 \begin{longtable}{@{}p{0.30\linewidth}p{0.24\linewidth}p{0.38\linewidth}@{}}
@@ -168,15 +184,20 @@
   \toprule
   \textbf{Service} & \textbf{RPC} & \textbf{说明} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{Service} & \textbf{RPC} & \textbf{说明} \\ \midrule
   \endhead
-  \apicode{ClassificationService} & \apicode{Start} & 启动图像材质分类 Agent 并回调任务代码 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{ClassificationService} & \apicode{Start} & 启动图像材质分类 Agent 并回调任务代码 \\
 \end{longtable}
 }
 
-\appendixsubsection{icw.activity.reasoning}
+\appendixsubsection{icw.activity.reasoning 服务接口清单}
 
 {\small
 \begin{longtable}{@{}p{0.30\linewidth}p{0.24\linewidth}p{0.38\linewidth}@{}}
@@ -184,15 +205,20 @@
   \toprule
   \textbf{Service} & \textbf{RPC} & \textbf{说明} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{Service} & \textbf{RPC} & \textbf{说明} \\ \midrule
   \endhead
-  \apicode{ReasoningService} & \apicode{Start} & 启动指定原子检测能力并回调检测结果 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{ReasoningService} & \apicode{Start} & 启动指定原子检测能力并回调检测结果 \\
 \end{longtable}
 }
 
-\appendixsubsection{icw.activity.summary}
+\appendixsubsection{icw.activity.summary 服务接口清单}
 
 {\small
 \begin{longtable}{@{}p{0.30\linewidth}p{0.28\linewidth}p{0.34\linewidth}@{}}
@@ -200,20 +226,25 @@
   \toprule
   \textbf{Service} & \textbf{RPC} & \textbf{说明} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{Service} & \textbf{RPC} & \textbf{说明} \\ \midrule
   \endhead
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
+  \bottomrule
+  \endlastfoot
   \apicode{SummaryService} & \apicode{StartDetectionSummary} & 启动单图检测总结 Agent 并回调结构化总结 \\
   \apicode{SummaryService} & \apicode{StartProjectSummary} & 启动项目韧性评估报告 Agent 并回调报告 JSON \\
-  \bottomrule
 \end{longtable}
 }
 
 \appendixsection{环境变量配置}\label{sec:appendix-env}
 
-本节按照前端、Core API、Core BIZ、Classification、Reasoning、Summary 六个仓库的 `.env` 文件顺序整理环境变量。表中值为当前工程文件中的配置值，服务器部署场景可通过 Docker Compose 显式覆盖部分监听地址和服务发现地址。
+本附录按照前端、Core API、Core BIZ、Classification、Reasoning、Summary 六个仓库的 `.env` 文件顺序整理环境变量。表中值为当前工程文件中的配置值，服务器部署场景可通过 Docker Compose 显式覆盖部分监听地址和服务发现地址。
 
-\appendixsubsection{icw.core.web}
+\appendixsubsection{icw.core.web 服务环境变量配置}
 
 {\scriptsize
 \begin{longtable}{@{}p{0.30\linewidth}p{0.32\linewidth}p{0.30\linewidth}@{}}
@@ -221,15 +252,20 @@
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endhead
-  \apicode{VITE_API_BASE_URL} & \apicode{http://localhost:8000} & 前端构建时注入的 Core API 基础地址。 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{VITE_API_BASE_URL} & \apicode{http://localhost:8000} & 前端构建时注入的 Core API 基础地址 \\
 \end{longtable}
 }
 
-\appendixsubsection{icw.core.api}
+\appendixsubsection{icw.core.api 服务环境变量配置}
 
 {\scriptsize
 \begin{longtable}{@{}p{0.30\linewidth}p{0.32\linewidth}p{0.30\linewidth}@{}}
@@ -237,72 +273,82 @@
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endhead
-  \apicode{GIN_MODE} & \apicode{release} & Gin 运行模式。 \\
-  \apicode{ICW_CORE_API_ADDR} & \apicode{127.0.0.1:8000} & Core API HTTP 服务监听地址。 \\
-  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务访问地址。 \\
-  \apicode{ROCKETMQ_NAMESRV_ADDR} & \apicode{47.76.71.221:9876} & RocketMQ NameServer 地址。 \\
-  \apicode{ROCKETMQ_PROJECT_EVENT_TOPIC} & \apicode{ICW_PROJECT_EVENT} & 项目事件主题名称。 \\
-  \apicode{ROCKETMQ_CONSUMER_GROUP} & \apicode{icw_core_api_ws_dispatcher} & API WebSocket 事件转发消费者组。 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{GIN_MODE} & \apicode{release} & Gin 运行模式 \\
+  \apicode{ICW_CORE_API_ADDR} & \apicode{127.0.0.1:8000} & Core API HTTP 服务监听地址 \\
+  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务访问地址 \\
+  \apicode{ROCKETMQ_NAMESRV_ADDR} & \apicode{47.76.71.221:9876} & RocketMQ NameServer 地址 \\
+  \apicode{ROCKETMQ_PROJECT_EVENT_TOPIC} & \apicode{ICW_PROJECT_EVENT} & 项目事件主题名称 \\
+  \apicode{ROCKETMQ_CONSUMER_GROUP} & \apicode{icw_core_api_ws_dispatcher} & API WebSocket 事件转发消费者组 \\
 \end{longtable}
 }
 
-\appendixsubsection{icw.core.biz}
+\appendixsubsection{icw.core.biz 服务环境变量配置}
 
 {\scriptsize
-\begin{longtable}{@{}p{0.30\linewidth}p{0.32\linewidth}p{0.30\linewidth}@{}}
+\begin{longtable}{@{}p{0.36\linewidth}p{0.28\linewidth}p{0.30\linewidth}@{}}
   \caption{icw.core.biz 环境变量}\label{tab:appendix-env-biz}\\
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endhead
-  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务监听地址。 \\
-  \apicode{ICW_ACTIVITY_CLASSIFICATION_ADDR} & \apicode{127.0.0.1:8002} & Classification 服务 gRPC 地址。 \\
-  \apicode{ICW_ACTIVITY_REASONING_ADDR} & \apicode{127.0.0.1:8003} & Reasoning 服务 gRPC 地址。 \\
-  \apicode{ICW_ACTIVITY_SUMMARY_ADDR} & \apicode{127.0.0.1:8004} & Summary 服务 gRPC 地址。 \\
-  \apicode{MYSQL_USERNAME} & \apicode{mysql-user} & MySQL 用户名。 \\
-  \apicode{MYSQL_PASSWORD} & \apicode{mysql-2250758} & MySQL 密码。 \\
-  \apicode{MYSQL_ADDR} & \apicode{47.76.71.221:3306} & MySQL 服务地址。 \\
-  \apicode{MYSQL_DATABASE} & \apicode{icw_data_mysql} & MySQL 数据库名称。 \\
-  \apicode{REDIS_ADDR} & \apicode{47.76.71.221:6379} & Redis 服务地址。 \\
-  \apicode{REDIS_PASSWORD} & \apicode{redis-2250758} & Redis 密码。 \\
-  \apicode{REDIS_DB} & \apicode{0} & Redis 数据库编号。 \\
-  \apicode{SMTP_HOST} & \apicode{smtpdm.aliyun.com} & SMTP 邮件服务器主机。 \\
-  \apicode{SMTP_PORT} & \apicode{465} & SMTP SSL 端口。 \\
-  \apicode{SMTP_PASSWORD} & \apicode{M7nB9cV3xZ1lK4jH} & SMTP 发信密码。 \\
-  \apicode{SMTP_FROM_NAME} & 建筑幕墙韧性评估软件系统 & 邮件发信显示名称。 \\
-  \apicode{SMTP_FROM_EMAIL} & \apicode{noreply@mail.minmuslin.cn} & 邮件发信邮箱。 \\
-  \apicode{MINIO_ENDPOINT} & \apicode{http://47.76.71.221:9000} & MinIO 服务地址。 \\
-  \apicode{MINIO_ACCESS_KEY} & \apicode{minio-user} & MinIO 访问密钥。 \\
-  \apicode{MINIO_ACCESS_SECRET} & \apicode{minio-2250758} & MinIO 访问密钥对应的 secret。 \\
-  \apicode{MINIO_BUCKET} & \apicode{icw.data.minio} & MinIO 业务存储桶。 \\
-  \apicode{ROCKETMQ_NAMESRV_ADDR} & \apicode{47.76.71.221:9876} & RocketMQ NameServer 地址。 \\
-  \apicode{ROCKETMQ_PROJECT_EVENT_TOPIC} & \apicode{ICW_PROJECT_EVENT} & 项目事件主题名称。 \\
-  \apicode{JWT_SECRET} & \apicode{icw-jwt-secret} & JWT 签名密钥。 \\
-  \apicode{EMAIL_CODE_SECRET} & \apicode{icw-email-code-secret} & 邮箱验证码签名密钥。 \\
-  \apicode{EMAIL_CODE_TTL_MINUTES} & \apicode{1} & 邮箱验证码有效期，单位分钟。 \\
-  \apicode{LOGIN_FAIL_TTL_MINUTES} & \apicode{10} & 登录失败计数有效期，单位分钟。 \\
-  \apicode{ACCESS_TOKEN_TTL_MINUTES} & \apicode{10} & Access Token 有效期，单位分钟。 \\
-  \apicode{REFRESH_TOKEN_TTL_MINUTES} & \apicode{480} & Refresh Token 有效期，单位分钟。 \\
-  \apicode{AVATAR_GET_TTL_MINUTES} & \apicode{480} & 用户头像下载链接有效期，单位分钟。 \\
-  \apicode{AVATAR_UPLOAD_TTL_MINUTES} & \apicode{1} & 用户头像上传策略有效期，单位分钟。 \\
-  \apicode{PROJECT_IMAGE_GET_TTL_MINUTES} & \apicode{60} & 项目图像下载链接有效期，单位分钟。 \\
-  \apicode{PROJECT_IMAGE_UPLOAD_TTL_MINUTES} & \apicode{1} & 项目图像上传策略有效期，单位分钟。 \\
-  \apicode{SOCKET_TICKET_TTL_MINUTES} & \apicode{1} & WebSocket 连接票据有效期，单位分钟。 \\
-  \apicode{PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES} & \apicode{1} & 图像上传中状态超时时间，单位分钟。 \\
-  \apicode{PENDING_IMAGE_TIMEOUT_JOB_CRON} & \apicode{"0 * * * * *"} & 上传中图像超时任务 Cron 表达式。 \\
-  \apicode{MINIO_DIRTY_OBJECT_CLEANUP_JOB_CRON} & \apicode{"0 0 * * * *"} & MinIO 脏对象清理任务 Cron 表达式。 \\
-  \apicode{DETECTION_WORKER_MAX_CONCURRENCY} & \apicode{20} & 检测任务 Worker 最大并发数。 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务监听地址 \\
+  \apicode{ICW_ACTIVITY_CLASSIFICATION_ADDR} & \apicode{127.0.0.1:8002} & Classification 服务 gRPC 地址 \\
+  \apicode{ICW_ACTIVITY_REASONING_ADDR} & \apicode{127.0.0.1:8003} & Reasoning 服务 gRPC 地址 \\
+  \apicode{ICW_ACTIVITY_SUMMARY_ADDR} & \apicode{127.0.0.1:8004} & Summary 服务 gRPC 地址 \\
+  \apicode{MYSQL_USERNAME} & \apicode{mysql-user} & MySQL 用户名 \\
+  \apicode{MYSQL_PASSWORD} & \apicode{mysql-2250758} & MySQL 密码 \\
+  \apicode{MYSQL_ADDR} & \apicode{47.76.71.221:3306} & MySQL 服务地址 \\
+  \apicode{MYSQL_DATABASE} & \apicode{icw_data_mysql} & MySQL 数据库名称 \\
+  \apicode{REDIS_ADDR} & \apicode{47.76.71.221:6379} & Redis 服务地址 \\
+  \apicode{REDIS_PASSWORD} & \apicode{redis-2250758} & Redis 密码 \\
+  \apicode{REDIS_DB} & \apicode{0} & Redis 数据库编号 \\
+  \apicode{SMTP_HOST} & \apicode{smtpdm.aliyun.com} & SMTP 邮件服务器主机 \\
+  \apicode{SMTP_PORT} & \apicode{465} & SMTP SSL 端口 \\
+  \apicode{SMTP_PASSWORD} & \apicode{M7nB9cV3xZ1lK4jH} & SMTP 发信密码 \\
+  \apicode{SMTP_FROM_NAME} & 建筑幕墙韧性评估软件系统 & 邮件发信显示名称 \\
+  \apicode{SMTP_FROM_EMAIL} & \apicode{noreply@mail.minmuslin.cn} & 邮件发信邮箱 \\
+  \apicode{MINIO_ENDPOINT} & \apicode{http://47.76.71.221:9000} & MinIO 服务地址 \\
+  \apicode{MINIO_ACCESS_KEY} & \apicode{minio-user} & MinIO 访问密钥 \\
+  \apicode{MINIO_ACCESS_SECRET} & \apicode{minio-2250758} & MinIO 访问密钥对应的 secret \\
+  \apicode{MINIO_BUCKET} & \apicode{icw.data.minio} & MinIO 业务存储桶 \\
+  \apicode{ROCKETMQ_NAMESRV_ADDR} & \apicode{47.76.71.221:9876} & RocketMQ NameServer 地址 \\
+  \apicode{ROCKETMQ_PROJECT_EVENT_TOPIC} & \apicode{ICW_PROJECT_EVENT} & 项目事件主题名称 \\
+  \apicode{JWT_SECRET} & \apicode{icw-jwt-secret} & JWT 签名密钥 \\
+  \apicode{EMAIL_CODE_SECRET} & \apicode{icw-email-code-secret} & 邮箱验证码签名密钥 \\
+  \apicode{EMAIL_CODE_TTL_MINUTES} & \apicode{1} & 邮箱验证码有效期，单位分钟 \\
+  \apicode{LOGIN_FAIL_TTL_MINUTES} & \apicode{10} & 登录失败计数有效期，单位分钟 \\
+  \apicode{ACCESS_TOKEN_TTL_MINUTES} & \apicode{10} & Access Token 有效期，单位分钟 \\
+  \apicode{REFRESH_TOKEN_TTL_MINUTES} & \apicode{480} & Refresh Token 有效期，单位分钟 \\
+  \apicode{AVATAR_GET_TTL_MINUTES} & \apicode{480} & 用户头像下载链接有效期，单位分钟 \\
+  \apicode{AVATAR_UPLOAD_TTL_MINUTES} & \apicode{1} & 用户头像上传策略有效期，单位分钟 \\
+  \apicode{PROJECT_IMAGE_GET_TTL_MINUTES} & \apicode{60} & 项目图像下载链接有效期，单位分钟 \\
+  \apicode{PROJECT_IMAGE_UPLOAD_TTL_MINUTES} & \apicode{1} & 项目图像上传策略有效期，单位分钟 \\
+  \apicode{SOCKET_TICKET_TTL_MINUTES} & \apicode{1} & WebSocket 连接票据有效期，单位分钟 \\
+  \apicode{PROJECT_IMAGE_PENDING_TIMEOUT_MINUTES} & \apicode{1} & 图像上传中状态超时时间，单位分钟 \\
+  \apicode{PENDING_IMAGE_TIMEOUT_JOB_CRON} & \apicode{"0 * * * * *"} & 上传中图像超时任务 Cron 表达式 \\
+  \apicode{MINIO_DIRTY_OBJECT_CLEANUP_JOB_CRON} & \apicode{"0 0 * * * *"} & MinIO 脏对象清理任务 Cron 表达式 \\
+  \apicode{DETECTION_WORKER_MAX_CONCURRENCY} & \apicode{20} & 检测任务 Worker 最大并发数 \\
 \end{longtable}
 }
 
-\appendixsubsection{icw.activity.classification}
+\appendixsubsection{icw.activity.classification 服务环境变量配置}
 
 {\scriptsize
 \begin{longtable}{@{}p{0.34\linewidth}p{0.30\linewidth}p{0.28\linewidth}@{}}
@@ -310,22 +356,27 @@
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endhead
-  \apicode{ICW_ACTIVITY_CLASSIFICATION_ADDR} & \apicode{127.0.0.1:8002} & Classification gRPC 服务监听地址。 \\
-  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务地址。 \\
-  \apicode{CLASSIFICATION_TASK_MAX_CONCURRENCY} & \apicode{20} & 分类任务最大并发数。 \\
-  \apicode{AGENT_SECRET_TOKEN} & \apicode{pat_uG4j4COtVZQF9jb7uBY47n6EUnhWOMB3mEwHFOruzOdT9p7w81SmzMYjhX6HgV5p} & 分类 Agent 调用密钥。 \\
-  \apicode{AGENT_BOT_ID} & \apicode{7633469965525614634} & 分类 Agent Bot 标识。 \\
-  \apicode{AGENT_USER_ID} & \apicode{icw_activity_classification} & 分类 Agent 调用用户标识。 \\
-  \apicode{AGENT_IMAGE_SIZE} & \apicode{512} & 分类前图像压缩尺寸。 \\
-  \apicode{AGENT_REQUEST_TIMEOUT_MINUTES} & \apicode{10} & Agent 请求超时时间，单位分钟。 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{ICW_ACTIVITY_CLASSIFICATION_ADDR} & \apicode{127.0.0.1:8002} & Classification gRPC 服务监听地址 \\
+  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务地址 \\
+  \apicode{CLASSIFICATION_TASK_MAX_CONCURRENCY} & \apicode{20} & 分类任务最大并发数 \\
+  \apicode{AGENT_SECRET_TOKEN} & \apicode{pat_xxx} & 分类 Agent 调用密钥 \\
+  \apicode{AGENT_BOT_ID} & \apicode{7633469965525614634} & 分类 Agent Bot 标识 \\
+  \apicode{AGENT_USER_ID} & \apicode{icw_activity_classification} & 分类 Agent 调用用户标识 \\
+  \apicode{AGENT_IMAGE_SIZE} & \apicode{512} & 分类前图像压缩尺寸 \\
+  \apicode{AGENT_REQUEST_TIMEOUT_MINUTES} & \apicode{10} & Agent 请求超时时间，单位分钟 \\
 \end{longtable}
 }
 
-\appendixsubsection{icw.activity.reasoning}
+\appendixsubsection{icw.activity.reasoning 服务环境变量配置}
 
 {\scriptsize
 \begin{longtable}{@{}p{0.34\linewidth}p{0.30\linewidth}p{0.28\linewidth}@{}}
@@ -333,22 +384,27 @@
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endhead
-  \apicode{ICW_ACTIVITY_REASONING_ADDR} & \apicode{127.0.0.1:8003} & Reasoning gRPC 服务监听地址。 \\
-  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务地址。 \\
-  \apicode{REASONING_MODEL_DIR} & \apicode{models} & 本地模型文件根目录。 \\
-  \apicode{REASONING_RUNTIME_DIR} & \apicode{.runtime} & 推理运行时临时目录。 \\
-  \apicode{REASONING_TASK_MAX_CONCURRENCY} & \apicode{20} & 推理任务最大并发数。 \\
-  \apicode{REASONING_TASK_TIMEOUT_MINUTES} & \apicode{30} & 单个推理任务超时时间，单位分钟。 \\
-  \apicode{ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES} & \apicode{5} & 检测输入文件下载超时时间，单位分钟。 \\
-  \apicode{ARTIFACT_UPLOAD_TIMEOUT_MINUTES} & \apicode{10} & 检测产物上传超时时间，单位分钟。 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{ICW_ACTIVITY_REASONING_ADDR} & \apicode{127.0.0.1:8003} & Reasoning gRPC 服务监听地址 \\
+  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务地址 \\
+  \apicode{REASONING_MODEL_DIR} & \apicode{models} & 本地模型文件根目录 \\
+  \apicode{REASONING_RUNTIME_DIR} & \apicode{.runtime} & 推理运行时临时目录 \\
+  \apicode{REASONING_TASK_MAX_CONCURRENCY} & \apicode{20} & 推理任务最大并发数 \\
+  \apicode{REASONING_TASK_TIMEOUT_MINUTES} & \apicode{30} & 单个推理任务超时时间，单位分钟 \\
+  \apicode{ARTIFACT_DOWNLOAD_TIMEOUT_MINUTES} & \apicode{5} & 检测输入文件下载超时时间，单位分钟 \\
+  \apicode{ARTIFACT_UPLOAD_TIMEOUT_MINUTES} & \apicode{10} & 检测产物上传超时时间，单位分钟 \\
 \end{longtable}
 }
 
-\appendixsubsection{icw.activity.summary}
+\appendixsubsection{icw.activity.summary 服务环境变量配置}
 
 {\scriptsize
 \begin{longtable}{@{}p{0.36\linewidth}p{0.28\linewidth}p{0.28\linewidth}@{}}
@@ -356,20 +412,25 @@
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endfirsthead
+  \tjlongtablecont{3}
   \toprule
   \textbf{环境变量名称} & \textbf{值} & \textbf{意义} \\ \midrule
   \endhead
-  \apicode{ICW_ACTIVITY_SUMMARY_ADDR} & \apicode{127.0.0.1:8004} & Summary gRPC 服务监听地址。 \\
-  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务地址。 \\
-  \apicode{DETECTION_SUMMARY_TASK_MAX_CONCURRENCY} & \apicode{20} & 图像检测总结任务最大并发数。 \\
-  \apicode{DETECTION_SUMMARY_AGENT_SECRET_TOKEN} & \apicode{pat_uG4j4COtVZQF9jb7uBY47n6EUnhWOMB3mEwHFOruzOdT9p7w81SmzMYjhX6HgV5p} & 图像检测总结 Agent 调用密钥。 \\
-  \apicode{DETECTION_SUMMARY_AGENT_BOT_ID} & \apicode{7637717111535730723} & 图像检测总结 Agent Bot 标识。 \\
-  \apicode{DETECTION_SUMMARY_AGENT_USER_ID} & \apicode{icw_activity_summary} & 图像检测总结 Agent 调用用户标识。 \\
-  \apicode{PROJECT_SUMMARY_TASK_MAX_CONCURRENCY} & \apicode{20} & 项目报告总结任务最大并发数。 \\
-  \apicode{PROJECT_SUMMARY_AGENT_SECRET_TOKEN} & \apicode{pat_uG4j4COtVZQF9jb7uBY47n6EUnhWOMB3mEwHFOruzOdT9p7w81SmzMYjhX6HgV5p} & 项目报告 Agent 调用密钥。 \\
-  \apicode{PROJECT_SUMMARY_AGENT_BOT_ID} & \apicode{7637717197741342726} & 项目报告 Agent Bot 标识。 \\
-  \apicode{PROJECT_SUMMARY_AGENT_USER_ID} & \apicode{icw_activity_summary} & 项目报告 Agent 调用用户标识。 \\
-  \apicode{AGENT_REQUEST_TIMEOUT_MINUTES} & \apicode{10} & Agent 请求超时时间，单位分钟。 \\
+  \hline
+  \multicolumn{3}{r}{续下页}\\
+  \endfoot
   \bottomrule
+  \endlastfoot
+  \apicode{ICW_ACTIVITY_SUMMARY_ADDR} & \apicode{127.0.0.1:8004} & Summary gRPC 服务监听地址 \\
+  \apicode{ICW_CORE_BIZ_ADDR} & \apicode{127.0.0.1:8001} & Core BIZ gRPC 服务地址 \\
+  \apicode{DETECTION_SUMMARY_TASK_MAX_CONCURRENCY} & \apicode{20} & 图像检测总结任务最大并发数 \\
+  \apicode{DETECTION_SUMMARY_AGENT_SECRET_TOKEN} & \apicode{pat_xxx} & 图像检测总结 Agent 调用密钥 \\
+  \apicode{DETECTION_SUMMARY_AGENT_BOT_ID} & \apicode{7637717111535730723} & 图像检测总结 Agent Bot 标识 \\
+  \apicode{DETECTION_SUMMARY_AGENT_USER_ID} & \apicode{icw_activity_summary} & 图像检测总结 Agent 调用用户标识 \\
+  \apicode{PROJECT_SUMMARY_TASK_MAX_CONCURRENCY} & \apicode{20} & 项目报告总结任务最大并发数 \\
+  \apicode{PROJECT_SUMMARY_AGENT_SECRET_TOKEN} & \apicode{pat_xxx} & 项目报告 Agent 调用密钥 \\
+  \apicode{PROJECT_SUMMARY_AGENT_BOT_ID} & \apicode{7637717197741342726} & 项目报告 Agent Bot 标识 \\
+  \apicode{PROJECT_SUMMARY_AGENT_USER_ID} & \apicode{icw_activity_summary} & 项目报告 Agent 调用用户标识 \\
+  \apicode{AGENT_REQUEST_TIMEOUT_MINUTES} & \apicode{10} & Agent 请求超时时间，单位分钟 \\
 \end{longtable}
 }
