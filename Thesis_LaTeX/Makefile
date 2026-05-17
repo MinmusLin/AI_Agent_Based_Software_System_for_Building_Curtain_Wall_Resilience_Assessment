@@ -24,9 +24,7 @@ help:
 	@echo "  make count  Count thesis characters"
 
 all:
-	@$(MAKE) clean
 	@latexmk $(LATEXMK_OPT) $(THESIS).tex
-	@$(MAKE) clean
 
 clean:
 	-@latexmk -c -bibtex -silent $(THESIS).tex 2> /dev/null
