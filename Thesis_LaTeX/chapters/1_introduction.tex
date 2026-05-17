@@ -22,12 +22,12 @@
       oldstep/.style={flowstep, fill=red!6},
       newstep/.style={flowstep, fill=blue!6},
       keyold/.style={flowstep, fill=red!12},
-      keynew/.style={flowstep, fill=green!10},
+      keynew/.style={flowstep, fill=blue!12},
       arrow/.style={->, line width=0.5pt},
       note/.style={align=center, font=\scriptsize, text=black}
     ]
       \draw[panel] (0, 0) rectangle (5.1, -6.9);
-      \node[title] at (2.55, -0.45) {传统幕墙巡检流程};
+      \node[title] at (2.55, -0.5) {传统幕墙巡检流程};
       \node[oldstep] (old-collect) at (2.55, -1.35) {无人机或人工采集图像};
       \node[oldstep] (old-organize) at (2.55, -2.55) {人工整理图像文件};
       \node[oldstep] (old-detect) at (2.55, -3.75) {单图单缺陷检测};
@@ -43,7 +43,7 @@
       \draw[arrow] (5.35, -3.45) -- (7.05, -3.45);
 
       \draw[panel] (7.3, 0) rectangle (12.4, -6.9);
-      \node[title] at (9.85, -0.45) {用户真实评估需求};
+      \node[title] at (9.85, -0.5) {用户真实评估需求};
       \node[newstep] (new-assets) at (9.85, -1.35) {项目级图像统一管理};
       \node[newstep] (new-agent) at (9.85, -2.55) {按图像内容自动分流};
       \node[newstep] (new-detect) at (9.85, -3.75) {多类缺陷协同检测};
