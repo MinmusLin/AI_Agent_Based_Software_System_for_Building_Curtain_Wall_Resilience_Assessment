@@ -1,10 +1,16 @@
 \chapter{系统需求分析}
 \label{chap:requirements}
 
-为了将建筑幕墙韧性评估从人工经验流程转化为软件系统，首先需要明确业务对象与用户流程。业务对象包括项目、图像组、图像、检测主任务、检测子任务、图像总结、人工复核和项目报告等。项目保存建筑名称、位置、建设年份、既有问题和评估目标等背景信息；图像组对应建筑立面、楼层或采集区域；图像保存原图、尺寸、文件大小和上传状态；检测主任务以单张图像为单位，关联分类路由、五类检测子任务和图像总结；人工复核提供专业的判断依据；项目报告则是最终面向运维决策的输出。用户流程可以抽象为项目基础信息、图像资产构建、Agent 智能检测、人工复核确认和评估报告生成五个阶段，各阶段之间存在严格依赖关系。基于上述对象模型和流程模型，本章进一步分析角色责任、典型用例、功能需求、非功能需求和相关约束条件。
+建筑幕墙韧性评估原本较多依赖人工整理和工程经验。将其转化为软件系统时，不能只从页面功能出发，还需要把现场工作中反复出现的信息拆分为可保存、可流转和可追溯的业务对象。本文将系统中的核心对象划分为项目、图像组、图像、检测主任务、检测子任务、图像总结、人工复核和项目报告。项目用于保存建筑名称、位置、建设年份、既有问题和评估目标等背景信息；图像组对应建筑立面、楼层或采集区域；图像记录原图、尺寸、文件大小和上传状态；检测主任务以单张图像为单位，串联分类路由、五类检测子任务和图像总结；人工复核记录工程人员对检测结果的补充判断；项目报告则面向后续运维决策形成最终输出。
+
+从用户操作过程看，本系统也不是一组可以任意跳转的独立功能，而是围绕评估任务逐步推进的阶段化流程。用户通常需要先维护项目基础信息，再完成图像资产构建，随后启动 Agent 智能检测；检测结果经过人工复核确认后，系统才进入评估报告生成阶段。各阶段之间存在明确的前后依赖，例如没有图像资产就无法启动检测，检测结果未完成也不适合进入报告生成。基于上述对象模型和流程模型，本章进一步分析角色责任、典型用例、功能需求、非功能需求和相关约束条件。
 
 \section{业务闭环中的角色与责任}
 \label{sec:requirements-role-and-responsibility-in-business-closed-loop}
+
+如\cref{fig:requirements-role-responsibility} 所示，系统中的主要角色可以分为使用者、业务服务、Agent 服务和检测模型服务。使用者关注的是项目创建、图像上传、结果查看、人工复核和报告确认；业务服务关注的是鉴权、数据持久化、状态推进和结果发布；Agent 服务关注的是语义路由、图像总结和项目报告生成；检测模型服务关注的是五类图像级原子检测能力的执行。角色划分的核心不是简单列出模块，而是明确“谁可以改变业务状态、谁只能提供判断结果”。这与\cref{sec:foundation-agent-engineering-controllability-problem}关于 Agent 工程化可控性问题的讨论直接对应。
+
+从业务对象角度看，图像不是孤立输入，而是项目资产的一部分；检测任务也不是一次函数调用，而是围绕图像产生的业务记录。这样建模可以支持两个重要能力：第一，用户可以在任何时间回到项目查看历史检测结果；第二，系统可以在报告阶段追溯每个结论来自哪张图像、哪个检测任务和哪个区域。
 
 \begin{figure}[!htb]
   \centering
@@ -49,13 +55,9 @@
   \caption{业务闭环中的角色与责任关系}\label{fig:requirements-role-responsibility}
 \end{figure}
 
-如\cref{fig:requirements-role-responsibility} 所示，系统中的主要角色可以分为使用者、业务服务、Agent 服务和检测模型服务。使用者关注的是项目创建、图像上传、结果查看、人工复核和报告确认；业务服务关注的是鉴权、数据持久化、状态推进和结果发布；Agent 服务关注的是语义路由、图像总结和项目报告生成；检测模型服务关注的是五类图像级原子检测能力的执行。角色划分的核心不是简单列出模块，而是明确“谁可以改变业务状态、谁只能提供判断结果”。这与\cref{sec:foundation-agent-engineering-controllability-problem}关于 Agent 工程化可控性问题的讨论直接对应。
+从用户流程角度看，五个阶段并不是并列入口，而是逐步补齐评估材料的过程。项目基础信息提供报告背景，图像资产提供检测对象；检测完成以后，人工复核才有具体依据，复核意见也会继续进入报告上下文。因此，系统需要设置项目进度控制，避免用户在数据尚未完整时提前进入后续阶段。与此同时，检测和报告生成都可能持续较长时间，若让用户一直等待同步请求返回，使用体验会明显下降，所以这类任务更适合以异步方式执行。
 
-从业务对象角度看，图像不是孤立输入，而是项目资产的一部分；检测任务也不是一次函数调用，而是围绕图像产生的业务记录。这样建模可以支持两个重要能力：第一，用户可以在任何时间回到项目查看历史检测结果；第二，系统可以在报告阶段追溯每个结论来自哪张图像、哪个检测任务和哪个区域。
-
-从用户流程角度看，五个阶段之间存在前后依赖。没有项目基础信息，报告缺少背景；没有图像资产，检测无法启动；检测未完成，复核无从进行；复核结束后，报告生成才能获得完整上下文。系统因此需要项目进度控制，避免用户在数据不完整时进入后续阶段。同时，为了降低用户等待成本，检测和报告生成等长耗时任务必须异步执行。
-
-例如，分类 Agent 可以判断需要执行哪些检测，但不应直接创建数据库子任务；Reasoning 服务可以执行模型并生成产物，但不应决定主任务是否完成；Summary 服务可以生成总结和报告，但不应绕过业务状态机直接推进项目阶段；前端可以展示进度和结果，但不应根据局部状态自行推断数据库最终状态。
+在角色边界上，各服务只负责自身范围内的判断或产物。分类 Agent 负责给出需要执行的检测任务建议，数据库中的检测子任务仍由业务服务创建；Reasoning 服务负责执行模型并生成检测产物，检测主任务是否完成则应由业务服务根据子任务状态统一判断；Summary 服务负责生成图像总结和项目报告，但项目阶段推进仍需要经过业务状态机；前端可以展示进度和结果，却不应根据局部页面状态自行推断数据库中的最终状态。
 
 \begin{table}[!htb]
   \caption{业务角色与责任边界}\label{tab:role-boundary}
@@ -128,9 +130,9 @@
   \caption{系统核心 UML 用例图}\label{fig:requirements-core-use-case}
 \end{figure}
 
-这些用例覆盖了从数据进入系统到决策结果输出的全过程，也对应\cref{sec:introduction-research-problem}提出的三个层次研究问题：图像资产构建解决数据组织问题，Agent 智能检测解决任务选择与调度问题，人工复核和报告生成解决韧性评估与报告表达问题。与普通后台管理系统相比，本系统的关键用例不是简单增删改查，而是长任务驱动的业务流程。Agent 智能检测背后包含多个服务、多次回调和多种状态，必须通过状态机和异步编排保证可用。
+这些用例基本对应用户从上传资料到获得评估结论的主要操作，也与\cref{sec:introduction-research-problem}中提出的三个研究问题相呼应。图像资产构建主要处理数据如何进入系统、如何按项目和区域组织；Agent 智能检测关注每张图应该执行哪些检测任务，以及这些任务如何被调度；人工复核和报告生成则把模型结果进一步转化为韧性评估表达。与普通后台管理系统相比，本系统的重点不只是增删改查页面，而是围绕长耗时任务组织业务流程。尤其是 Agent 智能检测环节，背后会经过多个服务、多次回调和多种任务状态，因此需要通过状态机和异步编排来维持流程稳定。
 
-需要说明的是，UML 用例图强调参与者与系统功能边界，但不直接表达严格执行顺序。本文系统在真实使用中仍然遵循项目基础信息、图像资产构建、Agent 智能检测、人工复核确认和评估报告生成的阶段化流程，具体阶段约束将在后续需求分析中展开。
+需要说明的是，UML 用例图更适合说明参与者能够使用哪些功能，以及这些功能属于系统边界内还是边界外。它并不直接表示用户必须按照怎样的顺序完成操作。实际使用时，本文系统仍按项目基础信息、图像资产构建、Agent 智能检测、人工复核确认和评估报告生成这一流程推进。每个阶段的进入条件和限制将在后续需求分析中继续说明。
 
 \section{功能需求分析}
 \label{sec:requirements-functional-requirement-analysis}
@@ -283,7 +285,61 @@
 \section{非功能需求分析}
 \label{sec:requirements-nonfunctional-requirement-analysis}
 
-除功能闭环外，本文系统还需要满足可扩展性、一致性、可观测性、可部署性和用户体验等非功能需求。这些需求与\cref{sec:foundation-agent-engineering-controllability-problem}讨论的 Agent 工程化问题密切相关：Agent 输出具有不确定性，检测和报告任务耗时较长，图像产物规模较大，跨服务调用链路复杂。如果只关注页面功能而忽略非功能需求，系统即使能够完成一次演示，也难以稳定支撑真实场景试用。
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      panel/.style={draw, rounded corners=2pt, line width=0.45pt, fill=gray!4},
+      target/.style={draw, rounded corners=2pt, align=center, minimum width=2.7cm, minimum height=0.86cm, line width=0.45pt, fill=blue!6, inner sep=3pt},
+      requirement/.style={draw, rounded corners=2pt, align=center, minimum width=2.45cm, minimum height=0.64cm, line width=0.45pt, fill=green!7, inner sep=2pt},
+      constraint/.style={draw, rounded corners=2pt, align=center, minimum width=4.1cm, minimum height=0.64cm, line width=0.45pt, fill=orange!8, inner sep=2pt},
+      arrow/.style={->, line width=0.5pt},
+      title/.style={font=\scriptsize\bfseries, align=center}
+    ]
+      \draw[panel] (0.0, 0.55) rectangle (11.85, -4.65);
+      \node[title] at (1.9, 0.15) {运行目标};
+      \node[title] at (5.375, 0.15) {非功能需求};
+      \node[title] at (9.25, 0.15) {工程约束};
+
+      \node[target] (target) at (1.9, -2.35) {真实场景试用\\稳定支撑};
+
+      \node[requirement] (scalability) at (5.375, -0.75) {可扩展性\\能力接入};
+      \node[constraint] (scalability-c) at (9.25, -0.75) {任务代码、注册表\\模型与前端可扩展};
+
+      \node[requirement] (consistency) at (5.375, -1.55) {一致性\\状态可信};
+      \node[constraint] (consistency-c) at (9.25, -1.55) {回调落库、事务推进\\统一业务状态};
+
+      \node[requirement] (observability) at (5.375, -2.35) {可观测性\\故障定位};
+      \node[constraint] (observability-c) at (9.25, -2.35) {Request ID、任务日志\\WebSocket 与 MQ 追踪};
+
+      \node[requirement] (deployability) at (5.375, -3.15) {可部署性\\环境落地};
+      \node[constraint] (deployability-c) at (9.25, -3.15) {容器编排、模型挂载\\服务依赖配置};
+
+      \node[requirement] (experience) at (5.375, -3.95) {用户体验\\过程反馈};
+      \node[constraint] (experience-c) at (9.25, -3.95) {进度展示、状态恢复\\结果解释与追溯};
+
+      \draw[arrow] (target.east) -- (scalability.west);
+      \draw[arrow] (target.east) -- (consistency.west);
+      \draw[arrow] (target.east) -- (observability.west);
+      \draw[arrow] (target.east) -- (deployability.west);
+      \draw[arrow] (target.east) -- (experience.west);
+
+      \draw[arrow] (scalability) -- (scalability-c);
+      \draw[arrow] (consistency) -- (consistency-c);
+      \draw[arrow] (observability) -- (observability-c);
+      \draw[arrow] (deployability) -- (deployability-c);
+      \draw[arrow] (experience) -- (experience-c);
+    \end{tikzpicture}%
+  }
+  \caption{非功能需求与工程约束关系}
+  \label{fig:requirements-nonfunctional-requirements-overview}
+\end{figure}
+
+除业务流程能够走通之外，系统还需要考虑一些更偏工程运行层面的要求，包括可扩展性、一致性、可观测性、可部署性和用户体验等。这里的非功能需求并不是附加项，而是和\cref{sec:foundation-agent-engineering-controllability-problem}中讨论的 Agent 工程化问题直接相关。原因在于，Agent 输出存在一定不确定性，检测和报告生成往往不是瞬时完成，图像原图与检测产物也会占用较多存储空间，同时多个服务之间还存在回调和状态同步。如果只关注页面功能而忽略非功能需求，系统即使能够完成一次演示，也难以稳定支撑真实场景试用。
+
+为便于理解，\cref{fig:requirements-nonfunctional-requirements-overview} 将非功能需求概括为围绕真实场景试用形成的五类工程约束，分别对应能力扩展、状态可信、故障定位、环境落地和过程反馈等问题。下面对五类非功能需求进行详细说明。
 
 \subsection{可扩展性}
 \label{subsec:requirements-scalability}
@@ -313,15 +369,15 @@ Agent 和模型调用存在外部依赖，失败原因可能来自网络、模�
 \section{关键挑战}
 \label{sec:requirements-key-challenges}
 
-根据上述需求，本文系统实现并非简单 CRUD，而是在多个维度存在复杂性。
+根据上述需求分析中可以看出，本文系统不能简单理解为普通 CRUD 页面组合。它更接近一个围绕图像资产、异步任务和报告生成组织起来的业务流程系统，因此实现难点主要集中在以下几个方面。
 
-第一，业务链路长。用户从上传图像到生成报告，需要经历资产管理、分类路由、并发检测、图像总结、人工复核和项目报告多个阶段。
+第一点是业务链路较长。用户上传图像后，系统还需要完成图像归档、分类路由、并发检测、图像总结、人工复核和项目报告生成等步骤。任一环节失败或状态没有及时更新，都会影响后续阶段的推进。
 
-第二，服务协作复杂。系统包含前端、API、BIZ、三个 Activity 服务、数据库、对象存储、缓存和消息队列等。
+第二个难点是服务协作较多。系统中前端负责交互，API 负责接入和鉴权，BIZ 负责业务状态，三个 Activity 服务分别处理分类、推理和总结，数据库、对象存储、缓存和消息队列又承担不同的数据支撑职责。各模块边界不同，但需要在一次检测流程中连续配合。
 
-第三，状态同步复杂。检测状态既要写入数据库，又要通过 RocketMQ 和 WebSocket 推送给前端，还要在页面刷新后可恢复。
+第三，状态同步要求较高。检测状态既要持久化到数据库，又要通过 RocketMQ 触发事件，并通过 WebSocket 推送到前端。用户刷新页面后仍应看到正确进度，因此系统不能只依赖前端内存状态，而要以后端任务状态作为最终依据。
 
-第四，结果结构复杂。不同检测任务输出字段不同，区域数量不定，产物图像数量不定，报告生成还需要将这些结果重新组织。
+第四，结果结构并不统一。五类检测任务的输出字段、区域数量和产物图像数量都不完全相同，有的输出掩码和面积占比，有的输出分类置信度或校正图。报告生成阶段还需要把这些差异化结果重新整理成统一上下文，否则后续 LLM 很难稳定生成项目级结论。
 
 第五，报告输入组织复杂。项目级报告并不是简单拼接所有检测结果，而是需要把原子指标、图像总结、图像组信息和人工复核意见组织为模型可理解的上下文。上下文过短会导致报告缺少依据，上下文过长又可能造成重点丢失。
 
@@ -333,6 +389,8 @@ Agent 和模型调用存在外部依赖，失败原因可能来自网络、模�
 \label{sec:requirements-data-flow-analysis}
 
 数据流分析用于说明系统中的数据如何从用户输入转化为可复核的检测结果和可阅读的评估报告。与普通信息管理系统不同，本文系统同时包含前端交互数据、业务状态数据、图像文件数据、模型推理结果、Agent 语义输出和实时事件数据。为了体现这些数据之间的关系，\cref{fig:requirements-system-data-flow} 从 FE 前端层、API 接入层、BIZ 业务层、Activity 基础能力服务和基础设施五个层次刻画系统主要数据流。
+
+如\cref{fig:requirements-system-data-flow} 所示，系统数据流首先从用户在前端发起项目操作和图像上传开始。前端通过 Core API 获取业务数据和上传授权，并将大体量图像文件直接写入 MinIO；Core API 负责鉴权、HTTP 接入和 WebSocket 连接维护，复杂业务状态则下沉到 Core BIZ。Core BIZ 在 MySQL 中保存项目、图像、检测主任务、检测子任务、复核记录和报告状态，在 Redis 中配合完成令牌状态和临时控制，并根据业务阶段创建分类、检测、总结和报告任务。
 
 \begin{figure}[!htb]
   \centering
@@ -362,7 +420,7 @@ Agent 和模型调用存在外部依赖，失败原因可能来自网络、模�
       \node[service, fill=red!7] (reasoning) at (12.0, 3) {Reasoning\\检测模型服务\\执行原子检测};
       \node[service, fill=purple!8] (summary) at (12.0, 0.75) {Summary\\总结 Agent\\图像级总结与项目报告};
 
-      \node[storage, fill=yellow!14, minimum width=2.35cm] (websocket) at (1.92, 1.40) {WebSocket\\实时状态通道};
+      \node[storage, fill=pink!14, minimum width=2.35cm] (websocket) at (1.92, 1.40) {WebSocket\\实时状态通道};
       \node[storage, fill=gray!10, anchor=west] (mysql) at (-0.80, -1.25) {MySQL\\项目 / 图像 / 任务\\指标 / 复核 / 报告};
       \path (mysql.east) ++(0.78, 0) node[storage, fill=gray!10, anchor=west] (redis) {Redis\\令牌状态\\缓存与临时控制};
       \path (redis.east) ++(0.78, 0) node[storage, fill=gray!10, anchor=west] (minio) {MinIO\\原图 / 缩略图 / 检测产物\\结构化多源分析数据};
@@ -409,13 +467,11 @@ Agent 和模型调用存在外部依赖，失败原因可能来自网络、模�
   \caption{系统核心数据流与事件流图示}\label{fig:requirements-system-data-flow}
 \end{figure}
 
-如\cref{fig:requirements-system-data-flow} 所示，系统数据流首先从用户在前端发起项目操作和图像上传开始。前端通过 Core API 获取业务数据和上传授权，并将大体量图像文件直接写入 MinIO；Core API 负责鉴权、HTTP 接入和 WebSocket 连接维护，复杂业务状态则下沉到 Core BIZ。Core BIZ 在 MySQL 中保存项目、图像、检测主任务、检测子任务、复核记录和报告状态，在 Redis 中配合完成令牌状态和临时控制，并根据业务阶段创建分类、检测、总结和报告任务。
-
 Activity 服务与 BIZ 之间形成受控的异步执行关系。Classification 服务只返回图像对应的任务代码，Reasoning 服务只返回原子检测指标和产物清单，Summary 服务只返回结构化 JSON 总结或项目报告；所有结果都通过回调进入 BIZ，由 BIZ 在事务中解析、落库并推进状态。图像原图、缩略图、检测产物和项目报告源文件等文件数据统一存储在 MinIO，模型服务在执行时读取受控授权下的原图，并在产物上传完整后再回调结构化结果。
 
 数据流中还存在一条独立的实时事件链路。BIZ 在状态变化后向 RocketMQ 发布项目事件，Core API 消费事件后通过 WebSocket 广播给前端，使用户能够实时看到图像上传、检测进度和报告状态变化。页面刷新或 WebSocket 断连后，前端仍然可以重新调用列表和详情接口，从 MySQL 中恢复完整状态。因此，RocketMQ 和 WebSocket 主要承担增量通知职责，数据库中的结构化状态仍然是系统最终可信来源。
 
-该数据流说明系统中至少同时存在三类核心数据：文件数据、结构化数据和语义数据。文件数据包括原图、缩略图、检测产物和报告源文件，存储在 MinIO；结构化数据包括项目、图像、任务状态、指标字段、区域 JSON 和复核意见，存储在 MySQL；语义数据包括图像级总结和项目评估报告，由 Agent 生成后经 BIZ 校验并写入数据库。三类数据分别服务于不同目标：文件用于工程复核，结构化数据用于过程追踪和页面展示，语义数据用于报告生成和运维决策。需求分析必须同时覆盖三类数据及其流转关系，否则系统无法形成从视觉证据到工程结论的可追溯链路。
+从该数据流可以看出，系统中并不是只有数据库记录在流动，还同时存在文件数据、结构化数据和语义数据三类内容。原图、缩略图、检测产物和报告源文件属于文件数据，主要存储在 MinIO 中，后续复核和结果展示都需要依赖这些文件。项目、图像、任务状态、指标字段、区域 JSON 和复核意见属于结构化数据，保存在 MySQL 中，用来支撑页面查询、状态追踪和流程推进。图像级总结和项目评估报告则属于语义数据，由 Agent 生成后再经过 BIZ 校验并写入数据库。三类数据的作用并不相同：文件数据保留视觉证据，结构化数据记录过程和指标，语义数据负责把底层结果转化为面向运维决策的表达。
 
 \section{约束条件}
 \label{sec:requirements-constraints}
@@ -442,6 +498,4 @@ Activity 服务与 BIZ 之间形成受控的异步执行关系。Classification 
   \end{tabular}
 \end{table}
 
-如\cref{tab:requirement-goal-map} 所示，本文的设计目标并非孤立功能堆叠，而是围绕现实问题建立相应解决策略。每个策略都对应系统中的一个工程或 Agent 设计点，最终共同构成完整解决方案。
-
-上述需求分析为\cref{chap:design}技术方案设计和\cref{chap:implementation}系统架构与工程实现提供了明确依据。\cref{chap:design}将重点回答如何设计面向建筑幕墙多材质图像的 Agent 自主任务调度方法和 LLM 分层信息整合策略，\cref{chap:implementation}则进一步说明这些需求如何落地为服务架构、协议、数据库状态机、对象存储和前端可视化实现。
+如\cref{tab:requirement-goal-map} 所示，本章并不是把系统功能简单列成清单，而是把前文提到的现实问题逐一对应到后续设计中。项目级管理、任务调度、长任务执行、多源结果整合、用户感知和可追踪性，都会在系统中落到具体的工程或 Agent 设计点上。因此，\cref{chap:design}将继续讨论面向建筑幕墙多材质图像的 Agent 自主任务调度方法和 LLM 分层信息整合策略，\cref{chap:implementation}则说明这些需求如何进一步落实到服务架构、协议、数据库状态机、对象存储和前端可视化实现中。
