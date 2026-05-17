@@ -804,7 +804,9 @@ export function ReviewPanel({ review }: { review: ProjectDetectionReviewProps })
               className={
                 review.readOnly && selected
                   ? readOnlySelectedClassName
-                  : option.value === ProjectDetectionReviewVerdict_Value.Inaccurate
+                  : !review.readOnly &&
+                      !review.saving &&
+                      option.value === ProjectDetectionReviewVerdict_Value.Inaccurate
                     ? INACCURATE_BUTTON_HOVER_CLASS_NAME
                     : undefined
               }
