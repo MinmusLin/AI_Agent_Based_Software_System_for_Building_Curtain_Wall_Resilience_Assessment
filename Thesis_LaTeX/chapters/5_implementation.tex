@@ -709,6 +709,78 @@ Agent 和模型服务的输出同样不能直接进入数据库。分类 Agent �
 
 本项目部署时使用 Docker Compose 统一拉起各个服务。Compose 文件中除了 Core Web、Core API 和 Core BIZ 外，还包含 RocketMQ NameServer、Broker、Topic 初始化服务、三个 Activity 服务以及日志采集 Sidecar。各容器被放在同一个 Docker 网络中，服务之间直接通过容器服务名访问，不需要在代码中写固定 IP。对外访问主要经过两个入口：Core API 暴露 HTTP 接口，Core Web 由 Nginx 托管前端静态资源并映射到 80 端口。Reasoning 服务比较特殊，它需要读取服务器上的模型权重，因此通过只读挂载方式加载模型目录，避免模型文件被容器运行过程意外修改。
 
+\begin{figure}[!htb]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+      font=\scriptsize,
+      >=stealth,
+      host/.style={draw=gray!70!black, fill=gray!5, rounded corners=4pt, line width=0.65pt},
+      network/.style={draw=purple!55!black, fill=purple!4, rounded corners=4pt, line width=0.65pt},
+      access/.style={draw=blue!65!black, fill=blue!7, rounded corners=3pt, align=center, minimum width=2.20cm, minimum height=0.72cm, line width=0.55pt},
+      core/.style={draw=green!55!black, fill=green!8, rounded corners=3pt, align=center, minimum width=2.20cm, minimum height=0.72cm, line width=0.55pt},
+      activity/.style={draw=orange!75!black, fill=orange!10, rounded corners=3pt, align=center, minimum width=2.20cm, minimum height=0.72cm, line width=0.55pt},
+      mq/.style={draw=red!65!black, fill=red!7, rounded corners=3pt, align=center, minimum width=2.20cm, minimum height=0.72cm, line width=0.55pt},
+      volume/.style={draw=gray!75!black, fill=gray!10, rounded corners=3pt, align=center, minimum width=2.70cm, minimum height=0.72cm, line width=0.55pt},
+      label/.style={font=\bfseries\scriptsize, anchor=west},
+      flow/.style={->, line width=0.58pt},
+      mount/.style={->, dashed, line width=0.55pt},
+      note/.style={font=\tiny, align=center, inner sep=1pt}
+    ]
+      \path[use as bounding box] (-9.75,-4.25) rectangle (9.05,4.75);
+
+      \draw[host] (-7.20,-3.55) rectangle (8.95,4.55);
+      \node[label] at (-6.88,4.18) {服务器部署环境};
+
+      \draw[network] (-6.75,-1.55) rectangle (8.55,3.85);
+      \node[label] at (-6.43,3.48) {Docker Compose 服务网络：icw.docker.network};
+
+      \node[access] (user) at (-8.55,2.55) {浏览器用户\\HTTP / WS};
+      \node[access] (web) at (-5.15,2.55) {Core Web\\Nginx: 80};
+      \node[access] (api) at (-2.25,2.55) {Core API\\HTTP / WS: 8000};
+
+      \node[core] (biz) at (-2.25,1.05) {Core BIZ\\gRPC: 8001};
+      \node[activity] (classification) at (-5.15,-0.70) {Classification\\gRPC: 8002};
+      \node[activity] (reasoning) at (-2.25,-0.70) {Reasoning\\gRPC: 8003};
+      \node[activity] (summary) at (0.65,-0.70) {Summary\\gRPC: 8004};
+
+      \node[mq] (init) at (3.45,2.55) {Topic Init\\ICW\_PROJECT\_EVENT};
+      \node[mq] (broker) at (3.45,1.05) {RocketMQ\\Broker: 10911};
+      \node[mq] (namesrv) at (7.10,1.05) {RocketMQ\\NameServer: 9876};
+      \node[volume] (logsidecar) at (5.625,-0.70) {Log Sidecar\\五个业务日志容器};
+
+      \node[label] at (-6.88,-2.05) {宿主机挂载与外部依赖};
+      \node[volume] (models) at (-5.40,-2.85) {\texttt{/root/models}\\只读模型目录};
+      \node[volume] (storage) at (-2.25,-2.85) {MySQL / Redis / MinIO\\状态、缓存与对象};
+      \node[volume] (config) at (0.90,-2.85) {环境变量\\地址 TTL 并发};
+      \node[volume] (logs) at (4.05,-2.85) {\texttt{/root/logs}\\分 PSM 日志};
+      \node[volume] (socket) at (7.20,-2.85) {Docker Socket\\只读日志源};
+
+      \draw[flow] (user.east) -- (web.west);
+      \draw[flow] (web.east) -- node[note, above] {HTTP} (api.west);
+      \draw[flow] (api.south) -- node[note, right] {gRPC} (biz.north);
+
+      \draw[flow] (biz.south west) -- node[note, above left] {gRPC} (classification.north);
+      \draw[flow] (biz.south) -- node[note, right] {gRPC} (reasoning.north);
+      \draw[flow] (biz.south east) -- node[note, above right] {gRPC} (summary.north);
+
+      \draw[flow] (biz.east) -- node[note, above] {发布项目事件} (broker.west);
+      \draw[flow] (broker.north) -- node[note, right] {健康后初始化} (init.south);
+      \draw[flow] (namesrv.west) -- node[note, above] {路由发现} (broker.east);
+      \draw[flow] (broker.north west) -- node[note, above] {消费并广播} (api.east);
+
+      \draw[mount] (models.north east) -- (reasoning.south);
+      \draw[mount] (socket.north) -- (logsidecar.south east);
+      \draw[mount] (logsidecar.south west) -- (logs.north);
+      \draw[mount] (biz.south east) .. controls (-0.82,0.12) and (-0.82,-2.15) .. (storage.north east);
+      \draw[mount] (config.north) -- node[note, right] {注入运行参数} (0.90,-1.55);
+    \end{tikzpicture}
+  }
+  \caption{系统部署视图}\label{fig:implementation-deployment-view}
+\end{figure}
+
+如\cref{fig:implementation-deployment-view} 所示，部署视图可以分为三部分：对外入口由 Core Web 和 Core API 承担，内部服务通过 Docker bridge 网络按服务名互访，模型目录、日志目录、Docker Socket 和数据服务则作为宿主机或外部依赖接入容器运行环境。该部署方式既保持了服务间通信地址的稳定性，也把模型权重、日志文件和运行参数从镜像中拆分出来，便于后续更新和排查。
+
 服务启动顺序主要依靠 \texttt{depends\_on} 和健康检查控制。RocketMQ Broker 先启动并通过健康检查后，Topic 初始化服务再创建项目事件需要使用的 Topic。Classification、Reasoning、Summary、Core BIZ 和 Core API 都会等待 Topic 初始化完成后再启动，避免服务刚启动就因为消息队列不可用而报错。Core BIZ 还会等待三个 Activity 服务启动，因为检测 Worker 后续需要调用这些服务。
 
 运行参数没有硬编码在程序中，而是集中放到环境变量里。服务地址、MySQL、Redis、MinIO、RocketMQ、JWT、邮箱验证码 Secret、Socket Ticket、对象存储 TTL、Agent Token、Agent Bot ID、任务超时和并发数量等都可以通过环境变量调整。本地调试和服务器部署只需要更换配置值，不必修改代码重新编译，也便于后续在其他机器上复现实验环境。
