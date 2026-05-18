@@ -334,8 +334,8 @@
 
 \fancypagestyle{firststyle}{
   \fancyhf{}
-  \fancyhead[LO]{\hspace*{1cm}\includegraphics[height=1.14cm]{figures/tongji-header.pdf}~}
-  \fancyhead[RE]{~\includegraphics[height=1.14cm]{figures/tongji-header.pdf}\hspace*{1cm}}
+  \fancyhead[LO]{\hspace*{1cm}\includegraphics[height=1.14cm]{figures/tongji_header.pdf}~}
+  \fancyhead[RE]{~\includegraphics[height=1.14cm]{figures/tongji_header.pdf}\hspace*{1cm}}
   \fancyhead[RO,LE]{\tjfontbody ~\tjheadertext~\\}
   \fancyfoot[C]{\tjfontbody \thepage}
   \renewcommand{\headrule}{\tjdoubleheadrule}
@@ -344,8 +344,8 @@
 
 \fancypagestyle{mainstyle}{
   \fancyhf{}
-  \fancyhead[LO]{\hspace*{1cm}\includegraphics[height=1.14cm]{figures/tongji-header.pdf}~}
-  \fancyhead[RE]{~\includegraphics[height=1.14cm]{figures/tongji-header.pdf}\hspace*{1cm}}
+  \fancyhead[LO]{\hspace*{1cm}\includegraphics[height=1.14cm]{figures/tongji_header.pdf}~}
+  \fancyhead[RE]{~\includegraphics[height=1.14cm]{figures/tongji_header.pdf}\hspace*{1cm}}
   \fancyhead[RO,LE]{\tjfontbody ~\tjheadertext~\\}
   \fancyfoot[RO]{{\tjfontbody 共\quad \pageref{LastPage}\quad 页\quad 第\quad \thepage \quad 页}}
   \fancyfoot[LE]{{\tjfontbody 第\quad \thepage \quad 页\quad 共\quad \pageref{LastPage}\quad 页}}
