@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{tongjithesis}[2026/05/18 v1.4.2 Tongji University Thesis Class]
+\ProvidesClass{tongjithesis}[2026/05/19 v1.4.3 Tongji University Thesis Class]
 
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{
@@ -105,6 +105,8 @@
 \fi
 
 \RequirePackage{upgreek}
+
+\InputIfFileExists{tongji-circled.def}{}{\ClassError{tongjithesis}{Missing tongji-circled.def}{}}
 
 \RequirePackage{float}
 \RequirePackage{multirow}
@@ -226,7 +228,6 @@
 \RequirePackage{siunitx}[=v2]
 \RequirePackage{pgf}
 \RequirePackage{tikz}
-\usetikzlibrary{shapes.geometric}
 
 \iftongjithesis@biblatex
   \RequirePackage[
@@ -375,8 +376,8 @@
 
 \fancypagestyle{firststyle}{
   \fancyhf{}
-  \fancyhead[LO]{\hspace*{1cm}\includegraphics[height=1.14cm]{figures/tongji_header.pdf}~}
-  \fancyhead[RE]{~\includegraphics[height=1.14cm]{figures/tongji_header.pdf}\hspace*{1cm}}
+  \fancyhead[LO]{\hspace*{1cm}\includegraphics[height=1.14cm]{figures/tongji-header.pdf}~}
+  \fancyhead[RE]{~\includegraphics[height=1.14cm]{figures/tongji-header.pdf}\hspace*{1cm}}
   \fancyhead[RO,LE]{\tjfontbody ~\tjheadertext~\\}
   \fancyfoot[C]{\tjfontbody \thepage}
   \renewcommand{\headrule}{\tjdoubleheadrule}
@@ -385,8 +386,8 @@
 
 \fancypagestyle{mainstyle}{
   \fancyhf{}
-  \fancyhead[LO]{\hspace*{1cm}\includegraphics[height=1.14cm]{figures/tongji_header.pdf}~}
-  \fancyhead[RE]{~\includegraphics[height=1.14cm]{figures/tongji_header.pdf}\hspace*{1cm}}
+  \fancyhead[LO]{\hspace*{1cm}\includegraphics[height=1.14cm]{figures/tongji-header.pdf}~}
+  \fancyhead[RE]{~\includegraphics[height=1.14cm]{figures/tongji-header.pdf}\hspace*{1cm}}
   \fancyhead[RO,LE]{\tjfontbody ~\tjheadertext~\\}
   \fancyfoot[RO]{{\tjfontbody 共\quad \pageref{LastPage}\quad 页\quad 第\quad \thepage \quad 页}}
   \fancyfoot[LE]{{\tjfontbody 第\quad \thepage \quad 页\quad 共\quad \pageref{LastPage}\quad 页}}
@@ -459,7 +460,7 @@
 
 \setlist[enumerate]{nosep,labelsep=0pt}
 \setlist[enumerate,1]{label=（\arabic*）,left=2em,nosep,labelsep=0pt,wide=\parindent}
-\setlist[enumerate,2]{label=\Circled{\arabic*},nosep,labelsep=0pt,labelwidth=1em,listparindent=0pt}
+\setlist[enumerate,2]{label=\TJCircled{\tj@cval{enumii}},nosep,labelsep=0pt,labelwidth=1em,listparindent=0pt}
 
 \setlist[itemize]{nosep}
 \setlist[itemize,1]{wide=\parindent}
@@ -571,7 +572,7 @@
     subsubsection/name     = {（,）},
     subsubsection/number   = {\arabic{subsubsection}},
     subsubsection/aftername = {\hspace{0.5em}},
-    paragraph/number    = {\Circled{\arabic{paragraph}}},
+    paragraph/number    = {\TJCircled{\the\c@paragraph}},
     paragraph/aftername = {\hspace{0.5em}},
   }
   \renewcommand{\cftchapaftersnum}{\!、}
@@ -599,7 +600,7 @@
   }%
 \fi
 
-\renewcommand{\thefootnote}{\Circled{\arabic{footnote}}}
+\renewcommand{\thefootnote}{\TJCircled{\the\c@footnote}}
 
 \floatstyle{plaintop}%
 \restylefloat{table}
@@ -608,6 +609,7 @@
 \sloppy
 
 \theoremstyle{definition}
+
 \newtheorem{thm}{定理\hspace{0.05pt}}[chapter]
 \newtheorem{cor}{推论\hspace{0.05pt}}[chapter]
 \newtheorem{lem}{引理\hspace{0.05pt}}[chapter]
@@ -791,10 +793,12 @@
     \fi
   \else
     \uline{%
-      \parbox[b]{\covermaxwidth}{%
-        \centering
-        \renewcommand{\baselinestretch}{\tjcoverlinestretch}\selectfont
-        #1%
+      \makebox[\covermaxwidth][c]{%
+        \parbox[b]{\covermaxwidth}{%
+          \centering
+          \renewcommand{\baselinestretch}{\tjcoverlinestretch}\selectfont
+          #1%
+        }%
       }%
     }
   \fi
