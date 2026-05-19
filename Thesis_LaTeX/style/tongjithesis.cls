@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{tongjithesis}[2026/05/03 v1.4.1 Tongji University Thesis Class]
+\ProvidesClass{tongjithesis}[2026/05/18 v1.4.2 Tongji University Thesis Class]
 
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{
@@ -11,10 +11,11 @@
 \DeclareStringOption[fandol]{fontset}
 \DeclareStringOption[circle]{fullwidthstop}
 \DeclareBoolOption[false]{times}
-\DeclareBoolOption[true]{minted}
+\DeclareBoolOption[false]{minted}
 \DeclareBoolOption[true]{biblatex}
 \DeclareStringOption[bachelor]{degree}
 \DeclareStringOption[science]{field}
+\DeclareStringOption[algpseudocode]{algo}
 
 \DeclareDefaultOption{\PassOptionsToClass{\CurrentOption}{ctexbook}}
 \ProcessKeyvalOptions*
@@ -35,6 +36,11 @@
     \ClassWarning{tongjithesis}{field=\tongjithesis@field\space is unknown. Falling back to science format}%
   }%
 }
+\newif\iftongjithesis@algorithmtwoe
+\expandafter\ifstrequal\expandafter{\tongjithesis@algo}{algorithm2e}{%
+  \tongjithesis@algorithmtwoetrue
+}{}{}
+\let\iftjalgorithmtwoe\iftongjithesis@algorithmtwoe
 
 \LoadClass[UTF8,a4paper,zihao=-4,fontset=none]{ctexbook}%
 
@@ -46,7 +52,7 @@
 \newcommand{\tjfontchapter}{\zihao{-3}}%
 \newcommand{\tjfontheading}{\zihao{4}}%
 \newcommand{\tjfontbody}{\zihao{-4}}%
-\newcommand{\tjfontcaption}{\zihao{-5}}%
+\newcommand{\tjfontcaption}{\zihao{5}}%
 \newcommand{\tjfontcover}{\zihao{-3}}%
 \newcommand{\tjfonttable}{\zihao{-5}}%
 \newcommand{\tjfontinfotitle}{\zihao{3}}%
@@ -57,6 +63,7 @@
 \newcommand{\tjinfofieldspread}{1.6667}%
 \newcommand{\tjinfoabstractspread}{1.25}%
 \newcommand{\tjinfotitlevspace}{0.8em}%
+\newcommand{\tjcoverlinestretch}{0.8}%
 \iftongjithesis@humanities
   \newcommand{\tjcovertext}{毕业论文（设计）}
 \else
@@ -115,10 +122,17 @@
 \captionsetup[listing]{skip=12pt}
 
 \RequirePackage{subcaption}
+\captionsetup[sub]{font={tj@caption,tj@songti}}
 
-\RequirePackage{algorithm}
-\RequirePackage{algorithmicx}
-\RequirePackage{algpseudocode}
+\iftongjithesis@algorithmtwoe
+  \RequirePackage[ruled,linesnumbered,algochapter]{algorithm2e}
+  \let\c@algorithm\c@algocf
+  \renewcommand{\thealgocf}{\thealgorithm}
+\else
+  \RequirePackage{algorithm}
+  \RequirePackage{algorithmicx}
+  \RequirePackage{algpseudocode}
+\fi
 
 \RequirePackage{listings}
 \definecolor{bg}{rgb}{0.96,0.96,0.96}
@@ -164,14 +178,15 @@
   baselinestretch=1,
   tabsize=4,
   breaklines=true,
-  bgcolor=bg,
   mathescape=true
 }
+\@ifpackagelater{fvextra}{2024/09/14}{%
+  \fvset{bgcolor=bg}%
+}{}
 
 \iftongjithesis@minted
   \RequirePackage[chapter]{minted}
   \setminted{linenos,
-    bgcolor=bg,
     frame=single,
     framesep=2mm,
     rulecolor=\color{gray!40},
@@ -179,6 +194,9 @@
     breaklines,
     mathescape,
     escapeinside=||}
+  \@ifpackagelater{fvextra}{2024/09/14}{%
+    \setminted{bgcolor=bg}%
+  }{}
   \renewcommand{\listingscaption}{代码}
 
 \else
@@ -216,10 +234,33 @@
     style=gb7714-2015,
     natbib=true,
   ]{biblatex}
+  \defbibenvironment{bibliography}
+    {\list
+       {\printtext[labelnumberwidth]{%
+          \printfield{labelprefix}%
+          \printfield{labelnumber}}}
+       {\setlength{\labelwidth}{\labelnumberwidth}%
+        \ifdim\labelwidth<0.74cm \setlength{\labelwidth}{0.74cm}\fi
+        \setlength{\labelsep}{0pt}%
+        \setlength{\leftmargin}{\labelwidth}%
+        \setlength{\itemindent}{0pt}%
+        \setlength{\itemsep}{\bibitemsep}%
+        \setlength{\parsep}{\bibparsep}%
+        \renewcommand*{\makelabel}[1]{##1\hfill}}}
+    {\endlist}
+    {\item}
 \else
   \RequirePackage[sort&compress]{gbt7714}
   \bibliographystyle{gbt7714-numerical}
   \setlength{\bibsep}{3pt}
+  \newcommand{\tj@bibsetup}[1]{%
+    \settowidth\labelwidth{\@biblabel{#1}}%
+    \ifdim\labelwidth<0.74cm \setlength{\labelwidth}{0.74cm}\fi
+    \setlength{\leftmargin}{\labelwidth}%
+    \setlength{\labelsep}{0pt}%
+    \setlength{\itemsep}{\bibsep}%
+    \setlength{\parsep}{\z@}}
+  \AtBeginDocument{\let\@bibsetup\tj@bibsetup}
 \fi
 
 \newcommand{\tj@bibfiles}{}
@@ -381,6 +422,15 @@
   \counterwithin{algorithm}{section}%
   \counterwithin{listing}{section}%
   \counterwithin{lstlisting}{section}%
+  \counterwithin{thm}{section}%
+  \counterwithin{cor}{section}%
+  \counterwithin{lem}{section}%
+  \counterwithin{prop}{section}%
+  \counterwithin{conj}{section}%
+  \counterwithin{assume}{section}%
+  \counterwithin{dfn}{section}%
+  \counterwithin{exmp}{section}%
+  \counterwithin{rem}{section}%
   \iftongjithesis@humanities
     \ctexset{section/number={\thesection},section/aftername={\hspace{0.5em}}}%
   \else
@@ -576,26 +626,36 @@
 \DeclareRobustCommand\cs[1]{\texttt{\char`\\#1}}
 \providecommand\pkg[1]{\href{https://ctan.org/pkg/#1}{\sffamily#1}}
 
-\renewcommand{\algorithmicrequire}{\textbf{输入: }}
-\renewcommand{\algorithmicensure}{\textbf{输出: }}
-\renewenvironment{algorithm}
-{
-  \vskip 20pt
-  \refstepcounter{algorithm}%
-  \hrule height.8pt depth0pt \kern2pt%
-  \renewcommand{\caption}[2][\relax]{%
-    {\raggedright\textbf{算法~\thealgorithm} ##2\par}%
-    \ifx\relax##1\relax%
-      \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
-    \else%
-      \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
-    \fi
-    \kern2pt\hrule\kern2pt
-  }
-}{
-  \kern2pt\hrule\relax
-  \vskip 20pt
-}%
+\iftongjithesis@algorithmtwoe
+  \SetAlgorithmName{算法}{算法}{算法列表}
+  \SetKwInput{KwIn}{输入}
+  \SetKwInput{KwOut}{输出}
+  \gdef\algocf@Vspace{\vskip\baselineskip\relax}
+  \AtBeginEnvironment{algorithm}{\linespread{1.0}\selectfont}
+  \AfterEndEnvironment{algorithm}{\vspace{\baselineskip}}
+\else
+  \renewcommand{\algorithmicrequire}{\textbf{输入: }}
+  \renewcommand{\algorithmicensure}{\textbf{输出: }}
+  \AtBeginEnvironment{algorithmic}{\linespread{1.0}\selectfont}
+  \renewenvironment{algorithm}
+  {
+    \vskip\baselineskip
+    \refstepcounter{algorithm}%
+    \hrule height.8pt depth0pt \kern2pt%
+    \renewcommand{\caption}[2][\relax]{%
+      {\raggedright\textbf{算法~\thealgorithm} ##2\par}%
+      \ifx\relax##1\relax%
+        \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+      \else%
+        \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+      \fi
+      \kern2pt\hrule\kern2pt
+    }
+  }{
+    \kern2pt\hrule\relax
+    \vskip\baselineskip
+  }%
+\fi
 
 \iftongjithesis@humanities
   \newcommand*{\chapref}[1]{第\ref{#1}章}
@@ -647,6 +707,9 @@
 \crefformat{algorithm}{#2算法~#1#3}
 \crefmultiformat{algorithm}{#2算法~#1#3}{和#2算法~#1#3}{、#2算法~#1#3}{和#2算法~#1#3}
 \crefrangeformat{algorithm}{#3算法~#1#4~至#5算法~#2#6}
+\crefformat{algocf}{#2算法~#1#3}
+\crefmultiformat{algocf}{#2算法~#1#3}{和#2算法~#1#3}{、#2算法~#1#3}{和#2算法~#1#3}
+\crefrangeformat{algocf}{#3算法~#1#4~至#5算法~#2#6}
 \crefformat{FancyVerbLine}{#2第~#1~行#3}
 \crefmultiformat{FancyVerbLine}{#2第~#1~行#3}{和#2第~#1~行#3}{、#2第~#1~行#3}{和#2第~#1~行#3}
 \crefrangeformat{FancyVerbLine}{#3第~#1~行#4至#5第~#2~行#6}
@@ -696,16 +759,45 @@
 
 \newlength{\covertextwidth}
 \newlength{\covermaxwidth}
+\newlength{\coverparwidth}
 
 \newcommand{\ulinecentered}[1]{
+  \bgroup
+  \let\\\relax
   \setlength{\covertextwidth}{\widthof{#1}}
-  \setlength{\covermaxwidth}{20em}%
-  \ifthenelse{\lengthtest{\covertextwidth > \covermaxwidth}}{
-    \pgfmathsetmacro{\scalefactor}{\covermaxwidth/\covertextwidth}
-    \uline{\makebox[\covermaxwidth][c]{\scalebox{\scalefactor}[1]{#1}}}
-  }{
-    \uline{\makebox[\covermaxwidth][c]{#1}}%
-  }
+  \egroup
+  \setlength{\covermaxwidth}{20em}
+  \ifdim\covertextwidth > \covermaxwidth
+    \ifdim\covertextwidth > 1.95\covermaxwidth
+      \setlength{\coverparwidth}{0.53\covertextwidth}
+      \pgfmathsetmacro{\coverscale}{\covermaxwidth / \coverparwidth}
+      \uline{%
+        \scalebox{\coverscale}[1]{%
+          \parbox[b]{\coverparwidth}{%
+            \centering
+            \renewcommand{\baselinestretch}{\tjcoverlinestretch}\selectfont
+            #1%
+          }%
+        }%
+      }
+    \else
+      \uline{%
+        \parbox[b]{\covermaxwidth}{%
+          \centering
+          \renewcommand{\baselinestretch}{\tjcoverlinestretch}\selectfont
+          #1%
+        }%
+      }
+    \fi
+  \else
+    \uline{%
+      \parbox[b]{\covermaxwidth}{%
+        \centering
+        \renewcommand{\baselinestretch}{\tjcoverlinestretch}\selectfont
+        #1%
+      }%
+    }
+  \fi
 }
 
 \newcommand{\school}[1]{\def\tongjischool{#1}}
@@ -843,10 +935,9 @@
     \par
   \end{spacing}
 
-  \vskip 5mm
-  \noindent{\songti\tjfontbody{%
-      \textbf{关键词：}#2
-    }}~\\
+  \songti\tjfontbody
+  \vspace{\baselineskip}
+  {\noindent\textbf{关键词：}#2}\par
 }
 
 \newcommand{\MakeAbstractEng}[2]{
@@ -870,11 +961,9 @@
     \par
   \end{spacing}
 
-  \vspace{1em}
-  \noindent{\tjfontbody
-    \textbf{Key words: }#2
-  }
-  \par
+  \tjfontbody
+  \vspace{\baselineskip}
+  {\noindent\textbf{Key words: }#2}\par
 }
 
 \newif\iftongjithesis@fullwidth@active
