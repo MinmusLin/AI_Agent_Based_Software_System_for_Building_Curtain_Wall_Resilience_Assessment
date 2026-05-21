@@ -805,11 +805,58 @@
   \fi
 }
 
+\def\tj@titlecnbreak@opt[#1]{\unskip\ignorespaces}
+\def\tj@titlecnbreak@star*{%
+  \@ifnextchar[{\tj@titlecnbreak@opt}{\unskip\ignorespaces}%
+}
+\newcommand{\tjtitlecninlinebreak}{%
+  \unskip
+  \@ifnextchar*{\tj@titlecnbreak@star}{%
+    \@ifnextchar[{\tj@titlecnbreak@opt}{\ignorespaces}%
+  }%
+}
+\newcommand{\tjtitlecninline}[1]{%
+  \begingroup
+    \let\\\tjtitlecninlinebreak
+    #1%
+  \endgroup
+}
+\def\tj@titleenbreak@opt[#1]{\unskip\space\ignorespaces}
+\def\tj@titleenbreak@star*{%
+  \@ifnextchar[{\tj@titleenbreak@opt}{\unskip\space\ignorespaces}%
+}
+\newcommand{\tjtitleeninlinebreak}{%
+  \unskip
+  \@ifnextchar*{\tj@titleenbreak@star}{%
+    \@ifnextchar[{\tj@titleenbreak@opt}{\space\ignorespaces}%
+  }%
+}
+\newcommand{\tjtitleeninline}[1]{%
+  \begingroup
+    \let\\\tjtitleeninlinebreak
+    #1%
+  \endgroup
+}
+
+\newif\iftj@abstracttitle@set
+\newif\iftj@abstracttitleeng@set
 \newcommand{\school}[1]{\def\tongjischool{#1}}
 \newcommand{\major}[1]{\def\tongjimajor{#1}}
 \newcommand{\student}[2]{\def\tongjiauthornumber{#1}\def\tongjiauthor{#2}}
 \newcommand{\thesistitle}[2]{\def\tongjithesistitle{#1}\def\tongjithesissubtitle{#2}}
 \newcommand{\thesistitleeng}[2]{\def\tongjithesistitleeng{#1}\def\tongjithesissubtitleeng{#2}}
+\newcommand{\abstracttitle}[2]{%
+  \def\tongjiabstracttitle{#1}\def\tongjiabstractsubtitle{#2}%
+  \ifstrempty{#1}{%
+    \ifstrempty{#2}{\tj@abstracttitle@setfalse}{\tj@abstracttitle@settrue}%
+  }{\tj@abstracttitle@settrue}%
+}
+\newcommand{\abstracttitleeng}[2]{%
+  \def\tongjiabstracttitleeng{#1}\def\tongjiabstractsubtitleeng{#2}%
+  \ifstrempty{#1}{%
+    \ifstrempty{#2}{\tj@abstracttitleeng@setfalse}{\tj@abstracttitleeng@settrue}%
+  }{\tj@abstracttitleeng@settrue}%
+}
 \newcommand{\thesisadvisor}[1]{\def\tongjithesisadvisor{#1}}
 \newcommand{\thesisdate}[3]{\def\tongjithesisyear{#1}\def\tongjithesismonth{#2}\def\tongjithesisday{#3}}
 
@@ -882,8 +929,8 @@
     \setlength{\parindent}{0pt}
 
     \savebox{\tj@titlebox}{\parbox[t]{\dimexpr\linewidth-5em\relax}{%
-      \tongjithesistitle
-      \ifx\tongjithesissubtitle\empty\else ——\tongjithesissubtitle\fi
+      \tjtitlecninline{\tongjithesistitle}%
+      \ifx\tongjithesissubtitle\empty\else——\tjtitlecninline{\tongjithesissubtitle}\fi
     }}%
     \infoline{课题名称}{\usebox{\tj@titlebox}}%
     \settodepth{\tj@titledp}{\usebox{\tj@titlebox}}%
@@ -924,10 +971,20 @@
   \begin{center}\bfseries\heiti\tjfonttitle
     \ \\
     \vspace{-0.5em}
-    \tongjithesistitle
-    \ifx\tongjithesissubtitle\empty\else
-      \\[0.2em]{\zihao{3}\tongjithesissubtitle}%
-    \fi
+    \parbox[t]{\linewidth}{%
+      \centering
+      \iftj@abstracttitle@set
+        \tongjiabstracttitle
+        \ifx\tongjiabstractsubtitle\empty\else
+          \\[0.2em]{\zihao{3}\tongjiabstractsubtitle}%
+        \fi
+      \else
+        \tjtitlecninline{\tongjithesistitle}%
+        \ifx\tongjithesissubtitle\empty\else
+          \\[0.2em]{\zihao{3}\tjtitlecninline{\tongjithesissubtitle}}%
+        \fi
+      \fi
+    }%
   \end{center}
   \vspace{-0.8em}
   \begin{center}\heiti\tjfontheading
@@ -950,10 +1007,20 @@
   \begin{center}\tjfonttitle
     \ \\
     \vspace{-0.5em}
-    \textbf{\tongjithesistitleeng}
-    \ifx\tongjithesissubtitleeng\empty\else
-      \\[0.2em]{\zihao{3}\textbf{\tongjithesissubtitleeng}}%
-    \fi
+    \parbox[t]{\linewidth}{%
+      \centering
+      \iftj@abstracttitleeng@set
+        \textbf{\tongjiabstracttitleeng}%
+        \ifx\tongjiabstractsubtitleeng\empty\else
+          \\[0.2em]{\zihao{3}\textbf{\tongjiabstractsubtitleeng}}%
+        \fi
+      \else
+        \textbf{\tjtitleeninline{\tongjithesistitleeng}}%
+        \ifx\tongjithesissubtitleeng\empty\else
+          \\[0.2em]{\zihao{3}\textbf{\tjtitleeninline{\tongjithesissubtitleeng}}}%
+        \fi
+      \fi
+    }%
   \end{center}
   \vspace{-0.8em}
   \begin{center}\tjfontheading
