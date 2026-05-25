@@ -15,6 +15,57 @@ Design and Implementation of an AI Agent-Based Software System for Building Curt
 
 ## 仓库组成
 
+* `/.github/workflows`
+GitHub CI/CD 工作流配置
+
+* `/assets`
+存放 `README.md` 文件所需的相关图片资源
+
+* `/Dataset/Earthquake_Engineering_Hall`
+同济大学地震工程馆建筑幕墙数据集
+
+* `/Documentations`
+毕业设计（论文）归档文件
+
+* `/Source_Code`
+建筑幕墙韧性评估软件系统源代码
+
+* `/Thesis_LaTeX`
+毕业设计（论文）$\LaTeX$ 源代码
+
+<p align="center">
+  <img src="assets/Final_Defense_01.png" width="45%">
+  <img src="assets/Final_Defense_02.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_03.png" width="45%">
+  <img src="assets/Final_Defense_04.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_05.png" width="45%">
+  <img src="assets/Final_Defense_06.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_07.png" width="45%">
+  <img src="assets/Final_Defense_08.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_09.png" width="45%">
+  <img src="assets/Final_Defense_10.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_11.png" width="45%">
+  <img src="assets/Final_Defense_12.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_13.png" width="45%">
+  <img src="assets/Final_Defense_14.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_15.png" width="45%">
+  <img src="assets/Final_Defense_16.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_17.png" width="45%">
+  <img src="assets/Final_Defense_18.png" width="45%">
+  <br>
+  <img src="assets/Final_Defense_19.png" width="45%">
+  <img src="assets/Final_Defense_20.png" width="45%">
+  <br>
+</p>
+
 ## 摘要
 
 建筑幕墙是现代建筑的重要外围护结构，其服役状态直接影响建筑安全和运维质量。现实工程中，幕墙巡检长期依赖人工经验，存在效率低、主观性强、难以处理海量图像等问题。已有计算机视觉方法能够完成裂缝、锈蚀、破损等局部缺陷检测，但多数方案仍停留在单模型、单图像、单缺陷识别层面，只能检测某张图像是否存在某类缺陷，缺少多组巡检图像、多种幕墙材质、多类检测结果之间的汇总融合。对于土木工程领域用户而言，实际需求并不是孤立的单图检测结论，而是面向整栋建筑形成的多维度韧性评估结论。因此，为打通从项目级图像资产管理、单图检测结果到建筑级韧性评估报告的完整链路，本文设计并实现了一套基于 AI Agent 的建筑幕墙韧性评估软件系统。
@@ -23,7 +74,7 @@ Design and Implementation of an AI Agent-Based Software System for Building Curt
 
 在工程实现上，原型系统主要使用 Golang、Python 和 TypeScript 编程语言、React、Gin 和 PyTorch 框架、gRPC 服务通信协议、RocketMQ 消息队列、WebSocket 实时消息推送、MySQL 关系型数据库、Redis 非关系型数据库、MinIO 对象存储和 Docker 容器化等技术。工程链路为 Agent 提供高可用、高性能、高并发的运行环境，原型系统提供从建筑图像资产构建、Agent 智能检测、人工复核到韧性评估报告的完整闭环工作链。作者现已完成原型系统的部署和实际场景试用，获得同济大学土木工程学院科研团队认可，为建筑幕墙数字运维提供了一种兼具工程可实施性和智能决策能力的解决方案。
 
-**关键词：**AI Agent，建筑幕墙，任务编排，韧性评估
+**关键词**：AI Agent，建筑幕墙，任务编排，韧性评估
 
 ## 谢辞
 
