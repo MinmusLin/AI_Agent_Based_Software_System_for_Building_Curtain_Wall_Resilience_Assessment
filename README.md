@@ -31,38 +31,40 @@ GitHub CI/CD 工作流配置
 建筑幕墙韧性评估软件系统源代码
 
 * `/Thesis_LaTeX`
-毕业设计（论文）$\LaTeX$ 源代码
+毕业设计（论文） $\LaTeX$ 源代码
+
+## 项目概览
 
 <p align="center">
-  <img src="assets/Final_Defense_01.png" width="45%">
-  <img src="assets/Final_Defense_02.png" width="45%">
+  <img src="assets/Final_Defense_01.png" width="48%">
+  <img src="assets/Final_Defense_02.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_03.png" width="45%">
-  <img src="assets/Final_Defense_04.png" width="45%">
+  <img src="assets/Final_Defense_03.png" width="48%">
+  <img src="assets/Final_Defense_04.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_05.png" width="45%">
-  <img src="assets/Final_Defense_06.png" width="45%">
+  <img src="assets/Final_Defense_05.png" width="48%">
+  <img src="assets/Final_Defense_06.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_07.png" width="45%">
-  <img src="assets/Final_Defense_08.png" width="45%">
+  <img src="assets/Final_Defense_07.png" width="48%">
+  <img src="assets/Final_Defense_08.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_09.png" width="45%">
-  <img src="assets/Final_Defense_10.png" width="45%">
+  <img src="assets/Final_Defense_09.png" width="48%">
+  <img src="assets/Final_Defense_10.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_11.png" width="45%">
-  <img src="assets/Final_Defense_12.png" width="45%">
+  <img src="assets/Final_Defense_11.png" width="48%">
+  <img src="assets/Final_Defense_12.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_13.png" width="45%">
-  <img src="assets/Final_Defense_14.png" width="45%">
+  <img src="assets/Final_Defense_13.png" width="48%">
+  <img src="assets/Final_Defense_14.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_15.png" width="45%">
-  <img src="assets/Final_Defense_16.png" width="45%">
+  <img src="assets/Final_Defense_15.png" width="48%">
+  <img src="assets/Final_Defense_16.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_17.png" width="45%">
-  <img src="assets/Final_Defense_18.png" width="45%">
+  <img src="assets/Final_Defense_17.png" width="48%">
+  <img src="assets/Final_Defense_18.png" width="48%">
   <br>
-  <img src="assets/Final_Defense_19.png" width="45%">
-  <img src="assets/Final_Defense_20.png" width="45%">
+  <img src="assets/Final_Defense_19.png" width="48%">
+  <img src="assets/Final_Defense_20.png" width="48%">
   <br>
 </p>
 
