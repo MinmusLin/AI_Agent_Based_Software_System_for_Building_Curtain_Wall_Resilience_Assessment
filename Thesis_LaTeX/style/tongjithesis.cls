@@ -290,6 +290,8 @@
 
 \setstretch{\tjlinespread}%
 
+\AtEndOfClass{\raggedbottom}%
+
 \newlength{\bindwidth}
 \setlength{\bindwidth}{1em}
 \newsavebox{\tjbindpipe}
@@ -838,6 +840,23 @@
   \endgroup
 }
 
+\newcommand{\tj@abstractblock}[2]{%
+  \par\nointerlineskip
+  \begingroup
+    \setbox\@tempboxa\vbox{%
+      \hsize=\linewidth
+      \parindent=0pt
+      \parbox[t]{\linewidth}{%
+        \centering
+        #1%
+        \strut #2\strut\par
+      }%
+    }%
+    \box\@tempboxa
+  \endgroup
+  \par\nointerlineskip
+}
+
 \newcommand{\school}[1]{\def\tongjischool{#1}}
 \newcommand{\major}[1]{\def\tongjimajor{#1}}
 \newcommand{\student}[2]{\def\tongjiauthornumber{#1}\def\tongjiauthor{#2}}
@@ -956,32 +975,28 @@
 }
 
 \newcommand{\MakeAbstract}[2]{
-  {\centering\bfseries\heiti\tjfonttitle
-    \ \\
-    \vspace{-0.5em}
-    \parbox[b]{\linewidth}{%
-      \centering
-      \ifdefempty{\tongjiabstracttitle}{%
-        \tjtitlecninline{\tongjithesistitle}%
-      }{%
-        \tongjiabstracttitle
-      }%
-      \ifdefempty{\tongjiabstractsubtitle}{%
-        \ifx\tongjithesissubtitle\empty\else
-          \\[0.2em]{\zihao{3}\tjtitlecninline{\tongjithesissubtitle}}%
-        \fi
-      }{%
-        \\[0.2em]{\zihao{3}\tongjiabstractsubtitle}%
-      }%
+  \vspace*{0.1em}
+  \tj@abstractblock{\bfseries\heiti\tjfonttitle}{%
+    \ifdefempty{\tongjiabstracttitle}{%
+      \tjtitlecninline{\tongjithesistitle}%
+    }{%
+      \tongjiabstracttitle
     }%
-    \par
   }
-  \vspace{1em}
-  {\centering\heiti\tjfontheading
+  \ifdefempty{\tongjiabstractsubtitle}{%
+    \ifx\tongjithesissubtitle\empty\else
+      \vspace{0.6em}%
+      \tj@abstractblock{\bfseries\heiti\zihao{3}}{\tjtitlecninline{\tongjithesissubtitle}}% 副标题：三号（官方模板规范）
+    \fi
+  }{%
+    \vspace{0.6em}%
+    \tj@abstractblock{\bfseries\heiti\zihao{3}}{\tongjiabstractsubtitle}%
+  }
+  \vspace{0.8em}
+  \tj@abstractblock{\heiti\tjfontheading}{%
     \ifthenelse{\equal{\tongjiinfotype}{engineering}}{设计总说明}{摘\hspace{0.5em}要}
-    \par
   }
-  \vspace{1em}
+  \vspace{1.6em}
 
   \begin{spacing}{\tjlinespread}
     \setlength{\parindent}{2em}
@@ -996,32 +1011,26 @@
 
 \newcommand{\MakeAbstractEng}[2]{
   \clearpage
-  {\centering\tjfonttitle
-    \ \\
-    \vspace{-0.5em}
-    \parbox[b]{\linewidth}{%
-      \centering
-      \ifdefempty{\tongjiabstracttitleeng}{%
-        \textbf{\tjtitleeninline{\tongjithesistitleeng}}%
-      }{%
-        \textbf{\tongjiabstracttitleeng}%
-      }%
-      \ifdefempty{\tongjiabstractsubtitleeng}{%
-        \ifx\tongjithesissubtitleeng\empty\else
-          \\[0.2em]{\zihao{3}\textbf{\tjtitleeninline{\tongjithesissubtitleeng}}}%
-        \fi
-      }{%
-        \\[0.2em]{\zihao{3}\textbf{\tongjiabstractsubtitleeng}}%
-      }%
+  \vspace*{0.1em}
+  \tj@abstractblock{\tjfonttitle\bfseries}{%
+    \ifdefempty{\tongjiabstracttitleeng}{%
+      \tjtitleeninline{\tongjithesistitleeng}%
+    }{%
+      \tongjiabstracttitleeng
     }%
-    \par
   }
-  \vspace{1em}
-  {\centering\tjfontheading
-    \textbf{ABSTRACT}
-    \par
+  \ifdefempty{\tongjiabstractsubtitleeng}{%
+    \ifx\tongjithesissubtitleeng\empty\else
+      \vspace{0.6em}%
+      \tj@abstractblock{\zihao{3}\bfseries}{\tjtitleeninline{\tongjithesissubtitleeng}}% 副标题：三号（官方模板规范）
+    \fi
+  }{%
+    \vspace{0.6em}%
+    \tj@abstractblock{\zihao{3}\bfseries}{\tongjiabstractsubtitleeng}%
   }
-  \vspace{1em}
+  \vspace{0.8em}
+  \tj@abstractblock{\tjfontheading\bfseries}{ABSTRACT}
+  \vspace{1.6em}
 
   \begin{spacing}{\tjlinespread}
     \setlength{\parindent}{2em}
